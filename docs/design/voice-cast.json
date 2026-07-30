@@ -1,0 +1,85 @@
+{
+  "_comment": "Voice casting for The Lamplight Cipher. Every voice is a British-accented ElevenLabs voice chosen against the character's description in story-bible.json — the setting is a 1998 coastal English pilotage authority, so an American read would break the world instantly. 'why' records the casting reasoning so a future recast can be judged against intent rather than taste.",
+  "model": "eleven_multilingual_v2",
+  "outputFormat": "mp3_44100_64",
+  "defaultSettings": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "style": 0.2,
+    "use_speaker_boost": true
+  },
+  "cast": {
+    "wren": {
+      "voiceId": "fwBvoY941Q2wcOnBTlbP",
+      "voiceName": "Amelia - Friendly Midlands",
+      "why": "Wren is nineteen with flat Ilberry vowels and no charm. A Midlands read gives the regional flatness the bible insists on, and keeps her from sounding like a BBC narrator — she is the one person here who is not performing.",
+      "settings": { "stability": 0.55, "style": 0.1 }
+    },
+    "sabine-ferrier-kyne": {
+      "voiceId": "2qQJWjw5XdG80GreshqG",
+      "voiceName": "Eleanor – Gracious and Refined",
+      "why": "The Warden's weapon is unhurried courtesy. A refined, seasoned older voice lets every line be perfectly pleasant and still land wrong on a second listen, which is exactly how the character works.",
+      "settings": { "stability": 0.6, "style": 0.15 }
+    },
+    "halvard-pike": {
+      "voiceId": "VC6vCXhVaI8BZefRtXZV",
+      "voiceName": "Malcolm Gooding",
+      "why": "Forty-four years a clerk and every one of them a grievance. An older, professional, slightly dry read carries contempt without shouting — Pike's disgust is procedural, not emotional.",
+      "settings": { "stability": 0.5, "style": 0.3 }
+    },
+    "ottoline-verge": {
+      "voiceId": "kkPJzQOWz2Oz9cUaEaQd",
+      "voiceName": "Beatrice - Mature, Gentle",
+      "why": "Seventy-two, unpaid, and delighted to be asked. Warm and grandmotherly, because the horror of Ottoline is that she hands the player the murder weapon — the p.p. convention — as a friendly item of housekeeping.",
+      "settings": { "stability": 0.45, "style": 0.35 }
+    },
+    "enid-charnock": {
+      "voiceId": "byQMr3answnWiGKk0ZUm",
+      "voiceName": "Enid - Clear, Professional",
+      "why": "Cashier since 1962, and the reason the truth survives is her refusal to throw away a used ribbon spool. Clear, precise, unornamented — a woman who reads out a figure the same way whether it is fourpence or thirty-one lives.",
+      "settings": { "stability": 0.65, "style": 0.1 }
+    },
+    "rita-tain": {
+      "voiceId": "zRnPlRhh6uvfi8OMfmwX",
+      "voiceName": "Louise",
+      "why": "Boatwoman and lamp-room curator who has spent twenty-four years and every penny she owns being right and unable to prove it. A warm, natural, working coastal voice — not genteel, not institutional.",
+      "settings": { "stability": 0.4, "style": 0.35 }
+    },
+    "phyllida-halkett": {
+      "voiceId": "RILOU7YmBhvwJGDGjNmP",
+      "voiceName": "Jane - Professional Audiobook Reader",
+      "why": "Exists to explain section 41 procedure at exhausting length and to refuse, every single time, to have an opinion. A flat professional register is the joke and the integrity at once.",
+      "settings": { "stability": 0.7, "style": 0.05 }
+    },
+    "ivo-sandbach": {
+      "voiceId": "b7MDAvO8w5EIC2H7xdXI",
+      "voiceName": "Artaius - Calm British",
+      "why": "A conservation architect whose site diary is an accidental alibi ledger. Calm, measured, faintly pleased with his own thoroughness.",
+      "settings": { "stability": 0.5, "style": 0.2 }
+    },
+    "bram-aylward": {
+      "voiceId": "LHnPDmKT7EFFK0jEip0F",
+      "voiceName": "Ferdinand - Unusual",
+      "why": "Introduces himself as a Ministry liaison, which is the first thing he says and the first thing that is not true. A pleasant voice with something slightly off in it does more than a sinister one.",
+      "settings": { "stability": 0.4, "style": 0.35 }
+    },
+    "marren-iveson": {
+      "voiceId": "HhgLQVNWj1DrCMCdusVj",
+      "voiceName": "Steve - North London",
+      "why": "Two officers, one car, and no appetite for an archivist's theory. Calm, unhurried, faintly tired — a working detective, not a TV one.",
+      "settings": { "stability": 0.55, "style": 0.2 }
+    },
+    "cormac-sallow": {
+      "voiceId": "g7thH4psVDKiN3wZCapk",
+      "voiceName": "Oldmansailing",
+      "why": "Seventy-nine, dead before the game begins, heard only through his own letters. An old seafaring voice makes the readings feel like a recording of someone who was really there — which is the whole point of him.",
+      "settings": { "stability": 0.6, "style": 0.25 }
+    },
+    "narrator": {
+      "voiceId": "Ig1j1CYdBB9N5TN0SRpk",
+      "voiceName": "Tom - Deep, Sensitive",
+      "why": "Cinematic narration only. Deep and calm, so the cold open sounds like weather rather than a trailer.",
+      "settings": { "stability": 0.6, "style": 0.15 }
+    }
+  }
+}

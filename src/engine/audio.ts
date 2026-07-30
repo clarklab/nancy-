@@ -1769,6 +1769,12 @@ interface ChannelStrip {
  */
 export class AudioEngine {
   private ctx: AudioContext | null = null;
+  /** Transient per-bus multipliers for voice ducking; never persisted. */
+  private duckFactors: Record<'music' | 'ambience' | 'sfx', number> = {
+    music: 1,
+    ambience: 1,
+    sfx: 1,
+  };
   private kit: NoiseKit | null = null;
   private master: GainNode | null = null;
   private strips: Record<VoiceChannel, ChannelStrip> | null = null;
@@ -2237,23 +2243,47 @@ export class AudioEngine {
     }
   }
 
-  private applyLevels(): void {
+  /**
+   * Temporarily scales a channel without touching the player's saved level.
+   *
+   * Voice-over ducking has to be invisible to the mixer: if it went through
+   * `setLevel` it would persist the ducked value, and a player who quit during
+   * a line would come back to a permanently quiet storm. The duck multiplier
+   * lives outside `levelState` for exactly that reason.
+   *
+   * @param channel Which bus to duck.
+   * @param factor  0..1 multiplier; 1 restores the player's level.
+   * @param ms      Ramp time. Ducks should be fast, releases slow.
+   */
+  duck(channel: 'music' | 'ambience' | 'sfx', factor: number, ms = 250): void {
+    this.duckFactors[channel] = clamp01(factor);
+    this.applyLevels(ms / 1000);
+  }
+
+  /** Releases every duck at once — used when dialogue ends abruptly. */
+  clearDucks(ms = 600): void {
+    this.duckFactors = { music: 1, ambience: 1, sfx: 1 };
+    this.applyLevels(ms / 1000);
+  }
+
+  private applyLevels(ramp: number = FADER_RAMP): void {
     if (!this.ctx || !this.master || !this.strips) return;
     const now = this.ctx.currentTime;
     const set = (p: AudioParam, v: number) => {
       try {
         p.cancelScheduledValues(now);
         p.setValueAtTime(p.value, now);
-        p.linearRampToValueAtTime(v, now + FADER_RAMP);
+        p.linearRampToValueAtTime(v, now + ramp);
       } catch {
         /* context gone */
       }
     };
     set(this.master.gain, this.levelState.muted ? 0 : this.levelState.master);
     for (const ch of ['music', 'ambience', 'sfx'] as const) {
+      const v = this.levelState[ch] * this.duckFactors[ch];
       // Dry and wet move together so muting a channel mutes its room tone too.
-      set(this.strips[ch].dry.gain, this.levelState[ch]);
-      set(this.strips[ch].wet.gain, this.levelState[ch]);
+      set(this.strips[ch].dry.gain, v);
+      set(this.strips[ch].wet.gain, v);
     }
   }
 }

@@ -520,7 +520,7 @@ export class Journal {
     const item = (t: { id: string; text: string; done: boolean }) =>
       `<li class="task${t.done && this.struckTasks.has(t.id) ? ' is-done' : ''}" data-task="${escapeHtml(t.id)}" data-done="${t.done}">
          <span class="task__box" aria-hidden="true">${CHECKBOX}</span>
-         <span class="task__text">${escapeHtml(t.text)}<span class="task__strike" aria-hidden="true"></span></span>
+         <span class="task__text"><span class="task__ink">${escapeHtml(t.text)}</span></span>
          ${t.done ? '<span class="sr-only"> — done</span>' : ''}
        </li>`;
 
@@ -773,7 +773,8 @@ export class Journal {
           <div class="ded-band__chips">${chips || '<span class="ded-band__empty" aria-hidden="true">—</span>'}</div>
           <button type="button" class="ded-band__drop" data-drop-suspect="${escapeHtml(s.id)}"
                   data-drop-charge="${charge}" data-fk="drop:${escapeHtml(s.id)}:${charge}" tabindex="-1"
-                  aria-label="Pin the carried clue to ${escapeHtml(s.name)} as ${charge}">Pin here</button>
+                  aria-label="Pin the carried clue to ${escapeHtml(s.name)} as ${charge}"
+          ><span aria-hidden="true">Pin as ${charge}</span></button>
         </div>`;
     }).join('');
 
@@ -1184,9 +1185,9 @@ export class Journal {
     }
 
     const scenes = this.state.content.scenes ?? {};
-    // Never more columns than there are places: two columns for one node
-    // stretches a single tag across half the spread.
-    const cols = Math.max(1, Math.min(MAP_MAX_COLS, ids.length, Math.ceil(Math.sqrt(ids.length) * 1.4)));
+    // Two columns minimum, always: a single column centres its one node on
+    // the gutter, which is the one place on the spread nothing can sit.
+    const cols = Math.min(MAP_MAX_COLS, Math.max(2, Math.ceil(Math.sqrt(ids.length) * 1.4)));
     const nodes = ids
       .map((id) => {
         const here = id === this.state.scene;
@@ -1207,6 +1208,7 @@ export class Journal {
 
     return this.spread(`
       <div class="map" style="--map-cols:${cols}">
+        <p class="jp-kicker">Places seen</p>
         <svg class="map__routes" aria-hidden="true" focusable="false"></svg>
         <ul class="map__grid" role="list">${nodes}</ul>
         <p class="map__legend">Surveyed from memory. Distances are a guess.</p>
@@ -1273,8 +1275,10 @@ export class Journal {
         const y1 = (cb.top + cb.height / 2 - box.top) * sy;
         const span = Math.hypot(x2 - x1, y2 - y1);
         // Slack in the string: real twine hangs, and the sag is what makes the
-        // board read as a physical object rather than a node graph.
-        const sag = Math.min(90, span * 0.17);
+        // board read as a physical object rather than a node graph. Generous
+        // on purpose — a shallow bow leaves long runs lying flat across the
+        // card titles they pass, where a real hang dips between the rows.
+        const sag = Math.min(150, span * 0.26);
         paths.push(`M${x1.toFixed(1)} ${y1.toFixed(1)} Q${((x1 + x2) / 2).toFixed(1)} ${(
           (y1 + y2) / 2 +
           sag

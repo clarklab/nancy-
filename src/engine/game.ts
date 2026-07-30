@@ -19,6 +19,8 @@ import type {
   SceneId,
 } from './types';
 import { audio } from './audio';
+import { voice } from './voice';
+import voIndex from '@/game/vo-index.json';
 import { Hud } from '@/ui/hud';
 import { Journal } from '@/ui/journal';
 import { DialogueView } from '@/ui/dialogue';
@@ -61,6 +63,9 @@ export class Game implements Presenter {
 
   async boot() {
     applySettings(loadSettings());
+    // Only ids present in the generated index have audio; everything else
+    // stays text-only and must not produce a 404 per line.
+    voice.setAvailable(Object.keys(voIndex));
 
     this.root.classList.add('app-shell');
     this.root.innerHTML = `
@@ -97,7 +102,10 @@ export class Game implements Presenter {
     this.journal = new Journal(this.state, { onSound: (n) => audio.playSound(n) });
     this.journal.mount(overlays);
 
-    this.dialogue = new DialogueView({ onSound: (n: string) => audio.playSound(n) });
+    this.dialogue = new DialogueView({
+      onSound: (n: string) => audio.playSound(n),
+      onSpeak: (lineId) => voice.play(lineId),
+    });
     this.dialogue.mount(overlays);
 
     this.puzzles = new PuzzleHost({ onSound: (n) => audio.playSound(n) });
@@ -397,8 +405,14 @@ export class Game implements Presenter {
 
     this.state.flags[`met.${characterId}`] = true;
     this.hud.setVisible(false);
-    await this.dialogue.converse(character, tree, this.state);
-    this.hud.setVisible(true);
+    try {
+      await this.dialogue.converse(character, tree, this.state);
+    } finally {
+      // A conversation that ends early must not leave a read playing over
+      // whatever the player walked into next.
+      voice.stop();
+      this.hud.setVisible(true);
+    }
   }
 
   async playCinematic(id: string) {

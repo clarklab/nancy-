@@ -21,6 +21,27 @@ import type { Character, Condition, DialogueNode, DialogueTree } from '@/engine/
 export interface DialogueCallbacks {
   /** Named cue from the shared SFX table, e.g. `click-brass`. */
   onSound?(name: string): void;
+  /**
+   * Requests the recorded read of a line, if one exists.
+   *
+   * Voice-over is an enhancement, never a dependency: only some lines are
+   * recorded, so this returns a handle that resolves immediately when there is
+   * no audio. The conversation waits for the longer of the text reveal and the
+   * audio, and `stop()` lets a player who clicks ahead cut the read off.
+   */
+  onSpeak?(lineId: string): { done: Promise<void>; stop(): void };
+}
+
+/**
+ * Mirrors the slug in `tools/build-voice-manifest.mjs`. The two must agree or
+ * a recorded line will never be found for its node.
+ */
+function voiceSlug(id: string): string {
+  return id
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60);
 }
 
 /* Motion constants mirror the --dur-* tokens. They live here because the
@@ -233,7 +254,7 @@ export class DialogueView {
       await this.open();
 
       this.cb.onSound?.('page-turn');
-      await this.speak(lines(tree.greeting), character.name);
+      await this.speak(lines(tree.greeting), character.name, `greet-${character.id}-a${tree.act}`);
       await this.branch(tree.nodes, tree, character, state, true);
 
       if (!this.aborted && !this.destroyed && tree.farewell) {
@@ -306,7 +327,7 @@ export class DialogueView {
       if (chosen.isConfrontation) this.setMood(character, CONFRONT_MOODS);
       if (this.aborted || !this.active) return;
 
-      await this.speak(lines(chosen.reply), character.name);
+      await this.speak(lines(chosen.reply), character.name, `line-${voiceSlug(chosen.id)}`);
 
       if (chosen.children?.length) {
         await this.branch(chosen.children, tree, character, state, false);
@@ -332,11 +353,22 @@ export class DialogueView {
    * are dropped rather than shown: a node that exists only to fire effects
    * should not cost the player a click on an empty sheet of paper.
    */
-  private async speak(text: string[], speaker: string) {
-    for (const line of text) {
-      if (this.aborted || !this.active || this.destroyed) return;
-      if (!line.trim()) continue;
-      await this.speakLine(line, speaker);
+  private async speak(text: string[], speaker: string, voiceLineId?: string) {
+    // The recording covers the whole speech, so it starts with the first line
+    // and plays underneath any that follow.
+    const vo = voiceLineId ? this.cb.onSpeak?.(voiceLineId) : undefined;
+
+    try {
+      for (const line of text) {
+        if (this.aborted || !this.active || this.destroyed) return;
+        if (!line.trim()) continue;
+        await this.speakLine(line, speaker);
+      }
+      // Hold on the last line until the read finishes, so the player is not
+      // staring at a finished panel while a voice is still talking.
+      if (vo && !this.aborted && !this.destroyed) await vo.done;
+    } finally {
+      vo?.stop();
     }
   }
 

@@ -16,7 +16,14 @@
  * only geometry and the hand-drawn noise filters.
  */
 
-.puzzle-root {
+/**
+ * Workshop stock. Declared at the document root rather than on `.puzzle-root`
+ * so the `pz-*` primitives stay usable wherever a puzzle chooses to build them
+ * — a dial dropped into a journal page has to be cut from the same alloy as one
+ * on the bench, and inheriting from an ancestor that may not be there is how a
+ * control ends up rendering as three unstyled `currentColor` gradients.
+ */
+:root {
   /* Generated grain, so a puzzle never waits on a texture and the offline
      screenshot harness renders the same surfaces the player sees. */
   --pz-grain-leather: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23l)' opacity='0.5'/%3E%3C/svg%3E");
@@ -29,6 +36,12 @@
   --pz-brass-mid: var(--lamp-500);
   --pz-brass-lo: color-mix(in srgb, var(--lamp-600) 62%, var(--ink-900));
 
+  /* The specular edge every lamp-lit top face catches. Warm, never white:
+     nothing in this game is lit by a fluorescent tube. */
+  --pz-specular: var(--lamp-100);
+}
+
+.puzzle-root {
   position: absolute;
   inset: 0;
   z-index: var(--z-puzzle);
@@ -50,6 +63,28 @@
 .puzzle-root.is-closing {
   opacity: 0;
   transition-duration: var(--dur-med);
+  /* Dead the instant it starts leaving. A half-faded close button that still
+     answers a click is the classic way to lose an input during a transition. */
+  pointer-events: none;
+}
+
+/**
+ * The arming frame.
+ *
+ * `PuzzleHost.open` puts the bench in the tree — laid out, full size, in its
+ * neutral pose — but invisible, so a mechanism can measure itself at mount time
+ * without reading a frame that is still scaled down by its entrance transform.
+ * Nothing animates in this state; the closed pose is applied and transitioned
+ * out of on the very next frame.
+ */
+.puzzle-root.is-arming,
+.puzzle-root.is-arming .puzzle-panel,
+.puzzle-root.is-arming .puzzle-backdrop {
+  transition: none;
+}
+
+.puzzle-root.is-arming .puzzle-panel {
+  transform: none;
 }
 
 /* -- The room, pushed back -------------------------------------------------- */

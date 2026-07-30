@@ -82,12 +82,20 @@ const MS_FLASH = 560;
 const MS_HINT_COOLDOWN = 14_000;
 
 const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]';
 
 /** Keys the game binds globally that must not reach it while a puzzle is up. */
 const SWALLOWED_KEYS = new Set(['j', 'i', 'm', 'h', 'l', ' ']);
 
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Instance counter for the `id`s the dialog points `aria-labelledby` at.
+ * Hard-coded ids would collide the moment the smoke harness mounts a second
+ * host, and a dialog labelled by the *other* host's title is worse than one
+ * with no label at all.
+ */
+let hostSeq = 0;
 
 export interface PuzzleHostCallbacks {
   /** Named cue from the shared SFX table, e.g. `puzzle-correct`. */
@@ -109,6 +117,7 @@ export class PuzzleHost {
 
   private panel!: HTMLElement;
   private titleEl!: HTMLElement;
+  private placardEl!: HTMLElement;
   private premiseEl!: HTMLElement;
   private stageEl!: HTMLElement;
   private statusEl!: HTMLElement;
@@ -133,17 +142,21 @@ export class PuzzleHost {
 
   private timers = new Set<number>();
   private restoreFocus: HTMLElement | null = null;
+  /** Latched by `destroy`, so an `open` still unwinding cannot re-arm anything. */
+  private dead = false;
 
   constructor(cb: PuzzleHostCallbacks = {}) {
     this.cb = cb;
+
+    const uid = `puzzle-${++hostSeq}`;
 
     this.el = document.createElement('div');
     this.el.className = 'puzzle-root';
     this.el.hidden = true;
     this.el.setAttribute('role', 'dialog');
     this.el.setAttribute('aria-modal', 'true');
-    this.el.setAttribute('aria-labelledby', 'puzzle-title');
-    this.el.setAttribute('aria-describedby', 'puzzle-premise');
+    this.el.setAttribute('aria-labelledby', `${uid}-title`);
+    this.el.setAttribute('aria-describedby', `${uid}-premise`);
 
     this.el.innerHTML = `
       <div class="puzzle-backdrop" aria-hidden="true"></div>
@@ -157,14 +170,14 @@ export class PuzzleHost {
           <span class="puzzle-corner is-br" aria-hidden="true"></span>
 
           <header class="puzzle-head">
-            <h2 class="puzzle-title" id="puzzle-title"></h2>
+            <h2 class="puzzle-title" id="${uid}-title"></h2>
             <button class="puzzle-close" type="button" aria-label="Leave this alone for now">
               <span class="puzzle-close-glyph" aria-hidden="true"></span>
             </button>
           </header>
 
           <div class="puzzle-placard">
-            <p class="puzzle-premise" id="puzzle-premise"></p>
+            <p class="puzzle-premise" id="${uid}-premise"></p>
           </div>
 
           <div class="puzzle-surface">
@@ -185,13 +198,17 @@ export class PuzzleHost {
           </footer>
         </div>
 
-        <aside class="puzzle-rail" aria-hidden="true"></aside>
+        <!-- Pinned hints are a *record*, not an announcement: a player who
+             missed the live region has to be able to go back and read them,
+             so the rail is a real list rather than decoration. -->
+        <aside class="puzzle-rail" role="list" aria-label="Hints given"></aside>
       </div>
 
       <p class="puzzle-live sr-only" role="status" aria-live="polite"></p>`;
 
     this.panel = this.q('.puzzle-panel');
     this.titleEl = this.q('.puzzle-title');
+    this.placardEl = this.q('.puzzle-placard');
     this.premiseEl = this.q('.puzzle-premise');
     this.stageEl = this.q('.puzzle-stage');
     this.statusEl = this.q('.puzzle-status');
@@ -236,6 +253,7 @@ export class PuzzleHost {
    * inside another puzzle's effects would deadlock the chain it is waiting on.
    */
   async open(def: PuzzleDefinition, state: GameState): Promise<boolean> {
+    if (this.dead) return false;
     if (this.active) {
       console.warn(`[puzzle] ignoring re-entrant open of "${def.id}"`);
       return false;
@@ -248,13 +266,21 @@ export class PuzzleHost {
 
     this.dress(def);
 
-    // Claim the resolver before the entrance animation: a module that solves
+    // Claim the resolver before anything can settle: a module that solves
     // itself on mount, or a player hammering Escape, must still land here.
     const outcome = new Promise<boolean>((resolve) => {
       this.settle = resolve;
     });
 
-    await this.openPanel();
+    /* Build the mechanism *before* the entrance runs, for two reasons: the
+       player never watches an empty bench fade up and then have its contents
+       pop in a frame later, and a module that measures itself at mount time
+       (a canvas, a board that lays pieces out from a rect) gets a real,
+       laid-out, unscaled box to measure. `is-arming` is what buys the second:
+       the frame is in the tree and at full size, but still invisible and
+       still in its neutral pose. */
+    this.el.hidden = false;
+    this.el.classList.add('is-arming');
 
     const ctx = this.buildContext(def, state);
     this.module = getPuzzle(def.id);
@@ -268,19 +294,21 @@ export class PuzzleHost {
     }
 
     this.armSkip(def);
+    await this.openPanel();
 
     const solved = await outcome;
 
     this.module?.unmount?.();
     this.module = null;
+    this.def = null;
     await this.closePanel();
     this.active = false;
-    this.def = null;
 
     return solved;
   }
 
   destroy() {
+    this.dead = true;
     window.removeEventListener('keydown', this.onKey);
     this.clearTimers();
     cancelAnimationFrame(this.hintRaf);
@@ -289,6 +317,8 @@ export class PuzzleHost {
     // Never leave a caller awaiting a host that no longer exists.
     this.finish(false, true);
     this.active = false;
+    this.def = null;
+    this.restoreFocus = null;
     this.el.remove();
   }
 
@@ -297,8 +327,13 @@ export class PuzzleHost {
   /** Resets every piece of chrome to its opening state for a new puzzle. */
   private dress(def: PuzzleDefinition) {
     this.el.dataset.puzzle = def.id;
-    this.titleEl.textContent = def.name;
-    this.premiseEl.textContent = def.premise;
+    this.titleEl.textContent = def.name ?? '';
+
+    // Content is data and data is sometimes thin: a puzzle with no premise
+    // gets no placard rather than an empty card of paper floating on the frame.
+    const premise = def.premise?.trim() ?? '';
+    this.premiseEl.textContent = premise;
+    this.placardEl.hidden = premise.length === 0;
 
     this.stageEl.textContent = '';
     this.railEl.textContent = '';
@@ -307,11 +342,12 @@ export class PuzzleHost {
     this.liveEl.textContent = '';
 
     this.panel.classList.remove('is-solved', 'is-set-aside', 'fx-good', 'fx-bad');
+    this.lampEl.classList.remove('is-refused');
     this.hintsShown = 0;
     this.hintReadyAt = 0;
     cancelAnimationFrame(this.hintRaf);
     this.lampEl.style.setProperty('--hint-charge', '1');
-    this.lampEl.dataset.state = 'ready';
+    this.lampEl.dataset.state = this.hints(def).length ? 'ready' : 'spent';
     this.updateLamp();
 
     this.skipEl.hidden = false;
@@ -320,9 +356,20 @@ export class PuzzleHost {
     this.skipEl.setAttribute('aria-hidden', 'true');
   }
 
+  /**
+   * The declared hints, defensively. `hints` is a fixed triple in the schema,
+   * but content is authored by hand and a puzzle with two — or none — must
+   * still open rather than throw on the first press of the lamp.
+   */
+  private hints(def: PuzzleDefinition): readonly string[] {
+    return Array.isArray(def.hints) ? def.hints.filter((h) => typeof h === 'string' && h) : [];
+  }
+
   private openPanel(): Promise<void> {
-    this.el.hidden = false;
-    // Reflow so the entrance transition runs from its closed state.
+    /* Drop the neutral arming pose, force the closed pose to be computed, then
+       transition out of it. Without the reflow between the two the browser
+       coalesces both changes into one style pass and the entrance never runs. */
+    this.el.classList.remove('is-arming');
     void this.el.offsetHeight;
     this.el.classList.add('is-open');
     this.cb.onSound?.('drawer-open');
@@ -335,14 +382,21 @@ export class PuzzleHost {
     this.el.classList.add('is-closing');
     await this.wait(reduced() ? 0 : MS_CLOSE);
 
-    this.el.classList.remove('is-closing');
+    this.el.classList.remove('is-closing', 'is-arming');
     this.el.hidden = true;
     this.stageEl.textContent = '';
     this.railEl.textContent = '';
+    this.panel.classList.remove('is-solved', 'is-set-aside', 'fx-good', 'fx-bad');
     delete this.el.dataset.puzzle;
 
-    if (this.restoreFocus?.isConnected) this.restoreFocus.focus({ preventScroll: true });
+    // Only reclaim focus if nothing else has: a puzzle that ends by walking the
+    // player somewhere new must not yank them back to the hotspot they left.
+    const back = this.restoreFocus;
     this.restoreFocus = null;
+    if (back?.isConnected && !this.el.contains(document.activeElement)) {
+      const here = document.activeElement;
+      if (here === null || here === document.body) back.focus({ preventScroll: true });
+    }
   }
 
   private renderMissing(id: string) {
@@ -363,8 +417,14 @@ export class PuzzleHost {
    */
   private buildContext(def: PuzzleDefinition, state: GameState): PuzzleContext {
     // Progress is stored on the save under the puzzle's own id, so a mechanism
-    // left half-worked is still half-worked after a reload.
-    const bag = (state.puzzleState[def.id] ??= {});
+    // left half-worked is still half-worked after a reload. A slot holding
+    // anything other than a plain bag is a corrupt or stale save; discard it
+    // rather than hand a module a `null` it will dereference on its first line.
+    const existing = state.puzzleState[def.id];
+    const bag =
+      existing !== null && typeof existing === 'object' && !Array.isArray(existing)
+        ? existing
+        : (state.puzzleState[def.id] = {});
 
     return {
       state: bag,
@@ -436,38 +496,46 @@ export class PuzzleHost {
    */
   private requestHint() {
     const def = this.def;
-    if (!def) return;
+    if (!def || !this.settle) return;
+    const hints = this.hints(def);
 
-    if (this.hintsShown >= def.hints.length) {
+    if (this.hintsShown >= hints.length) {
       this.cb.onSound?.('lock-refuse');
+      this.refuseLamp();
       this.note('The lamp has nothing else to show me.');
       return;
     }
 
     if (performance.now() < this.hintReadyAt) {
       this.cb.onSound?.('lock-refuse');
-      this.lampEl.classList.remove('is-refused');
-      void this.lampEl.offsetWidth;
-      this.lampEl.classList.add('is-refused');
+      this.refuseLamp();
       this.note('Let the wick catch up.');
       return;
     }
 
-    const text = def.hints[this.hintsShown];
+    const text = hints[this.hintsShown];
     this.hintsShown += 1;
     this.cb.onSound?.('match-strike');
     this.pinNote(text, this.hintsShown);
     this.liveEl.textContent = `Hint ${this.hintsShown}: ${text}`;
     this.updateLamp();
 
-    if (this.hintsShown < def.hints.length) this.startCooldown();
+    if (this.hintsShown < hints.length) this.startCooldown();
     else this.lampEl.dataset.state = 'spent';
+  }
+
+  /** Restartable refusal shudder: a second press mid-shake replays it. */
+  private refuseLamp() {
+    this.lampEl.classList.remove('is-refused');
+    void this.lampEl.offsetWidth;
+    this.lampEl.classList.add('is-refused');
   }
 
   /** A hint arrives as a note in the detective's own hand, pinned to the frame. */
   private pinNote(text: string, index: number) {
     const card = document.createElement('div');
     card.className = 'puzzle-hint-note';
+    card.setAttribute('role', 'listitem');
     // Deterministic tilt: the same hint always hangs at the same angle, so the
     // rail reads as three pinned papers rather than a shuffling deck.
     card.style.setProperty('--note-tilt', `${[-2.4, 1.7, -1.1][(index - 1) % 3]}deg`);
@@ -506,7 +574,7 @@ export class PuzzleHost {
   }
 
   private updateLamp() {
-    const total = this.def?.hints.length ?? 0;
+    const total = this.def ? this.hints(this.def).length : 0;
     const left = Math.max(0, total - this.hintsShown);
     this.lampCountEl.textContent = left ? '·'.repeat(left) : '';
     this.lampEl.setAttribute(
@@ -515,6 +583,10 @@ export class PuzzleHost {
         ? `Turn up the lamp for a hint (${left} of ${total} remaining)`
         : 'No hints remain',
     );
+    /* `aria-disabled`, never `disabled`: the button must stay focusable and
+       still answer, because "why can't I have another hint" is exactly the
+       question the refusal line exists to answer. */
+    this.lampEl.setAttribute('aria-disabled', left ? 'false' : 'true');
   }
 
   // -- the bail-out ----------------------------------------------------------
@@ -534,7 +606,9 @@ export class PuzzleHost {
   }
 
   private revealSkip() {
-    if (!this.active) return;
+    // `settle`, not `active`: during the closing fade the host is still active
+    // but nothing on it is offerable any more.
+    if (!this.active || !this.settle) return;
     this.skipEl.classList.add('is-in');
     this.skipEl.tabIndex = 0;
     this.skipEl.removeAttribute('aria-hidden');
@@ -555,7 +629,10 @@ export class PuzzleHost {
   // -- keyboard --------------------------------------------------------------
 
   private onKey(ev: KeyboardEvent) {
-    if (!this.active) return;
+    if (!this.active || this.el.hidden) return;
+
+    // Browser and OS chords are never ours: a puzzle must not eat Ctrl+R.
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
 
     if (ev.key === 'Escape') {
       ev.preventDefault();
@@ -579,16 +656,32 @@ export class PuzzleHost {
     if (SWALLOWED_KEYS.has(ev.key.toLowerCase())) ev.stopImmediatePropagation();
   }
 
+  /**
+   * Moves focus one stop around the bench, wrapping at both ends.
+   *
+   * The filter is deliberately stricter than the selector: a `<button>` still
+   * matches `button:not([disabled])` after JS has set `tabIndex = -1` on it, so
+   * the bail-out — which is present in the layout from the first frame and only
+   * *becomes* reachable later — would otherwise be a focus stop the player can
+   * hit before it has been offered to them.
+   */
   private cycleFocus(dir: 1 | -1) {
     const nodes = [...this.el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-      (n) => n.offsetParent !== null && n.getAttribute('aria-hidden') !== 'true',
+      (n) =>
+        n.tabIndex >= 0 &&
+        n.offsetParent !== null &&
+        !n.hasAttribute('inert') &&
+        n.getAttribute('aria-hidden') !== 'true' &&
+        n.closest('[aria-hidden="true"], [hidden]') === null,
     );
     if (!nodes.length) {
       this.panel.focus({ preventScroll: true });
       return;
     }
     const here = nodes.indexOf(document.activeElement as HTMLElement);
-    const next = (here + dir + nodes.length) % nodes.length;
+    // Focus parked on the panel itself (or lost entirely) enters at whichever
+    // end the player is travelling towards, rather than one short of it.
+    const next = here < 0 ? (dir === 1 ? 0 : nodes.length - 1) : (here + dir + nodes.length) % nodes.length;
     nodes[next].focus({ preventScroll: true });
   }
 
@@ -801,6 +894,13 @@ export function makeDraggable(el: HTMLElement, opts: DraggableOptions = {}): Con
   };
   grip.addEventListener('pointerup', release, { signal });
   grip.addEventListener('pointercancel', release, { signal });
+  /* Capture can be revoked out from under us — the element is removed, another
+     pointer takes over, the browser cancels the gesture. Without this the piece
+     stays glued to the cursor with `is-dragging` stuck on. */
+  grip.addEventListener('lostpointercapture', release, { signal });
+
+  /** True between the first arrow keydown and the matching keyup. */
+  let nudging = false;
 
   el.addEventListener(
     'keydown',
@@ -816,8 +916,14 @@ export function makeDraggable(el: HTMLElement, opts: DraggableOptions = {}): Con
       ev.preventDefault();
       ev.stopPropagation();
       measure();
+      const before = pos;
       place(pos.x + dx, pos.y + dy, true);
-      opts.feedback?.('tick');
+      // Silence at the boundary: a tick per keypress against a wall is the
+      // control lying about having moved.
+      if (pos !== before) {
+        nudging = true;
+        opts.feedback?.('tick');
+      }
     },
     { signal },
   );
@@ -826,7 +932,9 @@ export function makeDraggable(el: HTMLElement, opts: DraggableOptions = {}): Con
   el.addEventListener(
     'keyup',
     (ev: KeyboardEvent) => {
-      if (ev.key.startsWith('Arrow')) opts.onDrop?.(pos);
+      if (!nudging || !ev.key.startsWith('Arrow')) return;
+      nudging = false;
+      opts.onDrop?.(pos);
     },
     { signal },
   );
@@ -844,6 +952,10 @@ export function makeDraggable(el: HTMLElement, opts: DraggableOptions = {}): Con
     destroy: () => {
       ac.abort();
       el.classList.remove('pz-draggable', 'is-dragging');
+      grip.classList.remove('pz-grip');
+      el.removeAttribute('aria-roledescription');
+      el.style.removeProperty('--drag-x');
+      el.style.removeProperty('--drag-y');
     },
   };
 }
@@ -882,6 +994,8 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
 
   let angle = opts.angle ?? 0;
   let lastDetent = detent ? Math.round(angle / detent) : 0;
+  /** Unwrapped running total the gesture accumulates into. */
+  let raw = angle;
 
   el.classList.add('pz-rotatable');
   if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
@@ -889,10 +1003,26 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
 
   const apply = () => el.style.setProperty('--rot', `${angle}deg`);
 
-  const place = (raw: number, notify: boolean) => {
-    let next = detent ? snap(raw, detent) : raw;
-    if (opts.min !== undefined) next = Math.max(opts.min, next);
-    if (opts.max !== undefined) next = Math.min(opts.max, next);
+  /**
+   * Commits a running angle to the visible one.
+   *
+   * The running total is clamped *as well as* the committed angle, and that is
+   * the whole point: if only the output were clamped, winding past a stop would
+   * keep piling degrees into `raw`, and the player would then have to unwind
+   * every one of them before the part moved again — a control that feels
+   * broken precisely when you have hit its limit.
+   */
+  const place = (running: number, notify: boolean) => {
+    let r = running;
+    if (opts.min !== undefined && r < opts.min) r = opts.min;
+    if (opts.max !== undefined && r > opts.max) r = opts.max;
+    raw = r;
+
+    let next = detent ? snap(r, detent) : r;
+    // Snapping can step back outside the travel (a 45° detent against a 337°
+    // stop rounds to 360), so the limits get the last word.
+    if (opts.min !== undefined && next < opts.min) next = opts.min;
+    if (opts.max !== undefined && next > opts.max) next = opts.max;
     if (next === angle) return;
     angle = next;
     apply();
@@ -918,7 +1048,6 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
 
   let dragging = false;
   let lastBearing = 0;
-  let raw = angle;
 
   el.addEventListener(
     'pointerdown',
@@ -945,8 +1074,7 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
       if (d > 180) d -= 360;
       if (d < -180) d += 360;
       lastBearing = b;
-      raw += d;
-      place(raw, true);
+      place(raw + d, true);
     },
     { signal },
   );
@@ -960,6 +1088,7 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
   };
   el.addEventListener('pointerup', release, { signal });
   el.addEventListener('pointercancel', release, { signal });
+  el.addEventListener('lostpointercapture', release, { signal });
 
   el.addEventListener(
     'keydown',
@@ -972,8 +1101,7 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
       else return;
       ev.preventDefault();
       ev.stopPropagation();
-      raw = angle + d;
-      place(raw, true);
+      place(angle + d, true);
       opts.onCommit?.(angle);
     },
     { signal },
@@ -994,6 +1122,7 @@ export function makeRotatable(el: HTMLElement, opts: RotatableOptions = {}): Con
     destroy: () => {
       ac.abort();
       el.classList.remove('pz-rotatable', 'is-turning');
+      el.style.removeProperty('--rot');
     },
   };
 }
@@ -1056,7 +1185,13 @@ export function makeDial(opts: DialOptions): Control<number> {
 
   const readout = make('span', 'pz-dial-readout', { 'aria-hidden': 'true' });
 
-  el.append(bezel, knob, readout);
+  /* The face is its own square box so the engraved readout underneath takes up
+     real room in the layout. Hanging it off the bottom of a round element with
+     a negative offset looks fine alone and collides the moment a puzzle puts
+     four dials in a row. */
+  const face = make('div', 'pz-dial-face');
+  face.append(bezel, knob);
+  el.append(face, readout);
 
   let value = clamp(Math.round(opts.value ?? 0), 0, steps - 1);
 
@@ -1164,12 +1299,25 @@ export function makeSlider(opts: SliderOptions): Control<number> {
     readout.textContent = fmt(value);
   };
 
+  /**
+   * Detents are audible, but a fine-grained lever swept end to end would fire
+   * a hundred of them and turn into a rattle. One tick per this many
+   * milliseconds still reads as "the lever is stepping"; beyond that it is just
+   * noise, and it is the noise a cheap web widget makes.
+   */
+  const MS_TICK_GAP = 45;
+  let lastTick = 0;
+
   const place = (v: number, committed: boolean) => {
     const next = clamp(snap(v - min, step) + min, min, max);
     if (next === value) return;
     value = next;
     apply();
-    opts.feedback?.('tick');
+    const now = performance.now();
+    if (now - lastTick > MS_TICK_GAP) {
+      lastTick = now;
+      opts.feedback?.('tick');
+    }
     opts.onChange?.(value, committed);
   };
 
@@ -1215,6 +1363,7 @@ export function makeSlider(opts: SliderOptions): Control<number> {
   };
   el.addEventListener('pointerup', release, { signal });
   el.addEventListener('pointercancel', release, { signal });
+  el.addEventListener('lostpointercapture', release, { signal });
 
   thumb.addEventListener(
     'keydown',
@@ -1342,8 +1491,10 @@ const DEFAULT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
  * physical keyboard presses that key directly.
  */
 export function makeKeypad(opts: KeypadOptions): Control<string> {
-  const keys = opts.keys ?? DEFAULT_KEYS;
-  const columns = opts.columns ?? 3;
+  // An empty face list would leave the roving cursor doing modulo zero, which
+  // is NaN, which is a keypad that throws the first time it is arrowed into.
+  const keys = opts.keys?.length ? opts.keys : DEFAULT_KEYS;
+  const columns = Math.max(1, Math.floor(opts.columns ?? 3));
   const autoSubmit = opts.autoSubmit ?? opts.length !== undefined;
 
   const el = make('div', 'pz-keypad', { role: 'group', 'aria-label': opts.label });
