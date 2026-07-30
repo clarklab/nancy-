@@ -11,3 +11,10 @@ tools/.artcache
 tmp/
 shots/
 dist-smoke/
+
+# Agent scratch: subagents drop one-off probe scripts at the repo root while
+# they verify their own work. These carry hardcoded absolute paths and must
+# never ship — the committed harnesses live in tools/.
+/.[a-z]*-smoke.mjs
+/.shoot*.mjs
+/*-probe.mjs
