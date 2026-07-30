@@ -261,7 +261,9 @@ export class Game implements Presenter {
   private async examineItem(id: string) {
     const item = this.content.items[id];
     if (!item) return;
-    this.state.unreadItems.delete(id);
+    // Clearing the badge is state the HUD renders, so it has to notify —
+    // otherwise the amber "unread" pip survives until some unrelated change.
+    if (this.state.unreadItems.delete(id)) this.state.notify();
     await this.guard(() =>
       this.narration.examine(item.name, item.examineText ?? item.description, item.examineImage ?? item.icon),
     );

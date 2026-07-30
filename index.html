@@ -26,7 +26,11 @@
       </div>
     </div>
 
-    <div id="app" aria-live="polite"></div>
+    <!-- The game shell is NOT a live region: marking the whole app polite
+         makes a screen reader re-announce every scene change, hotspot
+         hover and HUD update. Individual components own their own
+         aria-live scopes where an announcement is actually wanted. -->
+    <div id="app"></div>
 
     <noscript>
       <p style="color: #e7d9ba; font-family: Georgia, serif; padding: 2rem; text-align: center">
