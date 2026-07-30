@@ -366,11 +366,15 @@ export class PuzzleHost {
   }
 
   private openPanel(): Promise<void> {
-    /* Drop the neutral arming pose, force the closed pose to be computed, then
-       transition out of it. Without the reflow between the two the browser
-       coalesces both changes into one style pass and the entrance never runs. */
+    /* Three steps, and all three are load-bearing. Swap the neutral arming pose
+       for the closed one with transitions still suppressed; force a reflow so
+       that closed pose is what the browser has actually committed; only then
+       release the transition and open. Collapse any two of these and the panel
+       either animates from the wrong pose or does not animate at all. */
     this.el.classList.remove('is-arming');
+    this.el.classList.add('is-shut');
     void this.el.offsetHeight;
+    this.el.classList.remove('is-shut');
     this.el.classList.add('is-open');
     this.cb.onSound?.('drawer-open');
     this.panel.focus({ preventScroll: true });
@@ -382,7 +386,7 @@ export class PuzzleHost {
     this.el.classList.add('is-closing');
     await this.wait(reduced() ? 0 : MS_CLOSE);
 
-    this.el.classList.remove('is-closing', 'is-arming');
+    this.el.classList.remove('is-closing', 'is-arming', 'is-shut');
     this.el.hidden = true;
     this.stageEl.textContent = '';
     this.railEl.textContent = '';

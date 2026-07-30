@@ -79,13 +79,21 @@
  */
 .puzzle-root.is-arming,
 .puzzle-root.is-arming .puzzle-panel,
-.puzzle-root.is-arming .puzzle-backdrop {
+.puzzle-root.is-arming .puzzle-backdrop,
+.puzzle-root.is-shut,
+.puzzle-root.is-shut .puzzle-panel,
+.puzzle-root.is-shut .puzzle-backdrop {
   transition: none;
 }
 
 .puzzle-root.is-arming .puzzle-panel {
   transform: none;
 }
+
+/* `.is-shut` is the same closed pose the panel has by default, held for exactly
+   one forced reflow with transitions still suppressed. That reflow is what lets
+   the entrance animate *from* the closed pose instead of from the neutral one
+   the mechanism was measured in. */
 
 /* -- The room, pushed back -------------------------------------------------- */
 
@@ -281,6 +289,7 @@
 
 .puzzle-close {
   flex: none;
+  align-self: center;
   width: 2.1rem;
   height: 2.1rem;
   display: grid;
@@ -296,19 +305,36 @@
     inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
     inset 0 -2px 4px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
     var(--shadow-1);
+  /* A brass fitting warms and lifts under the hand; it does not change colour.
+     `box-shadow` carries the whole hover, because the face is a gradient and a
+     `background-color` transition on it would animate nothing at all. */
   transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
     transform var(--dur-fast) var(--ease-out);
 }
 
-.puzzle-close:hover {
+.puzzle-close:hover,
+.puzzle-close:focus-visible {
   border-color: color-mix(in srgb, var(--lamp-300) 65%, transparent);
   transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-2),
+    var(--glow-lamp-soft);
 }
 
 .puzzle-close:active {
   transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 5px color-mix(in srgb, var(--ink-abyss) 85%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent);
+}
+
+.puzzle-close:hover .puzzle-close-glyph::before,
+.puzzle-close:hover .puzzle-close-glyph::after {
+  background: var(--lamp-100);
 }
 
 .puzzle-close-glyph {
@@ -351,7 +377,7 @@
   /* Torn-ish card: the top edge catches the lamp, the underside is in shadow
      and it sits a hair proud of the frame. */
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 62%, transparent),
     inset 0 -1px 3px color-mix(in srgb, var(--paper-400) 70%, transparent),
     var(--shadow-2);
   transform: rotate(-0.35deg);
@@ -371,6 +397,13 @@
 .puzzle-surface {
   position: relative;
   min-height: 0;
+  /* A one-row grid, and not for alignment: it is what gives `.puzzle-stage` a
+     *definite* height to resolve `container-type: size` against. As a plain
+     block the stage's `height: 100%` has nothing to resolve to, size
+     containment reports zero, and the bench collapses to its min-height with a
+     lake of empty leather under the mechanism at any large window. */
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
   border-radius: var(--radius-md);
   padding: clamp(var(--sp-3), 2vh, var(--sp-5));
   /* Sunk leather: dark, warm, and lit from the same upper-left as the frame. */
@@ -396,7 +429,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: clamp(10rem, 32vh, 26rem);
+  min-height: clamp(9rem, 26vh, 22rem);
   display: grid;
   place-items: center;
   /* A size container, so mechanisms can lay themselves out in cq units and
@@ -404,12 +437,30 @@
   container-type: size;
 }
 
+/**
+ * "Not built yet" — content is ahead of code.
+ *
+ * Stamped into the leather rather than printed on it: recessed, unlit, and
+ * unmistakably not a thing you can operate. The bail-out is already showing by
+ * the time the player reads it.
+ */
 .puzzle-missing {
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--radius-sm);
   font-family: var(--font-ui);
   font-size: var(--step--1);
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
-  color: var(--text-muted);
+  color: color-mix(in srgb, var(--text-muted) 88%, var(--ink-abyss));
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--ink-abyss) 55%, transparent) 0%,
+    transparent 100%
+  );
+  box-shadow:
+    inset 0 1px 3px color-mix(in srgb, var(--ink-abyss) 80%, transparent),
+    0 1px 0 color-mix(in srgb, var(--lamp-200) 8%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
 }
 
 /* -- Foot: lamp, status line, bail-out -------------------------------------- */
@@ -420,6 +471,11 @@
   align-items: center;
   gap: var(--sp-4);
   min-height: 2.75rem;
+  padding-top: clamp(var(--sp-2), 1.2vh, var(--sp-3));
+  /* Scored into the frame the same way the head is, so the bench top reads as
+     an inset panel between two rails rather than as three stacked divs. */
+  border-top: var(--border-hairline);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 6%, transparent);
 }
 
 /* The hint lamp. Its ring is a wick burning back up: --hint-charge runs 0..1
@@ -465,6 +521,23 @@
     var(--glow-lamp-soft);
 }
 
+/* Turning the wick up: the whole fitting warms, it does not just get a border. */
+.puzzle-lamp[data-state='ready']:hover,
+.puzzle-lamp[data-state='ready']:focus-visible {
+  color: var(--lamp-100);
+  border-color: color-mix(in srgb, var(--lamp-300) 78%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 46%, transparent),
+    inset 0 -2px 5px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--glow-lamp);
+}
+
+.puzzle-lamp[data-state='ready']:active {
+  box-shadow:
+    inset 0 2px 5px color-mix(in srgb, var(--ink-abyss) 84%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 18%, transparent);
+}
+
 .puzzle-lamp[data-state='cooling'],
 .puzzle-lamp[data-state='spent'] {
   color: var(--text-secondary);
@@ -474,7 +547,9 @@
 /* The flame itself: a small pinched teardrop that dims with the charge. */
 .puzzle-lamp-flame {
   position: absolute;
+  top: 50%;
   left: 0.85rem;
+  translate: 0 -50%;
   width: 0.62rem;
   height: 0.9rem;
   border-radius: 52% 52% 46% 46% / 68% 68% 32% 32%;
@@ -609,6 +684,9 @@
 
 .puzzle-rail {
   position: relative;
+  /* Above the frame, not under it: a note pinned to a board that the board
+     then paints over is not pinned to anything. */
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
@@ -627,7 +705,7 @@
     linear-gradient(172deg, var(--paper-100) 0%, var(--paper-200) 70%, var(--paper-300) 100%);
   background-blend-mode: multiply, normal;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 60%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 68%, transparent),
     inset 0 -2px 4px color-mix(in srgb, var(--paper-400) 60%, transparent),
     var(--shadow-3);
   /* Curls away from the pin at the top, the way paper actually hangs. */

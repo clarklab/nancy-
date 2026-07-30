@@ -1,6 +1,6 @@
 {
-  "count": 69,
-  "characters": 10177,
+  "count": 64,
+  "characters": 9478,
   "lines": [
     {
       "id": "greet-sabine-ferrier-kyne-a1",
@@ -375,46 +375,16 @@
       "text": "Sit up. Pargeter reads the room before he reads the file, so give him a straight back and a foliated bundle and he'll waste his first two minutes on nothing at all."
     },
     {
-      "id": "greet-cormac-sallow-a1",
-      "speaker": "cormac-sallow",
-      "kind": "greeting",
-      "text": "[The coroner's file. Green tape, a police photograph face down, and nine typed lines at the front. He answers only in what he wrote.]"
-    },
-    {
-      "id": "greet-cormac-sallow-a2",
-      "speaker": "cormac-sallow",
-      "kind": "greeting",
-      "text": "[The bound inquiry transcripts, Rossport 1975, Day 9. Balgowan down the left of the page. Sallow down the right.]"
-    },
-    {
       "id": "line-sal-a2-01",
       "speaker": "cormac-sallow",
       "kind": "lie-trap",
       "text": "“The light was not discontinued.” — Read it twice. He was asked an operational question and gave an administrative answer. It is true. It is the sentence the whole finding rests on."
     },
     {
-      "id": "greet-cormac-sallow-a3",
-      "speaker": "cormac-sallow",
-      "kind": "greeting",
-      "text": "[Pike's kitchen table, Cardew. A bare bulb, rain on the window, and thirty years of lamp reports taken out of the building in 1985 and never once opened.]"
-    },
-    {
       "id": "line-sal-a3-02",
       "speaker": "cormac-sallow",
       "kind": "lie-trap",
       "text": "“I have no knowledge of any requisition for oil being refused.” — His initials are on the front of R.741, thirteenth of August. He raised it himself. He was under anaesthetic when it came back stamped."
-    },
-    {
-      "id": "greet-cormac-sallow-a4",
-      "speaker": "cormac-sallow",
-      "kind": "greeting",
-      "text": "[The oil store, Nine Bells Beacon. Cold paraffin that has not moved in twenty-four years. The keeper's log still in its rack.]"
-    },
-    {
-      "id": "greet-cormac-sallow-a5",
-      "speaker": "cormac-sallow",
-      "kind": "greeting",
-      "text": "[The case file, foliated and tied. His letter is bound at the front, before exhibit 1, because the whole of this is one requisition slip being filled forty-three days late.]"
     }
   ]
 }

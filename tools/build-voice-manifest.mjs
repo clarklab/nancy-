@@ -38,12 +38,27 @@ const slug = (s) =>
     .replace(/^-|-$/g, '')
     .slice(0, 60);
 
-/** Strips stage directions like "(quietly)" that would be read aloud. */
+/**
+ * Strips stage directions so they are never read aloud.
+ *
+ * The dialogue uses two conventions: parentheses for a delivery note
+ * ("(quietly)") and square brackets for prose that describes the scene rather
+ * than something a character says. A few "greetings" are entirely the latter —
+ * Sallow is dead and answers only through documents, so his line is a
+ * description of a file. Voicing that would have a corpse narrate his own
+ * coroner's report, so a line that is nothing but stage direction is dropped.
+ */
 function clean(text) {
-  return String(Array.isArray(text) ? text.join(' ') : text)
+  const raw = String(Array.isArray(text) ? text.join(' ') : text).trim();
+  // Nothing but a bracketed description — not a spoken line at all.
+  if (/^[[(][^\])]*[\])]$/.test(raw)) return '';
+  const spoken = raw
+    .replace(/\s*\[[^\]]*\]\s*/g, ' ')
     .replace(/\s*\([^)]*\)\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+  // Left with punctuation only after stripping — also not a line.
+  return /[A-Za-z]/.test(spoken) ? spoken : '';
 }
 
 async function main() {

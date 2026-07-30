@@ -201,7 +201,11 @@
   width: 100%;
   height: var(--cine-bar-h);
   pointer-events: none;
-  background: linear-gradient(180deg, var(--ink-abyss) 0%, #000 100%);
+  /* Not a flat fill: the bar is a physical mask in front of the frame, so it
+     falls off away from the image edge instead of sitting there as one value. */
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.3) 0%, rgb(0 0 0 / 0.86) 100%),
+    var(--ink-abyss);
   transition: transform var(--dur-scene) var(--ease-drama);
   z-index: 2;
 }

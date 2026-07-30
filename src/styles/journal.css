@@ -357,6 +357,13 @@
   min-height: 0;
 }
 
+/* One scroll region running across the gutter, for content that is a set of
+   objects pinned to the spread rather than two columns of prose. */
+.journal-spread--wide {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .journal-spread--prose {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1054,8 +1061,14 @@
   display: none;
 }
 
+/* Lets a long name or an unbroken id shrink instead of pushing the plate. */
+.person-card__body {
+  min-width: 0;
+}
+
 .person-card__name {
   font-family: var(--font-display);
+  overflow-wrap: anywhere;
   font-size: var(--step-2);
   font-weight: 600;
   line-height: var(--leading-tight);
