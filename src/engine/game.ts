@@ -467,6 +467,55 @@ export class Game implements Presenter {
   get saves() {
     return listSlots(this.content);
   }
+
+  /**
+   * Deterministic hooks for the screenshot harness.
+   *
+   * The visual review loop needs to land on an exact UI state without
+   * simulating clicks through cinematics and dialogue, so each hook drives
+   * the game the same way the player would but skips the waiting.
+   */
+  get __test() {
+    return {
+      ready: true,
+
+      /** Jumps straight into the first playable scene. */
+      startNewGameSkippingIntro: async () => {
+        this.menus.forceClose();
+        await this.goto(this.content.startScene, 'none');
+      },
+
+      openJournal: (tab?: string) => {
+        this.journal.open(tab as never);
+      },
+
+      openSettings: () => {
+        void this.menus.settings();
+      },
+
+      /** Fills the case file so clue-heavy panels render at full density. */
+      grantAllClues: () => {
+        for (const id of Object.keys(this.content.clues)) this.state.clues.add(id);
+        for (const id of Object.keys(this.content.items)) this.state.items.add(id);
+        for (const c of Object.keys(this.content.characters)) {
+          this.state.flags[`met.${c}`] = true;
+        }
+        this.state.notify();
+      },
+
+      openFirstConversation: async () => {
+        const first = this.content.dialogue.find((t) => t.act === 1);
+        if (first) await this.talk(first.characterId);
+      },
+
+      openPuzzle: (id: string) => this.openPuzzle(id),
+
+      goto: (id: SceneId) => this.goto(id, 'none'),
+
+      /** Every scene id, so the harness can sweep the whole game's art. */
+      sceneIds: () => Object.keys(this.content.scenes),
+    };
+  }
 }
 
 export type { SaveSlot };
