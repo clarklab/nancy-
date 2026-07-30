@@ -6,3 +6,8 @@ dist
 .env.*
 !.env.example
 tools/.artcache
+
+# Agent scratch: screenshot harnesses write here during review runs.
+tmp/
+shots/
+dist-smoke/
