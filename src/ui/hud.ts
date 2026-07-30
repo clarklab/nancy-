@@ -102,8 +102,13 @@ export class Hud {
   private beltFocus = 0;
   /** Roving-tabindex cursor for the tool cluster, for the same reason. */
   private toolFocus = 0;
-  /** Signature of the rendered belt, so we only rebuild when it truly changed. */
-  private beltKey = '';
+  /**
+   * Signature of the rendered belt, so we only rebuild when it truly changed.
+   * `null`, not `''` — an empty inventory joins to the empty string, and a
+   * sentinel of `''` would make the very first paint of a fresh game look
+   * unchanged and leave the rail with no empty recesses in it at all.
+   */
+  private beltKey: string | null = null;
   /** Slot count at the last rebuild, so we can tell an arrival from a removal. */
   private beltCount = 0;
   /** False until the belt has been painted once; suppresses a phantom arrival. */
