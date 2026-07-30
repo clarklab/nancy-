@@ -10,6 +10,7 @@
 import type { Scene, SceneId } from '@/engine/types';
 import {
   all,
+  any,
   at,
   clue,
   doneTask,
@@ -1001,12 +1002,17 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
         label: 'The survey drawer',
         shape: at(0.06, 0.56, 0.16, 0.2),
         cursor: 'take',
+        // Two separate objects in one drawer, so they are taken separately.
+        // Keying the tide tables on `lacks('approach-surveys')` meant that a
+        // player who solved the light-table puzzle first — which hands over the
+        // approach surveys as its own reward — could never lift the tide tables
+        // at all, and the tables are half of the marigraph combination.
         onInteract: [
           when(
-            lacks('approach-surveys'),
+            any(lacks('approach-surveys'), lacks('tide-tables-1974')),
             [
-              take('approach-surveys'),
-              take('tide-tables-1974'),
+              when(lacks('approach-surveys'), [take('approach-surveys')]),
+              when(lacks('tide-tables-1974'), [take('tide-tables-1974')]),
               think(
                 'Rolled sheets by date in a rack that Sandbach’s programme strikes on the thirtieth, and the 1974 tide tables underneath them with the spine gone.',
                 'If I leave these in this room until Friday they will be in a crate in the yard marked LOT 4 and I will not see them again.',

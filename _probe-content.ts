@@ -17,14 +17,16 @@ import type {
   Scene,
 } from '@/engine/types';
 
-import { scenes } from './scenes';
-import { items } from './items';
-import { clues } from './clues';
-import { characters } from './characters';
-import { dialogue } from './dialogue';
-import { puzzles } from './puzzles';
-import { cinematics } from './cinematics';
-import { acts, START_SCENE, OPENING_CINEMATIC, GAME_TITLE } from './acts';
+import { scenes } from '@/game/scenes';
+import { items } from '@/game/items';
+import { clues } from '@/game/clues';
+import { characters } from '@/game/characters';
+import { dialogue } from '@/game/dialogue';
+import { puzzles } from '@/game/puzzles';
+import { cinematics } from '@/game/cinematics';
+import { acts, START_SCENE, OPENING_CINEMATIC, GAME_TITLE } from '@/game/acts';
+
+export const DEBUG: Record<string, any> = {};
 
 export interface ValidationIssue {
   severity: 'error' | 'warning';
@@ -906,6 +908,15 @@ export function validateContent(c: GameContent): ValidationIssue[] {
     );
   }
 
+  DEBUG.actReach = Object.fromEntries([...actReach].map(([k, v]) => [k, [...v].sort()]));
+  DEBUG.actEntry = Object.fromEntries([...actEntry].map(([k, v]) => [k, [...v].sort()]));
+  DEBUG.actEdges = Object.fromEntries(
+    [...actEdges].map(([k, v]) => [k, Object.fromEntries([...v].map(([a, b]) => [a, [...b].sort()]))]),
+  );
+  DEBUG.grants = grants.map((g) => ({ id: g.id, kind: g.kind, hosts: [...g.hosts], where: g.where }));
+  DEBUG.required = [...requiredIds].sort();
+  DEBUG.puzzleHosts = Object.fromEntries([...puzzleHosts].map(([k, v]) => [k, [...v]]));
+  DEBUG.dialogueHosts = Object.fromEntries([...dialogueHosts].map(([k, v]) => [k, [...v]]));
   return issues;
 }
 

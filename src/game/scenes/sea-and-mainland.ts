@@ -466,8 +466,11 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
     layers: [
       {
         id: 'causeway-flood',
+        // Act IV only. The gale blows itself out at about four on the morning
+        // of the third, and by low water the causeway is back — which is the
+        // whole reason Act V can walk to Cardew at all.
         src: './art/scenes/slipway-and-ritas-shed-causeway-flood.webp',
-        visibleIf: inAct(4),
+        visibleIf: inAct(4, 4),
         animate: 'drift',
       },
     ],
@@ -565,17 +568,34 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
           ),
         ],
       },
+      // The causeway is a tide, not a door. It is open in Act III, six feet
+      // under for the whole of the Act IV gale, and open again on the morning
+      // of the third once the wind has gone round and the sea has dropped —
+      // which is the in-world route Act V uses to get back to Cardew.
       exit('causeway-head', 'Head of the causeway', at(0.02, 0.52, 0.16, 0.3), 'cardew-village', {
         cursor: 'walk-left',
         visibleIf: inAct(3),
-        enabledIf: untilAct(3),
+        enabledIf: any(untilAct(3), inAct(5)),
         blockedEffects: [
           think(
             'Six feet of black water over the crown and the marker posts leaning. Not on foot, not tonight, not ever again this week.',
           ),
         ],
         before: [
-          think('Low water. Forty minutes across the tumbled concrete with the weed sucking at it.'),
+          when(
+            inAct(5),
+            [
+              think(
+                'Low water at seven minutes past eight, and the causeway coming up out of the Sound like a spine, wet and steaming in the first proper sun in nine days.',
+                'The marker posts are down flat from the fourth to the eleventh and the weed is a foot deep over the crown, and it is walkable, and there is a smear of smoke standing over Cardew that has not moved since I saw it from the gallery.',
+              ),
+            ],
+            [
+              think(
+                'Low water. Forty minutes across the tumbled concrete with the weed sucking at it.',
+              ),
+            ],
+          ),
         ],
       }),
       exit('cliff-steps', 'Up to the cliff path', at(0.88, 0.06, 0.12, 0.3), 'cliff-path-churchyard', {
@@ -698,11 +718,22 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
         visibleIf: inAct(3),
         before: [
           when(
-            inAct(4),
-            [think('There is a light over the hill that is not a window and not a headlamp.')],
+            inAct(5),
             [
               think(
-                'Up past the chapel, a Bedford van with the back doors open, and a rented cottage with the curtains shut at four in the afternoon.',
+                'Up past the chapel, and the smoke is not a chimney. It is coming off the roof of the last cottage on the hill in a flat grey sheet, and there is a fire tender at the gate with its hose run out into the ditch.',
+                'Wick untrimmed, tank filled to the neck, and a bundle of 1958 pilotage licences eighteen inches from the grille. I thought about it every time I walked out of that room and I never once said it.',
+              ),
+            ],
+            [
+              when(
+                inAct(4),
+                [think('There is a light over the hill that is not a window and not a headlamp.')],
+                [
+                  think(
+                    'Up past the chapel, a Bedford van with the back doors open, and a rented cottage with the curtains shut at four in the afternoon.',
+                  ),
+                ],
               ),
             ],
           ),
@@ -716,12 +747,17 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       // only, so from Act IV on she is cut off in the direction that matters.
       exit('to-causeway', 'Back to the causeway', at(0.0, 0.56, 0.1, 0.34), 'slipway-and-ritas-shed', {
         cursor: 'walk-back',
-        enabledIf: untilAct(4),
+        enabledIf: any(untilAct(4), inAct(5)),
         blockedEffects: [
           think('The causeway is six feet under and the road round is forty miles. Not tonight.'),
         ],
         before: [
-          when(inAct(4), [
+          when(inAct(5), [
+            think(
+              'Back over the crown with the sun on the water and the whole nine days of it behind me, and I am at the Board Room door at two o’clock whatever else happens.',
+            ),
+          ]),
+          when(inAct(4, 4), [
             // The pole stands at the Cardew turn, which is the corner the
             // causeway road leaves the village on. She cannot walk out of here
             // without passing it, so the Aldis lamp on the roof of Pilotage
@@ -918,6 +954,89 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
             'Slates down, the dresser standing, and the table with four inches of black water on it.',
             'Four bundles out through the scullery window and five left where they were. I know which five. I will know which five for the rest of my life.',
             'He asked me, in the ambulance, whether I had got the wreck registers. I had. He said good, and went back to sleep.',
+          ),
+        ],
+      },
+      // The four bundles Pike carried out through the scullery window before
+      // the roof went, standing in the yard under a tarpaulin with a brick on
+      // each corner, labelled in a chief clerk's hand and dry. This is the Act
+      // V second chance on the Cardew evidence: a player who crossed back on
+      // the last of the Act III tide without lifting the requisition book or
+      // the despatch book off that dresser can still put their hands on them,
+      // and the fiction is that a sixty-eight-year-old man went back inside a
+      // burning kitchen for exactly the papers that matter.
+      {
+        id: 'salvaged-bundles',
+        label: 'Four bundles under a tarpaulin in the yard',
+        shape: at(0.72, 0.66, 0.24, 0.26),
+        cursor: 'take',
+        huntable: true,
+        visibleIf: inAct(5),
+        onInteract: [
+          when(
+            all(has('oil-requisition-book'), has('despatch-book'), has('lamp-report-15aug')),
+            [
+              think(
+                'Four bundles, tied, labelled, and dry under a tarpaulin with a brick on each corner, and I have already read every sheet in them.',
+                'He went back in through the scullery window twice. The second time was for the wreck registers, which I had had in a satchel since Thursday, and nobody told him.',
+              ),
+            ],
+            [
+              say(
+                'Halvard Pike',
+                'Scullery window. Twice. The labels are on them and the labels are right, which is more than can be said for anything in that building.',
+                'Take what you need and sign for it. I am not having it said I gave you anything without a receipt.',
+              ),
+              when(
+                lacks('oil-requisition-book'),
+                [
+                  take('oil-requisition-book'),
+                  clue('clue-oil-requisition-book'),
+                  tell(
+                    'R.741, 16 August 1974. R.748, 9 September 1974. R.755, 7 October 1974.',
+                    'Each stamped REQUISITION NOT SANCTIONED — REFER WINTER REFIT. Each initialled. Each with two millimetres of 2H pencil beside the initials: p.p.',
+                  ),
+                  think(
+                    'Three refusals in eight weeks for a lighthouse with ninety gallons in the store. Nobody refuses oil to a lighthouse. You refuse a paint order. You do not refuse oil.',
+                  ),
+                ],
+              ),
+              when(
+                lacks('despatch-book'),
+                [
+                  take('despatch-book'),
+                  clue('clue-despatch-docket'),
+                  tell(
+                    'Docket, 16 August 1974. Notices to Mariners for despatch: 74/117, 74/118, 74/119, 74/120.',
+                    '74/119 is ruled through in 2H pencil, once, cleanly, with a straight edge. Initialled in the margin: p.p.',
+                  ),
+                  think(
+                    'Somebody ruled a warning out of a despatch list with a ruler. Not torn out. Not burned. Ruled through and initialled, because that is how it is done properly.',
+                  ),
+                ],
+              ),
+              when(
+                lacks('lamp-report-15aug'),
+                [
+                  take('lamp-report-15aug'),
+                  clue('clue-lamp-report-15aug'),
+                  tell(
+                    'LAMP SUPERINTENDENT’S REPORT, 15 August 1974. C. SALLOW.',
+                    'No. 2 vaporiser cracked at the jet on inspection of the 9th inst. Reserve oil ninety gallons. In my opinion the light cannot be relied upon beyond the end of the month.',
+                  ),
+                ],
+              ),
+              // The reconciliation is worked at the kitchen table and the
+              // clue comes off the puzzle itself, so it cannot be walked out
+              // on — but the three books came out of the fire with him, and a
+              // finding that has to be cited on the third had better be able
+              // to point at them here as well.
+              clue('clue-reconciliation'),
+              think(
+                'The Light Dues Ledger, the Oil Requisition Book and the Wage Sheets, in a wet yard at Cardew, with a fire tender running in the lane.',
+                'Every figure I am going to be asked for at two o’clock this afternoon is in these four bundles, and the man who saved them is in Rossport Cottage Hospital with his hands bandaged.',
+              ),
+            ],
           ),
         ],
       },

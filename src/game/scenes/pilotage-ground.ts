@@ -32,6 +32,7 @@ import {
   task,
   tell,
   think,
+  unaware,
   unsolved,
   when,
 } from './util';
@@ -436,9 +437,15 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
         label: 'Halvard Pike at the counter',
         shape: at(0.58, 0.28, 0.2, 0.34),
         cursor: 'talk',
+        // Keyed on the clue, not on the treasury tag. It used to be
+        // `lacks('treasury-tag')`, which meant that a player who squared a tag
+        // off the bundle two feet away before speaking to him lost
+        // `clue-docket-fold` for the rest of the game — and that clue is one of
+        // the six named rebuttals the Board needs answered. Two unrelated
+        // hotspots in the same room must never be ordered against each other.
         onInteract: [
           when(
-            lacks('treasury-tag'),
+            unaware('clue-docket-fold'),
             [
               say(
                 'Halvard Pike',
