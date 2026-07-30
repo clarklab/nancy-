@@ -46,7 +46,16 @@ corners. Against a painted scene it looks like a debug overlay rather than an
 in-world highlight. It should be predominantly a soft radial bloom with the
 ring either dropped or feathered to near-invisibility at the corners.
 
-## 3. `Hud` API drift vs. `game.ts`
+## 3. `Hud` API drift vs. `game.ts` — RESOLVED
+
+The `hud` review agent converged the module onto the orchestrator's contract on
+its own: `HudCallbacks` now has the five separate handlers plus an optional
+`onSound`, `toast(kind, title, icon?)` takes three arguments, and
+`announceLocation(name, subtitle?)` exists. `game.ts` typechecks against it
+unchanged. Original report below for the record.
+
+<details><summary>Original report</summary>
+
 
 `src/ui/hud.ts` landed with a different (better) callback shape than the
 orchestrator assumes:
@@ -59,6 +68,7 @@ orchestrator assumes:
 
 Reconcile in `game.ts` (adopt the HUD's API — it is the cleaner design) and add
 `announceLocation` to the HUD.
+</details>
 
 ## 4. `import.meta.env` needed `vite/client` types
 

@@ -97,7 +97,7 @@ export class Game implements Presenter {
     this.journal = new Journal(this.state, { onSound: (n) => audio.playSound(n) });
     this.journal.mount(overlays);
 
-    this.dialogue = new DialogueView({ onSound: (n) => audio.playSound(n) });
+    this.dialogue = new DialogueView({ onSound: (n: string) => audio.playSound(n) });
     this.dialogue.mount(overlays);
 
     this.puzzles = new PuzzleHost({ onSound: (n) => audio.playSound(n) });
