@@ -1,7 +1,7 @@
 /**
  * The conversation view — mirrors src/ui/dialogue.ts exactly.
  *
- * Four surfaces, each a different material, so the eye never confuses them:
+ * Five surfaces, each a different material, so the eye never confuses them:
  *   .dialogue-scrim     — the room, still there, out of focus and out of light
  *   .dialogue-portrait  — a lit figure standing on the floor of the frame
  *   .dialogue-nameplate — engraved brass, screwed to the frame under them
@@ -26,6 +26,19 @@
   /* Sign of the key light: +1 when the lamp is off to the player's right.
      Drives the portrait's cast shadow and the warm spill behind it. */
   --dlg-key: 1;
+
+  /* One measure for the reply and for the plates beneath it. They share a left
+     edge, which is the only thing that makes the two materials read as one
+     column of speech instead of two unrelated panels — and it stops the plates
+     stretching to 1400px of empty brass on a 1440p display. */
+  --dlg-measure: min(38rem, 100%);
+
+  /* A clip-path erases box-shadow outright, so the torn sheet's cast shadow has
+     to be a filter — the only shadow that follows a clipped silhouette. The
+     falloff mirrors --shadow-3, which cannot be reused verbatim because it is a
+     box-shadow list and drop-shadow() takes one shadow at a time. */
+  --dlg-shadow-torn: drop-shadow(0 18px 30px rgb(0 0 0 / 0.72))
+    drop-shadow(0 4px 10px rgb(0 0 0 / 0.5));
 
   /* Two literal durations the token scale has no place for: a breath is a
      breath, and a tremor is a tremor. Both are neutralised below for anyone
@@ -57,6 +70,9 @@
 .dialogue-root.is-closing {
   opacity: 0;
   transition-duration: var(--dur-med);
+  /* On the way out the overlay is scenery; the room underneath is what the
+     player is being handed back. */
+  pointer-events: none;
 }
 
 .dialogue-root:focus {
@@ -90,7 +106,11 @@
 .dialogue-stage {
   display: grid;
   grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
-  grid-template-rows: minmax(0, 1fr) auto;
+  /* Both rows are bounded fractions of the stage, never `auto`. An `auto` tray
+     row grows with the number of topics and pushes itself straight through the
+     bottom of the artwork, where `overflow: hidden` silently eats the last
+     plate and the key hint. */
+  grid-template-rows: minmax(0, 1fr) minmax(0, 0.78fr);
   column-gap: clamp(var(--sp-5), 3vw, var(--sp-7));
   row-gap: clamp(var(--sp-3), 2vh, var(--sp-5));
   padding: clamp(var(--sp-4), 3vh, var(--sp-6)) clamp(var(--sp-5), 3vw, var(--sp-7));
@@ -116,8 +136,15 @@
 
 .dialogue-tray {
   grid-area: 2 / 2 / 3 / 3;
-  align-self: end;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  /* The stack hangs from the bottom of its row, so adding a topic grows the
+     list upward and the "end conversation" plate never moves under the cursor. */
+  justify-content: flex-end;
+  width: var(--dlg-measure);
   min-width: 0;
+  min-height: 0;
 }
 
 /* Mirrored staging. Which side a character stands on is hashed from their id
@@ -142,6 +169,7 @@
 
 .dialogue-root[data-side='right'] .dialogue-tray {
   grid-area: 2 / 1 / 3 / 2;
+  justify-self: end;
 }
 
 /* -- Portrait -------------------------------------------------------------- */
@@ -165,6 +193,22 @@
 
 .dialogue-root.is-open .dialogue-keylight {
   opacity: 1;
+}
+
+/* The pool of shadow the figure is standing in. Painted before the key light
+   so the spill can wash back over its near edge, which is what stops the
+   portrait reading as a cut-out laid on a dark rectangle. */
+.dialogue-bay::before {
+  content: '';
+  position: absolute;
+  inset: auto -10% 0;
+  height: 34%;
+  pointer-events: none;
+  background: radial-gradient(
+    58% 100% at calc(50% - var(--dlg-key) * 6%) 100%,
+    color-mix(in srgb, var(--ink-abyss) 78%, transparent) 0%,
+    transparent 72%
+  );
 }
 
 .dialogue-portrait {
@@ -200,15 +244,20 @@
 
 .dialogue-root .dialogue-bay {
   opacity: 0;
-  transform: translateY(18px);
+  /* Entrance travel goes on `translate`, not `transform`. A settled
+     `transform: translateY(0)` is still a transform, and it would give the bay
+     a stacking context of its own — which would trap the key light's `screen`
+     blend inside the bay and stop it ever reaching the scrim it is meant to
+     be lighting. `translate: none` leaves no such residue. */
+  translate: 0 18px;
   transition:
     opacity var(--dur-scene) var(--ease-out),
-    transform var(--dur-scene) var(--ease-drama);
+    translate var(--dur-scene) var(--ease-drama);
 }
 
 .dialogue-root.is-open .dialogue-bay {
   opacity: 1;
-  transform: translateY(0);
+  translate: none;
 }
 
 @keyframes dialogue-breathe {
@@ -297,9 +346,31 @@
 
 /* -- Speech panel ---------------------------------------------------------- */
 
+/**
+ * Two elements, and they have to stay two.
+ *
+ * `clip-path` is applied *after* `filter`, so a torn sheet that carries both on
+ * one box clips away its own cast shadow and ends up floating flat on the
+ * scrim. The outer box therefore holds the shadow and the entrance, and the
+ * inner sheet holds the paper and the tear.
+ */
 .dialogue-speech {
+  max-width: var(--dlg-measure);
+  filter: var(--dlg-shadow-torn);
+  opacity: 0;
+  translate: 0 10px;
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    translate var(--dur-slow) var(--ease-out);
+}
+
+.dialogue-speech.is-visible {
+  opacity: 1;
+  translate: none;
+}
+
+.dialogue-sheet {
   position: relative;
-  max-width: min(52ch, 100%);
   padding: clamp(var(--sp-5), 2.6vh, var(--sp-6)) clamp(var(--sp-5), 2.4vw, var(--sp-6));
   color: var(--paper-ink);
   border-radius: var(--radius-sm);
@@ -311,27 +382,16 @@
       var(--paper-200) 56%,
       var(--paper-300) 100%
     );
-  box-shadow:
-    var(--shadow-3),
-    inset 0 -14px 22px -18px rgb(0 0 0 / 0.55);
+  /* Only the inset half is drawn here; the cast shadow lives on the parent. */
+  box-shadow: inset 0 -14px 22px -18px rgb(0 0 0 / 0.55);
   /* Torn from a notebook, not cut by a div. */
   clip-path: polygon(
     0% 2.6%, 4% 0%, 12% 2.2%, 23% 0.4%, 37% 2.4%, 51% 0.3%, 66% 2.2%, 79% 0.5%, 91% 2%, 100% 0.7%,
     100% 100%, 0% 100%
   );
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity var(--dur-med) var(--ease-out),
-    transform var(--dur-slow) var(--ease-out);
 }
 
-.dialogue-speech.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.dialogue-speech::before {
+.dialogue-sheet::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -343,22 +403,38 @@
 }
 
 /* The player's own question, kept above the answer so the exchange reads as a
-   pair rather than a stream of disconnected replies. */
+   pair rather than a stream of disconnected replies. Prose, not chrome: it is
+   a sentence somebody said, so it stays in the body serif and only the "You"
+   tab beside it is allowed to be a label. */
 .dialogue-echo {
   display: none;
   margin: 0 0 var(--sp-3);
-  padding-bottom: var(--sp-2);
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  font-weight: 500;
-  letter-spacing: var(--tracking-ui);
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper-ink-faded) 82%, transparent);
+  padding-bottom: var(--sp-3);
   border-bottom: 1px solid color-mix(in srgb, var(--paper-400) 55%, transparent);
 }
 
 .dialogue-speech.has-echo .dialogue-echo {
-  display: block;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.dialogue-echo-label {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink-faded) 62%, transparent);
+}
+
+.dialogue-echo-line {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-style: italic;
+  line-height: var(--leading-body);
+  color: var(--paper-ink-faded);
 }
 
 .dialogue-text {
@@ -407,20 +483,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
+  /* Shrinks against the tray's bounded row instead of growing past it; the
+     brass scrollbar comes from `.scrollable` in base.css. */
+  flex: 0 1 auto;
+  min-height: 0;
   /* Room for the hover slide, the focus ring and the plate shadows to breathe
      without any of them being clipped by the scroll container. */
   padding: var(--sp-2);
-  /* A very talkative topic list scrolls inside itself rather than pushing the
-     portrait off the floor of the stage. */
-  max-height: min(44vh, 24rem);
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--lamp-600) 70%, transparent) transparent;
 }
 
 .dialogue-plate {
+  position: relative;
+  /* The grain and the sheen are negative-z pseudo-elements; without an
+     isolation boundary their `overlay` blend would reach past the plate and
+     tint the scrim behind it. */
+  isolation: isolate;
   display: grid;
   grid-template-columns: 1.35rem minmax(0, 1fr) auto;
   align-items: baseline;
@@ -444,19 +521,56 @@
     inset 0 -8px 14px -10px rgb(0 0 0 / 0.75);
   cursor: pointer;
   opacity: 0;
-  transform: translateY(9px);
+  /* Entrance rides `translate`; hover and press ride `transform`. Keeping them
+     on separate properties is what lets the staggered deal-out carry a delay
+     without that same delay being inherited by the hover slide — a plate at
+     the bottom of the stack used to take a third of a second to answer the
+     cursor. */
+  translate: 0 9px;
   transition:
     opacity var(--dur-med) var(--ease-out) var(--plate-delay, 0ms),
-    transform var(--dur-slow) var(--ease-drama) var(--plate-delay, 0ms),
+    translate var(--dur-slow) var(--ease-drama) var(--plate-delay, 0ms),
+    transform var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-med) var(--ease-out);
 }
 
 .dialogue-plate.is-in {
   opacity: 1;
-  transform: translateY(0);
+  translate: none;
+}
+
+/* Rolled metal, so no plate is ever a flat two-stop gradient. */
+.dialogue-plate::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: var(--dlg-grain-metal);
+  background-size: 120px 120px;
+  mix-blend-mode: overlay;
+  opacity: 0.18;
+}
+
+/* Lamplight catching the near edge — the plate lights up rather than merely
+   changing colour, which is the difference between brass and a hover state. */
+.dialogue-plate::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-300) 20%, transparent) 0%,
+    transparent 46%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
 }
 
 .dialogue-plate:hover,
@@ -468,8 +582,12 @@
   box-shadow:
     var(--shadow-3),
     inset 0 1px 0 rgb(255 255 255 / 0.1),
-    inset 0 -8px 14px -10px rgb(0 0 0 / 0.7),
-    inset 10px 0 24px -18px color-mix(in srgb, var(--lamp-300) 80%, transparent);
+    inset 0 -8px 14px -10px rgb(0 0 0 / 0.7);
+}
+
+.dialogue-plate:hover::after,
+.dialogue-plate.is-cursor::after {
+  opacity: 1;
 }
 
 .dialogue-plate:focus-visible {
@@ -480,6 +598,8 @@
 /* Pressed: the plate goes down into its recess and loses its own light. */
 .dialogue-plate:active,
 .dialogue-plate.is-chosen {
+  color: var(--lamp-100);
+  border-left-color: var(--lamp-300);
   transform: translateX(5px) translateY(1px);
   box-shadow:
     var(--shadow-1),
@@ -487,14 +607,23 @@
   animation: none;
 }
 
-.dialogue-plate[disabled] {
+/* The whole stack is spent the instant one plate is taken. It stays in the DOM
+   through the reply — partly because a disabled button drops focus and the
+   caret would land back on <body>, partly because seeing what you just said
+   sitting under the answer is worth more than an empty tray. */
+.dialogue-choices.is-spent .dialogue-plate {
+  pointer-events: none;
   cursor: default;
 }
 
-/* Every plate that was not taken recedes the moment one is. */
-.dialogue-plate[disabled]:not(.is-chosen) {
-  opacity: 0.28;
+.dialogue-choices.is-spent .dialogue-plate:not(.is-chosen) {
+  opacity: 0.26;
   transform: none;
+  box-shadow: var(--shadow-1);
+}
+
+.dialogue-choices.is-spent .dialogue-plate:not(.is-chosen)::after {
+  opacity: 0;
 }
 
 .dialogue-key {
@@ -504,10 +633,12 @@
   letter-spacing: 0;
   text-align: center;
   color: color-mix(in srgb, var(--lamp-400) 72%, transparent);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .dialogue-plate:hover .dialogue-key,
-.dialogue-plate.is-cursor .dialogue-key {
+.dialogue-plate.is-cursor .dialogue-key,
+.dialogue-plate.is-chosen .dialogue-key {
   color: var(--lamp-200);
 }
 
@@ -550,6 +681,14 @@
     inset 0 -8px 16px -10px rgb(0 0 0 / 0.8);
 }
 
+.dialogue-plate.is-confront::after {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--blood-bright) 26%, transparent) 0%,
+    transparent 48%
+  );
+}
+
 .dialogue-plate.is-confront .dialogue-key {
   color: color-mix(in srgb, var(--blood-bright) 80%, transparent);
 }
@@ -567,7 +706,8 @@
 }
 
 .dialogue-plate.is-confront:hover .dialogue-key,
-.dialogue-plate.is-confront.is-cursor .dialogue-key {
+.dialogue-plate.is-confront.is-cursor .dialogue-key,
+.dialogue-plate.is-confront.is-chosen .dialogue-key {
   color: var(--blood-bright);
 }
 
@@ -595,7 +735,9 @@
   }
 }
 
-/* Leaving is always available and never competes with the topics. */
+/* Leaving, and stepping back up out of a follow-up thread, are always
+   available and never compete with the topics. Both are chrome actions rather
+   than things a character says, which is the one place the UI face belongs. */
 .dialogue-plate.is-leave {
   margin-top: var(--sp-2);
   font-family: var(--font-ui);
@@ -610,8 +752,17 @@
     linear-gradient(172deg, var(--ink-700) 0%, var(--ink-900) 100%);
 }
 
+.dialogue-plate.is-leave::after {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--moon-300) 16%, transparent) 0%,
+    transparent 44%
+  );
+}
+
 .dialogue-plate.is-leave:hover,
-.dialogue-plate.is-leave.is-cursor {
+.dialogue-plate.is-leave.is-cursor,
+.dialogue-plate.is-leave.is-chosen {
   color: var(--moon-100);
   border-left-color: var(--moon-300);
 }
@@ -619,6 +770,7 @@
 /* -- Key hint -------------------------------------------------------------- */
 
 .dialogue-hint {
+  flex: 0 0 auto;
   display: flex;
   gap: var(--sp-4);
   margin: var(--sp-2) 0 0;
@@ -641,6 +793,10 @@
 /* Below roughly 1280 logical pixels the portrait would crowd the text, so it
    gives up width rather than letting the reply wrap to five words a line. */
 @media (max-width: 1100px) {
+  .dialogue-root {
+    --dlg-measure: 100%;
+  }
+
   .dialogue-stage {
     grid-template-columns: minmax(0, 28fr) minmax(0, 72fr);
   }
@@ -651,6 +807,14 @@
 
   .dialogue-hint {
     display: none;
+  }
+}
+
+/* Short windows have no height to give the portrait; the tray takes what it
+   needs and the figure is cropped at the knee rather than the topics being. */
+@media (max-height: 720px) {
+  .dialogue-stage {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1.1fr);
   }
 }
 
@@ -669,5 +833,11 @@
 
   .dialogue-speech.is-ready .dialogue-caret {
     opacity: 0.85;
+  }
+
+  /* Belt and braces with dialogue.ts, which already stops writing
+     `--plate-delay`: a staggered deal-out is travel like any other. */
+  .dialogue-plate {
+    transition-delay: 0ms;
   }
 }

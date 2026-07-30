@@ -187,6 +187,7 @@ export class Journal {
     this.buildTabs();
 
     this.el.addEventListener('keydown', this.onKeyDown);
+    this.bookEl.addEventListener('transitionend', this.onBookSettled);
     this.el.querySelector('.journal__scrim')!.addEventListener('click', () => this.close());
     q('.journal__close').addEventListener('click', () => this.close());
     this.tabsEl.addEventListener('click', this.onTabClick);
@@ -785,7 +786,7 @@ export class Journal {
             <span class="ded-suspect__name">${escapeHtml(s.name)}</span>
             <span class="ded-suspect__role">${escapeHtml(s.role)}</span>
           </span>
-          <span class="ded-suspect__tally">
+          <span class="ded-suspect__tally" data-count="${pinned.length}">
             <span aria-hidden="true">${pinned.length}</span>
             <span class="sr-only">${pinned.length} clues pinned</span>
           </span>
@@ -1153,6 +1154,16 @@ export class Journal {
     (match ?? this.panelEl).focus({ preventScroll: true });
   }
 
+  /**
+   * The book swings on `rotateY`, and a rotating ancestor projects every
+   * client rect underneath it. The overlays normalise that away (see
+   * `layoutStrings`), but they are still drawn from a squashed measurement
+   * until the swing lands, so redraw them once it does.
+   */
+  private onBookSettled = (ev: TransitionEvent) => {
+    if (ev.target === this.bookEl && ev.propertyName === 'transform') this.queueOverlays();
+  };
+
   private queueOverlays() {
     if (this.overlaysQueued) return;
     this.overlaysQueued = true;
@@ -1173,7 +1184,9 @@ export class Journal {
     }
 
     const scenes = this.state.content.scenes ?? {};
-    const cols = Math.min(MAP_MAX_COLS, Math.max(2, Math.ceil(Math.sqrt(ids.length))));
+    // Never more columns than there are places: two columns for one node
+    // stretches a single tag across half the spread.
+    const cols = Math.max(1, Math.min(MAP_MAX_COLS, ids.length, Math.ceil(Math.sqrt(ids.length) * 1.4)));
     const nodes = ids
       .map((id) => {
         const here = id === this.state.scene;
@@ -1220,7 +1233,18 @@ export class Journal {
     const trayBox = tray?.getBoundingClientRect();
     const column = this.panelEl.querySelector<HTMLElement>('.ded__suspects');
     const columnBox = column?.getBoundingClientRect();
-    svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`);
+
+    // The book is a 3D-transformed surface: every client rect under it comes
+    // back projected, not in layout pixels, and mid-swing the whole board
+    // measures a couple of hundred pixels wide. Emitting into a viewBox sized
+    // in *layout* pixels and normalising each measurement by the board's own
+    // rect cancels whatever the swing is doing, so the string lands in the
+    // right place whenever it happens to be drawn.
+    const w = board.clientWidth || Math.round(box.width);
+    const h = board.clientHeight || Math.round(box.height);
+    const sx = w / box.width;
+    const sy = h / box.height;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
     const paths: string[] = [];
     for (const suspectEl of this.panelEl.querySelectorAll<HTMLElement>('.ded-suspect')) {
@@ -1232,8 +1256,8 @@ export class Journal {
       // A suspect scrolled out of their column is in the same boat as a
       // scrolled-out card: no honest anchor, so no string.
       if (columnBox && (hb.bottom < columnBox.top - 2 || hb.top > columnBox.bottom + 2)) continue;
-      const x2 = hb.left + hb.width / 2 - box.left;
-      const y2 = hb.top + hb.height / 2 - box.top;
+      const x2 = (hb.left + hb.width / 2 - box.left) * sx;
+      const y2 = (hb.top + hb.height / 2 - box.top) * sy;
 
       for (const clueId of this.state.accusations[suspect] ?? []) {
         const card = this.panelEl.querySelector<HTMLElement>(
@@ -1245,8 +1269,8 @@ export class Journal {
         // rather than let it point at the wrong place.
         if (trayBox && (cb.bottom < trayBox.top - 2 || cb.top > trayBox.bottom + 2)) continue;
 
-        const x1 = cb.left + cb.width / 2 - box.left;
-        const y1 = cb.top + cb.height / 2 - box.top;
+        const x1 = (cb.left + cb.width / 2 - box.left) * sx;
+        const y1 = (cb.top + cb.height / 2 - box.top) * sy;
         const span = Math.hypot(x2 - x1, y2 - y1);
         // Slack in the string: real twine hangs, and the sag is what makes the
         // board read as a physical object rather than a node graph.
@@ -1268,13 +1292,22 @@ export class Journal {
     const grid = this.panelEl.querySelector<HTMLElement>('.map__grid');
     if (!svg || !grid) return;
 
+    const holder = svg.parentElement;
     const box = svg.getBoundingClientRect();
-    if (!box.width || !box.height) return;
-    svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`);
+    if (!holder || !box.width || !box.height) return;
+    // Same projection problem as the red string; same cure.
+    const w = holder.clientWidth || Math.round(box.width);
+    const h = holder.clientHeight || Math.round(box.height);
+    const sx = w / box.width;
+    const sy = h / box.height;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
     const marks = [...this.panelEl.querySelectorAll<HTMLElement>('.map-node__mark')].map((m) => {
       const r = m.getBoundingClientRect();
-      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top };
+      return {
+        x: (r.left + r.width / 2 - box.left) * sx,
+        y: (r.top + r.height / 2 - box.top) * sy,
+      };
     });
 
     const d: string[] = [];

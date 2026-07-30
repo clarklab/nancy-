@@ -79,6 +79,19 @@ async function main() {
     push({ id: item.id, kind: 'items', prompt: itemPrompt(item, bible) });
   }
 
+  // The art bible names several materials that the curated set already covers
+  // under an earlier id. Alias them rather than generating a second copy.
+  const ALIASES = {
+    'ui-wax-seal': 'seal-wax',
+    'ui-aged-map-paper': 'tex-map-paper',
+    'ui-inventory-slot-plate': 'plate-slot',
+    'ui-vignette-overlay': 'vignette-overlay',
+    'ui-title-key-art': 'key-art',
+    'ui-parchment-sheet': 'tex-parchment',
+    'ui-leather-journal-cover': 'tex-leather',
+    'ui-brass-frame-corner': 'frame-brass',
+  };
+
   // Every curated UI material, plus anything the art bible adds beyond them.
   const seenIds = new Set(assets.map((a) => a.id));
   for (const a of curated.assets) {
@@ -86,7 +99,7 @@ async function main() {
   }
 
   for (const ui of bible.uiAssetPrompts ?? []) {
-    if (seenIds.has(ui.id)) continue;
+    if (seenIds.has(ALIASES[ui.id] ?? ui.id)) continue;
     // Key art is the one UI asset that wants a cinematic aspect ratio.
     const kind = ui.id.includes('key-art') ? 'keyart' : 'ui';
     assets.push({ id: ui.id, kind, prompt: [ui.prompt, HARD_NEGATIVES].join(' ') });

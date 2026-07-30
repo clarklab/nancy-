@@ -46,15 +46,31 @@ const HOTKEYS = '123456789';
  */
 const DEFAULT_EXHAUSTED = 'There is nothing more to press them on. Not yet.';
 const LEAVE_LABEL = 'End conversation';
+const BACK_LABEL = 'Something else';
 
 /**
- * Sentinel returned by the chooser for the leave plate, so "the player asked to
- * go" and "the player chose a topic" are the same code path.
+ * Sentinels returned by the chooser, so "the player asked to go", "the player
+ * backed out of a follow-up thread" and "the player chose a topic" are all the
+ * same code path.
+ *
+ * `BACK_NODE` is not a nicety. A follow-up list whose nodes are all `once:
+ * false` never drains, so without an explicit way out the only escape from a
+ * repeatable thread would be Escape — which aborts the entire conversation.
  */
 const LEAVE_NODE: DialogueNode = { id: '__leave', playerLine: LEAVE_LABEL, reply: '' };
+const BACK_NODE: DialogueNode = { id: '__back', playerLine: BACK_LABEL, reply: '' };
 
 /** Moods tried, in order, when a confrontation lands and the art exists. */
 const CONFRONT_MOODS = ['angry', 'defensive', 'guarded', 'shaken'];
+
+/** Which tail plate a list gets: the way out, or the way back up a level. */
+type Tail = 'leave' | 'back';
+
+/** A reveal in flight. `complete` fills the line now; `cancel` throws it away. */
+interface Reveal {
+  complete(): void;
+  cancel(): void;
+}
 
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lines = (t: string | string[]) => (Array.isArray(t) ? t : [t]);
@@ -72,7 +88,7 @@ export class DialogueView {
   private nameEl!: HTMLElement;
   private roleEl!: HTMLElement;
   private speechEl!: HTMLElement;
-  private echoEl!: HTMLElement;
+  private echoLineEl!: HTMLElement;
   private textEl!: HTMLElement;
   private liveEl!: HTMLElement;
   private choicesEl!: HTMLElement;
@@ -82,8 +98,17 @@ export class DialogueView {
 
   /** True from the first frame of `converse` until the overlay is gone. */
   private active = false;
-  /** Set while text is still revealing, so a click completes instead of advancing. */
-  private completeReveal: (() => void) | null = null;
+  private mounted = false;
+  private destroyed = false;
+  /**
+   * Bumped once per conversation. Every async continuation that outlives its
+   * own conversation (a mood portrait still decoding when the player walks
+   * away) checks it before touching the DOM.
+   */
+  private epoch = 0;
+
+  /** Non-null only while text is still revealing, so a click completes first. */
+  private reveal: Reveal | null = null;
   /** Resolver for the line currently on screen. */
   private advanceLine: (() => void) | null = null;
   /** Resolver for the choice currently being offered. */
@@ -94,7 +119,12 @@ export class DialogueView {
   private plates: HTMLButtonElement[] = [];
   private cursor = 0;
   private restoreFocus: HTMLElement | null = null;
-  private timers = new Set<number>();
+  /**
+   * Pending timeouts *with* their payloads. Teardown has to be able to fire
+   * them rather than drop them: every one of them is holding a promise that
+   * `converse()`'s caller is awaiting, and a dropped timer hangs the game.
+   */
+  private timers = new Map<number, () => void>();
 
   constructor(cb: DialogueCallbacks = {}) {
     this.cb = cb;
@@ -124,13 +154,18 @@ export class DialogueView {
         </div>
 
         <div class="dialogue-speech" aria-hidden="true">
-          <p class="dialogue-echo"></p>
-          <p class="dialogue-text"></p>
-          <span class="dialogue-caret" aria-hidden="true"></span>
+          <div class="dialogue-sheet">
+            <p class="dialogue-echo">
+              <span class="dialogue-echo-label">You</span>
+              <span class="dialogue-echo-line"></span>
+            </p>
+            <p class="dialogue-text"></p>
+            <span class="dialogue-caret" aria-hidden="true"></span>
+          </div>
         </div>
 
         <div class="dialogue-tray">
-          <div class="dialogue-choices" role="menu" aria-label="What to say"></div>
+          <div class="dialogue-choices scrollable" role="menu" aria-label="What to say"></div>
           <p class="dialogue-hint" aria-hidden="true">
             <span>1&ndash;9 choose</span><span>&uarr;&darr; move</span><span>Enter say it</span><span>Esc leave</span>
           </p>
@@ -141,7 +176,7 @@ export class DialogueView {
     this.nameEl = this.q('.dialogue-name');
     this.roleEl = this.q('.dialogue-role');
     this.speechEl = this.q('.dialogue-speech');
-    this.echoEl = this.q('.dialogue-echo');
+    this.echoLineEl = this.q('.dialogue-echo-line');
     this.textEl = this.q('.dialogue-text');
     this.liveEl = this.q('.dialogue-live');
     this.choicesEl = this.q('.dialogue-choices');
@@ -161,6 +196,8 @@ export class DialogueView {
   }
 
   mount(parent: HTMLElement) {
+    if (this.mounted || this.destroyed) return;
+    this.mounted = true;
     parent.appendChild(this.el);
     // Captured, because a conversation outranks every other key binding in the
     // game while it is up — Escape here must never also open the pause menu.
@@ -176,6 +213,7 @@ export class DialogueView {
    * because queueing it would deadlock the very chain it is waiting on.
    */
   async converse(character: Character, tree: DialogueTree, state: GameState): Promise<void> {
+    if (this.destroyed) return;
     if (this.active) {
       console.warn(`[dialogue] ignoring re-entrant conversation with ${character.id}`);
       return;
@@ -183,33 +221,49 @@ export class DialogueView {
 
     this.active = true;
     this.aborted = false;
+    this.epoch++;
     this.restoreFocus = (document.activeElement as HTMLElement | null) ?? null;
 
-    await this.dress(character);
-    await this.open();
+    // Everything from here is wrapped: a presenter that throws mid-conversation
+    // must still release the overlay, or every later `talk` is refused as
+    // re-entrant and the cast falls permanently silent.
+    try {
+      await this.dress(character);
+      if (this.destroyed) return;
+      await this.open();
 
-    this.cb.onSound?.('page-turn');
-    await this.speak(lines(tree.greeting), character.name);
+      this.cb.onSound?.('page-turn');
+      await this.speak(lines(tree.greeting), character.name);
+      await this.branch(tree.nodes, tree, character, state, true);
 
-    await this.branch(tree.nodes, tree, character, state, true);
+      if (!this.aborted && !this.destroyed && tree.farewell) {
+        await this.speak(lines(tree.farewell), character.name);
+      }
 
-    if (!this.aborted && tree.farewell) {
-      await this.speak(lines(tree.farewell), character.name);
+      this.cb.onSound?.('latch');
+    } finally {
+      this.active = false;
+      await this.close();
     }
-
-    this.cb.onSound?.('latch');
-    await this.close();
   }
 
   destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.mounted = false;
     window.removeEventListener('keydown', this.onKey, true);
-    for (const t of this.timers) clearTimeout(t);
-    this.timers.clear();
-    // Settle anything still awaiting us so a teardown can never hang a caller.
-    this.completeReveal = null;
-    this.advanceLine?.();
-    this.settleChoice?.(null);
+
+    this.reveal?.cancel();
+    this.reveal = null;
     this.active = false;
+    this.aborted = true;
+
+    // Settle anything still awaiting us, then flush the timers those settlers
+    // just scheduled, so a teardown can never hang a caller.
+    this.settleChoice?.(null);
+    this.advanceLine?.();
+    this.flushTimers();
+
     this.el.remove();
   }
 
@@ -217,8 +271,9 @@ export class DialogueView {
 
   /**
    * Walks one list of nodes. The root list loops until the player leaves; a
-   * child list returns to its caller as soon as it runs dry, which is what
-   * makes a follow-up thread fall back to the main topics on its own.
+   * child list returns to its caller as soon as it runs dry or the player asks
+   * for something else, which is what makes a follow-up thread fall back to the
+   * main topics.
    */
   private async branch(
     nodes: DialogueNode[],
@@ -234,12 +289,12 @@ export class DialogueView {
         if (!root) return;
         await this.speak([tree.exhausted ?? DEFAULT_EXHAUSTED], character.name);
         // Still make the player press something: an ending should be chosen.
-        await this.offer([], state, true);
+        await this.offer([], state, 'leave');
         return;
       }
 
-      const chosen = await this.offer(available, state, root);
-      if (!chosen || chosen === LEAVE_NODE) return;
+      const chosen = await this.offer(available, state, root ? 'leave' : 'back');
+      if (!chosen || chosen === LEAVE_NODE || chosen === BACK_NODE) return;
 
       this.showEcho(chosen.playerLine);
       // Effects first, per the content contract: a node may hand over a clue
@@ -249,7 +304,7 @@ export class DialogueView {
       state.notify();
 
       if (chosen.isConfrontation) this.setMood(character, CONFRONT_MOODS);
-      if (this.aborted) return;
+      if (this.aborted || !this.active) return;
 
       await this.speak(lines(chosen.reply), character.name);
 
@@ -272,12 +327,15 @@ export class DialogueView {
 
   // -- speech ----------------------------------------------------------------
 
-  /** Reveals each line in turn, waiting for the player between them. */
+  /**
+   * Reveals each line in turn, waiting for the player between them. Blank lines
+   * are dropped rather than shown: a node that exists only to fire effects
+   * should not cost the player a click on an empty sheet of paper.
+   */
   private async speak(text: string[], speaker: string) {
-    this.choicesEl.textContent = '';
-    this.plates = [];
     for (const line of text) {
-      if (this.aborted || !this.active) return;
+      if (this.aborted || !this.active || this.destroyed) return;
+      if (!line.trim()) continue;
       await this.speakLine(line, speaker);
     }
   }
@@ -294,13 +352,16 @@ export class DialogueView {
 
       const done = () => {
         this.advanceLine = null;
-        this.completeReveal = null;
+        // Abandoning a half-typed line has to stop the loop that is typing it,
+        // or the text keeps arriving over the top of the closing animation.
+        this.reveal?.cancel();
+        this.reveal = null;
         this.speechEl.classList.remove('is-ready');
         resolve();
       };
 
-      this.completeReveal = this.typewrite(line, () => {
-        this.completeReveal = null;
+      this.reveal = this.typewrite(line, () => {
+        this.reveal = null;
         this.speechEl.classList.add('is-ready');
       });
       this.advanceLine = done;
@@ -309,30 +370,37 @@ export class DialogueView {
 
   /** The chosen line, kept above the reply so the exchange reads as a pair. */
   private showEcho(playerLine: string) {
-    this.echoEl.textContent = playerLine;
+    this.echoLineEl.textContent = playerLine;
     this.speechEl.classList.add('has-echo');
+    // The paper panel is aria-hidden (the live region speaks for it), so the
+    // player's own line has to be announced here or it is never heard at all.
+    this.liveEl.textContent = `You: ${playerLine}`;
   }
 
   /** First input completes the reveal; the next one moves on. */
   private advance() {
-    if (this.completeReveal) {
-      this.completeReveal();
-      this.completeReveal = null;
+    if (this.reveal) {
+      // `complete` runs the done callback, which clears `this.reveal` for us.
+      this.reveal.complete();
       return;
     }
     this.advanceLine?.();
   }
 
   /**
-   * Reveals text character by character into the speech panel. Returns a
-   * function that completes the reveal immediately — the "click to finish the
-   * line" affordance every adventure game needs.
+   * Reveals text character by character into the speech panel. Returns a handle
+   * that can finish the reveal immediately — the "click to finish the line"
+   * affordance every adventure game needs — or throw it away unfinished.
+   *
+   * Returns `null` when there is nothing to reveal, which is what tells
+   * {@link DialogueView.advance} that the very first press should advance
+   * rather than being swallowed completing an already-complete line.
    */
-  private typewrite(text: string, onDone: () => void): () => void {
+  private typewrite(text: string, onDone: () => void): Reveal | null {
     if (reduced()) {
       this.textEl.textContent = text;
       onDone();
-      return () => {};
+      return null;
     }
 
     let i = 0;
@@ -363,27 +431,33 @@ export class DialogueView {
     };
     raf = requestAnimationFrame(tick);
 
-    return () => {
-      cancelAnimationFrame(raf);
-      this.textEl.textContent = text;
-      onDone();
+    return {
+      complete: () => {
+        cancelAnimationFrame(raf);
+        this.textEl.textContent = text;
+        onDone();
+      },
+      cancel: () => {
+        cancelAnimationFrame(raf);
+      },
     };
   }
 
   // -- choices ---------------------------------------------------------------
 
   /**
-   * Deals out the choice plates and waits. Resolves with the chosen node,
-   * {@link LEAVE_NODE} for a deliberate goodbye, or `null` when the player
-   * escaped out.
+   * Deals out the choice plates and waits. Resolves with the chosen node, with
+   * {@link LEAVE_NODE} / {@link BACK_NODE} for the tail plate, or `null` when
+   * the player escaped out.
    */
   private offer(
     nodes: DialogueNode[],
     state: GameState,
-    withLeave: boolean,
+    tail: Tail,
   ): Promise<DialogueNode | null> {
     return new Promise((resolve) => {
       this.choicesEl.textContent = '';
+      this.choicesEl.classList.remove('is-spent');
       this.plates = [];
       this.cursor = 0;
       this.el.dataset.mode = 'choosing';
@@ -391,7 +465,13 @@ export class DialogueView {
       const settle = (node: DialogueNode | null) => {
         if (!this.settleChoice) return;
         this.settleChoice = null;
-        for (const p of this.plates) p.disabled = true;
+        // Spent, not `disabled`: disabling the focused button blurs it, and the
+        // caret would land back on <body> for the whole of the reply.
+        this.choicesEl.classList.add('is-spent');
+        for (const p of this.plates) {
+          p.setAttribute('aria-disabled', 'true');
+          p.classList.remove('is-cursor');
+        }
         this.el.dataset.mode = 'busy';
         this.after(reduced() ? 0 : MS_PICK, () => resolve(node));
       };
@@ -412,19 +492,18 @@ export class DialogueView {
         });
       });
 
-      if (withLeave) {
-        const plate = this.buildPlate({
-          index: nodes.length,
-          label: LEAVE_LABEL,
-          kind: 'leave',
-          clue: null,
-          pick: () => {
-            this.cb.onSound?.('click-soft');
-            plate.classList.add('is-chosen');
-            settle(LEAVE_NODE);
-          },
-        });
-      }
+      const tailNode = tail === 'leave' ? LEAVE_NODE : BACK_NODE;
+      const plate = this.buildPlate({
+        index: nodes.length,
+        label: tailNode.playerLine,
+        kind: 'leave',
+        clue: null,
+        pick: () => {
+          this.cb.onSound?.('click-soft');
+          plate.classList.add('is-chosen');
+          settle(tailNode);
+        },
+      });
 
       this.focusPlate(0);
     });
@@ -442,7 +521,9 @@ export class DialogueView {
     plate.className = `dialogue-plate is-${opts.kind}`;
     plate.setAttribute('role', 'menuitem');
     plate.tabIndex = -1;
-    plate.style.setProperty('--plate-delay', `${opts.index * MS_PLATE_STAGGER}ms`);
+    // Under reduced motion the stagger is travel like any other: nine plates at
+    // 55ms apart is half a second of movement for someone who asked for none.
+    if (!reduced()) plate.style.setProperty('--plate-delay', `${opts.index * MS_PLATE_STAGGER}ms`);
 
     const key = HOTKEYS[opts.index] ?? '';
     plate.innerHTML = `
@@ -459,14 +540,19 @@ export class DialogueView {
       opts.clue ? `presents evidence: ${opts.clue}` : '',
     ].filter(Boolean);
     plate.setAttribute('aria-label', spoken.join('. '));
+    if (key) plate.setAttribute('aria-keyshortcuts', key);
     if (opts.clue) plate.title = `Presents evidence: ${opts.clue}`;
 
     const index = this.plates.length;
     plate.addEventListener('click', (ev) => {
       ev.stopPropagation();
+      if (plate.getAttribute('aria-disabled') === 'true') return;
       opts.pick();
     });
-    plate.addEventListener('pointerenter', () => {
+    plate.addEventListener('pointerenter', (ev) => {
+      // A touch "enters" the element it is about to activate. Following that
+      // would move the cursor and fire a hover cue on every tap.
+      if (ev.pointerType !== 'mouse') return;
       if (this.cursor === index) return;
       this.focusPlate(index, false);
       this.cb.onSound?.('click-soft');
@@ -492,13 +578,17 @@ export class DialogueView {
     if (!this.plates.length) return;
     const i = (index + this.plates.length) % this.plates.length;
     this.setCursor(i);
-    if (move) this.plates[i].focus();
+    if (move) {
+      this.plates[i].focus({ preventScroll: true });
+      // The stack scrolls; keep the cursor inside the visible run of it.
+      this.plates[i].scrollIntoView({ block: 'nearest' });
+    }
   }
 
   // -- keyboard --------------------------------------------------------------
 
   private onKey(ev: KeyboardEvent) {
-    if (!this.active) return;
+    if (!this.active || this.destroyed) return;
     const mode = this.el.dataset.mode;
     // `busy` means a node's own effects are on screen — narration, a toast, a
     // cinematic. Those own the keyboard until they are done with it.
@@ -525,7 +615,9 @@ export class DialogueView {
         ev.preventDefault();
         ev.stopPropagation();
         this.advance();
+        return;
       }
+      this.swallow(ev);
       return;
     }
 
@@ -565,7 +657,25 @@ export class DialogueView {
       ev.stopPropagation();
       this.focusPlate(hot);
       this.plates[hot].click();
+      return;
     }
+
+    this.swallow(ev);
+  }
+
+  /**
+   * Eats a key the conversation does not itself use.
+   *
+   * The global bindings in `game.ts` are guarded by its own `busy` flag, which
+   * a `talk` reached from anywhere but a hotspot does not set. Without this, J
+   * would open the journal on top of a conversation and L would flash the
+   * hotspots of a room nobody is looking at. Modified keys are left alone so
+   * the browser's own shortcuts keep working.
+   */
+  private swallow(ev: KeyboardEvent) {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (ev.key.length !== 1) return;
+    ev.stopPropagation();
   }
 
   /**
@@ -574,7 +684,8 @@ export class DialogueView {
    */
   private requestEnd() {
     this.aborted = true;
-    this.completeReveal = null;
+    this.reveal?.cancel();
+    this.reveal = null;
     if (this.settleChoice) this.settleChoice(null);
     else this.advanceLine?.();
   }
@@ -589,15 +700,19 @@ export class DialogueView {
     this.el.style.setProperty('--dlg-accent', character.color ?? 'var(--lamp-300)');
     this.el.setAttribute('aria-label', `Conversation with ${character.name}`);
 
-    this.echoEl.textContent = '';
+    this.echoLineEl.textContent = '';
     this.textEl.textContent = '';
     this.liveEl.textContent = '';
     this.speechEl.classList.remove('is-visible', 'has-echo', 'is-ready');
     this.choicesEl.textContent = '';
+    this.choicesEl.classList.remove('is-spent');
     this.plates = [];
 
     // Decode first: a portrait that pops in one frame late reads as a glitch.
+    const epoch = this.epoch;
     await preload(character.portrait);
+    if (this.destroyed || this.epoch !== epoch) return;
+
     this.face = 0;
     this.faces[0].src = character.portrait;
     // The resolved `.src` is absolute, so remember the content path verbatim —
@@ -623,7 +738,11 @@ export class DialogueView {
     if (current.dataset.src === src) return;
 
     const next = this.faces[this.face === 0 ? 1 : 0];
+    // A large portrait can still be decoding when the player walks out of the
+    // conversation; the epoch keeps it from redressing the next one.
+    const epoch = this.epoch;
     void preload(src).then(() => {
+      if (this.destroyed || this.epoch !== epoch) return;
       next.src = src;
       next.dataset.src = src;
       next.classList.add('is-front');
@@ -643,21 +762,24 @@ export class DialogueView {
   }
 
   private async close(): Promise<void> {
-    this.el.classList.remove('is-open');
-    this.el.classList.add('is-closing');
-    await this.wait(reduced() ? 0 : MS_CLOSE);
+    if (!this.destroyed) {
+      this.el.classList.remove('is-open');
+      this.el.classList.add('is-closing');
+      await this.wait(reduced() ? 0 : MS_CLOSE);
+      this.el.classList.remove('is-closing');
+      this.el.hidden = true;
+    }
 
-    this.el.classList.remove('is-closing');
     this.el.dataset.mode = 'idle';
-    this.el.hidden = true;
     this.choicesEl.textContent = '';
+    this.choicesEl.classList.remove('is-spent');
     this.plates = [];
     this.speechEl.classList.remove('is-visible', 'has-echo', 'is-ready');
-    this.active = false;
 
     // Hand the caret back to whatever the player was using before they talked.
-    if (this.restoreFocus?.isConnected) this.restoreFocus.focus({ preventScroll: true });
+    const back = this.restoreFocus;
     this.restoreFocus = null;
+    if (back?.isConnected) back.focus({ preventScroll: true });
   }
 
   // -- plumbing --------------------------------------------------------------
@@ -671,7 +793,21 @@ export class DialogueView {
       this.timers.delete(id);
       fn();
     }, ms);
-    this.timers.add(id);
+    this.timers.set(id, fn);
+  }
+
+  /**
+   * Fires every pending timer at once instead of cancelling it. Only teardown
+   * uses this: each pending callback is holding a promise `converse()`'s caller
+   * is awaiting, and dropping one would leave the HUD hidden forever.
+   */
+  private flushTimers() {
+    const pending = [...this.timers];
+    this.timers.clear();
+    for (const [id, fn] of pending) {
+      clearTimeout(id);
+      fn();
+    }
   }
 
   private wait(ms: number): Promise<void> {

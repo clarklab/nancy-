@@ -1,6 +1,6 @@
 {
   "generatedFrom": "docs/design",
-  "count": 63,
+  "count": 56,
   "assets": [
     {
       "id": "the-ardent",
@@ -268,44 +268,9 @@
       "prompt": "A seamless flat scan of an aged nautical chart paper, pale bone-grey stock with a faint blue-grey cast, fine fibre grain, soft water staining and foxing toward one edge, subtle fold creases. Evenly lit, completely flat, no shadows, no printed content. Absolutely no text, no lettering, no words, no numbers, no lines, no compass rose, no coastlines, no watermarks, no borders."
     },
     {
-      "id": "ui-parchment-sheet",
-      "kind": "ui",
-      "prompt": "Seamless tileable texture of a single sheet of 1970s British government foolscap, painterly digital oil, viewed dead flat from directly above at 90°, filling the entire frame edge to edge with no sheet border visible. Base colour #E7DCC2 with faint laid lines running vertically every 24px, visible cotton-rag fibre, a soft even fox-mark bloom at 4% opacity, one barely perceptible horizontal fold shadow at 62% height, and a faint cool grey #6D8494 tone in the depressions. Absolutely flat lighting, no directional key, no vignette, no shadow, no curl, no torn edge. No text, no lettering, no watermark, no ruling, no logos, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
       "id": "ui-journal-leather-cover",
       "kind": "ui",
       "prompt": "Full-bleed texture of the front board of a wire-bound conservator's casebook bound in oxblood buckram over board, painterly digital oil, photographed flat from directly above. Base #4A2327, fine woven buckram grain with a diagonal weave catching a raking amber #D89A4E light from the upper left at 20° elevation, a blind-tooled double fillet line impressed 5% in from all four edges, one thumb-darkened wear patch at the lower right, two scuffs to the board corners showing grey board beneath, and a faint cup ring at the upper right at 8% opacity. No spine, no wire binding visible, no text, no title, no gold lettering, no logo, no watermark, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
-      "id": "ui-brass-frame-corner",
-      "kind": "ui",
-      "prompt": "A single ninety-degree corner fitting of a cast brass picture frame, painterly digital oil, isolated on a flat #12171B ground, oriented as the top-left corner with its two arms running right and downward to the frame edges. Cast brass #B08B47 gone dull and thumb-worn on the raised bead, verdigris #5E7A6B settled in the recesses and the mitre joint, one small countersunk screw at the mitre, restrained Victorian institutional moulding profile — an ogee and a plain bead, no acanthus, no rococo, no scrollwork. Soft key from the upper left at 45°, one crisp specular along the top bead only, soft occlusion in the mitre. No text, no engraving, no watermark, no background detail, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
-      "id": "ui-wax-seal",
-      "kind": "ui",
-      "prompt": "A single blob of sealing wax pressed with a shipping-office seal, painterly digital oil, isolated dead centre on a flat #14191D ground with a soft contact shadow beneath. Deep oxblood wax #4A2327 with darker #2B1416 in the depressions and a warm translucent #7A3038 glow at the thinnest edge where light passes through; irregular squeezed-out perimeter with two runs and one air bubble; matrix impression showing an abstract fouled-anchor-and-rope device rendered soft and half-filled as wax always is, its details illegible. Key light upper left at 45°, one broad soft specular on the domed centre, weak cool fill lower right. No text, no letters, no initials, no date, no watermark, no paper, no ribbon, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
-      "id": "ui-aged-map-paper",
-      "kind": "ui",
-      "prompt": "Seamless tileable texture of a blank Admiralty chart sheet from the 1940s, painterly digital oil, dead flat overhead view filling the frame with no sheet edge. Cool grey-cream #DCD6C4 base with a faint cyan-grey #6D8494 tint in the fibre, heavy laid lines, a very faint printed grid graticule at 6% opacity reading only as pale rhythm, three soft brown tide stains at the edges, a repaired tear running diagonally at 20% opacity with visible Japanese tissue repair, and pinholes at the corners. Flat even lighting, no key direction, no shadow, no curl. No text, no numerals, no depth soundings, no coastline, no compass rose, no lettering, no watermark, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
-      "id": "ui-inventory-slot-plate",
-      "kind": "ui",
-      "prompt": "A single empty brass label-holder slot plate from an archive card-index drawer, painterly digital oil, isolated on a flat #12191D ground, viewed square on from directly in front. Rectangular pressed brass frame #B08B47, worn bright along the lower lip where forty years of thumbs have pulled it, dull and slightly green #5E7A6B in the pressed corners, two tiny brass pins top and bottom, and behind the glazing a blank card of #E7DCC2 foolscap with nothing written on it, sunk 3mm with a soft interior shadow. Beneath and around the plate, a shallow bed of bottle-green baize #22302B with visible nap. Soft key upper left 45°, one thin specular along the top edge of the brass. No text, no lettering, no numbers, no watermark, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
-      "id": "ui-vignette-overlay",
-      "kind": "ui",
-      "prompt": "A pure lighting-overlay plate for multiply blending, painterly digital oil texture only. Transparent-clear across the centre 45%, darkening outward to #12171B at the extreme corners, with an intentionally IRREGULAR falloff — heavier at the top-left and bottom-right, lighter along the right edge — so it reads as uneven varnish and dust on old glass rather than a symmetrical camera vignette. Overlaid across the whole plate at 3% opacity: fine suspended dust motes, two hair-thin scratches, and a barely visible bloom of foxing near the lower-left corner. No hard edges, no banding, no subject matter, no shapes, no text, no watermark, no people. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
-    },
-    {
-      "id": "ui-title-key-art",
-      "kind": "keyart",
-      "prompt": "Title-screen key art, painterly digital oil on linen, 16:9. From four hundred yards off the reef, low on the water at 1.1m eye height in the trough of a swell, looking up at the Nine Bells Beacon: one hundred and twelve feet of coursed grey granite tapering to a black cast-iron gallery and a DEAD unlit lantern whose glass is reflective grey-green like a cataract. Storm-grey North Atlantic, spray blowing off the reef, near-monochrome under 15% chroma, sea and sky within a single value of each other, the tower a hard dark silhouette against a pale gap in cloud on the right. The beacon sits on the left third at 70% of frame height; the right two-thirds are empty weather reserved for the title. Deep shadow floor #12171B, cool fill #6D8494, one cold pale highlight on the wet granite. 35mm-equivalent, level camera, deep focus. No boat, no people, no birds, no lit lamp, no text, no lettering, no title, no logo, no watermark, no UI. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no modern objects, no photographic lens flare, no visible brush signature."
     },
     {
       "id": "ui-casebook-ruled-page",
