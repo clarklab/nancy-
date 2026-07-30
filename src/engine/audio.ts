@@ -92,6 +92,23 @@ export type AmbienceName = (typeof AMBIENCE_NAMES)[number];
 export type SfxName = (typeof SFX_NAMES)[number];
 export type MusicName = (typeof MUSIC_NAMES)[number];
 
+/**
+ * Membership tests for content validation.
+ *
+ * The playback methods deliberately accept a bare `string`, because `Scene.
+ * ambience`, `Effect{kind:'playSound'}` and `CinematicBeat.sound` are all typed
+ * as strings in the content schema and an unknown name has to degrade to
+ * silence rather than crash a scene transition. The cost of that leniency is
+ * that a typo is invisible at runtime, so a build-time content check needs a
+ * way to ask.
+ */
+export const isAmbienceName = (n: string): n is AmbienceName =>
+  (AMBIENCE_NAMES as readonly string[]).includes(n);
+export const isSfxName = (n: string): n is SfxName =>
+  (SFX_NAMES as readonly string[]).includes(n);
+export const isMusicName = (n: string): n is MusicName =>
+  (MUSIC_NAMES as readonly string[]).includes(n);
+
 const STORE_KEY = 'lamplight.audio';
 
 /** Ambient beds cross-fade slowly enough that a room change never "cuts". */
@@ -149,23 +166,56 @@ function powerCurve(from: number, to: number): Float32Array {
   return c;
 }
 
-/** Applies a constant-power fade to a gain, surviving an interrupted fade. */
+/**
+ * Applies a constant-power fade to a gain, correctly interrupting one already
+ * in flight.
+ *
+ * This is fussier than it looks, and getting it wrong is audible. A value curve
+ * that has already *started* is not removed by `cancelScheduledValues`, and the
+ * spec makes any `setValueAtTime` landing inside a live curve throw
+ * `NotSupportedError`. That is not an exotic case: it is exactly what happens
+ * when the player crosses two rooms faster than one 2.6 s ambience crossfade,
+ * and the naive version leaves the outgoing bed pinned at full volume until its
+ * dispose timer guillotines it — a hard cut in the middle of a slow dissolve.
+ *
+ * `cancelAndHoldAtTime` truncates the running curve and pins the parameter at
+ * whatever value it had actually reached, which is the only way to start a new
+ * fade from the real current position without a discontinuity. The two
+ * fallbacks below it exist for engines that lack it, in decreasing order of
+ * musicality; the last one simply lands on the target, which is still better
+ * than a stuck fader.
+ */
 function fadeParam(param: AudioParam, to: number, dur: number, now: number): void {
-  const from = param.value;
+  const seconds = Math.max(0.01, dur);
+
+  let from = param.value;
   try {
-    param.cancelScheduledValues(now);
-    param.setValueAtTime(from, now);
-    param.setValueCurveAtTime(powerCurve(from, to), now, Math.max(0.01, dur));
+    const hold = (param as Partial<AudioParam>).cancelAndHoldAtTime;
+    if (typeof hold === 'function') hold.call(param, now);
+    else param.cancelScheduledValues(now);
+    // Read *after* the hold: before it, `value` may still reflect a stale event.
+    from = param.value;
   } catch {
-    // Overlapping automation is the only realistic failure; a linear ramp is a
-    // perfectly acceptable fallback for the rare interrupted swap.
-    try {
-      param.cancelScheduledValues(now);
-      param.setValueAtTime(from, now);
-      param.linearRampToValueAtTime(to, now + Math.max(0.01, dur));
-    } catch {
-      /* the context is gone; silence is the correct outcome */
-    }
+    /* nothing was scheduled, or the context is gone */
+  }
+
+  try {
+    param.setValueCurveAtTime(powerCurve(from, to), now, seconds);
+    return;
+  } catch {
+    /* a curve is still occupying this window */
+  }
+  try {
+    param.setValueAtTime(from, now);
+    param.linearRampToValueAtTime(to, now + seconds);
+    return;
+  } catch {
+    /* automation is wedged; take the target directly */
+  }
+  try {
+    param.value = to;
+  } catch {
+    /* the context is gone; silence is the correct outcome */
   }
 }
 
@@ -261,6 +311,13 @@ function buildNoiseKit(ctx: BaseAudioContext): NoiseKit {
  * that make it read as an actual interior are the darkening one-pole lowpass
  * (air and soft furnishings eat the top end first) and the half-dozen discrete
  * early reflections, which are what the ear actually uses to judge room size.
+ *
+ * The result is normalised by *energy*, not by peak. Convolution multiplies
+ * signal power by the total energy of the impulse, so a two-second noise tail
+ * peak-normalised to 0.9 has an RMS gain of roughly +30 dB — the reverb would
+ * arrive louder than the sound that caused it and slam the limiter shut on
+ * every footstep. Scaling by 1/sqrt(Σh²) makes the convolver unity-gain, which
+ * is what lets the send amounts on individual voices actually mean something.
  */
 function buildImpulse(ctx: BaseAudioContext): AudioBuffer {
   const sr = ctx.sampleRate;
@@ -291,17 +348,16 @@ function buildImpulse(ctx: BaseAudioContext): AudioBuffer {
     }
   }
 
-  let peak = 0;
+  let energy = 0;
   for (let c = 0; c < 2; c++) {
     const d = buf.getChannelData(c);
-    for (let i = 0; i < len; i++) peak = Math.max(peak, Math.abs(d[i]!));
+    for (let i = 0; i < len; i++) energy += d[i]! * d[i]!;
   }
-  if (peak > 0) {
-    const k = 0.9 / peak;
-    for (let c = 0; c < 2; c++) {
-      const d = buf.getChannelData(c);
-      for (let i = 0; i < len; i++) d[i]! *= k;
-    }
+  energy /= 2;
+  const k = energy > 1e-9 ? 1 / Math.sqrt(energy) : 0;
+  for (let c = 0; c < 2; c++) {
+    const d = buf.getChannelData(c);
+    for (let i = 0; i < len; i++) d[i] = d[i]! * k;
   }
   return buf;
 }
@@ -331,6 +387,12 @@ interface Studio {
  * Starts a throwaway voice and guarantees it unhooks itself once it falls
  * silent. Beds fire thousands of these over a long session; without the
  * `onended` teardown the graph would grow without bound.
+ *
+ * Returns whether the voice actually started, because a caller that has already
+ * started satellite sources (a vibrato oscillator, say) needs to know to stop
+ * them. The failure path tears the graph down itself: an un-started source
+ * never fires `onended`, so bailing out silently would strand every node the
+ * caller had just built.
  */
 function launch(
   src: AudioScheduledSourceNode,
@@ -338,15 +400,8 @@ function launch(
   at: number,
   end: number,
   offset = 0,
-): void {
-  try {
-    if (offset > 0 && 'buffer' in src) (src as AudioBufferSourceNode).start(at, offset);
-    else src.start(at);
-    src.stop(end);
-  } catch {
-    return;
-  }
-  src.onended = () => {
+): boolean {
+  const drop = () => {
     for (const n of nodes) {
       try {
         n.disconnect();
@@ -355,6 +410,25 @@ function launch(
       }
     }
   };
+
+  try {
+    if (offset > 0 && 'buffer' in src) (src as AudioBufferSourceNode).start(at, offset);
+    else src.start(at);
+    // A stop that is not strictly after the start is a no-op on some engines
+    // and leaves the voice running forever.
+    src.stop(Math.max(end, at + 0.01));
+  } catch {
+    try {
+      src.stop();
+    } catch {
+      /* never started */
+    }
+    drop();
+    return false;
+  }
+
+  src.onended = drop;
+  return true;
 }
 
 /** Percussive gain shape: near-instant attack, exponential tail to silence. */
@@ -548,14 +622,19 @@ function bowed(s: Studio, at: number, hz: number, dur: number, level: number): v
   g.connect(wet);
   wet.connect(s.room);
 
+  // The vibrato oscillator is a satellite of the main voice, so it is only
+  // started once the voice is known to be running — otherwise a failed start
+  // would leave a free-running LFO wired into a graph nobody will ever tear
+  // down, and a long session of cello swells would accumulate them.
   const nodes: AudioNode[] = [osc, vib, vibDepth, lp, g, wet];
-  try {
-    vib.start(at);
-    vib.stop(at + dur + 0.1);
-  } catch {
-    /* context gone */
+  if (launch(osc, nodes, at, at + dur + 0.1)) {
+    try {
+      vib.start(at);
+      vib.stop(at + dur + 0.1);
+    } catch {
+      /* context gone; the voice's own onended still cleans up */
+    }
   }
-  launch(osc, nodes, at, at + dur + 0.1);
 }
 
 /** A single drop landing on glass or into standing water. */
@@ -614,6 +693,12 @@ interface ScheduledEvent {
 /** How far ahead the scheduler commits events to the audio clock. */
 const LOOKAHEAD = 0.25;
 const SCHED_TICK_MS = 100;
+/**
+ * Hard ceiling on events one drain may commit for a single stream. A period
+ * function that returns something pathological (or a clock that jumps) must
+ * cost a dropped transient, never a hung tab.
+ */
+const MAX_EVENTS_PER_DRAIN = 64;
 
 /**
  * A running ambience or music bed.
@@ -643,6 +728,7 @@ class Rig {
   private timer = 0;
   private disposeTimer = 0;
   private disposed = false;
+  private onGone: (() => void) | undefined;
 
   constructor(kit: NoiseKit, ctx: AudioContext, dry: AudioNode, room: AudioNode) {
     this.ctx = ctx;
@@ -754,7 +840,7 @@ class Rig {
       period: next,
       fn,
     });
-    if (!this.timer) this.timer = self.setInterval(this.drain, SCHED_TICK_MS);
+    if (!this.timer) this.timer = setInterval(this.drain, SCHED_TICK_MS);
   }
 
   private drain = () => {
@@ -763,15 +849,22 @@ class Rig {
     if (this.disposed || this.ctx.state !== 'running') return;
     const now = this.ctx.currentTime;
     const horizon = now + LOOKAHEAD;
-    for (const e of this.events) {
+    // Snapshot: a factory is allowed to register further streams, and mutating
+    // the array mid-iteration would either skip or double-serve one.
+    for (const e of this.events.slice()) {
+      // Catching up after a suspension, a throttled tab or a clock jump: the
+      // backlog is discarded rather than replayed, because forty seconds of
+      // raindrops arriving in one buffer is a gunshot, not weather.
       if (e.next < now) e.next = now + 0.03;
-      while (e.next < horizon) {
+      let fired = 0;
+      while (e.next < horizon && fired++ < MAX_EVENTS_PER_DRAIN) {
         try {
           e.fn(e.next);
         } catch {
           /* one bad transient must never kill the bed */
         }
-        e.next += Math.max(0.02, e.period());
+        const period = e.period();
+        e.next += Number.isFinite(period) ? Math.max(0.02, period) : 1;
       }
     }
   };
@@ -788,21 +881,28 @@ class Rig {
    * Fades out, then disposes. Transients keep firing during the fade on
    * purpose — a fire whose crackles stop dead the instant a room change begins
    * announces the transition far more loudly than the crossfade hides it.
+   *
+   * `onGone` fires once the teardown has actually happened, so the engine can
+   * stop tracking a bed it no longer owns without polling for it.
    */
-  fadeOutAndDispose(dur: number): void {
-    if (this.disposed) return;
+  fadeOutAndDispose(dur: number, onGone?: () => void): void {
+    if (this.disposed) {
+      onGone?.();
+      return;
+    }
+    if (onGone) this.onGone = onGone;
     const now = this.ctx.currentTime;
     fadeParam(this.dryFade.gain, 0, dur, now);
     fadeParam(this.wetFade.gain, 0, dur, now);
-    self.clearTimeout(this.disposeTimer);
-    this.disposeTimer = self.setTimeout(() => this.dispose(), dur * 1000 + 150);
+    clearTimeout(this.disposeTimer);
+    this.disposeTimer = setTimeout(() => this.dispose(), dur * 1000 + 150);
   }
 
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
-    self.clearInterval(this.timer);
-    self.clearTimeout(this.disposeTimer);
+    clearInterval(this.timer);
+    clearTimeout(this.disposeTimer);
     this.timer = 0;
     this.events.length = 0;
     for (const s of this.srcs) {
@@ -821,6 +921,9 @@ class Rig {
     }
     this.srcs.length = 0;
     this.nodes.length = 0;
+    const gone = this.onGone;
+    this.onGone = undefined;
+    gone?.();
   }
 }
 
@@ -847,7 +950,13 @@ function rainLayers(r: Rig, weight: number): void {
   r.lfo(hiss.gain, 0.031, 0.016 * weight);
 }
 
-const AMBIENCE: Record<string, BedFactory> = {
+/**
+ * Keyed by {@link AmbienceName} rather than `string` so that adding a bed here
+ * without listing it in {@link AMBIENCE_NAMES} — or vice versa — is a compile
+ * error. The two used to be able to drift, and a bed nobody can name is dead
+ * code that still looks alive.
+ */
+const AMBIENCE: Record<AmbienceName, BedFactory> = {
   'rain-window': (r) => {
     rainLayers(r, 1);
     // Individual drops on the pane, close enough to have a pitch.
@@ -1107,7 +1216,8 @@ const AMBIENCE: Record<string, BedFactory> = {
 
 type SfxFactory = (s: Studio, at: number) => void;
 
-const SFX: Record<string, SfxFactory> = {
+/** Exhaustive over {@link SFX_NAMES}; see the note on {@link AMBIENCE}. */
+const SFX: Record<SfxName, SfxFactory> = {
   'click-soft': (s, at) => {
     burst(s, at, { freq: 1700, q: 1.4, level: 0.1, dur: 0.022 });
     ping(s, at, { hz: 260, hzTo: 180, level: 0.045, dur: 0.04 });
@@ -1305,7 +1415,8 @@ interface MusicPlan {
   heartbeat?: number;
 }
 
-const MUSIC: Record<string, MusicPlan> = {
+/** Exhaustive over {@link MUSIC_NAMES}; see the note on {@link AMBIENCE}. */
+const MUSIC: Record<MusicName, MusicPlan> = {
   // A minor, aeolian, unhurried. The title cue and the default room tone.
   'main-theme': {
     root: 45,
@@ -1477,6 +1588,16 @@ function writeLevels(levels: AudioLevels): void {
 
 type VoiceChannel = 'music' | 'ambience' | 'sfx';
 
+/** Gestures a browser will accept as consent to make noise. */
+const GESTURES = ['pointerdown', 'keydown', 'touchend'] as const;
+
+/**
+ * Fade used when a bed arrives at wake-up rather than at a room change. Short,
+ * because the player has just clicked and is waiting for the world to exist;
+ * a 2.6 s dissolve from silence reads as a bug, not as atmosphere.
+ */
+const WAKE_XFADE = 1.2;
+
 interface ChannelStrip {
   dry: GainNode;
   wet: GainNode;
@@ -1502,18 +1623,62 @@ export class AudioEngine {
 
   private ambienceRig: Rig | null = null;
   private musicRig: Rig | null = null;
-  private ambienceName: string | null = null;
-  private musicName: string | null = null;
+
+  /**
+   * What the *game* has asked for, versus what is *actually sounding*.
+   *
+   * These come apart more often than you would think: every request made while
+   * the context is asleep — before the first gesture, and for the whole time
+   * the player has the tab in the background — is accepted but cannot be
+   * honoured yet. Keeping the two apart is what lets {@link reconcile} put the
+   * world right on resume; collapsing them into one field means a player who
+   * tabs out in the library and tabs back in the cellar hears the library.
+   */
+  private wantAmbience: string | null = null;
+  private wantMusic: string | null = null;
+  private liveAmbience: string | null = null;
+  private liveMusic: string | null = null;
+
+  /** Beds mid-fade-out. Tracked only so {@link destroy} can cut them short. */
+  private retiring = new Set<Rig>();
 
   private levelState: AudioLevels = readLevels();
   private listeners = new Set<() => void>();
   private unlocked = false;
   /** Latched once construction fails, so we never retry a hopeless context. */
   private broken = false;
+  /** Latched by {@link destroy}, so a stray late gesture cannot resurrect us. */
+  private dead = false;
+  /**
+   * Distinguishes "the tab went away" from "the shell asked for quiet". Without
+   * it, tabbing out and back would cheerfully undo an explicit {@link suspend}.
+   */
+  private autoSuspended = false;
 
   constructor() {
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', this.onVisibility);
+      // Self-arming unlock. The shell also unlocks from its own first-gesture
+      // handler, but that handler unregisters itself immediately and `resume()`
+      // is a promise that can reject — if it does, the shell has already thrown
+      // away its only chance and the session is silent. These listeners stay
+      // until audio is genuinely running, so the *next* click always tries
+      // again. They are capture-phase and passive so nothing can swallow them.
+      for (const ev of GESTURES) {
+        document.addEventListener(ev, this.onGesture, { capture: true, passive: true });
+      }
+    }
+  }
+
+  private onGesture = () => {
+    this.unlock();
+    if (this.ready) this.disarmGestures();
+  };
+
+  private disarmGestures(): void {
+    if (typeof document === 'undefined') return;
+    for (const ev of GESTURES) {
+      document.removeEventListener(ev, this.onGesture, { capture: true });
     }
   }
 
@@ -1527,22 +1692,27 @@ export class AudioEngine {
    * exactly once.
    */
   unlock(): void {
-    if (this.broken) return;
+    if (this.broken || this.dead) return;
     if (!this.ctx && !this.build()) return;
     const ctx = this.ctx!;
+    this.autoSuspended = false;
     if (ctx.state === 'running') {
       this.unlocked = true;
-      this.flushPending();
+      this.disarmGestures();
+      this.reconcile();
       return;
     }
     void ctx
       .resume()
       .then(() => {
+        // `destroy()` can land while this promise is in flight.
+        if (this.ctx !== ctx) return;
         this.unlocked = true;
-        this.flushPending();
+        this.disarmGestures();
+        this.reconcile();
       })
       .catch(() => {
-        /* still gestureless; the next call will try again */
+        /* still gestureless; the next gesture will try again */
       });
   }
 
@@ -1553,24 +1723,52 @@ export class AudioEngine {
 
   /** Pauses the clock entirely. Beds resume exactly where they left off. */
   suspend(): void {
-    if (this.ctx && this.ctx.state === 'running') void this.ctx.suspend().catch(() => {});
+    this.autoSuspended = false;
+    this.doSuspend();
   }
 
+  /** Resumes and, crucially, re-syncs whatever changed while we were asleep. */
   resume(): void {
-    if (this.ctx && this.unlocked && this.ctx.state !== 'running') {
-      void this.ctx.resume().catch(() => {});
+    this.autoSuspended = false;
+    const ctx = this.ctx;
+    if (!ctx || !this.unlocked || this.dead) return;
+    if (ctx.state === 'running') {
+      this.reconcile();
+      return;
     }
+    void ctx
+      .resume()
+      .then(() => {
+        if (this.ctx !== ctx) return;
+        this.reconcile();
+      })
+      .catch(() => {
+        /* the browser wants another gesture; the arming listeners will get it */
+      });
+  }
+
+  private doSuspend(): void {
+    if (this.ctx && this.ctx.state === 'running') void this.ctx.suspend().catch(() => {});
   }
 
   /** Tears everything down. Only the page teardown path should need this. */
   destroy(): void {
+    if (this.dead) return;
+    this.dead = true;
     if (typeof document !== 'undefined') {
       document.removeEventListener('visibilitychange', this.onVisibility);
     }
+    this.disarmGestures();
     this.ambienceRig?.dispose();
     this.musicRig?.dispose();
+    // Beds part-way through a fade-out own a live interval and a pending
+    // timeout of their own; nothing else will ever call them again.
+    for (const rig of [...this.retiring]) rig.dispose();
+    this.retiring.clear();
     this.ambienceRig = null;
     this.musicRig = null;
+    this.liveAmbience = null;
+    this.liveMusic = null;
     this.listeners.clear();
     const ctx = this.ctx;
     this.ctx = null;
@@ -1582,10 +1780,18 @@ export class AudioEngine {
 
   private onVisibility = () => {
     // A hidden tab should not be paying for convolution, and audio from a game
-    // the player has tabbed away from is simply rude.
-    if (typeof document === 'undefined') return;
-    if (document.hidden) this.suspend();
-    else this.resume();
+    // the player has tabbed away from is simply rude. Only undo our own
+    // suspension though: if the shell muted the world deliberately, coming back
+    // to the tab is not permission to un-mute it.
+    if (typeof document === 'undefined' || this.dead) return;
+    if (document.hidden) {
+      if (this.ctx?.state === 'running') {
+        this.autoSuspended = true;
+        this.doSuspend();
+      }
+    } else if (this.autoSuspended) {
+      this.resume();
+    }
   };
 
   /** Builds the mixer. Returns false — permanently — if audio is unavailable. */
@@ -1606,13 +1812,16 @@ export class AudioEngine {
       const ctx = new Ctor({ latencyHint: 'interactive' });
       const kit = buildNoiseKit(ctx);
 
-      // A gentle limiter, not a compressor for tone: it exists so a thunderclap
-      // stacked on a storm bed cannot clip, and is inaudible the rest of the time.
+      // A safety limiter, not a compressor for tone. Threshold and knee are set
+      // so that it does nothing at all until a thunderclap stacks on top of a
+      // storm bed: with the previous -8 dB threshold and an 8 dB knee it began
+      // working at -12 dBFS, which is inside the normal operating range of the
+      // mix — it was quietly squashing every bed all game.
       const limiter = ctx.createDynamicsCompressor();
-      limiter.threshold.value = -8;
-      limiter.knee.value = 8;
-      limiter.ratio.value = 8;
-      limiter.attack.value = 0.004;
+      limiter.threshold.value = -3;
+      limiter.knee.value = 3;
+      limiter.ratio.value = 12;
+      limiter.attack.value = 0.003;
       limiter.release.value = 0.25;
       limiter.connect(ctx.destination);
 
@@ -1621,10 +1830,15 @@ export class AudioEngine {
       master.connect(limiter);
 
       const convolver = ctx.createConvolver();
-      convolver.buffer = buildImpulse(ctx);
+      // `normalize` is only consulted when `buffer` is assigned, so it must be
+      // set first — the other order silently leaves the browser's equal-power
+      // normalisation in charge and makes the wet level engine-dependent. The
+      // impulse is already energy-normalised, so the send amounts on individual
+      // voices are the only thing deciding how wet anything is.
       convolver.normalize = false;
+      convolver.buffer = buildImpulse(ctx);
       const roomReturn = ctx.createGain();
-      roomReturn.gain.value = 0.85;
+      roomReturn.gain.value = 0.35;
       convolver.connect(roomReturn);
       roomReturn.connect(master);
 
@@ -1649,10 +1863,29 @@ export class AudioEngine {
     }
   }
 
-  /** Starts whatever was requested while the context was still asleep. */
-  private flushPending(): void {
-    if (this.ambienceName && !this.ambienceRig) this.startAmbience(this.ambienceName, 1.2);
-    if (this.musicName && !this.musicRig) this.startMusic(this.musicName, 2.5);
+  /**
+   * Brings what is sounding into line with what the game asked for.
+   *
+   * Called on every wake-up, because every `setAmbience`/`setMusic` issued
+   * while the clock was frozen was recorded and not acted on. Comparing
+   * requested against live also makes the whole thing idempotent, so calling it
+   * defensively costs nothing.
+   */
+  private reconcile(): void {
+    if (!this.ready) return;
+    if (this.wantAmbience !== this.liveAmbience) {
+      this.startAmbience(this.wantAmbience, this.liveAmbience ? AMBIENCE_XFADE : WAKE_XFADE);
+    }
+    if (this.wantMusic !== this.liveMusic) {
+      this.startMusic(this.wantMusic, this.liveMusic ? MUSIC_XFADE : WAKE_XFADE * 2);
+    }
+  }
+
+  /** Fades a bed out and keeps hold of it only until it has actually gone. */
+  private retire(rig: Rig | null, xfade: number): void {
+    if (!rig) return;
+    this.retiring.add(rig);
+    rig.fadeOutAndDispose(xfade, () => this.retiring.delete(rig));
   }
 
   // -- ambience ------------------------------------------------------------
@@ -1662,20 +1895,25 @@ export class AudioEngine {
    * than throwing, so a typo in content data costs atmosphere, not the game.
    */
   setAmbience(name: string): void {
-    if (name === this.ambienceName) return;
-    this.ambienceName = name;
+    if (name === this.wantAmbience) return;
+    this.wantAmbience = name;
     if (!this.ready) return;
     this.startAmbience(name, AMBIENCE_XFADE);
   }
 
+  /** What the game last asked for, which may not be audible yet. */
   get currentAmbience(): string | null {
-    return this.ambienceName;
+    return this.wantAmbience;
   }
 
-  private startAmbience(name: string, xfade: number): void {
-    this.ambienceRig?.fadeOutAndDispose(xfade);
+  private startAmbience(name: string | null, xfade: number): void {
+    this.retire(this.ambienceRig, xfade);
     this.ambienceRig = null;
-    const factory = AMBIENCE[name];
+    // Recorded before the early returns: an unknown or absent name *is* the
+    // silent bed, and leaving `live` stale would make reconcile() retry it on
+    // every wake-up for the rest of the session.
+    this.liveAmbience = name;
+    const factory = name === null ? undefined : lookup(AMBIENCE, name);
     if (!factory || !this.ctx || !this.kit || !this.strips) return;
     const strip = this.strips.ambience;
     const rig = new Rig(this.kit, this.ctx, strip.dry, strip.wet);
@@ -1693,21 +1931,22 @@ export class AudioEngine {
 
   /** Cross-fades to a music cue, or to nothing when passed `null`. */
   setMusic(name: string | null): void {
-    if (name === this.musicName) return;
-    this.musicName = name;
+    if (name === this.wantMusic) return;
+    this.wantMusic = name;
     if (!this.ready) return;
     this.startMusic(name, MUSIC_XFADE);
   }
 
+  /** What the game last asked for, which may not be audible yet. */
   get currentMusic(): string | null {
-    return this.musicName;
+    return this.wantMusic;
   }
 
   private startMusic(name: string | null, xfade: number): void {
-    this.musicRig?.fadeOutAndDispose(xfade);
+    this.retire(this.musicRig, xfade);
     this.musicRig = null;
-    if (!name) return;
-    const plan = MUSIC[name];
+    this.liveMusic = name;
+    const plan = name === null ? undefined : lookup(MUSIC, name);
     if (!plan || !this.ctx || !this.kit || !this.strips) return;
     const strip = this.strips.music;
     const rig = new Rig(this.kit, this.ctx, strip.dry, strip.wet);
@@ -1723,10 +1962,16 @@ export class AudioEngine {
 
   // -- one-shots -----------------------------------------------------------
 
-  /** Fires a one-shot. Silently ignored before unlock or for unknown names. */
+  /** Fires a one-shot. Silently ignored for unknown names. */
   playSound(name: string): void {
-    if (!this.ready || !this.strips) return;
-    const factory = SFX[name];
+    if (!this.ready || !this.strips) {
+      // Almost every SFX in the game originates in a click, so a dropped sound
+      // is very likely also a perfectly good gesture. Spend it: the sound
+      // itself is lost, but the *next* one will be heard.
+      this.unlock();
+      return;
+    }
+    const factory = lookup(SFX, name);
     if (!factory) return;
     try {
       // A hair of lead time keeps the envelope's first ramp on the schedule

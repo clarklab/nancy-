@@ -95,3 +95,29 @@ across both pages in a multi-column layout, with a wider measure.
 The wax-seal marker on each new clue card renders as a flat red circle
 overlapping the card's bottom-right corner. It should use `seal-wax.webp` and
 sit at the top edge of the card as if pressed into it.
+
+## 8. Title screen: subtitle pluralisation — FIXED IN CONTENT
+
+`A mystery in ${acts.length} acts` renders "A mystery in 1 acts" against the
+stub content. Needs a plural guard regardless of act count.
+
+## 9. Title screen: version string and attribution overlap
+
+Bottom-right, "Version 1.0.0" and the attribution line sit on top of each
+other. They need to stack with real spacing, or the attribution should move to
+the opposite corner.
+
+## 10. Weather crashed the whole title screen — FIXED
+
+`weather.ts` called `createRadialGradient` with NaN coordinates whenever the
+canvas had not been laid out yet (`getBoundingClientRect()` reports 0×0, and
+`t % 0` is NaN). The uncaught exception killed the title screen's render
+entirely — the screen was pure black. Fixed by skipping the frame until the
+canvas has non-zero size. This was invisible in code review and only showed up
+under a real screenshot.
+
+## 11. Unidentified 404 on boot
+
+Every page load logs one 404. Not yet traced to a URL — the response handler
+did not fire for it, which suggests a CSS `url()` or a preload rather than a
+document subresource. Track it down during integration.

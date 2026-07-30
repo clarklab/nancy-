@@ -8,6 +8,16 @@
  * again. It owns no game logic: every press is handed straight back through
  * `HudCallbacks` so the integration layer stays the only place that decides
  * what a button *means*.
+ *
+ * Two invariants are worth knowing before editing:
+ *
+ * 1. The HUD never installs a global key listener. `Game.installGlobalKeys`
+ *    owns J/I/M/H/Space/Escape at the window. Anything the HUD wants to claim
+ *    for itself (Escape to put an item down, Space to press a fitting) has to
+ *    `stopPropagation`, or the player gets both behaviours at once.
+ * 2. Every rebuild of the belt destroys and recreates its buttons, so focus,
+ *    the roving tabindex and the selection have to be restored by hand
+ *    afterwards. Nothing in the DOM survives a `renderBelt`.
  */
 
 import type { GameState } from '@/engine/state';
@@ -41,7 +51,12 @@ const BELT_SLOTS = 8;
    toast queue is sequenced in JS and cannot read a CSS duration reliably. */
 const MS_ENTER = 460;
 const MS_EXIT = 460;
-/** How long a toast must be up before the effect chain may continue. */
+/**
+ * How long a toast must be up before the effect chain may continue. This is a
+ * *reading* beat, not a motion beat, so it is deliberately NOT collapsed under
+ * `prefers-reduced-motion` — a player who dislikes movement still needs the
+ * same time to read "Item acquired" before the story moves on.
+ */
 const MS_ACK = 900;
 /** Total dwell before it slides out; the chain has long since moved on. */
 const MS_HOLD = 2600;
@@ -85,13 +100,24 @@ export class Hud {
   private selectedItem: string | null = null;
   /** Roving-tabindex cursor for the belt, so Tab enters it exactly once. */
   private beltFocus = 0;
+  /** Roving-tabindex cursor for the tool cluster, for the same reason. */
+  private toolFocus = 0;
   /** Signature of the rendered belt, so we only rebuild when it truly changed. */
   private beltKey = '';
-  /** Last announced scene/act, so arrival re-lights the location card. */
-  private announced = '';
+  /** Slot count at the last rebuild, so we can tell an arrival from a removal. */
+  private beltCount = 0;
+  /** False until the belt has been painted once; suppresses a phantom arrival. */
+  private beltPainted = false;
+  /** Last announced scene/act. `null` means "nothing rendered yet". */
+  private announced: string | null = null;
+  /** The single outstanding "stop announcing" timer, so re-arrivals restart it. */
+  private announceTimer = 0;
+  /** Label currently in the nameplate, so hover does not restart its fade. */
+  private hoverLabel: string | null = null;
 
   private toastQueue: ToastRequest[] = [];
   private toastPumping = false;
+  private mounted = false;
   private destroyed = false;
 
   constructor(state: GameState, cb: HudCallbacks) {
@@ -118,17 +144,28 @@ export class Hud {
     this.buildTools();
 
     this.toolsEl.addEventListener('click', this.onToolClick);
+    this.toolsEl.addEventListener('keydown', this.onToolKeyDown);
     this.beltEl.addEventListener('click', this.onBeltClick);
     this.beltEl.addEventListener('dblclick', this.onBeltDblClick);
     this.beltEl.addEventListener('keydown', this.onBeltKeyDown);
     this.beltEl.addEventListener('dragstart', this.onBeltDragStart);
     this.beltEl.addEventListener('dragend', this.onBeltDragEnd);
+    this.beltEl.addEventListener('pointerover', this.onBeltPointerOver);
+    this.beltEl.addEventListener('pointerout', this.onBeltPointerOut);
+    this.beltEl.addEventListener('focusin', this.onBeltFocusIn);
+    this.beltEl.addEventListener('focusout', this.onBeltFocusOut);
   }
 
   // -- lifecycle -----------------------------------------------------------
 
-  /** Attaches the HUD and starts tracking state. Safe to call once. */
+  /**
+   * Attaches the HUD and starts tracking state. Guarded rather than documented
+   * as single-use: a second `mount` would leak the first subscription, and a
+   * silent double-refresh is far harder to notice than a no-op.
+   */
   mount(parent: HTMLElement) {
+    if (this.mounted || this.destroyed) return;
+    this.mounted = true;
     parent.appendChild(this.el);
     this.unsubscribe = this.state.subscribe(() => this.refresh());
     this.refresh();
@@ -140,6 +177,7 @@ export class Hud {
     this.unsubscribe = null;
     for (const t of this.timers) clearTimeout(t);
     this.timers.clear();
+    this.announceTimer = 0;
     // Never leave an awaited toast hanging — a stalled effect chain would
     // silently freeze the game on teardown.
     for (const settle of [...this.pending]) settle();
@@ -160,13 +198,17 @@ export class Hud {
   }
 
   /**
-   * Shows the hovered hotspot's label in the centre nameplate. Pass `null`
-   * when the pointer leaves. Fast in, slow out — the label should feel like it
-   * is catching the light, not toggling.
+   * Shows a label in the centre nameplate — a hovered hotspot from `SceneView`,
+   * or a hovered inventory slot from the belt below it. Pass `null` when the
+   * pointer leaves. Fast in, slow out: the label should feel like it is
+   * catching the light, not toggling.
    */
   setHovered(label: string | null) {
-    if (label) {
-      this.nameplateTextEl.textContent = label;
+    const next = label || null;
+    if (next === this.hoverLabel) return;
+    this.hoverLabel = next;
+    if (next) {
+      this.nameplateTextEl.textContent = next;
       this.nameplateEl.classList.add('is-shown');
     } else {
       this.nameplateEl.classList.remove('is-shown');
@@ -177,7 +219,8 @@ export class Hud {
    * Queues an acquisition card. Resolves once the card is up and has been
    * readable for a beat — not when it finally leaves — so a `giveItem` effect
    * paces the story without stalling it for three seconds. The queue
-   * guarantees two cards never share the screen.
+   * guarantees two cards never share the screen; back-to-back acquisitions are
+   * therefore paced by the *previous* card's full dwell, which is the point.
    *
    * Takes a resolved title and icon rather than an id: the caller already had
    * to look the record up to play the right sound, and a toast for a missing
@@ -222,7 +265,9 @@ export class Hud {
    */
   setSelectedItem(itemId: string | null) {
     this.selectedItem = itemId;
-    for (const slot of this.beltEl.querySelectorAll<HTMLElement>('.hud-slot')) {
+    // Scoped to real slots: the empty recesses are `aria-hidden` scenery and
+    // must never grow a pressed state.
+    for (const slot of this.beltEl.querySelectorAll<HTMLElement>('.hud-slot[data-item]')) {
       const on = !!itemId && slot.dataset.item === itemId;
       slot.classList.toggle('is-selected', on);
       slot.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -246,13 +291,17 @@ export class Hud {
     this.subtitleEl.textContent = scene?.subtitle ?? '';
     this.subtitleEl.hidden = !scene?.subtitle;
 
-    // Only a genuine change of place (or act) earns the player's attention;
-    // `announceLocation` normally gets there first on a scene change, leaving
-    // this path to catch act turns and loaded saves.
     const key = this.placeKey();
     if (key === this.announced) return;
+
+    // The very first paint happens while the title screen is still up, before
+    // the player has arrived anywhere. Adopt the key silently; only a genuine
+    // *change* of place (or act) earns the player's attention. `goto` normally
+    // gets there first via `announceLocation`, leaving this path to catch act
+    // turns and loaded saves.
+    const first = this.announced === null;
     this.announced = key;
-    this.announce();
+    if (!first) this.announce();
   }
 
   private announce() {
@@ -260,23 +309,36 @@ export class Hud {
     // Restart the animation rather than let it continue from mid-fade.
     void this.placeEl.offsetWidth;
     this.placeEl.classList.add('is-announcing');
-    this.after(MS_ANNOUNCE, () => this.placeEl.classList.remove('is-announcing'));
+    // One timer, not one per announcement: two arrivals in quick succession
+    // must not let the first one's timer cut the second one short.
+    if (this.announceTimer) {
+      clearTimeout(this.announceTimer);
+      this.timers.delete(this.announceTimer);
+    }
+    this.announceTimer = this.after(MS_ANNOUNCE, () => {
+      this.announceTimer = 0;
+      this.placeEl.classList.remove('is-announcing');
+    });
   }
 
   // -- top-right tools -----------------------------------------------------
 
   private buildTools() {
-    for (const tool of TOOLS) {
+    for (const [i, tool] of TOOLS.entries()) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'brass-btn hud__tool';
       btn.dataset.tool = tool.id;
+      btn.dataset.label = tool.label;
+      btn.dataset.key = tool.key;
+      // Roving tabindex: the cluster is one Tab stop, arrows move inside it.
+      btn.tabIndex = i === 0 ? 0 : -1;
       btn.setAttribute('aria-label', `${tool.label} (${tool.key})`);
       btn.setAttribute('aria-keyshortcuts', tool.shortcut);
       btn.innerHTML =
-        `<span class="brass-btn__face">${tool.icon}</span>` +
+        `<span class="brass-btn__face" aria-hidden="true">${tool.icon}</span>` +
         `<span class="hud__tool-key" aria-hidden="true">${tool.key}</span>` +
-        `<span class="hud__badge" data-badge="${tool.id}" hidden></span>`;
+        `<span class="hud__badge" data-badge="${tool.id}" aria-hidden="true" hidden></span>`;
       this.toolsEl.appendChild(btn);
     }
   }
@@ -286,22 +348,38 @@ export class Hud {
     this.setBadge('inventory', this.state.unreadItems.size);
   }
 
+  /**
+   * Unread counts. The badge itself is decorative (`aria-hidden`) — the count
+   * folds into the button's accessible name instead, because a bare "3"
+   * floating next to "Journal" tells a screen-reader user nothing.
+   */
   private setBadge(tool: HudTool, count: number) {
+    const btn = this.toolsEl.querySelector<HTMLElement>(`[data-tool="${tool}"]`);
     const el = this.toolsEl.querySelector<HTMLElement>(`[data-badge="${tool}"]`);
-    if (!el) return;
+    if (!btn || !el) return;
+
     const shown = count > 0;
-    if (shown && el.textContent !== String(count)) {
-      el.textContent = count > 9 ? '9+' : String(count);
+    // Compare against the *rendered* label, not the raw count: with a naive
+    // `!== String(count)` a count of 10 renders "9+", never matches, and
+    // re-fires the bump animation on every single state change.
+    const label = count > 9 ? '9+' : String(count);
+    if (shown && el.textContent !== label) {
+      el.textContent = label;
       el.classList.remove('is-bumped');
       void el.offsetWidth;
       el.classList.add('is-bumped');
     }
+    if (!shown) el.textContent = '';
     el.hidden = !shown;
+
+    const base = `${btn.dataset.label} (${btn.dataset.key})`;
+    btn.setAttribute('aria-label', shown ? `${base}, ${count} new` : base);
   }
 
   private onToolClick = (ev: Event) => {
     const btn = (ev.target as HTMLElement).closest<HTMLElement>('[data-tool]');
     if (!btn) return;
+    this.focusTool(btn);
     this.cb.onSound?.('click-brass');
     switch (btn.dataset.tool as HudTool) {
       case 'journal':
@@ -322,6 +400,46 @@ export class Hud {
     }
   };
 
+  /**
+   * Toolbar keyboard model. Space needs claiming explicitly: the global
+   * hold-to-reveal binding calls `preventDefault` on it at the window, which
+   * would otherwise swallow the button's own activation.
+   */
+  private onToolKeyDown = (ev: KeyboardEvent) => {
+    const btns = [...this.toolsEl.querySelectorAll<HTMLElement>('[data-tool]')];
+    if (!btns.length) return;
+    const current = btns.findIndex((b) => b === document.activeElement);
+
+    if (ev.key === ' ' || ev.key === 'Spacebar') {
+      if (current < 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      btns[current]!.click();
+      return;
+    }
+
+    let next = -1;
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') {
+      next = current < 0 ? 0 : (current + 1) % btns.length;
+    } else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') {
+      next = current < 0 ? btns.length - 1 : (current - 1 + btns.length) % btns.length;
+    } else if (ev.key === 'Home') next = 0;
+    else if (ev.key === 'End') next = btns.length - 1;
+    else return;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.focusTool(btns[next]!);
+    btns[next]!.focus();
+  };
+
+  /** Moves the cluster's single tab stop onto `btn`. */
+  private focusTool(btn: HTMLElement) {
+    const btns = [...this.toolsEl.querySelectorAll<HTMLElement>('[data-tool]')];
+    this.toolFocus = Math.max(0, btns.indexOf(btn));
+    for (const [i, b] of btns.entries()) b.tabIndex = i === this.toolFocus ? 0 : -1;
+  }
+
   // -- inventory belt ------------------------------------------------------
 
   private renderBelt() {
@@ -331,8 +449,18 @@ export class Hud {
       this.markUnread(ids);
       return;
     }
-    const arrived = this.beltKey !== '' && ids.length > this.beltKey.split('|').length;
+
+    // An arrival is a net gain since the last paint; a `takeItem` must not
+    // make the surviving right-hand slot drop out of the sky.
+    const arrived = this.beltPainted && ids.length > this.beltCount;
     this.beltKey = key;
+    this.beltCount = ids.length;
+    this.beltPainted = true;
+
+    // Rebuilding blows focus away. Remember whether we had it so we can put it
+    // back on the equivalent slot — otherwise picking something up mid-keyboard
+    // navigation silently dumps the player back at the top of the tab order.
+    const hadFocus = this.beltEl.contains(document.activeElement);
 
     this.beltEl.textContent = '';
     this.beltFocus = Math.min(this.beltFocus, Math.max(0, ids.length - 1));
@@ -347,10 +475,16 @@ export class Hud {
       slot.tabIndex = i === this.beltFocus ? 0 : -1;
       slot.setAttribute('aria-pressed', id === this.selectedItem ? 'true' : 'false');
       slot.setAttribute('aria-label', item ? item.name : id);
-      slot.title = item?.description ?? item?.name ?? id;
       if (id === this.selectedItem) slot.classList.add('is-selected');
       // Only the newest slot should pop; the rest are already on the belt.
-      if (arrived && i === ids.length - 1) slot.classList.add('is-arriving');
+      if (arrived && i === ids.length - 1) {
+        slot.classList.add('is-arriving');
+        // The class has to come off once it has played, or its filled keyframes
+        // would out-rank the hover and selected transforms for good.
+        slot.addEventListener('animationend', () => slot.classList.remove('is-arriving'), {
+          once: true,
+        });
+      }
       slot.innerHTML =
         `<span class="hud-slot__well">${artFor(item?.icon, item?.name ?? id)}</span>` +
         `<span class="hud-slot__rim" aria-hidden="true"></span>`;
@@ -366,12 +500,23 @@ export class Hud {
       this.beltEl.appendChild(empty);
     }
 
+    // Let the rail size its own slots down once the belt outgrows its minimum,
+    // so a fat late-game inventory can never push past the edge of the stage.
+    this.beltEl.style.setProperty('--slot-count', String(Math.max(BELT_SLOTS, ids.length)));
+
     this.markUnread(ids);
+
+    if (hadFocus) {
+      const slots = this.beltEl.querySelectorAll<HTMLElement>('.hud-slot[data-item]');
+      slots[this.beltFocus]?.focus();
+    }
   }
 
   private markUnread(ids: string[]) {
     for (const id of ids) {
-      const slot = this.beltEl.querySelector<HTMLElement>(`.hud-slot[data-item="${cssEscape(id)}"]`);
+      const slot = this.beltEl.querySelector<HTMLElement>(
+        `.hud-slot[data-item="${cssEscape(id)}"]`,
+      );
       slot?.classList.toggle('is-unread', this.state.unreadItems.has(id));
     }
   }
@@ -387,6 +532,7 @@ export class Hud {
     const slot = (ev.target as HTMLElement).closest<HTMLElement>('.hud-slot[data-item]');
     if (!slot) return;
     const id = slot.dataset.item!;
+    this.rememberBeltFocus(slot);
     this.select(id === this.selectedItem ? null : id);
   };
 
@@ -396,40 +542,106 @@ export class Hud {
     this.cb.onExamineItem(slot.dataset.item!);
   };
 
+  /**
+   * Belt keyboard model. Everything handled here also stops propagating:
+   * Escape would otherwise open the pause menu on the way to the window, and
+   * Space is claimed by hold-to-reveal.
+   */
   private onBeltKeyDown = (ev: KeyboardEvent) => {
     const slots = [...this.beltEl.querySelectorAll<HTMLElement>('.hud-slot[data-item]')];
     if (!slots.length) return;
     const current = slots.findIndex((s) => s === document.activeElement);
 
-    let next = -1;
-    if (ev.key === 'ArrowRight') next = (Math.max(current, 0) + 1) % slots.length;
-    else if (ev.key === 'ArrowLeft') next = (Math.max(current, 0) - 1 + slots.length) % slots.length;
-    else if (ev.key === 'Home') next = 0;
-    else if (ev.key === 'End') next = slots.length - 1;
-    else if (ev.key === 'Escape' && this.selectedItem) {
+    if (ev.key === 'Escape') {
+      if (!this.selectedItem) return;
       ev.preventDefault();
+      ev.stopPropagation();
       this.select(null);
       return;
-    } else if (ev.key === 'Enter' && current >= 0) {
+    }
+
+    if (ev.key === 'Enter' && current >= 0) {
       // Enter on an already-selected slot means "look closer" — the keyboard
-      // equivalent of the double-click.
+      // equivalent of the double-click. Otherwise the button's own default
+      // activation runs and lands in `onBeltClick`.
       const id = slots[current]!.dataset.item!;
       if (id === this.selectedItem) {
         ev.preventDefault();
         this.cb.onExamineItem(id);
       }
       return;
-    } else return;
+    }
+
+    if (ev.key === ' ' || ev.key === 'Spacebar') {
+      if (current < 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const id = slots[current]!.dataset.item!;
+      this.select(id === this.selectedItem ? null : id);
+      return;
+    }
+
+    let next = -1;
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') {
+      next = current < 0 ? 0 : (current + 1) % slots.length;
+    } else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') {
+      next = current < 0 ? slots.length - 1 : (current - 1 + slots.length) % slots.length;
+    } else if (ev.key === 'Home') next = 0;
+    else if (ev.key === 'End') next = slots.length - 1;
+    else return;
 
     ev.preventDefault();
+    ev.stopPropagation();
     this.beltFocus = next;
     for (const [i, s] of slots.entries()) s.tabIndex = i === next ? 0 : -1;
     slots[next]!.focus();
   };
 
+  /** Keeps the tab stop where the player last touched, mouse or keyboard. */
+  private rememberBeltFocus(slot: HTMLElement) {
+    const slots = [...this.beltEl.querySelectorAll<HTMLElement>('.hud-slot[data-item]')];
+    const i = slots.indexOf(slot);
+    if (i < 0) return;
+    this.beltFocus = i;
+    for (const [n, s] of slots.entries()) s.tabIndex = n === i ? 0 : -1;
+  }
+
+  /** Hovering a slot borrows the hotspot nameplate rather than a browser tooltip. */
+  private onBeltPointerOver = (ev: PointerEvent) => {
+    const slot = (ev.target as HTMLElement).closest<HTMLElement>('.hud-slot[data-item]');
+    if (!slot) return;
+    const id = slot.dataset.item!;
+    this.setHovered(this.lookupItem(id)?.name ?? id);
+  };
+
+  private onBeltPointerOut = (ev: PointerEvent) => {
+    const to = ev.relatedTarget as HTMLElement | null;
+    if (to && to.closest?.('.hud-slot[data-item]')) return;
+    this.setHovered(null);
+  };
+
+  private onBeltFocusIn = (ev: FocusEvent) => {
+    const slot = (ev.target as HTMLElement).closest<HTMLElement>('.hud-slot[data-item]');
+    if (!slot) return;
+    const id = slot.dataset.item!;
+    this.setHovered(this.lookupItem(id)?.name ?? id);
+  };
+
+  private onBeltFocusOut = (ev: FocusEvent) => {
+    const to = ev.relatedTarget as HTMLElement | null;
+    if (to && this.beltEl.contains(to)) return;
+    this.setHovered(null);
+  };
+
   private onBeltDragStart = (ev: DragEvent) => {
     const slot = (ev.target as HTMLElement).closest<HTMLElement>('.hud-slot[data-item]');
-    if (!slot || !ev.dataTransfer) return;
+    if (!slot) return;
+    if (!ev.dataTransfer) {
+      // No transfer object means no drop payload could ever arrive; refusing
+      // the drag outright beats dragging a ghost that can never be delivered.
+      ev.preventDefault();
+      return;
+    }
     const id = slot.dataset.item!;
     // `text/item` is the contract SceneView reads on drop.
     ev.dataTransfer.setData('text/item', id);
@@ -442,8 +654,12 @@ export class Hud {
     if (id !== this.selectedItem) this.select(id);
   };
 
-  private onBeltDragEnd = (ev: DragEvent) => {
-    (ev.target as HTMLElement).closest<HTMLElement>('.hud-slot')?.classList.remove('is-dragging');
+  private onBeltDragEnd = () => {
+    // Sweep rather than target the source node: a state change mid-drag can
+    // rebuild the belt, and the element the drag started on may be long gone.
+    for (const s of this.beltEl.querySelectorAll<HTMLElement>('.hud-slot.is-dragging')) {
+      s.classList.remove('is-dragging');
+    }
   };
 
   private select(id: string | null) {
@@ -456,10 +672,13 @@ export class Hud {
   private async pumpToasts() {
     if (this.toastPumping) return;
     this.toastPumping = true;
-    while (this.toastQueue.length && !this.destroyed) {
-      await this.showToast(this.toastQueue.shift()!);
+    try {
+      while (this.toastQueue.length && !this.destroyed) {
+        await this.showToast(this.toastQueue.shift()!);
+      }
+    } finally {
+      this.toastPumping = false;
     }
-    this.toastPumping = false;
   }
 
   private async showToast(req: ToastRequest) {
@@ -484,14 +703,18 @@ export class Hud {
 
     wireArt(card);
     this.toastHostEl.appendChild(card);
-    await raf();
+
+    // A forced reflow, deliberately NOT requestAnimationFrame: rAF is paused in
+    // a background tab, and this sequence is awaited by the effect chain. A
+    // player who alt-tabs mid-pickup would otherwise come back to a frozen game.
+    void card.offsetWidth;
     card.classList.add('is-in');
 
     await this.sleep(enter);
     // The card is up. Hold the effect chain only long enough for the player to
     // register it, then release — the dwell and the exit play out behind
     // whatever happens next, and the queue keeps cards from stacking.
-    await this.sleep(REDUCED() ? 0 : MS_ACK);
+    await this.sleep(MS_ACK);
     req.resolve();
 
     await this.sleep(Math.max(0, MS_HOLD - MS_ACK));
@@ -502,13 +725,14 @@ export class Hud {
 
   // -- timing helpers ------------------------------------------------------
 
-  /** setTimeout that cannot outlive the HUD. */
-  private after(ms: number, fn: () => void) {
+  /** setTimeout that cannot outlive the HUD. Returns the id so callers can cancel. */
+  private after(ms: number, fn: () => void): number {
     const id = window.setTimeout(() => {
       this.timers.delete(id);
       if (!this.destroyed) fn();
     }, ms);
     this.timers.add(id);
+    return id;
   }
 
   /**
@@ -600,7 +824,7 @@ const TEMPLATE = `
       <span class="hud__location"></span>
       <span class="hud__subtitle"></span>
     </div>
-    <nav class="hud__tools" aria-label="Case tools"></nav>
+    <div class="hud__tools" role="toolbar" aria-label="Case tools" aria-orientation="horizontal"></div>
     <div class="hud__nameplate" aria-hidden="true"><span class="hud__nameplate-text"></span></div>
     <div class="hud__belt" role="toolbar" aria-label="Carried items" aria-orientation="horizontal"></div>
     <div class="hud__toasts" role="status" aria-live="polite"></div>
@@ -644,19 +868,17 @@ function roman(n: number): string {
   return ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][n - 1]!;
 }
 
+/** Escapes for both text and double-quoted attribute contexts. */
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /** Attribute-selector safety: item ids come from content, not from code. */
 function cssEscape(s: string): string {
   return CSS.escape(s);
-}
-
-function raf(): Promise<void> {
-  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
