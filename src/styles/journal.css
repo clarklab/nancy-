@@ -22,6 +22,11 @@
   z-index: var(--z-panel);
   display: grid;
   place-items: center;
+  /* `.overlay-root` is a pane of glass (`pointer-events: none`), so every
+     modal surface has to claim the pointer for itself. Claimed only while
+     open: during the close swing the book is still on screen but the room
+     behind it is already live again. */
+  pointer-events: none;
   /* Closed, the book is out of the room entirely: no pointer, no paint. The
      delayed visibility lets the swing finish before it disappears. */
   visibility: hidden;
@@ -50,6 +55,7 @@
 
 .journal.is-open {
   visibility: visible;
+  pointer-events: auto;
   transition-delay: 0s;
 }
 
@@ -230,6 +236,44 @@
   pointer-events: none;
 }
 
+/**
+ * The lamp falloff and the fore edges, laid over the whole spread.
+ *
+ * The leaves paint the page; this paints the *room*. Everything the panel
+ * renders sits under a pool of light that drops off into the corners, and the
+ * two outer edges carry the hairline stack of the leaves underneath — which
+ * is what stops an open book from reading as two rectangles of texture. It
+ * multiplies, so it darkens the page it is over rather than fogging it, and
+ * it is the topmost layer in the frame so it falls on the content too.
+ */
+.journal__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    repeating-linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--paper-400) 72%, transparent) 0 1px,
+        transparent 1px 3px
+      )
+      left / clamp(3px, 0.7cqw, 9px) 100% no-repeat,
+    repeating-linear-gradient(
+        270deg,
+        color-mix(in srgb, var(--paper-400) 72%, transparent) 0 1px,
+        transparent 1px 3px
+      )
+      right / clamp(3px, 0.7cqw, 9px) 100% no-repeat,
+    radial-gradient(
+      118% 96% at 34% 22%,
+      transparent 0%,
+      transparent 42%,
+      color-mix(in srgb, var(--paper-400) 30%, transparent) 76%,
+      color-mix(in srgb, var(--paper-ink) 24%, transparent) 100%
+    );
+}
+
 /** The spine shadow: where the two leaves fall into the binding. */
 .journal__gutter {
   position: absolute;
@@ -272,6 +316,12 @@
   color: var(--paper-ink);
   font-family: var(--font-body);
   font-size: var(--step-0);
+}
+
+/* The cork board is a physical object laid into the book, not typeset prose:
+   it wants the spread, so the page margin retreats to a mount. */
+.journal__panel[data-tab='deduction'] {
+  padding: calc(var(--page-pad) * 0.55);
 }
 
 .journal__panel:focus {
@@ -448,7 +498,11 @@
 
 .journal-tab {
   position: relative;
-  display: block;
+  /* Every tab is the same leather blank whatever its label: a thumb index cut
+     to the length of the word would read as an accident. */
+  display: grid;
+  place-items: center;
+  min-height: clamp(4.4rem, 10.5cqh, 8.5rem);
   padding: clamp(0.6rem, 1.5cqh, 1.2rem) clamp(0.3rem, 0.7cqw, 0.6rem);
   border: 0;
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
@@ -893,6 +947,7 @@
   padding: var(--sp-4);
   border-radius: var(--radius-sm);
   transform: rotate(calc(var(--tilt, 0deg) * 0.4));
+  background-color: var(--paper-100);
   background-image:
     linear-gradient(
       177deg,
@@ -908,6 +963,17 @@
     inset 0 1px 0 color-mix(in srgb, var(--paper-100) 88%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 55%, transparent),
     var(--shadow-2);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+/* Dossiers straighten when you lean in to read them. */
+.person-card:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 88%, transparent),
+    var(--shadow-3);
 }
 
 .person-card__plate {
@@ -1035,6 +1101,9 @@
 .ded {
   height: 100%;
   min-height: 0;
+  /* A drag that accidentally selects the card's own label looks broken; the
+     board is a surface you move things on, not a document you read. */
+  user-select: none;
 }
 
 .ded__board {
@@ -1074,13 +1143,17 @@
     inset 0 0 44px -8px color-mix(in srgb, var(--ink-abyss) 70%, transparent);
 }
 
-/** Red string lives above the cork and below the cards. */
+/**
+ * Red string runs *over* the cards, the way it does on a real board: the
+ * twine is wound round the pin heads last, so it crosses everything it
+ * connects. Under the cards it would vanish entirely on short spans.
+ */
 .ded__strings {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
   overflow: visible;
 }
@@ -1140,8 +1213,11 @@
   text-align: left;
   border-radius: var(--radius-sm);
   cursor: grab;
+  /* The tray scrolls; without this a drag on touch would pan the tray instead
+     of lifting the card. */
   touch-action: none;
   transform: rotate(var(--tilt, 0deg));
+  background-color: var(--paper-100);
   background-image:
     linear-gradient(
       177deg,
@@ -1399,6 +1475,12 @@
     inset 0 1px 0 color-mix(in srgb, var(--blood-bright) 70%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
     var(--shadow-1);
+}
+
+/* Only a pin the board has not shown before lands. A refresh rebuilds every
+   column, and re-playing the thunk on all of them would make an unrelated
+   clue pickup look like the whole theory just moved. */
+.ded-chip.is-new {
   animation: chip-thunk var(--dur-med) var(--ease-drama) both;
 }
 
@@ -1440,25 +1522,48 @@
   color: var(--lamp-100);
 }
 
-/** The keyboard drop target. Invisible until a clue is actually in hand. */
+/**
+ * The drop plate. Invisible until a clue is actually in hand, at which point
+ * every band grows a lit brass slot — the same affordance for the pointer and
+ * the keyboard, so "click a card, click a band" and "Enter, arrow, Enter" are
+ * one interaction rather than two implementations.
+ */
 .ded-band__drop {
   position: absolute;
   inset: 0;
+  display: grid;
+  place-items: center;
   opacity: 0;
   pointer-events: none;
   border-radius: inherit;
   font-family: var(--font-ui);
   font-size: var(--step--2);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
   color: var(--lamp-100);
-  background: color-mix(in srgb, var(--ink-abyss) 66%, transparent);
-  transition: opacity var(--dur-fast) var(--ease-out);
+  background-image: linear-gradient(
+    178deg,
+    color-mix(in srgb, var(--ink-700) 88%, var(--lamp-600)) 0%,
+    color-mix(in srgb, var(--ink-abyss) 88%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-400) 40%, transparent),
+    inset 0 -10px 16px -12px var(--ink-abyss);
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
 }
 
 .ded.is-carrying .ded-band__drop {
   opacity: 1;
   pointer-events: auto;
+}
+
+.ded.is-carrying .ded-band__drop:hover,
+.ded.is-carrying .ded-band__drop:focus-visible {
+  filter: brightness(1.22);
 }
 
 .ded.is-carrying .ded-band {
@@ -1517,6 +1622,7 @@
   padding: var(--sp-3) var(--sp-3) var(--sp-2);
   border-radius: var(--radius-sm);
   transform: rotate(calc(var(--tilt, 0deg) * 0.5));
+  background-color: var(--paper-200);
   background-image:
     linear-gradient(
       177deg,
@@ -1588,12 +1694,14 @@
    Focus, scrollbars & motion
    ========================================================================= */
 
-/* On paper the amber ring needs a dark carrier or it disappears into the
-   page; on cork and leather it stands on its own. */
+/* On paper the lamp amber has to darken to --lamp-500 or the ring disappears
+   into the page; on cork and leather the full accent stands on its own.
+   Rings are outline-only on purpose. A box-shadow here would silently
+   overwrite the elevation of every card it landed on, and these are physical
+   objects that need to keep casting their own shadow while focused. */
 .journal__panel :focus-visible {
-  outline: 2px solid var(--lamp-500);
+  outline: 3px solid var(--lamp-500);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--lamp-400) 26%, transparent);
 }
 
 .journal__panel .ded :focus-visible,
@@ -1603,13 +1711,27 @@
   outline-offset: 3px;
 }
 
+/* Paper surfaces get a paper-toned track; the cork board keeps the brass one
+   inherited from `.scrollable`. */
 .journal-scroll,
-.jp-col,
-.ded__tray-scroll,
-.ded__suspects {
-  scrollbar-width: thin;
+.jp-col {
   scrollbar-color: color-mix(in srgb, var(--paper-400) 80%, transparent) transparent;
-  overscroll-behavior: contain;
+}
+
+.journal-scroll::-webkit-scrollbar-thumb,
+.jp-col::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--paper-400) 80%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--paper-100) 55%, transparent);
+}
+
+.journal-scroll::-webkit-scrollbar-track,
+.jp-col::-webkit-scrollbar-track {
+  background: linear-gradient(
+    90deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--paper-ink) 12%, transparent) 3px calc(100% - 3px),
+    transparent calc(100% - 3px)
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1620,8 +1742,27 @@
   }
 
   .wax-seal,
-  .ded-chip,
+  .ded-chip.is-new,
+  .ded-card--ghost.is-thunk,
   .journal__panel.is-turning {
     animation: none;
+  }
+
+  /* Hover is information (this is the thing under your pointer), so the
+     shadow change survives — but the card stops travelling and straightening,
+     which is the part that reads as motion. */
+  .clue-card:hover,
+  .ded-card:hover,
+  .ded-card:focus-visible {
+    transform: rotate(var(--tilt, 0deg));
+  }
+
+  .person-card:hover {
+    transform: rotate(calc(var(--tilt, 0deg) * 0.4));
+  }
+
+  .map-node:hover,
+  .map-node:focus-visible {
+    transform: rotate(calc(var(--tilt, 0deg) * 0.5));
   }
 }

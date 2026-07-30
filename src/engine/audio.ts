@@ -510,8 +510,16 @@ function burst(s: Studio, at: number, o: BurstOpts): void {
     f.frequency.exponentialRampToValueAtTime(Math.max(20, o.freqTo), at + o.dur);
   }
 
+  // A bandpass passes noise power in proportion to its bandwidth, f0/Q, so the
+  // same `level` through Q=0.7 and through Q=18 differs by something like 14 dB.
+  // Without this compensation `level` is not a loudness control at all, and the
+  // tight, high-Q sounds — lock pins, latches, clock escapements, crickets —
+  // end up 10 dB under everything else and vanish beneath any bed.
+  const q = o.q ?? 1;
+  const selectivity = f.type === 'bandpass' ? Math.sqrt(Math.max(1, q)) : 1;
+
   const g = ctx.createGain();
-  const end = shape(g, at, o.level, o.attack ?? 0.004, o.dur);
+  const end = shape(g, at, o.level * selectivity, o.attack ?? 0.004, o.dur);
   wire(src, f, g, s.out);
 
   const nodes: AudioNode[] = [src, f, g];
@@ -923,10 +931,15 @@ class Rig {
 
   // -- lifecycle -----------------------------------------------------------
 
-  fadeIn(dur: number): void {
+  /**
+   * Brings the bed up to `to`, which is its calibrated trim rather than unity —
+   * see {@link BED_TRIM_DB}. Two beds crossing each other each ramp to their
+   * own target, so the trim costs nothing at the transition.
+   */
+  fadeIn(dur: number, to = 1): void {
     const now = this.ctx.currentTime;
-    fadeParam(this.dryFade.gain, 1, dur, now);
-    fadeParam(this.wetFade.gain, 1, dur, now);
+    fadeParam(this.dryFade.gain, to, dur, now);
+    fadeParam(this.wetFade.gain, to, dur, now);
   }
 
   /**
@@ -1605,6 +1618,86 @@ function buildMusic(r: Rig, plan: MusicPlan): void {
 }
 
 // ---------------------------------------------------------------------------
+// Mix calibration
+// ---------------------------------------------------------------------------
+
+/**
+ * Output trims in dB, measured rather than guessed.
+ *
+ * Synthesis decides timbre; these decide the mix, and they are deliberately
+ * separate. The loudness of a procedural sound is not something you can read
+ * off its `level` argument: it depends on filter bandwidth, envelope length,
+ * how many partials happen to line up and how much of it survives the reverb
+ * send. Twenty sounds written to feel right individually spanned 23 dB when
+ * they were finally measured end-to-end — UI clicks landed at −29 dBFS peak
+ * while the storm bed ran at −27 dBFS RMS, so every click in the game was
+ * inaudible in bad weather.
+ *
+ * The figures below were taken through the full mixer with `npm run check:audio`
+ * and re-measured after each change. Re-measure if you retune a voice. Targets:
+ * roughly −18 dB peak for interactive chrome, −15 for a reward, −10 for the
+ * rare big event; beds land around −30 dB RMS with the storm a few above and
+ * the library well below.
+ */
+const SFX_TRIM_DB: Record<SfxName, number> = {
+  'click-soft': 9,
+  'click-brass': 2.5,
+  'page-turn': 9,
+  'item-pickup': 5,
+  'clue-found': 3.5,
+  'drawer-open': 3,
+  'lock-click': 7,
+  'lock-refuse': 2.5,
+  latch: 2,
+  'puzzle-correct': 3.5,
+  'puzzle-wrong': 0.5,
+  'puzzle-solved': 4.5,
+  thunder: 7,
+  'door-heavy': 0,
+  'footstep-wood': 1.5,
+  'footstep-stone': 2,
+  'paper-rustle': 9.5,
+  chime: 2.5,
+  typewriter: 0,
+  'match-strike': 8,
+};
+
+/** Bed trims; see {@link SFX_TRIM_DB}. `rain-window` is the reference at 0 dB. */
+const BED_TRIM_DB: Record<AmbienceName, number> = {
+  'rain-window': 0,
+  'heavy-storm': 0,
+  'wind-moor': -3,
+  'sea-swell': 1,
+  'fire-crackle': 2,
+  'clock-room': 9,
+  'cellar-drip': 6,
+  'attic-creak': 7,
+  'engine-hum': -7,
+  'quiet-library': 4,
+  'night-outdoors': 1.5,
+  harbour: 0,
+  silence: 0,
+};
+
+/** Cue trims; see {@link SFX_TRIM_DB}. Music sits a few dB under the beds. */
+const MUSIC_TRIM_DB: Record<MusicName, number> = {
+  'main-theme': 2,
+  tension: -4,
+  discovery: 1,
+  sorrow: 2,
+  confrontation: -1,
+};
+
+/** dB → linear gain. */
+const fromDb = (db: number) => Math.pow(10, db / 20);
+
+/**
+ * How long a one-shot's trim nodes must stay connected. Comfortably longer than
+ * the longest SFX (thunder, whose last rumble decays for about four seconds).
+ */
+const SFX_TAIL_MS = 8000;
+
+// ---------------------------------------------------------------------------
 // Persistence
 // ---------------------------------------------------------------------------
 
@@ -1984,7 +2077,7 @@ export class AudioEngine {
       rig.dispose();
       return;
     }
-    rig.fadeIn(xfade);
+    rig.fadeIn(xfade, fromDb(BED_TRIM_DB[name as AmbienceName] ?? 0));
     this.ambienceRig = rig;
   }
 
@@ -2017,7 +2110,7 @@ export class AudioEngine {
       rig.dispose();
       return;
     }
-    rig.fadeIn(xfade);
+    rig.fadeIn(xfade, fromDb(MUSIC_TRIM_DB[name as MusicName] ?? 0));
     this.musicRig = rig;
   }
 
@@ -2054,10 +2147,34 @@ export class AudioEngine {
 
     const factory = lookup(SFX, name);
     if (!factory) return;
+
+    const strip = this.strips.sfx;
+    const kit = this.kit;
+    const trim = SFX_TRIM_DB[name as SfxName] ?? 0;
     try {
       // A hair of lead time keeps the envelope's first ramp on the schedule
       // rather than in the past, which is what causes clicks on fast clicks.
-      factory(this.strips.sfx.studio, ctx.currentTime + 0.008);
+      const at = ctx.currentTime + 0.008;
+      if (trim === 0 || !kit) {
+        factory(strip.studio, at);
+        return;
+      }
+      // A private pair of trim nodes rather than one on the strip, because the
+      // trim is per-sound: a shared node would retune every SFX at once. Two
+      // extra gains per click is nothing — one-shots fire at click rate, not at
+      // the eight-per-second a fire bed runs at.
+      const gain = fromDb(trim);
+      const dry = ctx.createGain();
+      const wet = ctx.createGain();
+      dry.gain.value = gain;
+      wet.gain.value = gain;
+      dry.connect(strip.dry);
+      wet.connect(strip.wet);
+      factory({ ctx, kit, out: dry, room: wet }, at);
+      setTimeout(() => {
+        dry.disconnect();
+        wet.disconnect();
+      }, SFX_TAIL_MS);
     } catch {
       /* a failed sound must never interrupt gameplay */
     }

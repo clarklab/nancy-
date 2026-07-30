@@ -15,12 +15,19 @@
  * round-trips the deduction board without the engine knowing this file exists.
  * Sound is a callback rather than an import so the journal stays testable and
  * the audio engine stays swappable.
+ *
+ * Rendering is wholesale: every refresh rebuilds the live page's markup. That
+ * is cheap enough at this scale and it removes a whole class of diffing bugs,
+ * but it means the three things a rebuild would otherwise destroy — scroll
+ * position, keyboard focus, and a clue held in hand — are captured before the
+ * wipe and restored after it. Anything that must survive a rebuild lives in a
+ * field on this class, never in the DOM.
  */
 
 import type { GameState } from '@/engine/state';
 import type { Character, CharacterId, Clue, ClueId, SceneId } from '@/engine/types';
 
-/** The five sections, in tab order down the right edge. */
+/** The five sections, in tab order down the fore edge. */
 export type JournalTab = 'case' | 'clues' | 'people' | 'deduction' | 'map';
 
 export interface JournalCallbacks {
@@ -60,14 +67,41 @@ const CLUE_GROUPS: { id: Clue['category']; title: string; blurb: string }[] = [
   { id: 'observation', title: 'Observations', blurb: 'What was simply, quietly true of the room.' },
 ];
 
-/* Motion constant mirroring --dur-med. It lives here because the drag settle
-   is sequenced in JS, which cannot read a CSS duration reliably. `REDUCED`
-   collapses it the way the tokens do. */
-const MS_SETTLE = 300;
+/**
+ * Pointer travel, in CSS pixels, before a press on an evidence card stops
+ * being a click and becomes a drag. Without a threshold every click on the
+ * board spawns a ghost that immediately flies home, which reads as a glitch;
+ * with one, click-to-pick-up and drag-to-pin are the same gesture at two
+ * speeds. It is geometry, not motion design, so it is a literal here.
+ */
+const DRAG_SLOP = 5;
+
+/**
+ * Backstop for tearing down a drag ghost. The ghost normally retires on its
+ * own `transitionend`/`animationend`; this only fires if the browser drops
+ * that event (a background tab, an interrupted compositor animation) and is
+ * deliberately far longer than any token duration so it never pre-empts one.
+ */
+const GHOST_MAX_MS = 1400;
+
 const REDUCED = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Widest the map grid is allowed to get before it starts a new row. */
 const MAP_MAX_COLS = 5;
+
+/** A live pointer on the deduction board — a press that may become a drag. */
+interface PointerCarry {
+  id: number;
+  clueId: ClueId;
+  source: HTMLElement;
+  startX: number;
+  startY: number;
+  /** Null until the press passes `DRAG_SLOP` and actually lifts a card. */
+  ghost: HTMLElement | null;
+  dx: number;
+  dy: number;
+  band: HTMLElement | null;
+}
 
 /**
  * The player's case file. Construct once per session, `mount` it into the
@@ -85,6 +119,8 @@ export class Journal {
   private statusEl!: HTMLElement;
 
   private tab: JournalTab = 'case';
+  /** Which tab the live DOM belongs to, so only a real page change washes. */
+  private renderedTab: JournalTab | null = null;
   private opened = false;
   private destroyed = false;
 
@@ -95,7 +131,10 @@ export class Journal {
   private resizeObserver: ResizeObserver | null = null;
   private timers = new Set<number>();
   private renderQueued = false;
-  /** Re-entrancy guard: marking clues read notifies mid-render. */
+  private overlaysQueued = false;
+  /** A refresh that arrived mid-drag and still owes the player a repaint. */
+  private renderDeferred = false;
+  /** Re-entrancy guard: rendering can touch state, which notifies listeners. */
   private rendering = false;
 
   /**
@@ -109,20 +148,23 @@ export class Journal {
   /** Tasks whose strike-through has already been drawn, so it draws only once. */
   private struckTasks = new Set<string>();
 
-  /** Scroll offset per tab, so switching back does not lose the reader's place. */
-  private scrollMemory = new Map<JournalTab, number>();
+  /**
+   * Pins the board has already shown landing, keyed `suspect|clue`. Without
+   * this every unrelated state change would re-play the thunk on every chip,
+   * because a refresh rebuilds the whole column.
+   */
+  private seenPins = new Set<string>();
 
-  /** Live pointer drag on the deduction board, if any. */
-  private drag: {
-    clueId: ClueId;
-    source: HTMLElement;
-    ghost: HTMLElement;
-    dx: number;
-    dy: number;
-    band: HTMLElement | null;
-  } | null = null;
+  /**
+   * Scroll offset per scroller per tab, keyed `<tab>:<data-scroll>`. The
+   * deduction board has two independent scrollers, so a single number would
+   * silently reset one of them on every repaint.
+   */
+  private scrollMemory = new Map<string, number>();
 
-  /** Keyboard equivalent of a drag: a clue held, waiting for a destination. */
+  private ptr: PointerCarry | null = null;
+
+  /** Keyboard/click carry: a clue held, waiting for a destination. */
   private carrying: ClueId | null = null;
 
   constructor(state: GameState, cb: JournalCallbacks = {}) {
@@ -160,19 +202,22 @@ export class Journal {
   /** Attaches the journal (closed) and starts tracking state. */
   mount(parent: HTMLElement) {
     parent.appendChild(this.el);
+    // Mounting twice would stack subscriptions and observers; the engine only
+    // does it once, but a leaked listener here would survive `destroy`.
+    if (this.unsubscribe) return;
     this.unsubscribe = this.state.subscribe(() => this.refresh());
 
     // Strings and ink routes are measured in pixels, so any change to the
     // book's size invalidates them.
     if (typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver(() => this.layoutOverlays());
+      this.resizeObserver = new ResizeObserver(() => this.queueOverlays());
       this.resizeObserver.observe(this.bookEl);
     }
   }
 
   destroy() {
     this.destroyed = true;
-    this.endDrag(null);
+    this.releasePointer(null);
     this.unsubscribe?.();
     this.unsubscribe = null;
     this.resizeObserver?.disconnect();
@@ -194,6 +239,7 @@ export class Journal {
    * which is what makes the HUD shortcut keys feel like tabs and not toggles.
    */
   open(tab?: JournalTab) {
+    if (this.destroyed) return;
     const wanted = tab && TAB_DEFS.some((t) => t.id === tab) ? tab : this.tab;
 
     if (this.opened) {
@@ -217,9 +263,11 @@ export class Journal {
   close() {
     if (!this.opened) return;
     this.opened = false;
-    this.endDrag(null);
+    this.releasePointer(null);
     this.setCarrying(null);
     this.freshClues.clear();
+    // The next open should read as a fresh page, not a resumed one.
+    this.renderedTab = null;
     this.el.classList.remove('is-open');
     // `inert` before the swing finishes: the book is on its way shut and must
     // not answer another click on the way.
@@ -237,13 +285,23 @@ export class Journal {
    * re-render of the deduction board is not free.
    */
   refresh() {
-    if (this.destroyed || !this.opened || this.renderQueued || this.rendering) return;
+    if (this.destroyed || !this.opened || this.rendering) return;
+    if (this.ptr) {
+      // Never rebuild under a live pointer: the card being pressed would be
+      // replaced by a fresh node and the drag would follow a detached ghost.
+      // Remember the debt instead and settle it when the pointer lets go.
+      this.renderDeferred = true;
+      return;
+    }
+    if (this.renderQueued) return;
     this.renderQueued = true;
     requestAnimationFrame(() => {
       this.renderQueued = false;
       if (this.destroyed || !this.opened) return;
-      // Never yank a card out from under a moving pointer.
-      if (this.drag) return;
+      if (this.ptr) {
+        this.renderDeferred = true;
+        return;
+      }
       this.render();
     });
   }
@@ -283,6 +341,7 @@ export class Journal {
   private setTab(tab: JournalTab, focusTab = false) {
     if (tab === this.tab) return;
     this.rememberScroll();
+    this.releasePointer(null);
     this.setCarrying(null);
     if (this.tab === 'clues') this.freshClues.clear();
     this.tab = tab;
@@ -333,7 +392,8 @@ export class Journal {
       ev.stopPropagation();
       // Escape peels one layer at a time: put the carried clue down first,
       // shut the book only if the player's hands are empty.
-      if (this.carrying) this.setCarrying(null);
+      if (this.ptr) this.releasePointer(null);
+      else if (this.carrying) this.setCarrying(null);
       else this.close();
       return;
     }
@@ -343,6 +403,7 @@ export class Journal {
       const at = tabs.indexOf(this.tab);
       const step = ev.key === 'PageDown' ? 1 : -1;
       ev.preventDefault();
+      ev.stopPropagation();
       this.setTab(tabs[(at + step + tabs.length) % tabs.length]!, true);
       return;
     }
@@ -350,13 +411,28 @@ export class Journal {
     if (ev.key === 'Tab') this.trapTab(ev);
   };
 
+  /**
+   * Everything inside the book that is genuinely reachable by Tab right now.
+   * `tabIndex >= 0` is the load-bearing filter: the tab strip uses a roving
+   * tabindex and the drop plates are only tabbable while a clue is in hand,
+   * so a plain `button` selector would trap focus against elements the
+   * browser will never actually stop on.
+   */
+  private focusables(): HTMLElement[] {
+    const nodes = this.bookEl.querySelectorAll<HTMLElement>(
+      'a[href], button, input, select, textarea, [tabindex]',
+    );
+    return [...nodes].filter(
+      (n) =>
+        !n.hasAttribute('disabled') &&
+        n.tabIndex >= 0 &&
+        (n.offsetWidth > 0 || n.offsetHeight > 0 || n === document.activeElement),
+    );
+  }
+
   /** Keeps focus inside the open book — a modal surface owns the keyboard. */
   private trapTab(ev: KeyboardEvent) {
-    const focusables = [
-      ...this.bookEl.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    ].filter((n) => n.offsetParent !== null || n === document.activeElement);
+    const focusables = this.focusables();
     if (!focusables.length) return;
 
     const first = focusables[0]!;
@@ -366,7 +442,7 @@ export class Journal {
     if (ev.shiftKey && (active === first || !this.bookEl.contains(active))) {
       ev.preventDefault();
       last.focus();
-    } else if (!ev.shiftKey && active === last) {
+    } else if (!ev.shiftKey && (active === last || !this.bookEl.contains(active))) {
       ev.preventDefault();
       first.focus();
     }
@@ -376,25 +452,37 @@ export class Journal {
 
   private render() {
     this.rendering = true;
+    this.renderDeferred = false;
+    const turned = this.renderedTab !== this.tab;
+    const focus = this.focusKey();
+
     if (this.tab === 'clues') this.claimUnreadClues();
+    // A clue can be revoked by an effect while the board is open; a hand
+    // holding something that no longer exists would never be able to put it
+    // down.
+    if (this.carrying && !this.state.clues.has(this.carrying)) this.carrying = null;
 
     this.panelEl.dataset.tab = this.tab;
     this.panelEl.innerHTML = this.markupFor(this.tab);
+    this.renderedTab = this.tab;
     wireArt(this.panelEl);
 
-    // Restart the page-turn wash so every tab change reads as a turned leaf.
-    this.panelEl.classList.remove('is-turning');
-    void this.panelEl.offsetWidth;
-    this.panelEl.classList.add('is-turning');
+    // Restart the page-turn wash only for an actual page change: replaying it
+    // whenever an unrelated effect fires would strobe the whole spread.
+    if (turned) {
+      this.panelEl.classList.remove('is-turning');
+      void this.panelEl.offsetWidth;
+      this.panelEl.classList.add('is-turning');
+    }
 
-    const remembered = this.scrollMemory.get(this.tab) ?? 0;
-    const scroller = this.panelEl.querySelector<HTMLElement>('.journal-scroll');
-    if (scroller) scroller.scrollTop = remembered;
+    this.restoreScroll();
+    this.syncCarrying();
+    this.restoreFocus(focus);
 
     this.rendering = false;
 
     requestAnimationFrame(() => {
-      if (this.destroyed) return;
+      if (this.destroyed || !this.opened) return;
       this.settleTasks();
       this.layoutOverlays();
     });
@@ -441,7 +529,7 @@ export class Journal {
 
     return `
       <div class="journal-spread journal-spread--prose">
-        <section class="jp-col scrollable" aria-label="The case">
+        <section class="jp-col scrollable" data-scroll="left" aria-label="The case">
           <p class="jp-kicker">Act ${escapeHtml(roman(this.state.act))}</p>
           <h3 class="jp-title">${escapeHtml(act?.title ?? 'The case so far')}</h3>
           ${act?.epigraph ? `<p class="jp-epigraph">${escapeHtml(act.epigraph)}</p>` : ''}
@@ -452,7 +540,7 @@ export class Journal {
             <div class="case-stat"><dt>Puzzles solved</dt><dd>${this.state.solvedPuzzles.size}</dd></div>
           </dl>
         </section>
-        <section class="jp-col scrollable" aria-label="Open tasks">
+        <section class="jp-col scrollable" data-scroll="right" aria-label="Open tasks">
           <p class="jp-kicker">To do</p>
           ${list}
         </section>
@@ -480,7 +568,12 @@ export class Journal {
     if (!this.state.unreadClues.size) return;
     for (const id of this.state.unreadClues) this.freshClues.add(id);
     this.state.unreadClues.clear();
-    this.state.notify();
+    // Notify out of band. We are mid-render, and the HUD badge and the
+    // autosave both hang off `notify`; running them synchronously here would
+    // re-enter this very function with a half-written panel.
+    queueMicrotask(() => {
+      if (!this.destroyed) this.state.notify();
+    });
   }
 
   private ownedClues(): Clue[] {
@@ -564,13 +657,14 @@ export class Journal {
               .map((c) => `<li class="ink-chip">${escapeHtml(c.name)}</li>`)
               .join('')}</ul>`
           : '<p class="person-card__none">Nothing in the file bears on them.</p>';
+        const accent = safeColor(p.color);
         return `
           <article class="person-card" style="--tilt:${tiltOf(p.id)}deg">
             <div class="person-card__plate">
               <span class="person-card__portrait">${portraitFor(p)}</span>
             </div>
             <div class="person-card__body">
-              <h4 class="person-card__name"${p.color ? ` style="--accent-person:${escapeHtml(p.color)}"` : ''}>${escapeHtml(p.name)}</h4>
+              <h4 class="person-card__name"${accent ? ` style="--accent-person:${accent}"` : ''}>${escapeHtml(p.name)}</h4>
               <p class="person-card__role">${escapeHtml(p.role)}</p>
               <p class="person-card__bio">${escapeHtml(p.bio)}</p>
               <p class="person-card__label">Bears on</p>
@@ -591,19 +685,19 @@ export class Journal {
    * `met.*` flags yet we fall back to whoever the owned clues point at, so the
    * board is never blank while a sibling workflow is still writing story data.
    */
-  private suspects(): Character[] {
+  private suspects(clues: Clue[]): Character[] {
     const met = this.metCharacters();
     if (met.length) return met;
 
     const all = this.state.content.characters ?? {};
     const ids = new Set<CharacterId>();
-    for (const clue of this.ownedClues()) for (const id of clue.bearsOn ?? []) ids.add(id);
+    for (const clue of clues) for (const id of clue.bearsOn ?? []) ids.add(id);
     return [...ids].map((id) => all[id]).filter((c): c is Character => !!c);
   }
 
   private deductionMarkup(): string {
     const clues = this.ownedClues();
-    const suspects = this.suspects();
+    const suspects = this.suspects(clues);
 
     if (!clues.length || !suspects.length) {
       return this.spread(
@@ -619,10 +713,12 @@ export class Journal {
     const tray = clues
       .map((c) => {
         const pinned = suspects.some((s) => (this.state.accusations[s.id] ?? []).includes(c.id));
+        const id = escapeHtml(c.id);
         return `
           <button type="button" class="ded-card${pinned ? ' is-pinned' : ''}"
-                  data-clue="${escapeHtml(c.id)}" style="--tilt:${tiltOf(c.id)}deg"
-                  aria-label="${escapeHtml(c.name)}. ${pinned ? 'Pinned. ' : ''}Press Enter to pick up.">
+                  data-clue="${id}" data-fk="card:${id}" style="--tilt:${tiltOf(c.id)}deg"
+                  aria-pressed="false" aria-describedby="journal-ded-hint"
+                  aria-label="${escapeHtml(c.name)}. ${escapeHtml(c.category)}.${pinned ? ' Already pinned.' : ''}">
             <span class="ded-card__pin" aria-hidden="true"></span>
             <span class="ded-card__name">${escapeHtml(c.name)}</span>
             <span class="ded-card__cat">${escapeHtml(c.category)}</span>
@@ -635,13 +731,15 @@ export class Journal {
     return `
       <div class="ded" role="group" aria-label="Deduction board">
         <div class="ded__board">
-          <svg class="ded__strings" aria-hidden="true" focusable="false"></svg>
           <section class="ded__tray" aria-label="Evidence">
             <p class="jp-kicker jp-kicker--cork">Evidence</p>
-            <div class="ded__tray-scroll journal-scroll scrollable">${tray}</div>
-            <p class="ded__hint">Drag a card onto a suspect — or press Enter to pick it up.</p>
+            <div class="ded__tray-scroll scrollable" data-scroll="tray">${tray}</div>
+            <p class="ded__hint" id="journal-ded-hint">
+              Drag a card onto a suspect — or press Enter to pick it up.
+            </p>
           </section>
-          <section class="ded__suspects journal-scroll scrollable" aria-label="Suspects">${columns}</section>
+          <section class="ded__suspects scrollable" data-scroll="suspects" aria-label="Suspects">${columns}</section>
+          <svg class="ded__strings" aria-hidden="true" focusable="false"></svg>
         </div>
       </div>`;
   }
@@ -654,12 +752,17 @@ export class Journal {
         .filter((id) => this.chargeOf(s.id, id) === charge)
         .map((id) => {
           const name = all[id]?.name ?? id;
+          const key = pinKey(s.id, id);
+          const fresh = !this.seenPins.has(key);
+          this.seenPins.add(key);
           return `
-            <span class="ded-chip" data-clue="${escapeHtml(id)}">
+            <span class="ded-chip${fresh ? ' is-new' : ''}" data-clue="${escapeHtml(id)}">
               <span class="ded-chip__name">${escapeHtml(name)}</span>
               <button type="button" class="ded-chip__unpin" data-unpin="${escapeHtml(id)}"
-                      data-suspect="${escapeHtml(s.id)}"
-                      aria-label="Unpin ${escapeHtml(name)} from ${escapeHtml(s.name)}">×</button>
+                      data-suspect="${escapeHtml(s.id)}" data-fk="unpin:${escapeHtml(s.id)}:${escapeHtml(id)}"
+                      aria-label="Unpin ${escapeHtml(name)} from ${escapeHtml(s.name)}">
+                <span aria-hidden="true">×</span>
+              </button>
             </span>`;
         })
         .join('');
@@ -668,7 +771,7 @@ export class Journal {
           <span class="ded-band__label">${charge}</span>
           <div class="ded-band__chips">${chips || '<span class="ded-band__empty" aria-hidden="true">—</span>'}</div>
           <button type="button" class="ded-band__drop" data-drop-suspect="${escapeHtml(s.id)}"
-                  data-drop-charge="${charge}" tabindex="-1"
+                  data-drop-charge="${charge}" data-fk="drop:${escapeHtml(s.id)}:${charge}" tabindex="-1"
                   aria-label="Pin the carried clue to ${escapeHtml(s.name)} as ${charge}">Pin here</button>
         </div>`;
     }).join('');
@@ -682,7 +785,10 @@ export class Journal {
             <span class="ded-suspect__name">${escapeHtml(s.name)}</span>
             <span class="ded-suspect__role">${escapeHtml(s.role)}</span>
           </span>
-          <span class="ded-suspect__tally" aria-label="${pinned.length} clues pinned">${pinned.length}</span>
+          <span class="ded-suspect__tally">
+            <span aria-hidden="true">${pinned.length}</span>
+            <span class="sr-only">${pinned.length} clues pinned</span>
+          </span>
         </header>
         ${bands}
       </article>`;
@@ -706,6 +812,8 @@ export class Journal {
       if (c === charge) this.state.flags[this.chargeFlag(suspect, clue, c)] = true;
       else delete this.state.flags[this.chargeFlag(suspect, clue, c)];
     }
+    // Let the chip play its landing again even when it only moved band.
+    this.seenPins.delete(pinKey(suspect, clue));
     this.sound('lock-click');
     this.announce(`${this.clueName(clue)} pinned to ${this.characterName(suspect)} as ${charge}.`);
     this.state.notify();
@@ -718,6 +826,7 @@ export class Journal {
     if (at >= 0) list.splice(at, 1);
     if (!list.length) delete this.state.accusations[suspect];
     for (const c of CHARGES) delete this.state.flags[this.chargeFlag(suspect, clue, c)];
+    this.seenPins.delete(pinKey(suspect, clue));
     this.sound('paper-rustle');
     this.announce(`${this.clueName(clue)} unpinned from ${this.characterName(suspect)}.`);
     this.state.notify();
@@ -725,136 +834,214 @@ export class Journal {
 
   // -- deduction interaction -------------------------------------------------
 
+  /**
+   * A press on an evidence card. Nothing is lifted yet: the gesture only
+   * becomes a drag once the pointer has travelled `DRAG_SLOP`, so a plain
+   * click (mouse or tap) resolves to the same pick-up the keyboard performs.
+   */
   private onPanelPointerDown = (ev: PointerEvent) => {
-    if (ev.button !== 0 || this.drag) return;
+    if (this.ptr || !ev.isPrimary) return;
+    if (ev.pointerType === 'mouse' && ev.button !== 0) return;
     const card = (ev.target as HTMLElement).closest<HTMLElement>('.ded-card');
-    if (!card) return;
+    if (!card?.dataset.clue) return;
+
+    // Suppress the native selection/image drag, then move focus by hand:
+    // the pointer and keyboard paths must agree on the current card.
     ev.preventDefault();
-    this.beginDrag(card, ev);
+    card.focus({ preventScroll: true });
+
+    this.ptr = {
+      id: ev.pointerId,
+      clueId: card.dataset.clue,
+      source: card,
+      startX: ev.clientX,
+      startY: ev.clientY,
+      ghost: null,
+      dx: 0,
+      dy: 0,
+      band: null,
+    };
+    window.addEventListener('pointermove', this.onPointerMove);
+    window.addEventListener('pointerup', this.onPointerUp);
+    window.addEventListener('pointercancel', this.onPointerUp);
   };
 
   /**
-   * A pointer drag lifts a *clone*: the tray scrolls and clips, so the real
-   * card can never leave it, and only a free-floating copy can cross the
-   * spine to the suspect columns.
+   * Lifts a *clone*: the tray scrolls and clips, so the real card can never
+   * leave it, and only a free-floating copy can cross the spine to the
+   * suspect columns. The ghost is parented to the journal root rather than
+   * the book because the book's frame is a size container, which would make
+   * it the containing block for a fixed-position child.
    */
-  private beginDrag(card: HTMLElement, ev: PointerEvent) {
-    const rect = card.getBoundingClientRect();
-    const ghost = card.cloneNode(true) as HTMLElement;
-    ghost.classList.add('ded-card--ghost');
-    // The copy is scenery: it must not be findable by `[data-clue]` string
-    // layout, focusable, or announced a second time.
+  private lift(p: PointerCarry, ev: PointerEvent) {
+    const rect = p.source.getBoundingClientRect();
+    const ghost = p.source.cloneNode(true) as HTMLElement;
+    ghost.className = `${p.source.className} ded-card--ghost`;
+    ghost.classList.remove('is-carried', 'is-lifted');
+    // The copy is scenery: not findable by id or `[data-clue]`, not focusable,
+    // and never announced a second time.
     ghost.removeAttribute('data-clue');
+    ghost.removeAttribute('data-fk');
+    ghost.removeAttribute('id');
+    ghost.removeAttribute('aria-describedby');
+    ghost.setAttribute('aria-hidden', 'true');
     ghost.inert = true;
     ghost.style.left = `${rect.left}px`;
     ghost.style.top = `${rect.top}px`;
     ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
     this.el.appendChild(ghost);
 
-    card.classList.add('is-lifted');
+    p.ghost = ghost;
+    p.dx = p.startX - rect.left;
+    p.dy = p.startY - rect.top;
+
+    p.source.classList.add('is-lifted');
     this.el.classList.add('is-dragging');
     this.setCarrying(null);
-
-    this.drag = {
-      clueId: card.dataset.clue!,
-      source: card,
-      ghost,
-      dx: ev.clientX - rect.left,
-      dy: ev.clientY - rect.top,
-      band: null,
-    };
-
     this.sound('paper-rustle');
-    window.addEventListener('pointermove', this.onDragMove);
-    window.addEventListener('pointerup', this.onDragUp);
-    window.addEventListener('pointercancel', this.onDragUp);
+
+    // Seed this frame from the press point so the card does not jump the
+    // slop distance the instant it lifts.
+    ghost.style.transform = `translate(${ev.clientX - p.startX}px, ${ev.clientY - p.startY}px)`;
   }
 
-  private onDragMove = (ev: PointerEvent) => {
-    const d = this.drag;
-    if (!d) return;
-    d.ghost.style.transform = `translate(${ev.clientX - d.dx - parseFloat(d.ghost.style.left)}px, ${
-      ev.clientY - d.dy - parseFloat(d.ghost.style.top)
+  private onPointerMove = (ev: PointerEvent) => {
+    const p = this.ptr;
+    if (!p || ev.pointerId !== p.id) return;
+
+    if (!p.ghost) {
+      if (Math.hypot(ev.clientX - p.startX, ev.clientY - p.startY) < DRAG_SLOP) return;
+      this.lift(p, ev);
+    }
+
+    const ghost = p.ghost!;
+    ghost.style.transform = `translate(${ev.clientX - p.dx - parseFloat(ghost.style.left)}px, ${
+      ev.clientY - p.dy - parseFloat(ghost.style.top)
     }px)`;
 
     const under = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement | null;
     const band = under?.closest<HTMLElement>('.ded-band') ?? null;
-    if (band !== d.band) {
-      d.band?.classList.remove('is-hot');
+    if (band !== p.band) {
+      p.band?.classList.remove('is-hot');
       band?.classList.add('is-hot');
-      d.band = band;
+      p.band = band;
       if (band) this.sound('click-soft');
     }
   };
 
-  private onDragUp = (ev: PointerEvent) => {
-    const d = this.drag;
-    if (!d) return;
-    const band = d.band;
-    this.endDrag(band ? { x: ev.clientX, y: ev.clientY } : null);
+  private onPointerUp = (ev: PointerEvent) => {
+    const p = this.ptr;
+    if (!p || ev.pointerId !== p.id) return;
+
+    const dragged = !!p.ghost;
+    const cancelled = ev.type === 'pointercancel';
+    const band = cancelled ? null : p.band;
+
+    this.releasePointer(dragged && band ? { x: ev.clientX, y: ev.clientY } : null);
+
+    if (!dragged) {
+      if (!cancelled) this.setCarrying(this.carrying === p.clueId ? null : p.clueId);
+      return;
+    }
     if (band) {
       this.pinClue(
         band.dataset.suspect!,
-        d.clueId,
+        p.clueId,
         (band.dataset.charge as Charge | undefined) ?? 'means',
       );
     }
   };
 
   /**
-   * Tears down a drag. With a drop point the ghost collapses into the board
-   * (the "thunk"); without one it flies home, so a mis-drop reads as the card
+   * Ends the pointer gesture and, if a card was actually in flight, retires
+   * its ghost. With a drop point the ghost collapses into the board (the
+   * "thunk"); without one it flies home, so a mis-drop reads as the card
    * refusing to stay rather than as the board eating it.
    */
-  private endDrag(dropAt: { x: number; y: number } | null) {
-    const d = this.drag;
-    if (!d) return;
-    this.drag = null;
+  private releasePointer(dropAt: { x: number; y: number } | null) {
+    const p = this.ptr;
+    if (!p) return;
+    this.ptr = null;
 
-    window.removeEventListener('pointermove', this.onDragMove);
-    window.removeEventListener('pointerup', this.onDragUp);
-    window.removeEventListener('pointercancel', this.onDragUp);
+    window.removeEventListener('pointermove', this.onPointerMove);
+    window.removeEventListener('pointerup', this.onPointerUp);
+    window.removeEventListener('pointercancel', this.onPointerUp);
 
-    d.band?.classList.remove('is-hot');
-    d.source.classList.remove('is-lifted');
+    p.band?.classList.remove('is-hot');
+    p.source.classList.remove('is-lifted');
     this.el.classList.remove('is-dragging');
 
-    if (REDUCED() || this.destroyed) {
-      d.ghost.remove();
-      return;
+    const ghost = p.ghost;
+    if (ghost) {
+      if (REDUCED() || this.destroyed) {
+        ghost.remove();
+      } else if (dropAt) {
+        ghost.style.transformOrigin = `${dropAt.x - parseFloat(ghost.style.left)}px ${
+          dropAt.y - parseFloat(ghost.style.top)
+        }px`;
+        ghost.classList.add('is-thunk');
+        this.retireGhost(ghost);
+      } else {
+        ghost.classList.add('is-returning');
+        // Flush the class before changing the transform, or the transition
+        // has no start value and the card teleports home instead of flying.
+        void ghost.offsetWidth;
+        ghost.style.transform = 'translate(0, 0)';
+        this.sound('paper-rustle');
+        this.retireGhost(ghost);
+      }
     }
 
-    if (dropAt) {
-      d.ghost.classList.add('is-thunk');
-      d.ghost.style.transformOrigin = `${dropAt.x - parseFloat(d.ghost.style.left)}px ${
-        dropAt.y - parseFloat(d.ghost.style.top)
-      }px`;
-    } else {
-      d.ghost.classList.add('is-returning');
-      // Flush the class before changing the transform, or the transition has
-      // no start value and the card teleports home instead of flying.
-      void d.ghost.offsetWidth;
-      d.ghost.style.transform = 'translate(0, 0)';
-      this.sound('paper-rustle');
-    }
-    this.after(MS_SETTLE, () => d.ghost.remove());
+    // A refresh that arrived mid-drag was skipped to keep the card steady.
+    if (this.renderDeferred && this.opened && !this.destroyed) this.refresh();
   }
 
-  /** Keyboard carry: the accessible half of drag-and-drop. */
+  /** Removes a ghost when its exit finishes, with a timer as the backstop. */
+  private retireGhost(ghost: HTMLElement) {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      ghost.remove();
+    };
+    ghost.addEventListener('transitionend', finish, { once: true });
+    ghost.addEventListener('animationend', finish, { once: true });
+    this.after(GHOST_MAX_MS, finish);
+  }
+
+  /** Picks a clue up (or puts it down) for the click and keyboard paths. */
   private setCarrying(clue: ClueId | null) {
+    const was = this.carrying;
+    if (clue === was) return;
     this.carrying = clue;
-    const board = this.panelEl.querySelector<HTMLElement>('.ded');
-    board?.classList.toggle('is-carrying', !!clue);
-    for (const card of this.panelEl.querySelectorAll<HTMLElement>('.ded-card')) {
-      card.classList.toggle('is-carried', !!clue && card.dataset.clue === clue);
-    }
-    for (const drop of this.panelEl.querySelectorAll<HTMLButtonElement>('.ded-band__drop')) {
-      drop.tabIndex = clue ? 0 : -1;
-    }
+    this.syncCarrying();
     if (clue) {
       this.announce(
         `${this.clueName(clue)} picked up. Move to a suspect and press Enter to pin it, or Escape to put it down.`,
       );
+      this.sound('paper-rustle');
+    } else if (was) {
+      this.announce(`${this.clueName(was)} put down.`);
+    }
+  }
+
+  /**
+   * Projects `carrying` onto the live DOM. Called after every render as well
+   * as on every change, because a rebuild throws the classes away while the
+   * player is still holding the card.
+   */
+  private syncCarrying() {
+    const clue = this.carrying;
+    const board = this.panelEl.querySelector<HTMLElement>('.ded');
+    board?.classList.toggle('is-carrying', !!clue);
+    for (const card of this.panelEl.querySelectorAll<HTMLElement>('.ded-card')) {
+      const on = !!clue && card.dataset.clue === clue;
+      card.classList.toggle('is-carried', on);
+      card.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    for (const drop of this.panelEl.querySelectorAll<HTMLButtonElement>('.ded-band__drop')) {
+      drop.tabIndex = clue ? 0 : -1;
     }
   }
 
@@ -880,28 +1067,33 @@ export class Journal {
     }
 
     const node = target.closest<HTMLElement>('[data-scene]');
-    if (node) {
+    if (node?.dataset.scene) {
       this.sound('click-brass');
-      this.cb.onFastTravel?.(node.dataset.scene!);
+      const scene = node.dataset.scene;
+      // Travelling means leaving: keep the book open over a new room and the
+      // player has to dismiss it before they can see where they went.
+      if (this.cb.onFastTravel) {
+        this.close();
+        this.cb.onFastTravel(scene);
+      }
     }
   };
 
   private onPanelKeyDown = (ev: KeyboardEvent) => {
     const card = (ev.target as HTMLElement).closest<HTMLElement>('.ded-card');
-    if (card && (ev.key === 'Enter' || ev.key === ' ')) {
+    if (card?.dataset.clue && (ev.key === 'Enter' || ev.key === ' ')) {
       ev.preventDefault();
-      const id = card.dataset.clue!;
+      ev.stopPropagation();
+      const id = card.dataset.clue;
       this.setCarrying(this.carrying === id ? null : id);
-      if (this.carrying) {
-        this.panelEl.querySelector<HTMLElement>('.ded-band__drop')?.focus();
-        this.sound('paper-rustle');
-      }
+      if (this.carrying) this.panelEl.querySelector<HTMLElement>('.ded-band__drop')?.focus();
       return;
     }
 
-    // Roving movement between drop targets while a clue is in hand.
+    // Roving movement between drop plates while a clue is in hand.
     if (this.carrying && (ev.target as HTMLElement).closest('.ded-band__drop')) {
       const drops = [...this.panelEl.querySelectorAll<HTMLElement>('.ded-band__drop')];
+      if (!drops.length) return;
       const at = drops.findIndex((d) => d === document.activeElement);
       let next = -1;
       if (ev.key === 'ArrowDown') next = (at + 1) % drops.length;
@@ -915,15 +1107,59 @@ export class Journal {
     }
   };
 
+  // -- scroll, focus & overlay scheduling ------------------------------------
+
   private onPanelScroll = () => {
     this.rememberScroll();
-    // Strings are drawn in board space; scrolling either column moves an end.
-    this.layoutOverlays();
+    // Strings are drawn in board space, so scrolling either column moves an
+    // end — but a scroll fires far faster than a frame, and every redraw
+    // measures live geometry. One redraw per frame, no more.
+    this.queueOverlays();
   };
 
   private rememberScroll() {
-    const scroller = this.panelEl.querySelector<HTMLElement>('.journal-scroll');
-    if (scroller) this.scrollMemory.set(this.tab, scroller.scrollTop);
+    for (const s of this.panelEl.querySelectorAll<HTMLElement>('[data-scroll]')) {
+      this.scrollMemory.set(`${this.tab}:${s.dataset.scroll}`, s.scrollTop);
+    }
+  }
+
+  private restoreScroll() {
+    for (const s of this.panelEl.querySelectorAll<HTMLElement>('[data-scroll]')) {
+      const at = this.scrollMemory.get(`${this.tab}:${s.dataset.scroll}`);
+      if (at) s.scrollTop = at;
+    }
+  }
+
+  /**
+   * A stable identity for whatever is focused inside the panel. Rebuilding
+   * the page drops focus to `<body>`, which escapes the trap and strands
+   * keyboard players outside the book they are still looking at.
+   */
+  private focusKey(): string | null {
+    const active = document.activeElement as HTMLElement | null;
+    if (!active || !this.panelEl.contains(active)) return null;
+    // Empty string means "somewhere on this page but not on a keyed control",
+    // which still has to come back inside the book after the rebuild.
+    return active.closest<HTMLElement>('[data-fk]')?.dataset.fk ?? '';
+  }
+
+  private restoreFocus(key: string | null) {
+    if (key === null) return;
+    const match = [...this.panelEl.querySelectorAll<HTMLElement>('[data-fk]')].find(
+      (n) => n.dataset.fk === key,
+    );
+    // The element may be gone (its clue was unpinned); the panel itself is
+    // focusable so the trap still has something inside the book to hold.
+    (match ?? this.panelEl).focus({ preventScroll: true });
+  }
+
+  private queueOverlays() {
+    if (this.overlaysQueued) return;
+    this.overlaysQueued = true;
+    requestAnimationFrame(() => {
+      this.overlaysQueued = false;
+      if (!this.destroyed) this.layoutOverlays();
+    });
   }
 
   // -- MAP -------------------------------------------------------------------
@@ -939,13 +1175,14 @@ export class Journal {
     const scenes = this.state.content.scenes ?? {};
     const cols = Math.min(MAP_MAX_COLS, Math.max(2, Math.ceil(Math.sqrt(ids.length))));
     const nodes = ids
-      .map((id, i) => {
+      .map((id) => {
         const here = id === this.state.scene;
         const name = scenes[id]?.name ?? id;
+        const safe = escapeHtml(id);
         return `
           <li class="map-node-cell">
-            <button type="button" class="map-node${here ? ' is-here' : ''}" data-scene="${escapeHtml(id)}"
-                    data-index="${i}"${here ? ' aria-current="true"' : ''}
+            <button type="button" class="map-node${here ? ' is-here' : ''}" data-scene="${safe}"
+                    data-fk="scene:${safe}"${here ? ' aria-current="true"' : ''}
                     style="--tilt:${tiltOf(id)}deg"
                     aria-label="${escapeHtml(name)}${here ? ' — you are here' : ''}">
               <span class="map-node__mark" aria-hidden="true"></span>
@@ -978,16 +1215,23 @@ export class Journal {
     if (!svg || !board) return;
 
     const box = board.getBoundingClientRect();
+    if (!box.width || !box.height) return;
     const tray = this.panelEl.querySelector<HTMLElement>('.ded__tray-scroll');
     const trayBox = tray?.getBoundingClientRect();
+    const column = this.panelEl.querySelector<HTMLElement>('.ded__suspects');
+    const columnBox = column?.getBoundingClientRect();
     svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`);
 
     const paths: string[] = [];
-    for (const column of this.panelEl.querySelectorAll<HTMLElement>('.ded-suspect')) {
-      const suspect = column.dataset.suspect!;
-      const head = column.querySelector<HTMLElement>('.ded-suspect__pin');
+    for (const suspectEl of this.panelEl.querySelectorAll<HTMLElement>('.ded-suspect')) {
+      const suspect = suspectEl.dataset.suspect;
+      if (!suspect) continue;
+      const head = suspectEl.querySelector<HTMLElement>('.ded-suspect__pin');
       if (!head) continue;
       const hb = head.getBoundingClientRect();
+      // A suspect scrolled out of their column is in the same boat as a
+      // scrolled-out card: no honest anchor, so no string.
+      if (columnBox && (hb.bottom < columnBox.top - 2 || hb.top > columnBox.bottom + 2)) continue;
       const x2 = hb.left + hb.width / 2 - box.left;
       const y2 = hb.top + hb.height / 2 - box.top;
 
@@ -1025,6 +1269,7 @@ export class Journal {
     if (!svg || !grid) return;
 
     const box = svg.getBoundingClientRect();
+    if (!box.width || !box.height) return;
     svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`);
 
     const marks = [...this.panelEl.querySelectorAll<HTMLElement>('.map-node__mark')].map((m) => {
@@ -1039,7 +1284,7 @@ export class Journal {
       // A surveyor's hand wobbles: bow each leg to one side so the route reads
       // as drawn in ink rather than plotted.
       const bow = (i % 2 ? 1 : -1) * Math.min(40, Math.hypot(b.x - a.x, b.y - a.y) * 0.16);
-      const mx = (a.x + b.x) / 2 - (b.y - a.y) * 0.0001 + bow * 0.4;
+      const mx = (a.x + b.x) / 2 + bow * 0.4;
       const my = (a.y + b.y) / 2 + bow;
       d.push(`M${a.x.toFixed(1)} ${a.y.toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`);
     }
@@ -1050,7 +1295,7 @@ export class Journal {
 
   /** Wraps content that ignores the two-page split and runs across the gutter. */
   private spread(inner: string): string {
-    return `<div class="journal-spread journal-spread--wide"><div class="journal-scroll scrollable">${inner}</div></div>`;
+    return `<div class="journal-spread journal-spread--wide"><div class="journal-scroll scrollable" data-scroll="page">${inner}</div></div>`;
   }
 
   /**
@@ -1074,8 +1319,16 @@ export class Journal {
     return this.state.content.characters?.[id]?.name ?? id;
   }
 
+  /**
+   * Speaks through the polite live region. The clear-then-set is deliberate:
+   * a live region only announces a *change*, and pinning two cards to the
+   * same band produces the same sentence twice in a row.
+   */
   private announce(text: string) {
-    this.statusEl.textContent = text;
+    this.statusEl.textContent = '';
+    this.after(0, () => {
+      this.statusEl.textContent = text;
+    });
   }
 
   private sound(name: string) {
@@ -1096,32 +1349,9 @@ export class Journal {
 // Static template & glyphs
 // ---------------------------------------------------------------------------
 
-const TEMPLATE = `
-  <div class="journal__scrim"></div>
-  <div class="journal__frame stage-box">
-    <div class="journal__book" role="dialog" aria-modal="true" aria-labelledby="journal-title">
-      <h2 class="sr-only" id="journal-title">Case journal</h2>
-      <div class="journal__stitch" aria-hidden="true"></div>
-      <div class="journal__spread-frame">
-        <div class="journal__leaf journal__leaf--left" aria-hidden="true"></div>
-        <div class="journal__leaf journal__leaf--right" aria-hidden="true"></div>
-        <div class="journal__gutter" aria-hidden="true"></div>
-        <div class="journal__panel" id="journal-panel" role="tabpanel" tabindex="-1"></div>
-      </div>
-      <div class="journal__tabs" role="tablist" aria-orientation="vertical" aria-label="Journal sections"></div>
-      <button type="button" class="journal__close" aria-label="Close journal" aria-keyshortcuts="Escape">
-        <span aria-hidden="true">${CLOSE_GLYPH()}</span>
-      </button>
-      <p class="journal__status sr-only" role="status" aria-live="polite"></p>
-    </div>
-  </div>`;
-
-function CLOSE_GLYPH() {
-  return (
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">' +
-    '<path d="M7 7l10 10M17 7 7 17"/></svg>'
-  );
-}
+const CLOSE_GLYPH =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">' +
+  '<path d="M7 7l10 10M17 7 7 17"/></svg>';
 
 /** A hand-drawn tick box: the square is inked, the tick draws itself in. */
 const CHECKBOX =
@@ -1136,9 +1366,37 @@ const FLOURISH =
   '<path d="M40 27c10 3 24 3 40 0" stroke-opacity=".5"/>' +
   '<path d="M60 6.5c2.5 2 4.5 2 6.5 0" stroke-opacity=".4"/></svg>';
 
+const TEMPLATE = `
+  <div class="journal__scrim"></div>
+  <div class="journal__frame stage-box">
+    <div class="journal__book" role="dialog" aria-modal="true" aria-labelledby="journal-title">
+      <h2 class="sr-only" id="journal-title">Case journal</h2>
+      <div class="journal__stitch" aria-hidden="true"></div>
+      <div class="journal__spread-frame">
+        <div class="journal__leaf journal__leaf--left" aria-hidden="true"></div>
+        <div class="journal__leaf journal__leaf--right" aria-hidden="true"></div>
+        <div class="journal__gutter" aria-hidden="true"></div>
+        <div class="journal__panel" id="journal-panel" role="tabpanel" tabindex="-1"></div>
+        <div class="journal__vignette" aria-hidden="true"></div>
+      </div>
+      <div class="journal__tabs" role="tablist" aria-orientation="vertical" aria-label="Journal sections"></div>
+      <button type="button" class="journal__close" aria-label="Close journal" aria-keyshortcuts="Escape">
+        <span aria-hidden="true">${CLOSE_GLYPH}</span>
+      </button>
+      <p class="journal__status sr-only" role="status" aria-live="polite"></p>
+    </div>
+  </div>`;
+
 // ---------------------------------------------------------------------------
 // Pure helpers
 // ---------------------------------------------------------------------------
+
+/**
+ * Identity of a pin on the board. Charge is deliberately excluded: moving a
+ * card from "means" to "motive" is the same pin changing its mind, and the
+ * chip should replay its landing rather than be treated as a new object.
+ */
+const pinKey = (suspect: CharacterId, clue: ClueId) => `${suspect}|${clue}`;
 
 /**
  * Portrait art, degrading in two steps: the painted plate, then a monogram
@@ -1197,12 +1455,25 @@ function roman(n: number): string {
   return ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][n - 1]!;
 }
 
+/**
+ * Content-authored accent colours are interpolated into a `style` attribute,
+ * where escaping is not enough: `red;position:fixed` would still parse. Only
+ * things that look like a CSS colour survive; anything else falls back to the
+ * ink default rather than being repaired.
+ */
+function safeColor(value: string | undefined): string | null {
+  if (!value) return null;
+  const v = value.trim();
+  return /^(#[0-9a-f]{3,8}|[a-z]{3,20}|(?:rgb|hsl)a?\([0-9a-z%.,\s/]{3,60}\))$/i.test(v) ? v : null;
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /** Exported for the integration layer's key map and for tests. */

@@ -1,0 +1,2124 @@
+{
+ "trees": [
+  {
+   "characterId": "sabine-ferrier-kyne",
+   "voiceNotes": "Complete sentences, subordinate clauses correctly placed. PASSIVE VOICE for anything she did (\"the report was typed\", \"the requisition was refused\") and ACTIVE for everyone else (\"Mr Pike removed the boxes\") \u2014 constant, unconscious, and the whole game. Never says \"I think\"; says \"the position is\". Gives dates without hesitating. Tidies while she talks. Answers questions completely, which is armour, not candour. Calls the player \"Miss Adare\" for four days and \"Wren\" exactly once, on the rock, and never again. Her smile arrives half a second late. She never raises her voice and never refuses anything.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "Miss Adare. Nine days. You will want the strongroom key, a desk with north light, and somebody to stop apologising to you. I can manage two of the three.",
+     "nodes": [
+      {
+       "id": "sab-a1-01",
+       "playerLine": "I'll need access to every series before I can certify anything.",
+       "reply": "You will have it. The keys are on the board by the wicket, all of them, including mine. The position is that a locked door has never once improved a record.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a1-02",
+       "playerLine": "Could I see something from 1974, so I know your house style?",
+       "reply": "Better than that. Nine documents from that August \u2014 signed, dated, docketed, and a carbon of each. Read them properly, Miss Adare, before you start dating things at me.",
+       "requiresClue": "none",
+       "givesClue": "clue-pp-specimen-bundle",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a1-03",
+       "playerLine": "Mrs Verge showed me the countersignature box on the slips.",
+       "reply": "Per procurationem. On behalf of. It has been in Standing Order 4 since the Charter and nobody has ever found it interesting. Mrs Verge is a better teacher than I am.",
+       "requiresClue": "clue-pp-taught",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a1-04",
+       "playerLine": "You signed the accident report on Mr Sallow yourself.",
+       "reply": "The report was typed at ten to five and signed, yes. Somebody had to. Mrs Verge was in no state for it and Mr Pike was on the mainland that day.",
+       "requiresClue": "clue-accident-report",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a1-05",
+       "playerLine": "Where were you on the morning of the fourteenth of September?",
+       "reply": "In the Board Room the whole of that morning, with the quantity surveyor. I did not know Mr Sallow was in the building until Mrs Verge came running along the corridor.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a1-06",
+       "playerLine": "What happens if I can't certify by the third of November?",
+       "reply": "The series are deemed valueless and the contractors' skips are booked for the fourth. I have written to the Ministry twice about it. Both letters were acknowledged. Neither was answered.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "You slept in the Binding Room. There is a kettle in the Rolls Room and Mrs Verge will pretend it is hers. Ask her anyway; she likes being asked.",
+     "nodes": [
+      {
+       "id": "sab-a2-01",
+       "playerLine": "Forty-seven cards in drawers 214 to 216 have been retyped.",
+       "reply": "Then they were retyped. Cards are retyped constantly, Miss Adare; that is what an index is for. Bring me a stock date and a machine and I will take it seriously.",
+       "requiresClue": "clue-index-gap",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a2-02",
+       "playerLine": "Your own reboxing schedule lists twenty-three items in box 17. There are seventeen.",
+       "reply": "Series 14/B was reboxed in 1989 for mould. Nothing was withdrawn. \u2014 Six items on my own schedule are not on the shelf. I signed that schedule. I am not going to tell you the arithmetic is wrong.",
+       "requiresClue": "clue-w-o-89-2",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sab-a2-03",
+       "playerLine": "Somebody burned a 1974 notice in your courtyard at twenty past one this morning.",
+       "reply": "The incinerator takes lunch wrappings and confidential waste, and both are permitted. Who was holding the match is a question I cannot answer, and I dislike that considerably more than you do.",
+       "requiresClue": "clue-scorched-carbon",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a2-04",
+       "playerLine": "I need the strongroom opened.",
+       "reply": "Three winding movements, no keyhole, and the settings are this building's own closing hours. The Order Book is in the Registry. I could simply tell you the numbers. You would learn nothing.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a2-05",
+       "playerLine": "I was shut in that strongroom all night, in four inches of water.",
+       "reply": "The door was shut at eighteen twenty and the movements will not be argued with. Here is tea, and a written apology for the state of the sump. Mr Sandbach will be told this morning.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a2-06",
+       "playerLine": "There's a deed box on the bottom shelf with your father's name stencilled on it.",
+       "reply": "Stencilled in 1961 and empty since about 1976. If paper was found in it, it is paper I have never seen. I should like a copy. Formally, in writing, through the Registry.",
+       "requiresClue": "clue-deed-box-flimsy",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a2-07",
+       "playerLine": "Did you hear two women arguing on the landing last night?",
+       "reply": "The Wardens' Hall landing carries sound into the ventilation trunk. It always has. I heard nothing, and I am told the caretaker heard nothing, and neither of those is worth anything to you.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "Miss Adare. There is a fax on my desk I did not ask for and do not welcome. You will find the building unchanged. You will find me unchanged.",
+     "nodes": [
+      {
+       "id": "sab-a3-01",
+       "playerLine": "The Deakin letter is a forgery. I have to report it.",
+       "reply": "Then you will report it. You will not enjoy it and you will do it anyway. And it will not stop the telephone call I make at four o'clock. Both of those are duties.",
+       "requiresClue": "clue-deakin-letter",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a3-02",
+       "playerLine": "Works Order 75/188 bricked up a room with a tide gauge in it.",
+       "reply": "June 1975. Damp in the north undercroft. My father initialled it, or it was initialled for him \u2014 he was in and out of hospital that whole year. The order stands as written.",
+       "requiresClue": "clue-works-order-75188",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a3-03",
+       "playerLine": "You reported Rita Tain to the police within the hour.",
+       "reply": "The forgery was reported at four o'clock, with a covering letter offering every assistance. Miss Tain has called me a murderer in pamphlets since 1976. I have never once refused her the boat contract.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a3-04",
+       "playerLine": "Number 33. \u201cMiss S. Ferrier \u2014 the Warden's private secretary \u2014 no official capacity \u2014 not called.\u201d",
+       "reply": "I typed for my father. That is the whole of it. \u2014 No. I was thirty-four in that autumn, and I was not called, and I have never once said in my life that I should have been.",
+       "requiresClue": "clue-inquiry-rejects",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sab-a3-05",
+       "playerLine": "Am I still allowed in this building?",
+       "reply": "Your warrant is revoked. Your invitation is not. Sleep in the Binding Room, eat in the kitchen, and take nothing off a shelf without asking Mr Pike. He will enjoy refusing you.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a3-06",
+       "playerLine": "There's a chamber under the north undercroft that appears on no plan after 1975.",
+       "reply": "Then it appears on the 1948 sheet and you have registered three surveys on their triangulation marks. That is very good work and I am not going to pretend otherwise. Take a crowbar. Take a coat.",
+       "requiresClue": "clue-chart-overlays",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "Miss Adare. You have stopped saying good morning to me. I notice such things, and I do not blame you for it, and I would rather you did not start again out of manners.",
+     "nodes": [
+      {
+       "id": "sab-a4-01",
+       "playerLine": "Every document between the eleventh of August and the third of November 1974 is p.p.",
+       "reply": "Forty-one of them. You counted correctly. The signature is not forged, Miss Adare \u2014 it is lawful, and it was lawful at the time, and that is the part nobody has ever been able to hear.",
+       "requiresClue": "clue-pp-sort",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a4-02",
+       "playerLine": "The Order Book leaves were razored out. The offsets are still on the facing pages.",
+       "reply": "Then the book has outlasted the razor, which is what books do. It was done in the same week as the reboxing, by somebody with a steady hand and a reason. You have not asked me whose hand.",
+       "requiresClue": "clue-order-book-offsets",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a4-03",
+       "playerLine": "\u201cI know what you mean to send. Please do not send it. S.\u201d Twelfth of September. Same ribbon as the accident report.",
+       "reply": "I had no idea what Mr Sallow intended to send. \u2014 Rule 4. Mrs Charnock's rule. Thirty years of it and I never once thought of the spool. Yes. It was typed. It was not posted.",
+       "requiresClue": "clue-ribbon-spool",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sab-a4-04",
+       "playerLine": "R98/2211. Nine ten. Box 17. Issued by S.F-K.",
+       "reply": "Mr Pike was on the eight fifteen. Somebody had to work the counter. You will want the ferry booking book as well \u2014 get it yourself, it is not mine to hand you.",
+       "requiresClue": "clue-slip-r982211",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a4-05",
+       "playerLine": "Four of my requisitions came back wrong. All four carry your countersignature.",
+       "reply": "Standing Order 7. Every reader's slip passes the Warden's pigeonhole. \u2014 You have kept your own stubs in your own hand for nine days, out of habit. I did wonder whether you would.",
+       "requiresClue": "clue-substituted-slips",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sab-a4-06",
+       "playerLine": "Your Board working file has twenty-six Reprax copies of box 17 in it.",
+       "reply": "Correctly foliated, correctly indexed, and docketed the way I was taught in 1958. Four of them are copies of documents that are not on the shelf. I could not make myself destroy them. Consider what that means.",
+       "requiresClue": "clue-board-working-file",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a4-07",
+       "playerLine": "Ask you what?",
+       "reply": "Anything. You have all of it now, or near enough. Ask me and I will tell you the truth, and in the morning you will have to decide what to do with it. That is the harder half.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Wren. \u2014 There. I have used it once and I shall not use it again. Sit nearer the stove. This room takes an hour to warm and we have eleven.",
+     "nodes": [
+      {
+       "id": "sab-a5-01",
+       "playerLine": "Why didn't you post it?",
+       "reply": "Because there was no oil until the winter refit, and a notice saying the light cannot be relied upon is a notice saying the Authority is finished. I intended to put it right in December.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a5-02",
+       "playerLine": "You let a dead man take the blame for thirty-one people.",
+       "reply": "I let a Charter take it. Article 9: a man of full age. Officially I was not there, so I could not be called, questioned, or listed. The contempt that erased me is the thing that acquitted me.",
+       "requiresClue": "clue-charter-art9",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a5-03",
+       "playerLine": "Thirty-one standing orders. Every month since April 1977.",
+       "reply": "Thirty-one, index-linked, because inflation was the one thing I could not sign away. You will want to know whether it helped. It did not. It was simply the only thing available to me.",
+       "requiresClue": "clue-kestrel-mandate",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a5-04",
+       "playerLine": "You had the rail repaired the next morning. Off programme. Not billed.",
+       "reply": "The rail was made good because a rail was dangerous. \u2014 I knew baluster 3 was loose from the second of September, and I stood in front of it with him for forty minutes. Write that down.",
+       "requiresClue": "clue-site-diary-rail",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sab-a5-05",
+       "playerLine": "Did you push him?",
+       "reply": "No. You have no evidence that I did and a good deal that I did not, and you will not believe me, and you will still have to word the referral honestly. I would, in your place.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a5-06",
+       "playerLine": "The Board will ask on what evidence we name you.",
+       "reply": "They will. Nothing in 187 years of this Authority names me. Except one thing, Miss Adare, which I filed myself in March, and I have been waiting four days to see whether you kept it.",
+       "requiresClue": "clue-liabilities-item14",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sab-a5-07",
+       "playerLine": "Say you're sorry. Out loud. Once.",
+       "reply": "You will want that. I have been sorry every day since the fourth of November 1974 and it has never once been of the slightest use to anybody, so I stopped offering it. I paid instead. You will find that is worse.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "halvard-pike",
+   "voiceNotes": "Short, flat, declarative, local vowels, no warmth and no wasted breath. Uses shelf-marks and circular numbers as ordinary nouns. Insults by classification: \u201cthat's not a document, that's a photocopy.\u201d Never finishes a sentence about himself \u2014 the sentence just stops. Refuses to discuss his own life, his health, or what dissolution does to him. Correct on detail, rude on principle. In Act III at his kitchen table he talks for eleven minutes and cannot look at her.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "No. I don't shake hands. Ink. \u2014 You'll be the Conservancy, then. Nineteen. God help the shelving.",
+     "nodes": [
+      {
+       "id": "pik-a1-01",
+       "playerLine": "I'm here to appraise the archive.",
+       "reply": "You're here to pick the interesting ten per cent, microfilm it and pulp the rest. Don't tell me otherwise. I've read the circular. Twelve stroke eighty-five. I can recite it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a1-02",
+       "playerLine": "Show me how a requisition works in this building.",
+       "reply": "White top copy up the tube. Pink carbon stays in the stub. Countersignature box. And if you write on my stub book in biro I'll have the pen off you and you can whistle for it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a1-03",
+       "playerLine": "You've got opinions about folders.",
+       "reply": "One hand in this building dockets the Ministry way. Outside third, upside down to the tag. You turn the whole file over to read your own file. Whitehall, 1958. Everybody else does it like a Christian.",
+       "requiresClue": "none",
+       "givesClue": "clue-docket-fold",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a1-04",
+       "playerLine": "Tell me about Cormac Sallow.",
+       "reply": "Lamp Superintendent, fifty-eight to eighty-four. Kept his reports in date order and his pencils sharp. Went over a rail at seventy-nine. That's the lot. Fourteen stroke B if you want his hand.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a1-05",
+       "playerLine": "You weren't the one who admitted him that morning.",
+       "reply": "Wasn't here. Ferry. \u2014 Look at the column if you don't believe me. You've looked at it already, I can see it on you.",
+       "requiresClue": "clue-visitors-book",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a1-06",
+       "playerLine": "Why do you tie the tag like that?",
+       "reply": "Tail under, loop left. Your people's knot, that. Conservancy. Somebody taught you it in a classroom and I've done it forty-four years. Don't square it the other way in my registry.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "Trolley's coming up. Don't touch it. Sit down and put your hands somewhere I can see them.",
+     "nodes": [
+      {
+       "id": "pik-a2-01",
+       "playerLine": "Slip 2271 came back as the wrong box. 14/A instead of 14/B.",
+       "reply": "One character. That's not a mistake, that's a typist. \u2014 Or it's me going blind on the ladder. Take your pick. I know which you've taken.",
+       "requiresClue": "clue-substituted-slips",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a2-02",
+       "playerLine": "Forty-seven index cards were retyped on the Underwood.",
+       "reply": "Then somebody's been in the Rolls Room with too much time and a clean ribbon. Weeding a file's an afternoon. Weeding an index is a fortnight. Nobody does it. Somebody did.",
+       "requiresClue": "clue-index-gap",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a2-03",
+       "playerLine": "\u201cThe light was not discontinued.\u201d That's Sallow, Day 9.",
+       "reply": "That's an administrative answer to an operational question. He'd have known that. He was a lamp man, not a clerk. \u2014 He'd have known that.",
+       "requiresClue": "clue-sallow-1975-transcript",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a2-04",
+       "playerLine": "There's no 74/119 in the Register of Notices Issued.",
+       "reply": "Numbers get cancelled. Minuted. Reallocated. Something. Nothing is the one thing a number never does. Ask the Warden. She reboxed everything in eighty-nine.",
+       "requiresClue": "clue-issued-register",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a2-05",
+       "playerLine": "Where are the Despatch Books for 1970 to 1979?",
+       "reply": "No notion. Not traced. There's a slip in the stub book says so in my writing. Ask the Warden. She reboxed everything.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a2-06",
+       "playerLine": "Why do you hate me?",
+       "reply": "I don't. You're a form with legs. \u2014 Forty-four years. Copy boy at twenty-two. There's no other building. That's not your fault and I'll still not be pleasant about it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "Strongroom key's on the third hook and I'm going to my dinner. \u2014 Get in the van after. Bring a coat, there's no heater and there's no radio either.",
+     "nodes": [
+      {
+       "id": "pik-a3-01",
+       "playerLine": "This is the Oil Requisition Book. It's been out of the building since 1985.",
+       "reply": "Nothing's ever left this building on my watch. \u2014 I took it. Four journeys, in the rain, in the van. The circular said burn them. I'm not a man who burns things.",
+       "requiresClue": "clue-oil-requisition-book",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "pik-a3-02",
+       "playerLine": "The Despatch Book was on your dresser the whole time.",
+       "reply": "I told you I'd no notion where it went. \u2014 I knew exactly where it went. It went in a Bedford van with three thousand others, and I catalogued the lot on tide-table covers. Read the covers.",
+       "requiresClue": "clue-despatch-docket",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "pik-a3-03",
+       "playerLine": "Why the Lights series?",
+       "reply": "Circular said destroy on transfer to Trinity House. So I didn't. Filed under Lights, all of it. And I'm a Pilotage man. \u2014 Go on. Ask me what's in the box marked STORES 1966 to 80.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a3-04",
+       "playerLine": "What's in the box marked LIGHTS: STORES 1966\u201380?",
+       "reply": "Paper. \u2014 I don't know. Forty-four years, and I've said I know every document in this building, and I never once lifted that lid. Twenty-four years it sat there. That's what the boast cost.",
+       "requiresClue": "clue-oil-requisition-book",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "pik-a3-05",
+       "playerLine": "You'll be prosecuted for all of this.",
+       "reply": "Two hundred pound and my name in the Rossport Gazette. I've done the sum. Sit down. Ledger's the one with the green spine, and mind the corners, they're soft.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a3-06",
+       "playerLine": "The third column won't agree.",
+       "reply": "No. It won't. \u2014 Dues every week. Wages every week. Oil stops the twenty-fourth of August. Don't say it out loud yet. Finish the line first. Finish the whole line.",
+       "requiresClue": "clue-reconciliation",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "You smell of smoke. So do I. Don't fuss and don't ask about my chest.",
+     "nodes": [
+      {
+       "id": "pik-a4-01",
+       "playerLine": "The ferry book clears you for the fourteenth of September.",
+       "reply": "I know. Eight fifteen out, seventeen forty back, four gallons at the Cardew garage at twenty past six. \u2014 I'd have let you hang me before I'd have said where I was.",
+       "requiresClue": "clue-ferry-booking-book",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "pik-a4-02",
+       "playerLine": "Twenty-nine Reprax impressions that day against twelve logged. It's your book.",
+       "reply": "It's my book and I was nine miles away. Somebody worked my counter, ran my machine, and wrote nothing in my log. That's not theft. That's worse than theft.",
+       "requiresClue": "clue-reprax-1998",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a4-03",
+       "playerLine": "Every document of that autumn is signed per procurationem.",
+       "reply": "Aye. And I carried the trays for it. Twenty-two years old, up and down that stair, four times a day. Never once looked at the corner of the page. Two millimetres.",
+       "requiresClue": "clue-pp-sort",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a4-04",
+       "playerLine": "You went back into the fire twice.",
+       "reply": "There were nine bundles. You got four out. \u2014 Don't tell me which four. Not tonight. Tell me tomorrow when I've had my tea.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a4-05",
+       "playerLine": "I'm sorry about the cottage.",
+       "reply": "That's not a document, that's an apology. \u2014 Keep what you saved dry. Sallow's reports took water on the left edge. Blot them, don't press them, and don't let them near a radiator.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Best coat. Don't say anything about the coat.",
+     "nodes": [
+      {
+       "id": "pik-a5-01",
+       "playerLine": "The Board may hold your removals against half the exhibits.",
+       "reply": "They will. Chain of custody. Pargeter'll be up on his hind legs inside four minutes. \u2014 Tell them the truth. Tell them a clerk stole them. Then tell them what's in them.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a5-02",
+       "playerLine": "Four thousand one hundred and eighty pounds, four shillings.",
+       "reply": "For a light that wasn't burning. Say the number slowly and then stop talking. They'll do the sum in their heads and then they'll all look at their shoes.",
+       "requiresClue": "clue-reconciliation",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a5-03",
+       "playerLine": "Will you say it yourself, if they ask you?",
+       "reply": "I'll say it standing. Forty-four years, brown coat, no wife, no garden. If the last thing on my record is that I carried them home, I'll have that. \u2014 Don't put that in the file.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "pik-a5-04",
+       "playerLine": "Come down to the quay tonight.",
+       "reply": "I'll be on the quay. \u2014 I've never seen it lit. Started in fifty-four. Went out in seventy-four. I did the shelving in between and never once looked out of a window.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "rita-tain",
+   "voiceNotes": "Fast, clipped, half-finished sentences she assumes you can complete. Swears lightly and often. Recites the 1975 findings by paragraph number the way other people recite prayers. Cannot accept help without insulting the person offering it. Talks constantly at sea and goes completely silent when she is frightened or moved \u2014 the silence is the performance note. Refuses absolutely to discuss money, her own health, or the shed at the slipway until Act III.",
+   "acts": [
+    {
+     "act": 2,
+     "greeting": "You're the paper girl. Boots. \u2014 No. Not those boots. The ones you've got on will have you over the side inside a mile.",
+     "nodes": [
+      {
+       "id": "rit-a2-01",
+       "playerLine": "Tell me about the Rossport Inquiry.",
+       "reply": "Paragraph 214. \u201cThe pilot's judgement was impaired.\u201d A hip flask off a drowned man. Twenty-four years, that sentence. I can do the whole of section 9 if you want it, and I will.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a2-02",
+       "playerLine": "Your father.",
+       "reply": "Emrys Tain. Forty-eight. Twenty-two years on that Sound and he could steer it in his \u2014 don't. Don't do the face. Everybody does the face and then they go home.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a2-03",
+       "playerLine": "What's in the lamp-room file?",
+       "reply": "This. Deakin, crewman, March seventy-five. The beacon was dark, we all knew, we were told to say nothing. There. That's the whole thing. Now go and be useful with it.",
+       "requiresClue": "none",
+       "givesClue": "clue-deakin-letter",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a2-04",
+       "playerLine": "I'll have to authenticate it before I can cite it.",
+       "reply": "Authenticate. Right. Right \u2014 twenty-four years and the Conservancy sends me a child with a loupe. Fine. Do your tests. Enjoy them. Take your time, nobody's drowning.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a2-05",
+       "playerLine": "Cormac Sallow.",
+       "reply": "Tried to tell me something in August. On the slipway. I had the engine apart and I was shouting about paragraph 214 at him. \u2014 I didn't listen. That's the whole of it.",
+       "requiresClue": "clue-spectacles",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a2-06",
+       "playerLine": "Do you go out to the rock much?",
+       "reply": "Not in the off season. Nobody does. Landing's a joke past September and there's nothing out there but a dead lamp and gulls. \u2014 Why. What's that face for.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a2-07",
+       "playerLine": "The gallery door was standing open.",
+       "reply": "Four hundred yards and you saw it through the glasses while you were being sick. Good eyes. \u2014 It shouldn't be open. It hasn't been open since I don't know when. Sit down.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "Say it. Go on. You've got the face on. Say it in words, in front of me, and don't do it kindly.",
+     "nodes": [
+      {
+       "id": "rit-a3-01",
+       "playerLine": "Ardwell Bond. Not manufactured before June 1981.",
+       "reply": "It came anonymous. Brown envelope, ninety-six, no note, I've said this \u2014 There's an Adler in my locker. You'll have found it. I typed it. It says the truth and I typed it.",
+       "requiresClue": "clue-deakin-letter",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "rit-a3-02",
+       "playerLine": "Cadran Point shows three flashes in fifteen seconds. The Nine Bells shows three in twenty.",
+       "reply": "Fifteen. Not twenty. \u2014 Twenty-four years and it was a stopwatch. A stopwatch, and nobody asked a frightened girl to count. Say the numbers again. Slower.",
+       "requiresClue": "clue-light-characteristic",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a3-03",
+       "playerLine": "On 1974 buoyage your father is exactly where a competent pilot would steer.",
+       "reply": "Say it slower. \u2014 Tracing paper. Dividers. That's it? I've spent eleven thousand pounds and the house on lawyers and it was tracing paper and a light table.",
+       "requiresClue": "clue-chart-overlays",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a3-04",
+       "playerLine": "Why forge it?",
+       "reply": "Because being right isn't worth anything. Legal aid, four times. Four. I knew what happened and I couldn't prove it, so I made a paper that said what I knew. Sick with it since ninety-six.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a3-05",
+       "playerLine": "There are three boxes of Cormac's effects in your shed.",
+       "reply": "His things. I cleared them after the funeral and I never \u2014 R.755. His own copy, in my shed, the whole time she was arresting me for the other one. In my shed.",
+       "requiresClue": "clue-sallow-r755",
+       "givesClue": "clue-sallow-r755",
+       "isLieTrap": true
+      },
+      {
+       "id": "rit-a3-06",
+       "playerLine": "I have to file the adverse report by four o'clock.",
+       "reply": "Then file it. \u2014 No, file it. You're the only person in twenty-four years who's told me a true thing I didn't want. Don't stand there wanting me to say it's all right.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "I'm on bail. Can't enter the building, can't touch the archive, can't do a single useful thing. \u2014 So. Boat.",
+     "nodes": [
+      {
+       "id": "rit-a4-01",
+       "playerLine": "I need to get to the beacon.",
+       "reply": "In this? Force eight and building, tide against the swell over the reef. \u2014 Dawn. Two hours of water at the landing. You jump on the rise or you don't jump at all.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a4-02",
+       "playerLine": "You should hate me.",
+       "reply": "I do. Doesn't come into it. Sit in the middle, hold the thwart, and don't apologise when you're sick. It's the apologising I can't stand, not the sick.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a4-03",
+       "playerLine": "Enid Charnock gave me this on the quay.",
+       "reply": "Charnock? Enid Charnock handed you \u2014 Twenty-four years I've called that woman a liar to her face in a post office queue. Right. Well. I'll write to her. I'll write to her tonight.",
+       "requiresClue": "clue-sundries-memo",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a4-04",
+       "playerLine": "Tea. Boot polish. A birthday card for Nan.",
+       "reply": "That's a man packing up for the week. That's not a man who knew anything. \u2014 Give it here. No. Dry bag. I'll run it into Cardew myself and you'll not argue.",
+       "requiresClue": "clue-keepers-log",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a4-05",
+       "playerLine": "You can't get me off the rock, can you.",
+       "reply": "No. Sea's past it and it'll be past it till morning. I take the log, you take her. There's paraffin for the stove and don't touch the lantern glass with bare hands.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Slipway. Half eleven. Don't be late, and don't say a word to me before it happens.",
+     "nodes": [
+      {
+       "id": "rit-a5-01",
+       "playerLine": "The 1975 finding is quashed. Your father is named in the document.",
+       "reply": "Named how. Say the words they'll actually print. \u2014 Say them again. \u2014 Again, and don't look at me while you do it.",
+       "requiresClue": "clue-chart-overlays",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a5-02",
+       "playerLine": "You told me once you'd never had a penny off anybody.",
+       "reply": "I haven't. Thirty-four pound a month since seventy-seven, Dad's union, it's in the post office book \u2014 Why are you looking like that. Is there something else. Straight out.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "rit-a5-03",
+       "playerLine": "The trust deed doesn't name who set it up.",
+       "reply": "Then it doesn't name them. \u2014 You've a face like a wet Tuesday, Adare. If you're going to say a thing, say it on the quay, not in front of the ferry, not in front of people.",
+       "requiresClue": "clue-kestrel-mandate",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "rit-a5-04",
+       "playerLine": "Watch the water.",
+       "reply": "\u2014 One. Two. Three. Twenty seconds. Three flashes in twenty seconds. \u2014 That's it. That's the character. That's \u2014 hold on. Give me a minute. Give me a minute, will you.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "ottoline-verge",
+   "voiceNotes": "Soft, unhurried, digressive ON PURPOSE \u2014 the load-bearing sentence is always buried in the middle of an anecdote about somebody's wedding. Says \u201coh, now\u201d before every evasion, invariably, and the player can learn to hear it. Total recall for accession numbers back to 1949 and a fog over the autumn of 1974 that is not how memory fails. Feeds people she is steering. In Act IV the digressions stop dead and she speaks in short flat sentences \u2014 the change in rhythm is the emotional event, so never let an \u201coh, now\u201d survive into Act IV.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "There you are! Oh, you're soaked through. Now \u2014 kettle's in 388, biscuits in 388, slippers in 388. Everything anybody needs is in drawer 388, dear. That's the whole system.",
+     "nodes": [
+      {
+       "id": "ott-a1-01",
+       "playerLine": "Show me how a requisition slip works.",
+       "reply": "White top copy goes up the tube, pink carbon stays in the stub, and there's your countersignature box. If the Warden's out, her clerk initials it p.p. \u2014 on behalf of. We've done it since the Ark.",
+       "requiresClue": "none",
+       "givesClue": "clue-pp-taught",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a1-02",
+       "playerLine": "How long have you been here?",
+       "reply": "Oh, now \u2014 since forty-nine, off and on. Retired in ninety-one and came straight back the Monday after. Six days a week. Nobody else alive understands the index, and that's not boasting, dear, it's a nuisance.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a1-03",
+       "playerLine": "Did you know Cormac Sallow?",
+       "reply": "Since he was a young man with all his fingers. He'd ask for the 1962 lamp returns and I'd have them before he'd finished asking. \u2014 He signed in at eight fifty-six and I never saw him come down.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a1-04",
+       "playerLine": "Where were you in the autumn of 1974?",
+       "reply": "Oh, now \u2014 I couldn't tell you a thing about that autumn, dear. I was in Accounts in those days. Figures. Terrible at figures. Have a biscuit, they're the plain ones, the nice ones go by ten.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a1-05",
+       "playerLine": "Tell me about Mr Pike.",
+       "reply": "Halvard's a lamb in a nasty coat. Forty-four years. He has keys to everything, you know \u2014 everything \u2014 and he was here the evening poor Cormac died. But he's a lamb, dear, truly.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "Kettle's just gone. Sit on the stool, not the chair \u2014 the chair's had a screw out of it since Michaelmas and Halvard won't have a man in.",
+     "nodes": [
+      {
+       "id": "ott-a2-01",
+       "playerLine": "Forty-seven cards. Stock not made before 1987. Typed on the Underwood four feet from your chair.",
+       "reply": "The cards have never been retyped, dear, not in my time \u2014 oh, now. You've dated the stock. \u2014 I retyped them. In eighty-nine, during the reboxing. I'll not say why, and you'll not make me.",
+       "requiresClue": "clue-index-gap",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "ott-a2-02",
+       "playerLine": "Tell me about the 1989 reboxing.",
+       "reply": "That was the Warden's own memorandum, signed in her own name, all above board. I volunteered for the index because nobody else would. January to March, and my hand was already going by then.",
+       "requiresClue": "clue-w-o-89-2",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a2-03",
+       "playerLine": "The \u201cadmitted by\u201d column that morning is initialled S.F-K., not you.",
+       "reply": "Oh, now \u2014 I was on the wicket all morning, in full view, ask anybody. But I don't sign the column when the Warden's standing at my elbow, do I. She did it herself. I thought nothing of it.",
+       "requiresClue": "clue-visitors-book",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a2-04",
+       "playerLine": "Tell me about your husband.",
+       "reply": "Cass. Relief keeper. Out on that rock more nights than in his own bed, or so \u2014 He drank, dear. From about seventy-five. Died in eighty-one, never said a word about anything, and I never asked him.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a2-05",
+       "playerLine": "Who else was in this building in 1974?",
+       "reply": "All of us! Halvard, Enid, Mr Sallow, Mr Ferrier of course. And Miss Ferrier as she was then, typing away in the corner. Lovely typist. Never a title to her name, poor lamb, not for years.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "You've had a week of it and you've not eaten. I'm not asking you, dear, I'm telling you there's soup and you'll sit down to it.",
+     "nodes": [
+      {
+       "id": "ott-a3-01",
+       "playerLine": "Number 29. Mrs O. Verge. There's a tick beside it in your hand.",
+       "reply": "Nobody ever asked me anything, dear. Nobody ever thought to. \u2014 I typed that list. I typed my own name onto it and I put the tick there myself. I have been very careful for a very long time.",
+       "requiresClue": "clue-inquiry-rejects",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "ott-a3-02",
+       "playerLine": "Number 33 on the same list.",
+       "reply": "\u201cMiss S. Ferrier. No official capacity.\u201d \u2014 That's the truest sentence anybody ever typed in this building, dear. And I typed that one as well, on the same afternoon, on the same machine.",
+       "requiresClue": "clue-inquiry-rejects",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a3-03",
+       "playerLine": "The Deakin letter's a forgery.",
+       "reply": "Oh, that poor girl. \u2014 She's been right for twenty-four years and now she's a liar, and both are true at once, which is the very worst arrangement there is. Don't let them keep her in.",
+       "requiresClue": "clue-deakin-letter",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a3-04",
+       "playerLine": "Enid's ruled-in column. \u201cSundry Adjustments (Lights).\u201d",
+       "reply": "Oh, now. Enid rules a column when she's frightened. She ruled one in sixty-eight when the pension went wrong. That woman's never taken a penny and she'll go to prison sooner than say who told her.",
+       "requiresClue": "clue-sundries-column",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a3-05",
+       "playerLine": "Why did you volunteer for the index?",
+       "reply": "Oh, now \u2014 because I love it, dear, and that's true. Nine weeks and a rubber thimble. \u2014 Ask me a different question. Ask me the one you came in here holding.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "Sit down, Miss Adare. No. No \u201coh, now.\u201d I've had my tin on the dresser since 1975 and I would like to put it on the table.",
+     "nodes": [
+      {
+       "id": "ott-a4-01",
+       "playerLine": "What's in the tin?",
+       "reply": "Cass's letter. Eighteenth of August, seventy-four. Residence deferred, wages to continue, you will not discuss this with the Lamp Superintendent. Initialled p.p. Twenty-four years. Take it. Take it properly, with both hands.",
+       "requiresClue": "none",
+       "givesClue": "clue-deferment-letter",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a4-02",
+       "playerLine": "You knew the light was out.",
+       "reply": "Since seventy-five. He told me drunk and never again. I let a whole town blame a dead man to keep them off mine. I knew it every day. I made the tea and I knew it every day.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a4-03",
+       "playerLine": "Why the cards?",
+       "reply": "To break the cross-reference. Stores file to wage sheet. If nobody could get from the oil to my husband's money, nobody would ask where he had been. Nine weeks. A rubber thimble. Forty-seven cards.",
+       "requiresClue": "clue-index-gap",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a4-04",
+       "playerLine": "You thought you were protecting Absalom Ferrier.",
+       "reply": "I did. Thirty-nine years I have said \u201cMr Ferrier\u201d inside my own head. \u2014 It was her. It was the girl at the typewriter. I made her tea for thirty-nine years and it was her.",
+       "requiresClue": "clue-pp-sort",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a4-05",
+       "playerLine": "Your grandson.",
+       "reply": "Emlyn. Second year at the naval college at Ilberry. \u2014 You'll publish it and you're right to. Tell me the day it goes out. I want to telephone him first. That's all I'm asking for.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Best coat and my mother's brooch. If it's all to be said out loud in a room with sun in it, I'm not going to be sat there in a cardigan.",
+     "nodes": [
+      {
+       "id": "ott-a5-01",
+       "playerLine": "You're being charged with nothing.",
+       "reply": "I know, dear. That is not the same as being clear and I'll not be told that it is. There's a difference between not being called and not being guilty. I've lived in it since 1975.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a5-02",
+       "playerLine": "Will you give evidence?",
+       "reply": "Every word, and no anecdotes. I've been practising in the kitchen. Ask me about the cards, ask me about the tick, and don't be kind about it \u2014 kindness is how I got away with it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a5-03",
+       "playerLine": "Two hundred pounds four shillings. Eleven weeks.",
+       "reply": "He drank it. Every week, in the Ship, in front of people who'd lost somebody. \u2014 Say the figure to the Board and don't soften it. It's the last honest thing he can do now.",
+       "requiresClue": "clue-reconciliation",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ott-a5-04",
+       "playerLine": "There are thirty-one names to be read.",
+       "reply": "Let me. \u2014 I know how to read a list, dear. It's the only skill I've got. I'll get as far as I can and you'll take over, and you won't look at me while I do it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "enid-charnock",
+   "voiceNotes": "Precise to the penny about figures, vague to the point of uselessness about people. Answers a question about a person with an answer about a ledger. Prefaces bad news with \u201cI'm sure there's an explanation.\u201d Her eyes go to the door of the Warden's Office roughly every ninety seconds and the direction should be written into the beat. Under pressure her sentences get shorter and her arithmetic gets faster. Calls her terror of Sabine \u201crespect\u201d. Never swears, never speculates, and asks repeatedly to have things minuted.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "Miss Adare. Nine o'clock. I do the cash books until eleven and I would rather not be interrupted between now and then, if that's \u2014 I'm sure that's all right.",
+     "nodes": [
+      {
+       "id": "eni-a1-01",
+       "playerLine": "I need the schedule of outstanding liabilities.",
+       "reply": "Twenty-two items, all trivial except item 9. Item 14 is a superannuation squabble \u2014 Ferrier-Kyne, S., two thousand one hundred and forty pounds four shillings, in dispute since March. Cross it off. It's nothing.",
+       "requiresClue": "none",
+       "givesClue": "clue-liabilities-item14",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a1-02",
+       "playerLine": "How long have you been cashier?",
+       "reply": "Since 1962. Junior cashier at twenty-seven, cashier at thirty-nine. Thirty-six years and I have never once been a penny out. That is not a boast, Miss Adare. It is a thing you can audit.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a1-03",
+       "playerLine": "Tell me about the stationery ledger.",
+       "reply": "Rule 4. No new typewriter ribbon issued until the used spool is returned. Since 1968. People laugh. A ribbon is one and ninepence, there are four machines, and the arithmetic is the arithmetic.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a1-04",
+       "playerLine": "What was the Authority's financial position in 1974?",
+       "reply": "I'm sure there's an explanation for all of it. \u2014 Difficult. That is the word in the minutes. Difficult. You'd want the Warden for anything before 1991. Truly. The Warden.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a1-05",
+       "playerLine": "I've opened the franking meter under warrant.",
+       "reply": "You've \u2014 the descending register. Yes. Well. It reconciles to the post book to the penny every quarter for thirty-six years, and I'd like it minuted that I said so before you looked and not after.",
+       "requiresClue": "clue-franking-meter",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "Half nine. I've put the 1974 cash book back in the press and I would rather it stayed there while the men are on the scaffold. Dust gets into the gutter of a ledger and never comes out.",
+     "nodes": [
+      {
+       "id": "eni-a2-01",
+       "playerLine": "Tell me about Sundry Adjustments (Lights).",
+       "reply": "A rounding account. It's always been there. Four thousand one hundred and eighty pounds, four shillings, nil pence. It hasn't moved. I'm sure there's an explanation for it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a2-02",
+       "playerLine": "It was opened on the thirty-first of December 1974. In your hand. On a column you ruled in yourself.",
+       "reply": "It has always been there \u2014 I ruled it in. New Year's Eve, with a steel rule, in my own hand. It has not moved in ninety-six quarters and I have looked at it in every single one.",
+       "requiresClue": "clue-sundries-column",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "eni-a2-03",
+       "playerLine": "Light dues for the second half of 1974.",
+       "reply": "Collected weekly, without exception. One thousand one hundred and eighty-two vessels between July and December. Four thousand one hundred and eighty pounds four shillings. \u2014 You'll want oil against that. Don't ask me for oil.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a2-04",
+       "playerLine": "The Reprax counter jumped 437 on the fifteenth of August 1974.",
+       "reply": "The duplicating book isn't mine, it's the Registry's. But the stencils and the toner are charged to me, and there was a large order that August, and I queried it. Once. In writing.",
+       "requiresClue": "clue-reprax-1974",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a2-05",
+       "playerLine": "Who signed the quarterly light-dues returns in 1974?",
+       "reply": "I did. Junior cashier, aged thirty-nine, four signatures a year. \u2014 Countersigned by the Warden's Office. Not by the Warden. By the Office. There is a rubber stamp for it and I have never liked it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "It won't take. I've been at it forty minutes and it won't take. The rain gets down the \u2014 it won't take.",
+     "nodes": [
+      {
+       "id": "eni-a3-01",
+       "playerLine": "Give me the cash book, Mrs Charnock.",
+       "reply": "I only ever did what I was told. And I have the paper to prove it. That is the worst part. That is the very worst part of the whole of it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a3-02",
+       "playerLine": "What were you burning?",
+       "reply": "Nothing. I was airing the courtyard. \u2014 Ledger 74/1. Green spine, water damage to the fore-edge from a leak in 1983 which I reported. Take it. I'm not saying another word.",
+       "requiresClue": "clue-scorched-carbon",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "eni-a3-03",
+       "playerLine": "Nobody thinks you took the money.",
+       "reply": "The police will. It sits in a column I ruled with my initials against ninety-six quarters of it. I have done the arithmetic on what that looks like. I did it in 1975 and I have never stopped.",
+       "requiresClue": "clue-sundries-column",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a3-04",
+       "playerLine": "Who told you to open the column?",
+       "reply": "\u2014 I am not saying another word for two days, Miss Adare. I have said that and I mean it, and I would like you to go now, please. Mind the step. It's wet and there's no light on it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "Don't sit down. \u2014 No. Sit down. It was Miss Tain who fetched me off the ferry and I can't be rude to you with her watching, she's had a worse life than mine and she knows it.",
+     "nodes": [
+      {
+       "id": "eni-a4-01",
+       "playerLine": "The back cover of the cash book.",
+       "reply": "Sixth of November, seventy-four. Warden's Office to Cashier. The Nine Bells oil column to be carried to Sundry Adjustments (Lights) pending refit. Initialled p.p. I have looked at it perhaps four hundred times.",
+       "requiresClue": "none",
+       "givesClue": "clue-sundries-memo",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a4-02",
+       "playerLine": "You thought p.p. meant he was too ill to sign.",
+       "reply": "I thought it meant the Warden was unwell. Twenty-four years. It never once occurred to me it meant the Warden had not written it at all. Not once. I am a cashier, not a lawyer.",
+       "requiresClue": "clue-sundries-memo",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a4-03",
+       "playerLine": "Your rule 4 has hanged her.",
+       "reply": "Two hundred and forty spools. Docketed, in date order, second shelf, one and ninepence each. \u2014 I was called mean about that for thirty years. Write down that I was called mean.",
+       "requiresClue": "clue-ribbon-spool",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a4-04",
+       "playerLine": "The GPO trunk account, quarter four, 1974.",
+       "reply": "One and ninepence. Cardew. Four minutes. The third of November. Initialled EC, because I initialled everything. \u2014 Somebody rang somewhere at twenty to eleven and I have been paying for it since.",
+       "requiresClue": "clue-gpo-account",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a4-05",
+       "playerLine": "You're resigning.",
+       "reply": "Eight fifteen. I've a sister in Ilberry. \u2014 I want it minuted that I raised it. Once. In writing. It's in the file. It has always been in the file. Say that to them exactly as I said it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "This is Enid Charnock speaking from my sister's house in Ilberry. I can hear you perfectly. I will not be coming to the building. Ask your questions and speak up.",
+     "nodes": [
+      {
+       "id": "eni-a5-01",
+       "playerLine": "State the balance for the Board, please.",
+       "reply": "Four thousand one hundred and eighty pounds, four shillings, nil pence. Carried forward ninety-six quarters. Never queried, never audited, and never a penny of interest, because I put it where interest does not reach.",
+       "requiresClue": "clue-sundries-column",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a5-02",
+       "playerLine": "Who instructed you to open it?",
+       "reply": "The Warden's Office. In writing. Sixth of November 1974, initialled p.p. \u2014 I do not know whose hand made those initials. I have never known. You are the ones who know that. Not me.",
+       "requiresClue": "clue-sundries-memo",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a5-03",
+       "playerLine": "Item 14. The pension claim.",
+       "reply": "Two thousand one hundred and forty pounds four shillings. Reckonable service from 1959. I processed it in March, I queried the start date, and I was told to leave it. It's in the file.",
+       "requiresClue": "clue-liabilities-item14",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "eni-a5-04",
+       "playerLine": "Thank you, Mrs Charnock.",
+       "reply": "Don't. \u2014 I raised it once. In twenty-four years I could have raised it any Tuesday I liked. I raised it once, and I have been making that sound like courage for a very long time.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "ivo-sandbach",
+   "voiceNotes": "Programme language as a first language: \u201cout of float\u201d, \u201cthat's a Tuesday problem\u201d, \u201ctranche\u201d, \u201cpractical completion\u201d. Uses first names immediately and gets them wrong. Talks over people, apologises charmingly, does it again. Always fifteen per cent too fast, so his pauses should land like a dropped tool. Genuinely expert on lime mortar and genuinely uninterested in paper. Refuses to discuss his wife, his daughters, or the state of the firm's books until they are put in front of him.",
+   "acts": [
+    {
+     "act": 2,
+     "greeting": "Wendy! No \u2014 Wren. Wren, sorry, I'm terrible with \u2014 right. Hard hat, technically. Nobody wears it. Two minutes, I'm out of float on the Chart Loft.",
+     "nodes": [
+      {
+       "id": "san-a2-01",
+       "playerLine": "What's the strip-out programme?",
+       "reply": "Room by room, pinned in the hut, day by day. Chart Loft goes on the thirtieth. Rolls Room index skipped to the thirty-first. Practical completion the first of December, and that date is not negotiable, love.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a2-02",
+       "playerLine": "The incinerator wouldn't draw last night.",
+       "reply": "Course it wouldn't. Damper's off \u2014 item 41, second of September, my lads took it out. Flue's open to the sky. Anybody burning anything in that thing gets a face full of wet ash and serves them right.",
+       "requiresClue": "none",
+       "givesClue": "clue-incinerator-damper",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a2-03",
+       "playerLine": "You keep a site diary?",
+       "reply": "Every day since March, in my own hand, because that's how you don't get sued. Loose baluster, cracked lintel, who turned up, who didn't. Riveting stuff. Nobody has ever read a word of it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a2-04",
+       "playerLine": "What happens if a marine inquiry is reopened?",
+       "reply": "It isn't. It can't be. Site becomes a place of interest, everything freezes, the tranche doesn't release on the first \u2014 and that's a Tuesday problem I am not having on a Thursday, Wendy. Wren.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a2-05",
+       "playerLine": "Rooms are becoming unavailable faster than I can read them.",
+       "reply": "That's the programme, not me. I've given you the Rolls Room an extra day and it's cost me two men. \u2014 Tell me which room and I'll tell you what it costs. Everything's a number.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "Wren! God. You gave me \u2014 this is a salvage record. I am recording salvage. At two in the morning. In a crate. Addressed to Antwerp.",
+     "nodes": [
+      {
+       "id": "san-a3-01",
+       "playerLine": "You said nothing leaves this site without a schedule entry.",
+       "reply": "Absolutely nothing. Ministry-approved, for God's sake. \u2014 Two Fresnel panels, the binnacle, a hundred and forty kilos of brass. Thirty grand. Payroll's nine weeks. I've two girls at school.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "san-a3-02",
+       "playerLine": "You'll be prosecuted for this.",
+       "reply": "I'll be administrated first, which is quicker and hurts less. \u2014 Don't tell Sabine. No. Tell her. She'll have known a fortnight. She knows what's in every skip on this site, that woman.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a3-03",
+       "playerLine": "Item 41 and item 63. The gallery rail.",
+       "reply": "Baluster 3, north bay, loose on the second. Made good on the fifteenth. \u2014 Out of programme, no order number, not billed, at the Warden's personal instruction. I wrote it because I wasn't being paid for it.",
+       "requiresClue": "clue-site-diary-rail",
+       "givesClue": "clue-site-diary-rail",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a3-04",
+       "playerLine": "Where were you on the fourteenth of September?",
+       "reply": "Rossport, with the structural engineer, eleven till three, and there's an invoice. \u2014 Cleanest alibi in the building and I can see you're disappointed. Everyone is. I'm the man you all want it to be.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "You look like a fortnight of bad weather. \u2014 Sorry. I do that. Say what you want, quickly, I've a lorry coming at eight.",
+     "nodes": [
+      {
+       "id": "san-a4-01",
+       "playerLine": "You told me the quantity surveyor's meeting was on the fifteenth.",
+       "reply": "Fifteenth. Half ten. It's in my diary, it's on his invoice, and it's on my phone bill. \u2014 She's said the fourteenth, has she. Right. Well. That's not a Tuesday problem, is it.",
+       "requiresClue": "clue-slip-r982211",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a4-02",
+       "playerLine": "Tell me about the rail again.",
+       "reply": "She rang me half seven on the morning of the fifteenth. Personal instruction, no order, no bill. \u2014 I thought she was being decent. Grieving. Tidying up. I've thought about it every night since you asked me.",
+       "requiresClue": "clue-site-diary-rail",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a4-03",
+       "playerLine": "I need one of those Fresnel panels back.",
+       "reply": "It's in Antwerp, love. Shipping agent, paid, gone, invoiced. \u2014 How long have I \u2014 no. Don't answer that. What time do you need it lit.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a4-04",
+       "playerLine": "Twenty-three hundred hours tomorrow.",
+       "reply": "Then I'm on the four o'clock road to Rossport with money I haven't got. \u2014 Don't put this in your book. I mean it. It doesn't buy me anything and I'd rather it didn't try.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Fleece. It's wrapped in a fleece. Don't unwrap it out here, the wind'll have it off you. \u2014 Right. That's me.",
+     "nodes": [
+      {
+       "id": "san-a5-01",
+       "playerLine": "Why?",
+       "reply": "Because it's a lens for a lighthouse and I sold it to a man in Antwerp. There isn't a better answer than that. There's just that sentence, and I've had to say it out loud twice now.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a5-02",
+       "playerLine": "The Board will hear about the brass this afternoon.",
+       "reply": "The Board, the Ministry, the RIBA, my wife, and two girls of nine and twelve. Nineteenth of January, administration \u2014 I've had the letter drafted since August. Set your plates and don't be kind to me.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a5-03",
+       "playerLine": "Your diary is exhibit six.",
+       "reply": "My diary. The thing I kept so I wouldn't get sued. \u2014 Item 63 is eleven words long. Eleven words. I wrote it standing in the rain wanting my dinner and it convicts a Warden.",
+       "requiresClue": "clue-site-diary-rail",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "san-a5-04",
+       "playerLine": "Will you be on the quay tonight?",
+       "reply": "No. I'll be on the road. \u2014 But I'll pull in at the Cardew turn about five past eleven, and I'll have the engine off, and I'll look at the sea like everybody else.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "bram-aylward",
+   "voiceNotes": "Light, quick, disarmingly frank about everything except his employer. Deflects with a question \u2014 a real one, usually a good one. Quotes figures to the penny from memory and enjoys it. NEVER lies about a fact of the case; only ever about himself, which is the rule the player must discover. Buys the drinks, remembers your supervisor's name. When he finally tells the truth in Act III it comes out in the flattest voice he owns, with no charm in it at all.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "Aylward. Ministry \u2014 dissolution liaison. You'll be the Conservancy. Sorry, that's rude. Do you drink coffee? There's a flask in the site hut and it's better than it deserves to be.",
+     "nodes": [
+      {
+       "id": "bra-a1-01",
+       "playerLine": "Which liaison office, exactly?",
+       "reply": "The dissolution desk. Small unit, no letterhead worth the name. Do you want the number? It rings a room with one telephone in it and nobody sitting by it. That's Whitehall for you.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a1-02",
+       "playerLine": "You signed the visitors' book on the sixth of October. You told me Tuesday.",
+       "reply": "Did I say Tuesday? I've been in and out. \u2014 Sixth of October. Twenty days. You read the book before you read the file, which is the right order, and almost nobody does it. Well done.",
+       "requiresClue": "clue-visitors-book",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "bra-a1-03",
+       "playerLine": "What does the Ministry want with a pilotage archive?",
+       "reply": "Reconciliation of liabilities, mostly. Dull as a wet Sunday. \u2014 Ask me a better question. Ask me what the Pelagia was insured for in 1974 and watch me answer to the penny.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a1-04",
+       "playerLine": "What was the Pelagia insured for?",
+       "reply": "Hull and machinery, one point one million. Cargo, four hundred and six thousand. Settled in 1975 on a finding of pilot error. \u2014 Which is a very expensive sentence, if it happens to be wrong.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a1-05",
+       "playerLine": "Your identity card is laser-printed.",
+       "reply": "Is it? \u2014 Everything in this building was letterpressed in 1988 and it shows, doesn't it. You've a good eye for stock. Genuinely. Don't waste it on me, I'm the least interesting thing here.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "There she is. You look like somebody who's spent a day sorting index cards by ribbon colour. I'd have paid money to watch that. I mean it kindly.",
+     "nodes": [
+      {
+       "id": "bra-a2-01",
+       "playerLine": "Seven documents exist as cards and not as paper.",
+       "reply": "Seven. Yes. \u2014 That's not a question, that's a shopping list. What would you give for two of them?",
+       "requiresClue": "clue-index-gap",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a2-02",
+       "playerLine": "You've been photographing documents.",
+       "reply": "I haven't photographed a thing. Wouldn't dare. \u2014 Why? Has somebody said I have? Which somebody? That's the more useful question and you know it is.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a2-03",
+       "playerLine": "Who do you actually work for?",
+       "reply": "Does it matter? Everything I've told you about this case is true. Check any of it, check all of it. \u2014 You won't trust me, and you're right not to, and it will cost you a day.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a2-04",
+       "playerLine": "Sallow's evidence, Day 9.",
+       "reply": "\u201cThe light was not discontinued.\u201d Beautiful. Administrative answer, operational question, and Balgowan let it go by because he'd had lunch. Sixty-eight men asked that question badly in 1975. I've counted them.",
+       "requiresClue": "clue-sallow-1975-transcript",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a2-05",
+       "playerLine": "Why are you being helpful?",
+       "reply": "Because you're the only person here doing the work and I'd like it done. \u2014 That's not the same as being on your side. Write that down somewhere with a date on it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "Bad week. Your boatwoman's in a cell in Rossport, your warrant's a fax in somebody's bin, and you're stood in the rain talking to a man in the wrong shoes.",
+     "nodes": [
+      {
+       "id": "bra-a3-01",
+       "playerLine": "You knew that letter was forged before I tested it.",
+       "reply": "I never said a word about that letter. \u2014 Kelbrooke and Hain. Marine adjusters. Recovery investigator. There is no Ministry, there never was, and I've put thirty-one rolls of HP5 through that building since the sixth.",
+       "requiresClue": "clue-deakin-letter",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "bra-a3-02",
+       "playerLine": "You have two of my seven.",
+       "reply": "Frames 14 and 15, roll nine. Contact prints in a guest house in Rossport. The only images on earth of two documents that no longer exist. \u2014 Would you like to hear my price?",
+       "requiresClue": "clue-index-gap",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a3-03",
+       "playerLine": "What's your price?",
+       "reply": "Your signed statement. We reopen for fraudulent non-disclosure. Fourteen point two million at today's values, three point nine per cent of it mine. \u2014 And your archive freezes as evidence, and the Board sits without you.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a3-04",
+       "playerLine": "You'd freeze the building to get paid.",
+       "reply": "Freeze, not pulp. Which is worse, because it's slower. \u2014 I closed a claim wrongly in 1994 and a widow in Grimsby got nothing. I carry her letter. And I'm still asking. Work out what that makes me.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "You've been on a roof with an Aldis lamp. There's soot on your collar and you don't know it. \u2014 No, leave it. It suits the mood of the thing.",
+     "nodes": [
+      {
+       "id": "bra-a4-01",
+       "playerLine": "Forty-one documents. Every one of them p.p.",
+       "reply": "Per procurationem. \u2014 Twenty-four years of adjusters and King's Counsel and nobody turned the page to the corner. Two millimetres of pencil. Two millimetres, Miss Adare.",
+       "requiresClue": "clue-pp-sort",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a4-02",
+       "playerLine": "Twenty-two forty-one. Extension 2 to Cardew 4471.",
+       "reply": "That's your own building's book, and any counsel with a pulse strikes it as self-serving. \u2014 Get the GPO account. Strangers keeping records for money. That's the only kind anybody believes.",
+       "requiresClue": "clue-switchboard-log",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a4-03",
+       "playerLine": "Give me the photographs.",
+       "reply": "For nothing? \u2014 Yes. All right. Yes. Don't thank me, and don't put my firm's name in your citation column, because if you do the Board freezes the lot and we both lose everything.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a4-04",
+       "playerLine": "Why?",
+       "reply": "Because I want it in a finding, a finding needs a Board, and a Board needs you. \u2014 That's not decency. That's a man choosing the faster route. Ask me again in 2003 and see what I say.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Back row, good suit, notebook on my knee. I've sat through four hundred of these. This is the only one I've ever wanted to watch.",
+     "nodes": [
+      {
+       "id": "bra-a5-01",
+       "playerLine": "Your clients will recover millions.",
+       "reply": "Nine point one, I'd guess, and about five years. The thirty-one families get nothing \u2014 they were never parties. That's not cruelty, it's the law of contract, and it's why nobody should let me near a eulogy.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a5-02",
+       "playerLine": "Article 9. \u201cA man of full age.\u201d",
+       "reply": "Eighteen eleven, never amended in 187 years. That clause is why nobody could find her, and it's why Pargeter can't unfind her. Lead with it. Don't explain it. Read it and then stop talking.",
+       "requiresClue": "clue-charter-art9",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a5-03",
+       "playerLine": "What do I do when he strikes a link?",
+       "reply": "Nothing. Don't argue, don't restate, and God, don't apologise. Say the accession number. Then say absolutely nothing, and let him be the one who fills the silence. He always is.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "bra-a5-04",
+       "playerLine": "Goodbye, Mr Aylward.",
+       "reply": "Bram. \u2014 No? Fine. I'll send you a card at Christmas and you won't open it, and I'll send another the year after. It's the only correspondence I've got that isn't about money.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "marren-iveson",
+   "voiceNotes": "Procedural, economical, dry to the point of comedy she does not intend. Writes while you are still talking. Reads documents aloud slowly while she thinks, and the reading-aloud is the beat. Signature line: \u201cThat's an inference. Bring me an object.\u201d Treats Wren as a nineteen-year-old until she is handed a properly cited schedule of exhibits, and then treats her as a professional witness without comment or ceremony. Refuses to speculate, refuses to reassure, and never says anything she could not repeat in a witness box.",
+   "acts": [
+    {
+     "act": 3,
+     "greeting": "DS Iveson. Rossport. I arrested Marguerite Tain at seventeen fifteen and I've read your report twice. Sit down. Don't stand in the doorway, it's the only warm bit.",
+     "nodes": [
+      {
+       "id": "ive-a3-01",
+       "playerLine": "The forgery doesn't mean the light was burning.",
+       "reply": "No. It means the only document that said otherwise is a fake. That's not the same thing, and I know it isn't, and a file is not made out of things I know.",
+       "requiresClue": "clue-deakin-letter",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a3-02",
+       "playerLine": "Your request slip is stapled inside the coroner's file. Second of October.",
+       "reply": "That file's closed and I've never laid eyes on it. \u2014 Right. Yes. I pulled it on my own time. Eleven minutes between the fall and the call. I was told there was nothing in it.",
+       "requiresClue": "clue-iveson-request-slip",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "ive-a3-03",
+       "playerLine": "Then help me.",
+       "reply": "I can't. You've a revoked commission and a theory. \u2014 Bring me an object. Something with a date on it that a stranger made for their own reasons. Then I'll spend my weekend on it.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a3-04",
+       "playerLine": "A man died on that gallery.",
+       "reply": "A seventy-nine-year-old man fell twenty-two feet off a rail. Inquest said accident and the pathologist won't shift on mechanism. \u2014 The eleven minutes bother me. They've bothered me since October.",
+       "requiresClue": "clue-accident-report",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a3-05",
+       "playerLine": "Will you let Rita out?",
+       "reply": "Bail on the second, if she keeps her mouth shut, which she won't. \u2014 She typed a forgery, Miss Adare. Being right about everything underneath it isn't a defence. It's just very sad.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "Half six in the morning and you're in my office with wet hair and a box file. Go on, then. Slowly, and in order.",
+     "nodes": [
+      {
+       "id": "ive-a4-01",
+       "playerLine": "Pike was on the eight fifteen ferry.",
+       "reply": "Booking book, garage fuel book, two independent tills nine miles apart. That's an object. \u2014 That's your obvious man gone. So who worked his counter?",
+       "requiresClue": "clue-ferry-booking-book",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a4-02",
+       "playerLine": "R98/2211. Nine ten. Issued by S.F-K.",
+       "reply": "\u201cSeries 14/B, box 17, one item.\u201d Her initials. \u2014 That puts her at the counter. It does not put her on the gallery. What puts her on the gallery?",
+       "requiresClue": "clue-slip-r982211",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a4-03",
+       "playerLine": "Chalk-wax and salt bloom. North bay only. The same in the ribbon well of her typewriter.",
+       "reply": "Now that I can put in front of a magistrate. \u2014 You took that sample in October, jarred it and labelled it. Nobody taught you to do that for a police matter. You did it because it's Tuesday.",
+       "requiresClue": "clue-dust-jar-6",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a4-04",
+       "playerLine": "Eleven windings of the time-switch. Two hundred and twenty minutes.",
+       "reply": "For an eighty-eight-minute visit, and the last one at seventeen forty. Somebody spent an afternoon in that bay with the lights on, doing something they needed to see. Write it exactly like that.",
+       "requiresClue": "clue-gallery-timeswitch",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a4-05",
+       "playerLine": "The cottage at Cardew went up at twenty to eleven last night.",
+       "reply": "Paraffin heater, sixty-six-year-old man asleep in a chair. Fire officer says accidental and I'd want a great deal before I said otherwise. \u2014 You went back in twice. Don't do that again.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Adare. Iveson. You're breaking up \u2014 say again. She told you what?",
+     "nodes": [
+      {
+       "id": "ive-a5-01",
+       "playerLine": "She confessed. All of it. Four hours, with dates.",
+       "reply": "Unrecorded. Uncautioned. Uncorroborated. To one nineteen-year-old on a rock in a gale. \u2014 It is worth precisely nothing. Stop crying about it and go and do your job.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a5-02",
+       "playerLine": "So nothing I heard can be used.",
+       "reply": "Nothing. Not a syllable. It gets cited or it doesn't exist. \u2014 That's not me being hard on you. It's the only reason anybody will believe you instead of her.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a5-03",
+       "playerLine": "I want to make a referral on Cormac Sallow.",
+       "reply": "Then word it yourself and word it small. I can't charge a feeling. You've a grab, a defective rail, eleven minutes and a photocopier. Write what the paper says and it will stand up.",
+       "requiresClue": "clue-site-diary-rail",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a5-04",
+       "playerLine": "Can I write murder?",
+       "reply": "You can write it. Defence will have it in pieces by lunchtime and everything behind it goes with it. \u2014 Unlawful killing. Consciousness of guilt after the fact. That's the one that puts people in prison.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "ive-a5-05",
+       "playerLine": "Will any of it stick?",
+       "reply": "The 1998 count, probably. The 1974 offences, certainly. \u2014 And I'll say the thing nobody says out loud: you did this with a loupe and a stub book. I've four hundred square miles. Come and work for me.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "phyllida-halkett",
+   "voiceNotes": "Dry, exact, patient, with audible pauses for the pips. Explains procedure at any length at any hour and will not have an opinion about anything else: \u201cThat's not a question for me\u201d, said the way other people say no, and said identically every single time. Reframes an unanswerable question into an answerable one \u2014 that is her entire method of helping. Ends every call with \u201cHave you eaten?\u201d and rings off before the answer. Never once names a suspect, until the steps.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "Halkett. \u2014 Yes, I can hear the sea, so you'll be in the box on the quay. Ten-pence pieces, plural. Now. What is the procedural question?",
+     "nodes": [
+      {
+       "id": "hal-a1-01",
+       "playerLine": "What does my commission actually let me do?",
+       "reply": "Section 41. Access to every series in situ, power to open any receptacle in the custody of the dissolving body, and no power whatsoever to remove anything. You are a reader with a crowbar. Behave accordingly.",
+       "requiresClue": "clue-fused-commission",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a1-02",
+       "playerLine": "What happens if I don't certify by the third?",
+       "reply": "The series are deemed valueless on the fourth and lawfully destroyed. Not seized. Not mislaid. Destroyed, correctly, by clerical default. That is not a threat, it is a commencement order.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a1-03",
+       "playerLine": "Somebody in this building is lying to me.",
+       "reply": "That's not a question for me. \u2014 The question you meant to ask is how to record a discrepancy so it survives challenge. Rule a citation column. Never put a conclusion in the same column as a fact.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a1-04",
+       "playerLine": "How do I certify a series?",
+       "reply": "Sample at five per cent or fifty items, whichever is greater. Note arrangement, extent, gaps and condition. Sign the certificate. Never certify a series you have not physically opened. \u2014 Have you eaten?",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "Halkett. Pips in about four minutes, so talk faster than that. And don't tell me the weather, I have a window and a barometer.",
+     "nodes": [
+      {
+       "id": "hal-a2-01",
+       "playerLine": "There's a document that isn't in any register in the building.",
+       "reply": "Then you have a negative, and a negative is the hardest thing in our profession to prove. Establish the completeness of the register first. A gap in a complete series is evidence. A gap in a shambles is nothing.",
+       "requiresClue": "clue-issued-register",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a2-02",
+       "playerLine": "Can I open a strongroom without the Warden?",
+       "reply": "You may open any receptacle. You may not force a mechanism you don't understand. A three-movement timelock is not forced, it is set \u2014 and set wrongly it gives you a fortnight's wait and a cold face.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a2-03",
+       "playerLine": "Should I trust the Warden?",
+       "reply": "That's not a question for me. \u2014 Ask instead: is her custody documented? Whose signature is on the last transfer? Who holds the only key, and since when? Those are questions with answers in them.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a2-04",
+       "playerLine": "I was locked in the strongroom all night in four inches of water.",
+       "reply": "Were the boxes above the waterline when you left them? \u2014 Then that is the whole of the professional question, and you may cry about the remainder in your own time. Have you eaten?",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "Halkett. I have had a telephone call from the Ministry, and I should like to hear the words from you, in order, with dates.",
+     "nodes": [
+      {
+       "id": "hal-a3-01",
+       "playerLine": "The Deakin letter fails two of five tests.",
+       "reply": "Then it fails. Word the report thus: state the tests, state the results, state the conclusion, state no opinion about the maker. The moment you speculate who typed it, you are a witness and not an appraiser.",
+       "requiresClue": "clue-deakin-letter",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a3-02",
+       "playerLine": "Filing it truthfully destroys the only evidence I have.",
+       "reply": "Yes. \u2014 That's not a question for me either, and I am not going to pretend it is a difficult one. File it by four o'clock, and sign it yourself, and do not soften a single clause.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a3-03",
+       "playerLine": "My commission has been revoked.",
+       "reply": "At sixteen twenty, by fax. I have the copy. You are now a member of the public with a suitcase. You may look at what you are invited to look at. You may not requisition, remove, or claim a warrant.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a3-04",
+       "playerLine": "Then what is the point of me?",
+       "reply": "The Board of Dissolution may receive evidence from any person. Any person, Miss Adare. Section 44, four lines long, unused since 1963. \u2014 Have you eaten?",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "Halkett. You have ninety seconds before this line goes \u2014 they're telling me the pole's down at the Cardew turn. Talk.",
+     "nodes": [
+      {
+       "id": "hal-a4-01",
+       "playerLine": "How do I prove who made an initial?",
+       "reply": "You don't. You exhaust everybody who could have made it. Prove incapacity in the named signatory from three independent custodies, then prove authority in the survivor. That isn't proof of hand. It is proof of exclusion, and it stands.",
+       "requiresClue": "clue-pp-sort",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a4-02",
+       "playerLine": "The commission minute is dated the third of October. You broke your hip on the twelfth.",
+       "reply": "I sent you because I broke my hip and for no other reason on earth. \u2014 That is the third time I have said that sentence, and it has been untrue every time. We will discuss it on the steps.",
+       "requiresClue": "clue-commission-minute",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "hal-a4-03",
+       "playerLine": "The telephone is about to go.",
+       "reply": "Then use the Aldis. Roof of Pilotage House, under the tarpaulin. Signal Book is in the Chart Loft. \u2014 You do not need to know Morse. You need to be able to look things up. That is your entire profession.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a4-04",
+       "playerLine": "I'm frightened of the boat.",
+       "reply": "Yes. That's not a question for me. \u2014 Two jerseys, something dry inside you before you go out, and don't hold the rail with both hands. You'll want one of them for the log.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "Sit up. Pargeter reads the room before he reads the file, so give him a straight back and a foliated bundle and he'll waste his first two minutes on nothing at all.",
+     "nodes": [
+      {
+       "id": "hal-a5-01",
+       "playerLine": "You came.",
+       "reply": "Two sticks, one ferry and a gale. Don't make anything of it. \u2014 I shall say nothing during the hearing. Not one word. If you look at me I shall look at the ceiling.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a5-02",
+       "playerLine": "He'll strike half of it.",
+       "reply": "He will strike everything you cannot cite, aloud, and the transcript prints with the gaps in it. That is not cruelty. It is the only mechanism in English public life that cannot be charmed.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a5-03",
+       "playerLine": "How do I answer the last question?",
+       "reply": "Item 14. Her own signature, her own service, her own reckonable date. Hold it up. Do not explain it. In twenty-nine years I have never seen a Board fail to do the arithmetic for itself.",
+       "requiresClue": "clue-liabilities-item14",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "hal-a5-04",
+       "playerLine": "Why did you really send me?",
+       "reply": "Because he asked for a stranger, and I believed this building would close round anybody it recognised. I nominated you on the third and fell on the twelfth and let everyone believe otherwise. \u2014 Was I right?",
+       "requiresClue": "clue-commission-minute",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "characterId": "cormac-sallow",
+   "voiceNotes": "DEAD BEFORE PAGE ONE. This is not a conversation; it is the interrogation of a paper trail, and the reply text is the game's reading voice quoting him and then stopping. Sallow's own words are always short, unadjectived and numeric \u2014 a lamp report has no opinions in it. The reading voice may state what the page says and what the page does not say, and must never state what he felt. If a reply ever gives him an emotion, it is wrong. He answers only in documents the player is physically holding.",
+   "acts": [
+    {
+     "act": 1,
+     "greeting": "[The coroner's file. Green tape, a police photograph face down, and nine typed lines at the front. He answers only in what he wrote.]",
+     "nodes": [
+      {
+       "id": "sal-a1-01",
+       "playerLine": "Why did you write to a stranger?",
+       "reply": "Letter, 11 September 1998: \u201cI would be obliged if series 14/B were read by a stranger before it leaves this building.\u201d Nine lines. No explanation follows. No reason is given anywhere on the sheet.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a1-02",
+       "playerLine": "What did you do here?",
+       "reply": "Lamp Superintendent, 1958 to 1984. Fortnightly visits. \u201cNo. 1 vaporiser good. No. 2 fair. Reserve oil 340 gallons.\u201d Thirty years of reports and not one adjective in any of them.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a1-03",
+       "playerLine": "You signed in at eight fifty-six.",
+       "reply": "\u201cC. SALLOW. 08:56. Business: reader.\u201d The out column is blank. The admitting initials are S.F-K. The next entry in the book is timed 09:22 and belongs to a scaffolder.",
+       "requiresClue": "clue-visitors-book",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a1-04",
+       "playerLine": "How does the Authority describe your death?",
+       "reply": "\u201cAt approximately 10:24 Mr C. Sallow, a visitor, fell from the Muniment gallery. Death appeared instantaneous. The gallery rail was inspected and found sound.\u201d Typed 16:50. One page. Docketed upside down to the tag.",
+       "requiresClue": "clue-accident-report",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 2,
+     "greeting": "[The bound inquiry transcripts, Rossport 1975, Day 9. Balgowan down the left of the page. Sallow down the right.]",
+     "nodes": [
+      {
+       "id": "sal-a2-01",
+       "playerLine": "Was the light exhibited on the night of the third of November?",
+       "reply": "\u201cThe light was not discontinued.\u201d \u2014 Read it twice. He was asked an operational question and gave an administrative answer. It is true. It is the sentence the whole finding rests on.",
+       "requiresClue": "clue-sallow-1975-transcript",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sal-a2-02",
+       "playerLine": "Where were you in August 1974?",
+       "reply": "Not in the transcript. Nobody asked. Ilberry Cottage Hospital, 20 August to 10 October \u2014 hernia. Seven weeks with no lamp officer on the coast, and no question about it on any of nineteen days of evidence.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a2-03",
+       "playerLine": "You folded your spectacles.",
+       "reply": "A man reading does not fold his spectacles. He sets them on the slope and stands up, because somebody has come into the bay behind the map presses and he intends to speak to them.",
+       "requiresClue": "clue-spectacles",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a2-04",
+       "playerLine": "Did anyone warn you off?",
+       "reply": "Nothing in his hand says so. His last written word to anybody outside this building is nine lines long and asks for a reader. There is no draft, no carbon and no second letter.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 3,
+     "greeting": "[Pike's kitchen table, Cardew. A bare bulb, rain on the window, and thirty years of lamp reports taken out of the building in 1985 and never once opened.]",
+     "nodes": [
+      {
+       "id": "sal-a3-01",
+       "playerLine": "The report of the fifteenth of August 1974.",
+       "reply": "\u201cNo. 2 vaporiser cracked. Reserve oil 90 gallons. Light cannot be maintained beyond the end of the month.\u201d Signed C. SALLOW. Notice 74/119 was drafted the same day, on the same floor.",
+       "requiresClue": "none",
+       "givesClue": "clue-lamp-report-15aug",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a3-02",
+       "playerLine": "You swore you knew of no refused requisition.",
+       "reply": "\u201cI have no knowledge of any requisition for oil being refused.\u201d \u2014 His initials are on the front of R.741, thirteenth of August. He raised it himself. He was under anaesthetic when it came back stamped.",
+       "requiresClue": "clue-oil-requisition-book",
+       "givesClue": "none",
+       "isLieTrap": true
+      },
+      {
+       "id": "sal-a3-03",
+       "playerLine": "R.755. Your own file copy.",
+       "reply": "Seventh of October 1974. REQUISITION NOT SANCTIONED \u2014 REFER WINTER REFIT. Initialled p.p. Found in a drawer at 3 Coastguard Row by a man of seventy-nine, alone, at a kitchen table.",
+       "requiresClue": "clue-sallow-r755",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a3-04",
+       "playerLine": "He helped hang a dead man.",
+       "reply": "On Day 9, under oath, for his employer, in good faith. He learned it twenty-three years later. He did not go to the police or the newspapers. He asked for a reader.",
+       "requiresClue": "clue-sallow-1975-transcript",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 4,
+     "greeting": "[The oil store, Nine Bells Beacon. Cold paraffin that has not moved in twenty-four years. The keeper's log still in its rack.]",
+     "nodes": [
+      {
+       "id": "sal-a4-01",
+       "playerLine": "The last entry.",
+       "reply": "\u201c22.10. No. 2 vapor. cracked. Oil out. Light down. Nothing more to be done here.\u201d Twenty-fourth of August 1974. The handwriting does not deteriorate. It is a log, not a letter.",
+       "requiresClue": "none",
+       "givesClue": "clue-keepers-log",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a4-02",
+       "playerLine": "Turn it over.",
+       "reply": "On the reverse of the last page, in pencil: tea, boot polish, a birthday card for Nan. \u2014 Nobody in this case ever establishes who Nan was. There is no further entry of any kind.",
+       "requiresClue": "clue-keepers-log",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a4-03",
+       "playerLine": "She wrote to him two days before.",
+       "reply": "\u201cI know what you mean to send. Please do not send it. There is nothing in it that can help anybody now. S.\u201d Typed on the twelfth. Never posted. He never read one word of it.",
+       "requiresClue": "clue-ribbon-spool",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a4-04",
+       "playerLine": "He asked for box 17.",
+       "reply": "R98/2211. 09:10. Series 14/B box 17, one item. In the \u201cissued by\u201d column, initials that are not the Chief Clerk's, on a morning the Chief Clerk was nine miles away on a ferry.",
+       "requiresClue": "clue-slip-r982211",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    },
+    {
+     "act": 5,
+     "greeting": "[The case file, foliated and tied. His letter is bound at the front, before exhibit 1, because the whole of this is one requisition slip being filled forty-three days late.]",
+     "nodes": [
+      {
+       "id": "sal-a5-01",
+       "playerLine": "Exhibit 4.",
+       "reply": "Sallow's file copy of R.755. Refused. Initialled p.p. \u2014 The object that made a man of seventy-nine write nine lines to people he had never met, and say nothing whatever to anybody he knew.",
+       "requiresClue": "clue-sallow-r755",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a5-02",
+       "playerLine": "Read the letter to the Board.",
+       "reply": "\u201cI would be obliged if series 14/B were read by a stranger before it leaves this building.\u201d That is the whole of it. No explanation, no accusation, no name. He left the rest to the reader.",
+       "requiresClue": "none",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a5-03",
+       "playerLine": "He was called. Others were not.",
+       "reply": "Day 9, under oath, doing his duty. Two people who could have contradicted him stayed at home because a list said \u201cnot called\u201d. One of them typed the list. The other is No. 33.",
+       "requiresClue": "clue-inquiry-rejects",
+       "givesClue": "none",
+       "isLieTrap": false
+      },
+      {
+       "id": "sal-a5-04",
+       "playerLine": "Notice 74/119. Schedule D. Addressee number one.",
+       "reply": "\u201cThe Keeper, Nine Bells Beacon.\u201d Statutory precedence: the light is told about itself first. Posted 3 November 1998, franked with one fourpenny impression, thirty-one names appended against house style.",
+       "requiresClue": "clue-schedule-d",
+       "givesClue": "none",
+       "isLieTrap": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

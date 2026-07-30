@@ -57,29 +57,36 @@ async function main() {
     read('items.json').catch(() => ({ items: [] })),
   ]);
 
+  // Anything already generated and visually approved keeps its exact prompt.
+  // Re-deriving it from the design docs would change the hash and silently
+  // regenerate known-good artwork into something merely different.
+  const curated = JSON.parse(await readFile(path.join(ROOT, 'tools', 'art-ui-curated.json'), 'utf8'));
+  const curatedById = new Map(curated.assets.map((a) => [a.id, a]));
   const assets = [];
 
+  /** Pushes the curated version of an asset when one exists. */
+  const push = (derived) => assets.push(curatedById.get(derived.id) ?? derived);
+
   for (const scene of scenesDoc.scenes) {
-    assets.push({ id: scene.id, kind: 'scenes', prompt: scenePrompt(scene, bible) });
+    push({ id: scene.id, kind: 'scenes', prompt: scenePrompt(scene, bible) });
   }
 
   for (const c of castDoc.cast) {
-    assets.push({ id: c.id, kind: 'portraits', prompt: portraitPrompt(c, bible) });
+    push({ id: c.id, kind: 'portraits', prompt: portraitPrompt(c, bible) });
   }
 
   for (const item of itemsDoc.items ?? []) {
-    assets.push({ id: item.id, kind: 'items', prompt: itemPrompt(item, bible) });
+    push({ id: item.id, kind: 'items', prompt: itemPrompt(item, bible) });
   }
 
-  // UI materials come from the curated, already-approved set rather than the
-  // art bible: these have been generated and reviewed, and regenerating them
-  // from a reworded prompt would silently replace known-good artwork.
-  const curated = JSON.parse(await readFile(path.join(ROOT, 'tools', 'art-ui-curated.json'), 'utf8'));
-  const curatedIds = new Set(curated.assets.map((a) => a.id));
-  assets.push(...curated.assets);
+  // Every curated UI material, plus anything the art bible adds beyond them.
+  const seenIds = new Set(assets.map((a) => a.id));
+  for (const a of curated.assets) {
+    if (!seenIds.has(a.id)) assets.push(a), seenIds.add(a.id);
+  }
 
   for (const ui of bible.uiAssetPrompts ?? []) {
-    if (curatedIds.has(ui.id)) continue;
+    if (seenIds.has(ui.id)) continue;
     // Key art is the one UI asset that wants a cinematic aspect ratio.
     const kind = ui.id.includes('key-art') ? 'keyart' : 'ui';
     assets.push({ id: ui.id, kind, prompt: [ui.prompt, HARD_NEGATIVES].join(' ') });
