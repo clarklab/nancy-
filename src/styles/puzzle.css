@@ -1,0 +1,1233 @@
+/**
+ * The puzzle workbench — mirrors src/ui/puzzle-host.ts exactly.
+ *
+ * Five materials, and the player should be able to name each one without being
+ * told:
+ *   .puzzle-backdrop  — the room, pushed out of focus and out of light
+ *   .puzzle-panel     — a brass-cornered frame around a leather bench top
+ *   .puzzle-placard   — the premise, on a small card of aged paper
+ *   .puzzle-hint-note — the detective's own hand, pinned to the frame
+ *   .pz-*             — the mechanism's parts: brass, glass, engraved steel
+ *
+ * The lamp is off the upper left of the frame and everything obeys it: top and
+ * left edges catch a warm highlight, bottom and right edges fall into an inner
+ * shadow, and cast shadows all fall down and to the right. Nothing here is a
+ * flat fill, and no literal colour, duration, font or spacing appears below —
+ * only geometry and the hand-drawn noise filters.
+ */
+
+.puzzle-root {
+  /* Generated grain, so a puzzle never waits on a texture and the offline
+     screenshot harness renders the same surfaces the player sees. */
+  --pz-grain-leather: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23l)' opacity='0.5'/%3E%3C/svg%3E");
+  --pz-grain-brass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.05' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23b)' opacity='0.28'/%3E%3C/svg%3E");
+  --pz-grain-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23p)' opacity='0.4'/%3E%3C/svg%3E");
+
+  /* Every brass fitting on the bench is cut from these three, so a dial, a
+     lever and a frame corner are unmistakably the same alloy. */
+  --pz-brass-hi: color-mix(in srgb, var(--lamp-200) 82%, var(--paper-100));
+  --pz-brass-mid: var(--lamp-500);
+  --pz-brass-lo: color-mix(in srgb, var(--lamp-600) 62%, var(--ink-900));
+
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-puzzle);
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.puzzle-root[hidden] {
+  display: none;
+}
+
+.puzzle-root.is-open {
+  opacity: 1;
+}
+
+.puzzle-root.is-closing {
+  opacity: 0;
+  transition-duration: var(--dur-med);
+}
+
+/* -- The room, pushed back -------------------------------------------------- */
+
+.puzzle-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    124% 96% at 38% 34%,
+    color-mix(in srgb, var(--ink-800) 52%, transparent) 0%,
+    color-mix(in srgb, var(--ink-abyss) 86%, transparent) 64%,
+    color-mix(in srgb, var(--ink-abyss) 96%, transparent) 100%
+  );
+  backdrop-filter: blur(9px) saturate(0.55) brightness(0.4);
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-in-out);
+}
+
+.puzzle-root.is-open .puzzle-backdrop {
+  opacity: 1;
+}
+
+/* -- Bench layout ----------------------------------------------------------- */
+
+/* Two columns: the frame, and a rail of pinned notes beside it. The rail is
+   always in the layout even when empty, so the first hint cannot shove the
+   mechanism sideways mid-puzzle. */
+.puzzle-bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(9rem, 13vw, 15rem);
+  align-items: stretch;
+  gap: 0;
+  padding: clamp(var(--sp-4), 3vh, var(--sp-6)) clamp(var(--sp-4), 2.5vw, var(--sp-6));
+  pointer-events: none;
+}
+
+.puzzle-panel {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
+  padding: clamp(var(--sp-3), 2vh, var(--sp-5)) clamp(var(--sp-4), 2vw, var(--sp-6));
+  pointer-events: auto;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  /* Frame body: a warm-lit top-left face falling to near-black at the
+     bottom-right, over a fine brushed grain. */
+  background-image:
+    var(--pz-grain-brass),
+    linear-gradient(
+      152deg,
+      color-mix(in srgb, var(--ink-600) 88%, var(--lamp-600)) 0%,
+      var(--ink-700) 34%,
+      var(--ink-800) 72%,
+      var(--ink-900) 100%
+    );
+  background-blend-mode: soft-light, normal;
+  border: var(--border-brass);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 34%, transparent),
+    inset 1px 0 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
+    inset 0 -2px 6px color-mix(in srgb, var(--ink-abyss) 82%, transparent),
+    inset -2px 0 8px color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    var(--shadow-4);
+  transform: translateY(1.6%) scale(0.976);
+  opacity: 0;
+  transition:
+    transform var(--dur-scene) var(--ease-drama),
+    opacity var(--dur-slow) var(--ease-out),
+    box-shadow var(--dur-slow) var(--ease-out);
+}
+
+.puzzle-root.is-open .puzzle-panel {
+  transform: none;
+  opacity: 1;
+}
+
+.puzzle-panel:focus {
+  outline: none;
+}
+
+/* Raking key light: a soft warm wash across the top-left of the frame that
+   sits under the content, so the whole bench reads as lit rather than tinted. */
+.puzzle-rake {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      82% 62% at 12% -6%,
+      color-mix(in srgb, var(--lamp-300) 26%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 10%, transparent) 42%,
+      transparent 76%
+    ),
+    linear-gradient(
+      156deg,
+      transparent 46%,
+      color-mix(in srgb, var(--ink-abyss) 46%, transparent) 100%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+/* -- Brass corners ---------------------------------------------------------- */
+
+.puzzle-corner {
+  position: absolute;
+  width: clamp(1.5rem, 2.4vw, 2.4rem);
+  height: clamp(1.5rem, 2.4vw, 2.4rem);
+  pointer-events: none;
+  background:
+    var(--pz-grain-brass),
+    linear-gradient(
+      140deg,
+      var(--pz-brass-hi) 0%,
+      var(--lamp-400) 30%,
+      var(--pz-brass-mid) 58%,
+      var(--pz-brass-lo) 100%
+    );
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 65%, transparent),
+    inset 0 -1px 2px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-1);
+  /* An L of plate, mitred at the inner corner — a bracket, not a square. */
+  clip-path: polygon(0 0, 100% 0, 100% 30%, 30% 30%, 30% 100%, 0 100%);
+}
+
+/* A single screw head, so the bracket is fixed to something. */
+.puzzle-corner::after {
+  content: '';
+  position: absolute;
+  top: 12%;
+  left: 12%;
+  width: 14%;
+  height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    color-mix(in srgb, var(--lamp-100) 70%, transparent) 0%,
+    var(--pz-brass-lo) 78%
+  );
+  box-shadow: inset 0 -1px 1px color-mix(in srgb, var(--ink-abyss) 80%, transparent);
+}
+
+.puzzle-corner.is-tl {
+  top: 0;
+  left: 0;
+}
+
+.puzzle-corner.is-tr {
+  top: 0;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.puzzle-corner.is-bl {
+  bottom: 0;
+  left: 0;
+  transform: scaleY(-1);
+}
+
+.puzzle-corner.is-br {
+  right: 0;
+  bottom: 0;
+  transform: scale(-1);
+}
+
+/* -- Head ------------------------------------------------------------------- */
+
+.puzzle-head {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: 0 clamp(var(--sp-4), 3vw, var(--sp-7)) var(--sp-2);
+  border-bottom: var(--border-hairline);
+}
+
+.puzzle-title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--lamp-100);
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent),
+    0 0 26px color-mix(in srgb, var(--lamp-400) 28%, transparent);
+}
+
+.puzzle-close {
+  flex: none;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border: var(--border-hairline);
+  border-radius: 50%;
+  background:
+    var(--pz-grain-brass),
+    linear-gradient(160deg, var(--ink-600) 0%, var(--ink-800) 100%);
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-1);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.puzzle-close:hover {
+  border-color: color-mix(in srgb, var(--lamp-300) 65%, transparent);
+  transform: translateY(-1px);
+}
+
+.puzzle-close:active {
+  transform: translateY(1px);
+}
+
+.puzzle-close-glyph {
+  position: relative;
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.puzzle-close-glyph::before,
+.puzzle-close-glyph::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--lamp-200);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
+}
+
+.puzzle-close-glyph::before {
+  transform: rotate(45deg);
+}
+
+.puzzle-close-glyph::after {
+  transform: rotate(-45deg);
+}
+
+/* -- Premise placard -------------------------------------------------------- */
+
+.puzzle-placard {
+  justify-self: center;
+  max-width: min(62ch, 82%);
+  padding: clamp(var(--sp-2), 1.2vh, var(--sp-3)) clamp(var(--sp-4), 2vw, var(--sp-5));
+  border-radius: var(--radius-sm);
+  background-image:
+    var(--pz-grain-paper),
+    linear-gradient(168deg, var(--paper-100) 0%, var(--paper-200) 62%, var(--paper-300) 100%);
+  background-blend-mode: multiply, normal;
+  /* Torn-ish card: the top edge catches the lamp, the underside is in shadow
+     and it sits a hair proud of the frame. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    inset 0 -1px 3px color-mix(in srgb, var(--paper-400) 70%, transparent),
+    var(--shadow-2);
+  transform: rotate(-0.35deg);
+}
+
+.puzzle-premise {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  text-align: center;
+  color: var(--paper-ink);
+  text-wrap: balance;
+}
+
+/* -- The bench top the mechanism lives on ----------------------------------- */
+
+.puzzle-surface {
+  position: relative;
+  min-height: 0;
+  border-radius: var(--radius-md);
+  padding: clamp(var(--sp-3), 2vh, var(--sp-5));
+  /* Sunk leather: dark, warm, and lit from the same upper-left as the frame. */
+  background-image:
+    var(--pz-grain-leather),
+    radial-gradient(
+      120% 100% at 18% 4%,
+      color-mix(in srgb, var(--lamp-600) 22%, transparent) 0%,
+      transparent 62%
+    ),
+    linear-gradient(158deg, var(--ink-800) 0%, var(--ink-900) 58%, var(--ink-abyss) 100%);
+  background-blend-mode: overlay, screen, normal;
+  box-shadow:
+    inset 0 2px 10px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+/* The surface the module owns. Positioned, so puzzles can lay parts out
+   absolutely; sized by the frame, so they should size themselves in
+   percentages or container units and never in fixed pixels. */
+.puzzle-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(14rem, 42vh, 30rem);
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+
+.puzzle-missing {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--text-muted);
+}
+
+/* -- Foot: lamp, status line, bail-out -------------------------------------- */
+
+.puzzle-foot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: 2.75rem;
+}
+
+/* The hint lamp. Its ring is a wick burning back up: --hint-charge runs 0..1
+   during the cooldown, set from JS so it means the same thing when motion is
+   reduced. */
+.puzzle-lamp {
+  --hint-charge: 1;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4) var(--sp-2) 2.35rem;
+  cursor: pointer;
+  border: var(--border-hairline);
+  border-radius: 99px;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--lamp-200);
+  background:
+    linear-gradient(
+      168deg,
+      color-mix(in srgb, var(--ink-600) 92%, var(--lamp-600)) 0%,
+      var(--ink-800) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    inset 0 -2px 5px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-1);
+  transition:
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.puzzle-lamp[data-state='ready'] {
+  border-color: color-mix(in srgb, var(--lamp-400) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 30%, transparent),
+    inset 0 -2px 5px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--glow-lamp-soft);
+}
+
+.puzzle-lamp[data-state='cooling'],
+.puzzle-lamp[data-state='spent'] {
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* The flame itself: a small pinched teardrop that dims with the charge. */
+.puzzle-lamp-flame {
+  position: absolute;
+  left: 0.85rem;
+  width: 0.62rem;
+  height: 0.9rem;
+  border-radius: 52% 52% 46% 46% / 68% 68% 32% 32%;
+  background: radial-gradient(
+    58% 62% at 50% 72%,
+    var(--lamp-100) 0%,
+    var(--lamp-300) 42%,
+    color-mix(in srgb, var(--lamp-500) 70%, transparent) 78%,
+    transparent 100%
+  );
+  filter: blur(0.2px);
+  opacity: calc(0.3 + 0.7 * var(--hint-charge));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--lamp-300) 60%, transparent);
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+/* Charge ring around the flame — a conic sweep, no animation of its own. */
+.puzzle-lamp-ring {
+  position: absolute;
+  left: 0.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 180deg,
+    color-mix(in srgb, var(--lamp-300) 70%, transparent) calc(var(--hint-charge) * 360deg),
+    transparent 0
+  );
+  mask: radial-gradient(circle, transparent 60%, #000 62%);
+  opacity: 0.85;
+}
+
+.puzzle-lamp[data-state='ready'] .puzzle-lamp-ring,
+.puzzle-lamp[data-state='spent'] .puzzle-lamp-ring {
+  opacity: 0;
+}
+
+.puzzle-lamp-count {
+  font-size: var(--step--2);
+  letter-spacing: 0.3em;
+  color: var(--lamp-400);
+}
+
+.puzzle-lamp.is-refused {
+  animation: puzzle-refuse var(--dur-slow) var(--ease-out);
+}
+
+@keyframes puzzle-refuse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  60% {
+    transform: translateX(2px);
+  }
+}
+
+/* Status line: the mechanism talking back. Reads as an aside, not a label. */
+.puzzle-status {
+  min-height: 1.2em;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  text-align: center;
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translateY(2px);
+}
+
+.puzzle-status.is-in {
+  animation: puzzle-status-in var(--dur-slow) var(--ease-out) forwards;
+}
+
+@keyframes puzzle-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/**
+ * The bail-out. Deliberately the quietest thing on the bench: no glow, no
+ * brass, lower-case, and it only warms slightly under the pointer. It is a
+ * concession the game makes, and it should look like one.
+ */
+.puzzle-skip {
+  justify-self: end;
+  padding: var(--sp-1) var(--sp-3);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom-color: color-mix(in srgb, var(--ink-400) 60%, transparent);
+  border-radius: 0;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-scene) var(--ease-in-out),
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out);
+}
+
+.puzzle-skip.is-in {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.puzzle-skip:hover,
+.puzzle-skip:focus-visible {
+  color: var(--text-secondary);
+  border-bottom-color: color-mix(in srgb, var(--lamp-500) 70%, transparent);
+}
+
+/* -- Hint rail -------------------------------------------------------------- */
+
+.puzzle-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
+  padding-top: clamp(var(--sp-5), 8vh, var(--sp-8));
+  /* Overlaps the frame's right edge so the notes read as pinned *to* it. */
+  margin-left: calc(-1 * clamp(var(--sp-3), 1.6vw, var(--sp-5)));
+  pointer-events: none;
+}
+
+.puzzle-hint-note {
+  position: relative;
+  padding: var(--sp-4) var(--sp-3) var(--sp-3);
+  border-radius: var(--radius-sm);
+  background-image:
+    var(--pz-grain-paper),
+    linear-gradient(172deg, var(--paper-100) 0%, var(--paper-200) 70%, var(--paper-300) 100%);
+  background-blend-mode: multiply, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 60%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--paper-400) 60%, transparent),
+    var(--shadow-3);
+  /* Curls away from the pin at the top, the way paper actually hangs. */
+  clip-path: polygon(0 0, 100% 0, 100% 97%, 62% 100%, 0 96%);
+  opacity: 0;
+  transform: translateY(-10px) rotate(0deg) scale(0.96);
+  transform-origin: 50% 0;
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-scene) var(--ease-drama);
+}
+
+.puzzle-hint-note.is-in {
+  opacity: 1;
+  transform: rotate(var(--note-tilt, 0deg));
+}
+
+.puzzle-pin {
+  position: absolute;
+  top: -0.34rem;
+  left: 50%;
+  width: 0.72rem;
+  height: 0.72rem;
+  margin-left: -0.36rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 30%,
+    var(--lamp-100) 0%,
+    var(--lamp-400) 44%,
+    var(--pz-brass-lo) 100%
+  );
+  box-shadow:
+    0 2px 3px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    inset 0 -1px 1px color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+.puzzle-hint-index {
+  position: absolute;
+  top: var(--sp-1);
+  right: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
+}
+
+.puzzle-hint-text {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--paper-ink) 88%, var(--amethyst));
+}
+
+/* -- Feedback --------------------------------------------------------------- */
+
+/* Flashes are washes of light across the whole bench rather than borders:
+   the room brightens or the lamp gutters. */
+.puzzle-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.puzzle-panel.fx-good::after {
+  opacity: 1;
+  background: radial-gradient(
+    90% 70% at 50% 60%,
+    color-mix(in srgb, var(--verdigris) 34%, transparent) 0%,
+    transparent 72%
+  );
+}
+
+.puzzle-panel.fx-bad::after {
+  opacity: 1;
+  background: radial-gradient(
+    90% 70% at 50% 60%,
+    color-mix(in srgb, var(--blood) 38%, transparent) 0%,
+    transparent 72%
+  );
+}
+
+.puzzle-panel.fx-bad {
+  animation: puzzle-shake var(--dur-slow) var(--ease-in-out);
+}
+
+@keyframes puzzle-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-8px);
+  }
+  32% {
+    transform: translateX(7px);
+  }
+  52% {
+    transform: translateX(-5px);
+  }
+  74% {
+    transform: translateX(3px);
+  }
+}
+
+.puzzle-panel.is-solved {
+  animation: puzzle-solved calc(var(--dur-slow) * 2) var(--ease-out);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 55%, transparent),
+    inset 0 -2px 6px color-mix(in srgb, var(--ink-abyss) 82%, transparent),
+    var(--glow-lamp),
+    var(--shadow-4);
+}
+
+@keyframes puzzle-solved {
+  0% {
+    filter: brightness(1);
+  }
+  30% {
+    filter: brightness(1.28) saturate(1.12);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* Setting a puzzle aside is not a victory: it dims out instead of flaring. */
+.puzzle-panel.is-set-aside {
+  filter: saturate(0.7) brightness(0.86);
+  transition: filter var(--dur-slow) var(--ease-out);
+}
+
+/* ===========================================================================
+   Shared mechanism primitives — mirrors the `make*` helpers in puzzle-host.ts
+   ---------------------------------------------------------------------------
+   One alloy, one weight of shadow, one focus ring. A dial built by one puzzle
+   and a lever built by another have to look like they came out of the same
+   workshop drawer.
+   ========================================================================= */
+
+.pz-draggable {
+  transform: translate(var(--drag-x, 0px), var(--drag-y, 0px));
+  /* Pointer-driven: the browser must not claim the gesture for scrolling. */
+  touch-action: none;
+  cursor: grab;
+  transition: filter var(--dur-fast) var(--ease-out);
+}
+
+.pz-draggable.is-dragging {
+  cursor: grabbing;
+  /* Lifted: brighter, and its shadow moves further away from the surface. */
+  z-index: 2;
+  filter: brightness(1.08) drop-shadow(0 14px 18px rgb(0 0 0 / 0.6));
+}
+
+.pz-grip {
+  touch-action: none;
+}
+
+.pz-rotatable {
+  transform: rotate(var(--rot, 0deg));
+  touch-action: none;
+  cursor: grab;
+}
+
+.pz-rotatable.is-turning {
+  cursor: grabbing;
+}
+
+/* -- Dial ------------------------------------------------------------------- */
+
+.pz-dial {
+  --dial-size: clamp(6rem, 14cqw, 9.5rem);
+
+  position: relative;
+  width: var(--dial-size);
+  height: var(--dial-size);
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.pz-dial-bezel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    var(--pz-grain-brass),
+    conic-gradient(
+      from 210deg,
+      var(--pz-brass-lo) 0deg,
+      var(--pz-brass-mid) 60deg,
+      var(--pz-brass-hi) 128deg,
+      var(--pz-brass-mid) 210deg,
+      var(--pz-brass-lo) 300deg,
+      var(--pz-brass-mid) 360deg
+    );
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 2px 2px color-mix(in srgb, var(--lamp-100) 45%, transparent),
+    inset 0 -3px 6px color-mix(in srgb, var(--ink-abyss) 82%, transparent),
+    var(--shadow-2);
+}
+
+/* The index mark the value is read against, at twelve o'clock. */
+.pz-dial-bezel::after {
+  content: '';
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  width: 2px;
+  height: 9%;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--lamp-100);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--lamp-200) 80%, transparent);
+}
+
+.pz-dial-tick {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--tick-angle, 0deg));
+  pointer-events: none;
+}
+
+.pz-dial-tick::before {
+  content: '';
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  width: 1px;
+  height: 5%;
+  margin-left: -0.5px;
+  background: color-mix(in srgb, var(--ink-abyss) 62%, transparent);
+}
+
+.pz-dial-legend {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  translate: -50% 0;
+  /* Counter-rotate so every legend stays upright on a turned face. */
+  rotate: calc(-1 * var(--tick-angle, 0deg));
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  color: color-mix(in srgb, var(--ink-900) 78%, var(--lamp-600));
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 30%, transparent);
+}
+
+.pz-dial-knob {
+  position: relative;
+  z-index: 1;
+  width: 62%;
+  height: 62%;
+  border-radius: 50%;
+  transform: rotate(var(--rot, 0deg));
+  background:
+    radial-gradient(
+      64% 58% at 34% 26%,
+      color-mix(in srgb, var(--lamp-200) 46%, transparent) 0%,
+      transparent 66%
+    ),
+    linear-gradient(158deg, var(--ink-600) 0%, var(--ink-800) 62%, var(--ink-900) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 34%, transparent),
+    inset 0 -3px 8px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    0 6px 12px -2px rgb(0 0 0 / 0.62);
+}
+
+/* Knurling: twelve short flutes around the rim, lit from the same side. */
+.pz-dial-knurl {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--tick-angle, 0deg));
+}
+
+.pz-dial-knurl::before {
+  content: '';
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  width: 2px;
+  height: 12%;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lamp-200) 38%, transparent) 0%,
+    color-mix(in srgb, var(--ink-abyss) 70%, transparent) 100%
+  );
+}
+
+/* The pointer notch, cut into the knob face. */
+.pz-dial-index {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  width: 3px;
+  height: 34%;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--lamp-200) 0%, var(--lamp-500) 100%);
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--lamp-300) 60%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+.pz-dial-readout {
+  position: absolute;
+  bottom: -1.55rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--lamp-200);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--lamp-400) 45%, transparent);
+}
+
+/* -- Slider ----------------------------------------------------------------- */
+
+.pz-slider {
+  --slider-length: clamp(9rem, 34cqw, 20rem);
+  --slider-frac: 0;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.pz-slider[data-orient='horizontal'] {
+  width: var(--slider-length);
+  height: 2.6rem;
+}
+
+.pz-slider[data-orient='vertical'] {
+  width: 2.6rem;
+  height: var(--slider-length);
+}
+
+.pz-slider-track {
+  position: absolute;
+  border-radius: 99px;
+  /* Sunk channel: dark inside, with the lamp catching its upper lip. */
+  background: linear-gradient(
+    180deg,
+    var(--ink-abyss) 0%,
+    var(--ink-900) 45%,
+    color-mix(in srgb, var(--ink-700) 80%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 2px 4px color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    0 1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent);
+  overflow: hidden;
+}
+
+.pz-slider[data-orient='horizontal'] .pz-slider-track {
+  left: 0;
+  width: 100%;
+  height: 0.55rem;
+}
+
+.pz-slider[data-orient='vertical'] .pz-slider-track {
+  top: 0;
+  width: 0.55rem;
+  height: 100%;
+}
+
+.pz-slider-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-600) 70%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-400) 62%, transparent) 100%
+  );
+  transform-origin: 0 50%;
+  scale: var(--slider-frac) 1;
+}
+
+.pz-slider[data-orient='vertical'] .pz-slider-fill {
+  transform-origin: 50% 100%;
+  scale: 1 var(--slider-frac);
+}
+
+.pz-slider-thumb {
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      60% 56% at 34% 26%,
+      color-mix(in srgb, var(--lamp-100) 62%, transparent) 0%,
+      transparent 68%
+    ),
+    linear-gradient(158deg, var(--lamp-300) 0%, var(--pz-brass-mid) 58%, var(--pz-brass-lo) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 70%, transparent),
+    inset 0 -2px 3px color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    var(--shadow-2);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.pz-slider[data-orient='horizontal'] .pz-slider-thumb {
+  left: calc(var(--slider-frac) * 100%);
+  translate: -50% 0;
+}
+
+.pz-slider[data-orient='vertical'] .pz-slider-thumb {
+  top: calc((1 - var(--slider-frac)) * 100%);
+  translate: 0 -50%;
+}
+
+.pz-slider.is-sliding .pz-slider-thumb {
+  transform: scale(1.06);
+}
+
+.pz-slider-readout {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  color: var(--lamp-200);
+}
+
+.pz-slider[data-orient='horizontal'] .pz-slider-readout {
+  bottom: -1.15rem;
+  right: 0;
+}
+
+.pz-slider[data-orient='vertical'] .pz-slider-readout {
+  bottom: -1.15rem;
+}
+
+/* -- Toggle ----------------------------------------------------------------- */
+
+.pz-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--text-secondary);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.pz-toggle.is-on {
+  color: var(--lamp-200);
+}
+
+.pz-toggle-well {
+  position: relative;
+  width: 2.6rem;
+  height: 1.25rem;
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--ink-abyss) 0%, var(--ink-800) 100%);
+  box-shadow:
+    inset 0 2px 4px color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    0 1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent);
+}
+
+.pz-toggle-lever {
+  position: absolute;
+  top: 0.13rem;
+  left: 0.13rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      60% 56% at 34% 26%,
+      color-mix(in srgb, var(--lamp-100) 60%, transparent) 0%,
+      transparent 66%
+    ),
+    linear-gradient(158deg, var(--pz-brass-mid) 0%, var(--pz-brass-lo) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 55%, transparent),
+    var(--shadow-1);
+  transition: translate var(--dur-med) var(--ease-drama), background var(--dur-med) var(--ease-out);
+}
+
+.pz-toggle.is-on .pz-toggle-lever {
+  translate: 1.35rem 0;
+  background:
+    radial-gradient(
+      60% 56% at 34% 26%,
+      color-mix(in srgb, var(--lamp-100) 70%, transparent) 0%,
+      transparent 66%
+    ),
+    linear-gradient(158deg, var(--lamp-300) 0%, var(--lamp-500) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 70%, transparent),
+    var(--glow-lamp);
+}
+
+/* -- Keypad ----------------------------------------------------------------- */
+
+.pz-keypad {
+  --keypad-columns: 3;
+
+  display: grid;
+  gap: var(--sp-3);
+  justify-items: center;
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  border: var(--border-hairline);
+  background: linear-gradient(158deg, var(--ink-700) 0%, var(--ink-900) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 18%, transparent),
+    inset 0 -2px 8px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-2);
+}
+
+/* The readout is a lit glass window, not a text field. */
+.pz-keypad-readout {
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--step-1);
+  letter-spacing: 0.28em;
+  text-align: center;
+  color: var(--lamp-200);
+  background:
+    radial-gradient(
+      90% 140% at 50% 0%,
+      color-mix(in srgb, var(--lamp-600) 26%, transparent) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--ink-abyss) 0%, var(--ink-900) 100%);
+  box-shadow:
+    inset 0 2px 6px color-mix(in srgb, var(--ink-abyss) 92%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--lamp-300) 55%, transparent);
+}
+
+.pz-keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--keypad-columns), minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.pz-keypad-key {
+  width: 3rem;
+  height: 2.6rem;
+  cursor: pointer;
+  border: var(--border-hairline);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--step-0);
+  color: var(--lamp-100);
+  background:
+    var(--pz-grain-brass),
+    linear-gradient(168deg, var(--ink-600) 0%, var(--ink-800) 72%, var(--ink-900) 100%);
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--ink-abyss) 76%, transparent),
+    var(--shadow-1);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.pz-keypad-key:hover {
+  border-color: color-mix(in srgb, var(--lamp-400) 50%, transparent);
+}
+
+/* Pressed keys travel into the panel; the highlight goes with them. */
+.pz-keypad-key:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 2px 5px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent);
+}
+
+.pz-keypad-foot {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.pz-keypad-aux {
+  padding: var(--sp-1) var(--sp-4);
+  cursor: pointer;
+  border: var(--border-hairline);
+  border-radius: 99px;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--text-secondary);
+  background: linear-gradient(168deg, var(--ink-700) 0%, var(--ink-900) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
+    var(--shadow-1);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.pz-keypad-aux:hover {
+  color: var(--lamp-200);
+  border-color: color-mix(in srgb, var(--lamp-400) 50%, transparent);
+}
+
+.pz-keypad-aux.is-enter {
+  color: var(--lamp-200);
+  border-color: color-mix(in srgb, var(--lamp-400) 45%, transparent);
+}
+
+/* -- Narrow and short windows ---------------------------------------------- */
+
+/* Below roughly 1400px the pinned rail costs the mechanism more room than it
+   is worth, so the notes fold under the frame instead of beside it. */
+@media (max-width: 1400px) {
+  .puzzle-bench {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .puzzle-rail {
+    flex-direction: row;
+    padding-top: var(--sp-3);
+    margin-left: 0;
+    /* Reserved even when empty, so the first hint still shifts nothing. */
+    min-height: clamp(3.5rem, 9vh, 5.5rem);
+    overflow: hidden;
+  }
+
+  .puzzle-hint-note {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-panel.fx-bad,
+  .puzzle-lamp.is-refused {
+    animation: none;
+  }
+}
