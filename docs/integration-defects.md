@@ -73,3 +73,25 @@ Reconcile in `game.ts` (adopt the HUD's API — it is the cleaner design) and ad
 ## 4. `import.meta.env` needed `vite/client` types
 
 Fixed: added `"types": ["vite/client"]` to `tsconfig.json`.
+
+## 5. Journal: generated material textures are not wired in
+
+`public/art/ui/` now contains real generated materials — `tex-parchment.webp`,
+`tex-leather.webp`, `tex-corkboard.webp`, `seal-wax.webp`, `frame-brass.webp`,
+`plate-slot.webp`. The journal currently builds its paper and leather from CSS
+gradients alone, which reads as flat cream rather than aged stock. Wire the
+textures in as `background-image` layers under the existing gradients
+(multiply/overlay blend, low opacity) so the surfaces have real grain.
+
+## 6. Journal: two-page spread only uses the left page
+
+On the Clues tab every card stacks in a single narrow column on the left page
+while the entire right page sits empty. The card measure is roughly 30
+characters, which is far too tight for the summary prose. Cards should flow
+across both pages in a multi-column layout, with a wider measure.
+
+## 7. Journal: the "unread" marker reads as a red button
+
+The wax-seal marker on each new clue card renders as a flat red circle
+overlapping the card's bottom-right corner. It should use `seal-wax.webp` and
+sit at the top edge of the card as if pressed into it.

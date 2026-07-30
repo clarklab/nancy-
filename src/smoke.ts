@@ -11,10 +11,12 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/hud.css';
 import './styles/narration.css';
+import './styles/journal.css';
 
 import { GameState } from './engine/state';
 import { SceneView } from './engine/scene-view';
 import { Narration } from './ui/narration';
+import { Journal } from './ui/journal';
 import type { GameContent, Scene } from './engine/types';
 
 const scene: Scene = {
@@ -72,16 +74,80 @@ const scene: Scene = {
   ],
 };
 
+/** Stand-in case file, dense enough to show the journal at realistic load. */
 const content = {
   title: 'The Lamplight Cipher',
   scenes: { smoke: scene },
-  items: {},
-  clues: {},
-  characters: {},
+  items: {
+    'tide-ledger': {
+      id: 'tide-ledger',
+      name: 'Pilotage Ledger',
+      icon: './art/items/tide-ledger.webp',
+      description: 'A water-swollen ledger, 1974, bound in oilcloth.',
+      category: 'document',
+    },
+    'brass-key': {
+      id: 'brass-key',
+      name: 'Lamp-Room Key',
+      icon: './art/items/brass-key.webp',
+      description: 'Brass, worn smooth, stamped with a number nobody has used in fifty years.',
+      category: 'key',
+    },
+  },
+  clues: {
+    'unsigned-notice': {
+      id: 'unsigned-notice',
+      name: 'The Unsigned Notice',
+      summary:
+        'Every notice in those eleven weeks carries the Warden’s hand — except this one, and this one was the one that mattered.',
+      act: 1,
+      category: 'document',
+      bearsOn: ['warden'],
+    },
+    'damp-blotter': {
+      id: 'damp-blotter',
+      name: 'A Blotter Still Damp',
+      summary: 'Someone wrote at this desk within the hour and took the page with them.',
+      act: 1,
+      category: 'physical',
+      bearsOn: ['keeper'],
+    },
+    'burnt-paper': {
+      id: 'burnt-paper',
+      name: 'Ash in the Grate',
+      summary: 'Ruled paper, burned in a hurry. The gum binding survived; the words did not.',
+      act: 1,
+      category: 'physical',
+    },
+    'keeper-lied': {
+      id: 'keeper-lied',
+      name: 'The Keeper’s Timeline',
+      summary: 'He says he came up at eight. The lamp says otherwise.',
+      act: 1,
+      category: 'testimony',
+      bearsOn: ['keeper'],
+    },
+  },
+  characters: {
+    warden: {
+      id: 'warden',
+      name: 'Absalom Ferrier',
+      role: 'Warden of the Pilotage',
+      portrait: './art/portraits/warden.webp',
+      bio: 'Forty years on the water and not one of them spent explaining himself. He answers the question before the one I asked.',
+    },
+    keeper: {
+      id: 'keeper',
+      name: 'Ines Corriveau',
+      role: 'Lamp Keeper',
+      portrait: './art/portraits/keeper.webp',
+      bio: 'Precise about everything except where she was on Tuesday.',
+    },
+  },
   dialogue: [],
   puzzles: {},
   cinematics: {},
-  acts: [{ number: 1, title: 'Arrival', goal: 'Find the keeper.' }],
+  acts: [{ number: 1, title: 'Arrival', goal: 'Find out why the light stopped turning.' }],
   startScene: 'smoke',
 } satisfies GameContent;
 
@@ -136,11 +202,32 @@ async function main() {
 
   await view.show(scene, 'fade');
 
+  const journal = new Journal(state, { onSound: () => {} });
+  journal.mount(overlays);
+
+  // Populate the case file so panels render at realistic density.
+  state.tasks.push(
+    { id: 'a', text: 'Find out why the light stopped turning.', done: false },
+    { id: 'b', text: 'Get a straight answer out of the Warden.', done: false },
+    { id: 'c', text: 'Get inside the lamp room.', done: true },
+  );
+  for (const id of Object.keys(content.clues)) {
+    state.clues.add(id);
+    state.unreadClues.add(id);
+  }
+  for (const id of Object.keys(content.items)) state.items.add(id);
+  for (const id of Object.keys(content.characters)) state.flags[`met.${id}`] = true;
+  state.visitedScenes.add('smoke');
+  state.notify();
+
   // Expose so the screenshot harness can drive states deterministically.
   (window as unknown as Record<string, unknown>).smoke = {
     ready: true,
     view,
     state,
+    journal,
+    openJournal: (tab?: string) => journal.open(tab as never),
+    closeJournal: () => journal.close(),
     reveal: () => view.revealHotspots(),
     think: (t: string) => state.run([{ kind: 'think', text: t }]),
     say: (t: string, who: string) => state.run([{ kind: 'narrate', text: t, speaker: who }]),
