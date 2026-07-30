@@ -71,7 +71,15 @@ async function main() {
     assets.push({ id: item.id, kind: 'items', prompt: itemPrompt(item, bible) });
   }
 
+  // UI materials come from the curated, already-approved set rather than the
+  // art bible: these have been generated and reviewed, and regenerating them
+  // from a reworded prompt would silently replace known-good artwork.
+  const curated = JSON.parse(await readFile(path.join(ROOT, 'tools', 'art-ui-curated.json'), 'utf8'));
+  const curatedIds = new Set(curated.assets.map((a) => a.id));
+  assets.push(...curated.assets);
+
   for (const ui of bible.uiAssetPrompts ?? []) {
+    if (curatedIds.has(ui.id)) continue;
     // Key art is the one UI asset that wants a cinematic aspect ratio.
     const kind = ui.id.includes('key-art') ? 'keyart' : 'ui';
     assets.push({ id: ui.id, kind, prompt: [ui.prompt, HARD_NEGATIVES].join(' ') });
