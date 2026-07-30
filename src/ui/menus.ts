@@ -1271,7 +1271,9 @@ export class Menus {
         // this happens here and not in applySettings. The rocker is corrected
         // from the document afterwards either way: a refused request must not
         // leave a switch claiming something the browser never did.
-        const p = v ? document.documentElement.requestFullscreen() : document.exitFullscreen();
+        // Optional calls: an embedded webview may not implement either, and a
+        // missing API should leave the switch corrected, not throw.
+        const p = v ? document.documentElement.requestFullscreen?.() : document.exitFullscreen?.();
         void Promise.resolve(p)
           .catch(() => undefined)
           .then(() => sync());

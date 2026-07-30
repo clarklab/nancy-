@@ -50,6 +50,11 @@
 .menu-layer {
   position: absolute;
   inset: 0;
+  /* Each screen is its own stacking context. Without this a `z-index` used
+     *inside* one layer — the title's type sits above its own artwork at z 1 —
+     resolves against the menu root instead, and the wordmark floats over every
+     screen opened on top of it. Layers must stack strictly by DOM order. */
+  isolation: isolate;
   display: grid;
   place-items: center;
   pointer-events: auto;
@@ -689,20 +694,42 @@
   animation-delay: calc(var(--dur-slow) * 3);
 }
 
+/**
+ * The colophon's own pool of shade.
+ *
+ * The vignette protects the left third of the frame, where the type lives; the
+ * bottom-right corner is wherever the painting happens to be brightest, and on
+ * the shipped key art that is breaking surf. Small tracked caps do not survive
+ * that on a text-shadow alone, so the corner gets its own soft falloff.
+ */
+.title-colophon::before {
+  content: '';
+  position: absolute;
+  inset: -2.5rem -3rem -2rem -4rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    130% 150% at 100% 100%,
+    color-mix(in srgb, var(--ink-abyss) 82%, transparent) 0%,
+    color-mix(in srgb, var(--ink-abyss) 40%, transparent) 55%,
+    transparent 78%
+  );
+}
+
 .title-version,
 .title-credit {
   margin: 0;
   font-family: var(--font-ui);
   font-size: var(--step--2);
   letter-spacing: 0.1em;
-  color: color-mix(in srgb, var(--ink-400) 88%, transparent);
-  text-shadow: 0 1px 4px rgb(0 0 0 / 0.8);
+  color: var(--text-secondary);
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
 }
 
 .title-credit {
   margin-top: 0.15rem;
   font-style: normal;
-  color: color-mix(in srgb, var(--ink-400) 70%, transparent);
+  color: color-mix(in srgb, var(--moon-300) 78%, transparent);
 }
 
 /* ===========================================================================
@@ -721,6 +748,7 @@
 
 .pause-card__where {
   margin: 0 0 var(--sp-5);
+  font-variant-numeric: lining-nums;
   padding-bottom: var(--sp-4);
   font-family: var(--font-body);
   font-size: var(--step--1);
@@ -813,7 +841,7 @@
 .mset {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  width: min(64rem, 92vw);
+  width: min(58rem, 92vw);
   height: min(42rem, 88vh);
 }
 
@@ -892,6 +920,8 @@
   padding: var(--sp-5) var(--sp-3);
 }
 
+/* An unselected tab is still navigation, so it stays legible: --text-muted is
+   an annotation colour and reads as disabled on a control you have to find. */
 .mset__tab {
   position: relative;
   min-height: 2.5rem;
@@ -902,7 +932,7 @@
   font-weight: 500;
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   background: none;
   border: 0;
   border-radius: var(--radius-sm);
@@ -911,7 +941,7 @@
 }
 
 .mset__tab:hover {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .mset__tab[aria-selected='true'] {
@@ -953,7 +983,7 @@
   font-size: var(--step--1);
   font-style: italic;
   line-height: var(--leading-body);
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .mset__foot {
@@ -1020,12 +1050,14 @@
   color: var(--text-primary);
 }
 
+/* A hint explains the setting above it and is read while deciding, so it sits
+   one step under the label rather than down at annotation level. */
 .mset-row__hint {
   font-family: var(--font-body);
   font-size: var(--step--1);
   font-style: italic;
   line-height: 1.35;
-  color: var(--text-muted);
+  color: color-mix(in srgb, var(--moon-300) 82%, transparent);
 }
 
 .mset-row__value {
@@ -1034,7 +1066,7 @@
   font-size: var(--step--2);
   letter-spacing: 0.04em;
   color: var(--accent);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 /* -- Brass fader ----------------------------------------------------------- */
@@ -1195,7 +1227,7 @@
   font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   transition: color var(--dur-med) var(--ease-out);
 }
 
@@ -1223,7 +1255,7 @@
   font-weight: 500;
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   background: none;
   border: 0;
   border-radius: calc(var(--radius-md) - 1px);
@@ -1235,7 +1267,7 @@
 }
 
 .mseg__opt:hover {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .mseg__opt.is-on {
@@ -1363,7 +1395,7 @@
 }
 
 .slot__stat {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .slot__name {
@@ -1380,6 +1412,7 @@
   font-size: var(--step-1);
   color: var(--text-primary);
   line-height: var(--leading-tight);
+  font-variant-numeric: lining-nums;
 }
 
 .slot__where--empty {
@@ -1503,6 +1536,13 @@
   overflow: visible;
   color: var(--paper-ink);
   background:
+    /* Toned edges. Paper ages from the outside in, and a sheet with a
+       perfectly even surface reads as card stock rather than a case file. */
+    radial-gradient(
+      124% 124% at 50% 42%,
+      transparent 52%,
+      color-mix(in srgb, var(--paper-400) 34%, transparent) 100%
+    ),
     linear-gradient(
       178deg,
       var(--paper-100) 0%,
@@ -1529,7 +1569,7 @@
   z-index: -1;
   background-image: var(--menu-grain-paper);
   background-size: 200px 200px;
-  opacity: 0.16;
+  opacity: 0.22;
   mix-blend-mode: multiply;
   pointer-events: none;
 }
@@ -1612,7 +1652,9 @@
 
 .dossier__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  /* Four across on the design floor, so the file reads as one banded row of
+     findings rather than three and an orphan. */
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
   gap: var(--sp-4);
   margin: 0 0 var(--sp-5);
   padding: var(--sp-4) 0;
@@ -1639,7 +1681,8 @@
   font-weight: 600;
   line-height: var(--leading-tight);
   color: var(--paper-ink);
-  font-variant-numeric: tabular-nums;
+  /* Cormorant defaults to oldstyle figures; in a tally they read as letters. */
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .dstat__note {
@@ -1652,12 +1695,20 @@
 
 /* -- The seal -------------------------------------------------------------- */
 
+/**
+ * Hung off the bottom corner rather than laid across the findings.
+ *
+ * A stamp lands where there is room on the page: level with the footer, where
+ * the only thing beside the centred button is margin. Sitting it higher put
+ * wax over the last column of the tally, which is the one thing on this screen
+ * the player is actually reading.
+ */
 .dossier__seal {
   position: absolute;
-  right: calc(var(--sp-6) * -0.5);
-  bottom: var(--sp-5);
-  width: 8.5rem;
-  height: 8.5rem;
+  right: calc(var(--sp-6) * -0.6);
+  bottom: calc(var(--sp-5) * -0.6);
+  width: 7.5rem;
+  height: 7.5rem;
   display: grid;
   place-items: center;
   /* Held high, tilted and transparent until the stamp comes down. */
