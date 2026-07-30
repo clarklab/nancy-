@@ -526,7 +526,11 @@ export class PuzzleHost {
    */
   private armSkip(def: PuzzleDefinition) {
     if (def.allowSkipAfterMs === undefined) return;
-    this.after(Math.max(0, def.allowSkipAfterMs), () => this.revealSkip());
+    // Guarded by identity, not by a flag: a puzzle closed before its timer
+    // fires must not offer the bail-out on whatever is opened next.
+    this.after(Math.max(0, def.allowSkipAfterMs), () => {
+      if (this.def === def) this.revealSkip();
+    });
   }
 
   private revealSkip() {
