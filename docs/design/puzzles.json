@@ -1,0 +1,292 @@
+{
+ "puzzles": [
+  {
+   "id": "puz-fused-commission",
+   "name": "The Fused Commission",
+   "act": 1,
+   "location": "The Ardent, cabin",
+   "type": "restoration / dexterity-lite",
+   "premise": "Spray has welded leaves 2 and 3 of Wren's own s.41 commission into one stiff biscuit of paper. Until the seal, the series schedule and Halkett's countersignature can be read she has no authority to open a door on Brannock Head. Field kit on the table, flat water for about four minutes.",
+   "interaction": "Top-down canvas bench. Click a tool to hold it: damp blotter, Gore-Tex membrane, microspatula, dry blotter, glass plate, weight. Correct play: damp blotter under, Gore-Tex over the fused corner, then WAIT while a brass hygrometer needle climbs; it must sit in the 68-72%RH band for one full sweep of the cabin clock (~40s real time, during which other cabin business is available). Then hold the mouse down and drag the spatula along each of three seam segments. The drag is speed-gated: a fibre-stress bar fills if the cursor exceeds ~40px/s or crosses one of the three drawn chain lines. Finish dry blotter, glass plate, weight. Hurrying does not fail; it tears, and the tear is permanent art on the document for the rest of the game.",
+   "solution": "Humidify to 68-72%RH for a full sweep of the clock, then separate the three seam segments with the spatula in slow strokes running from the tail edge inward, never across a chain line; blot dry, press under glass and weight.",
+   "solutionSource": "Card 3 in the lid of the Conservancy field kit ('HUMIDIFICATION AND SEPARATION: the sheet tells you when, you do not tell the sheet'), readable at any time; the RH band is printed on the hygrometer dial.",
+   "hints": [
+    "Wren, to herself: 'Eleven months on a parish register. Do it the way it is done.'",
+    "The kit lid falls open on its own with the corner of card 3 lifting: RELATIVE HUMIDITY 68-72. NOT ABOVE.",
+    "Halkett's covering note in the kit: 'If you find you are pulling, you are early. Put it down and count the clock. The paper will let go on its own or it will not let go at all.'"
+   ],
+   "reward": "A legible, valid commission, and if hurried a scarred one that Pike notices on sight and Pargeter mentions in Act V. Teaches skill 1 step zero, which the incinerator fragments, the Deakin letter and the razored Order Book all pay off.",
+   "implementation": "Canvas, single layer. State {rh, holdMs, segments:[bool,bool,bool], stress, torn}. Pointer speed sampled per rAF from delta/dt; chain lines are three x-ordinates with a 6px no-cross band; rh integrates while membrane is placed and decays otherwise. Win: three segments true. torn writes global flag commission_scarred."
+  },
+  {
+   "id": "puz-typewriter-survey",
+   "name": "Four Machines, Four Injuries",
+   "act": 1,
+   "location": "Warden's Office, Rolls Room, Registry Counter, Accounts Office; mounted at the Binding Room bench",
+   "type": "observation / spot-the-difference / classification",
+   "premise": "Standard conservation practice: before you date anything by its typescript, characterise every machine in the building. Four survivors, four specimen sheets, one album page in the casebook. Nobody in the building thinks this is anything but housekeeping.",
+   "interaction": "At each machine, click the keys of the standard specimen line (Conservancy card 7) to strike a sheet. At the Binding Room bench the four sheets mount on a light box. A circular 4x loupe follows the cursor. The player drags defect tags from a printed list onto individual glyphs: CLOGGED COUNTER, RIDING HIGH, DROPPING, DOUBLING, CHIPPED, BROKEN DESCENDER, WANDERING. Each machine needs its primary defect tagged on the right glyph. A fifth sheet then drops in unlabelled, the 1998 accident report from the coroner's file, and must be dragged onto one of the four albums.",
+   "solution": "Imperial 66 (Warden's Office): a with the counter filled solid, comma 0.4mm high, broken descender on y. Underwood 5 (Rolls Room): e riding 0.3mm above the baseline, wandering 3. Olivetti Lettera 32 (Registry): grey doubling from a slack ribbon vibrator, chipped l. Remington Noiseless (Accounts): heavy g from a bent typebar, capitals dropping 0.2mm. The unlabelled sheet is the Imperial 66.",
+   "solutionSource": "The specimens themselves at 4x; the defect vocabulary and a worked example of each named fault are printed on Conservancy card 7 in the field kit.",
+   "hints": [
+    "Casebook margin, in Wren's hand: 'A machine cannot help being itself. Four sheets, four albums, and no guessing.'",
+    "The loupe, left on the bench over the Imperial's specimen, sits on the word 'appraisal' with the two a's dark as full stops.",
+    "Halkett on procedure: 'You characterise, then you compare, then you date. If you compare before you characterise you will convince yourself of something and it will be struck.'"
+   ],
+   "reward": "Skill 2 taught and the album page opened. Every later attribution resolves against this page, and the Imperial's clogging a becomes a dating curve in Act IV.",
+   "implementation": "DOM album and tag list, Canvas specimen render. Specimens drawn glyph-by-glyph from a webfont with per-glyph y-offset, ink-blob overlay and alpha jitter, so defects are real pixels at any zoom. Loupe is a clip-path circle over a 4x-scaled duplicate canvas. State {sheets:{machineId:defectTag[]}, attribution}. Win: four primaries plus attribution."
+  },
+  {
+   "id": "puz-postmasters-register",
+   "name": "The Machine That Cannot Lie",
+   "act": 1,
+   "location": "The Post Room",
+   "type": "serial-record audit / mechanical operation",
+   "premise": "Wren's warrant lets her open a franking meter, which is a GPO offence for everyone else in the building. Reconciling the day's post book against the meter's two registers is a competence test she sets herself. It is also five minutes' training on a machine nobody in 187 years has thought of as a witness.",
+   "interaction": "Three-part panel. (1) Unlock the meter with the warrant key and crank the register drum: two windows scroll, DESCENDING credit and ASCENDING impressions since 1961. Read both and enter them in the casebook. (2) The day's post book has sixteen entries; drag each into the reconciliation column, which casts its own total so arithmetic is never the obstacle. (3) The columns do not agree, and the player must find the missing impression in the third book on the shelf.",
+   "solution": "Descending register fell GBP 4.24. Post book totals GBP 4.11. Ascending counter advanced 17 against 16 entries. The seventeenth impression is the 13p test strike Enid takes on a scrap every morning to prove the die, entered in the Meter Card Book and never in the post book. 4.11 + 0.13 = 4.24.",
+   "solutionSource": "Enid's Post Room standing instructions pinned above the bench, rule 6: 'The die is to be tested upon a scrap each morning and the impression carried to the meter card.' The Meter Card Book is on the shelf directly under the notice.",
+   "hints": [
+    "Wren: 'Two registers and a book. One of the three is wrong, and it will not be the registers.'",
+    "The pinned instructions are curling; rule 6 is the one with the drawing-pin through it.",
+    "Halkett: 'A meter counts impressions, not intentions. If it says seventeen there were seventeen, and your job is to find the one nobody thought worth writing down.'"
+   ],
+   "reward": "Skill 4 taught. The player learns that a counter-versus-log discrepancy usually has a boring explanation, which is exactly why the 1974 ones land: 437 against 223 on the Reprax, 213 against 214 on the meter, 41 against 12 on the day Sallow died.",
+   "implementation": "DOM. Register windows are two odometer strips animated by a crank drag (transform: translateY per digit wheel). Post book rows are draggable list items; the reconciliation column recomputes in pence and renders as GBP. State {descRead, ascRead, rows:[id], claimedExplanation}. Win: totals reconcile and the Meter Card entry is cited."
+  },
+  {
+   "id": "puz-ash-grate",
+   "name": "The Ash Grate",
+   "act": 1,
+   "location": "Courtyard incinerator, 01:20; then the Binding Room bench",
+   "type": "restoration / assembly (jigsaw) + register cross-check",
+   "premise": "Somebody was burning paper in the rain at twenty past one in the morning and the flue would not draw. The ash grate is a sodden black brick. If she leaves it until morning the fragments dry to the iron and go to dust.",
+   "interaction": "Stage A, rain, hooded torch: rake the grate, then float fragments off the brick one at a time into a tray of cold water. Each lift is a slow drag; too fast and that fragment crumbles. Fourteen fragments, nine load-bearing, passable with eleven. Stage B, Binding Room light box: rotate-and-snap jigsaw, 5-degree steps on the wheel or right-drag, snapping when an edge is within tolerance AND the char line and ribbon impression continue across the join. Stage C, Long Registry: page the Register of Notices Issued 1974 and enter the anomaly in the casebook.",
+   "solution": "The assembled carbon is Notice to Mariners 74/119, drafted 15 August 1974: MARINERS ARE ADVISED THAT THE LIGHT EXHIBITED FROM THE NINE BELLS BEACON MAY NOT BE RELIED UPON UNTIL FURTHER NOTICE. The Register of Notices Issued for 1974 runs 74/117, 74/118, 74/120. No cancellation, no minute, no gap explained.",
+   "solutionSource": "Card 3 for the wet handling; the char pattern itself, since paper curls toward the fire and the blackest edge is the outside edge and belongs at the perimeter; the Register in the Long Registry, shelf 1/A/9.",
+   "hints": [
+    "Wren, in the rain: 'Cold water. Nothing warm, nothing quick. It has already been on fire once.'",
+    "Two fragments in the tray drift together and the typed line runs across the join: MAY NOT BE RELIED.",
+    "Halkett, told only that a notice has been recovered: 'Then it has a number, and every number issued in this country since 1855 is in a register. Go and look at the register. That is the whole of my advice and it is enough.'"
+   ],
+   "reward": "The Act I cliffhanger and the game's first hard object: a warning that was written and never sent. Opens series 14/B as a line of enquiry and puts a burner in the courtyard forty hours after Wren's arrival.",
+   "implementation": "Canvas. One source image cut into 14 irregular polygons at build time; each piece is a path + transform in state {pieces:[{id,x,y,rot,placed}]}. Snap when centroid offset < 14px and rotation within 5 degrees of true. Stage A is a separate canvas with a per-fragment integrity value driven by drag speed. Win: 11+ pieces placed, then the register lookup flag."
+  },
+  {
+   "id": "puz-forty-seven-cards",
+   "name": "The Forty-Seven Cards",
+   "act": 2,
+   "location": "The Rolls Room, drawers 214-216",
+   "type": "sorting / logic-grid deduction",
+   "premise": "Sixty thousand cards in four hundred drawers, and an index more honest than the archive it describes, because weeding a file is an afternoon and weeding an index is a fortnight. Wren is sorting three drawers as a routine condition survey and is about to find the shopping list for the next two acts.",
+   "interaction": "A scrollable grid of 180 cards; each can be lifted, turned edge-on and loupe'd. Three physical attributes read: card stock (buff ribbed laid with a maker's edge stamp, or white smooth wove), ribbon (purple silk with a fibrous halo, or black nylon with a sharp edge) and typeface (the four Act I albums plus pre-war originals). Drag cards into three trays. Stage 2 is cross-reference: each of the forty-seven carries an accession number, and the strongroom shelf list and box contents sheets are open alongside; drag each number onto CARD AND PAPER or CARD ONLY. Seven end in CARD ONLY and are written into the casebook as a want-list.",
+   "solution": "Forty-seven cards, all on white smooth wove not manufactured before 1987, all typed on the Underwood 5. Seven accession numbers have no paper behind them: 14/B/4/07 Oil and Stores Nine Bells 1974; 14/B/17/02 Lamp Superintendent's report 15.8.74; 14/B/17/05 Requisition R.741; 14/B/17/11 Requisition R.748; 14/B/17/16 Requisition R.755; 14/B/17/19 Despatch docket, Notices to Mariners, 16.8.74; 14/B/17/23 Memorandum, Warden's Office to Cashier, 6.11.74.",
+   "solutionSource": "The Act I typewriter album identifies the Underwood, which stands four feet from Ottoline's chair. Enid's stationery invoices in the Accounts Office date the white wove stock to a first delivery in March 1987. The shelf list and box contents sheets are requisitionable at the Registry counter.",
+   "hints": [
+    "Wren: 'Sort by the object, not the words. Stock, ribbon, type. The words are what somebody wanted you to read.'",
+    "Ottoline, delighted, over tea from drawer 388: 'Oh, now, the cards have never been retyped, dear. Not in my time. And I have been here since the Ark.'",
+    "Halkett: 'An index is a claim about a holding. Test it the only way there is: ask the holding. A card with no paper behind it is not an error, it is an event.'"
+   ],
+   "reward": "The want-list that drives Acts III and IV, and the first proof that the archive lies by omission rather than forgery. Also plants Memorandum W/O 89/2 as the obvious and wrong answer.",
+   "implementation": "DOM grid with CSS transforms for the lift/turn; loupe is a scaled background-position window. Each card is data {id, stock, ribbon, face, accession, hasPaper}. Trays are drop targets; stage 2 is a two-column drop board. Win: the 47-set isolated with no more than two misfiles, then all seven CARD ONLY numbers correct. Misfiles are silently corrected by Ottoline overnight, which is itself characterisation."
+  },
+  {
+   "id": "puz-three-movements",
+   "name": "The Three Movements",
+   "act": 2,
+   "location": "The Strongroom door",
+   "type": "mechanical linkage / combination derived from records",
+   "premise": "A Chubb three-movement timelock has no keyhole. It cannot be picked, drilled or reasoned with; it can only be told the truth about what hours this building keeps, and it has been told them by hand every working day since 1946.",
+   "interaction": "Canvas: three brass movements with ratcheted winding keys and 0-48 / 0-72 hour scales, a cast instruction plate, and a spoked handle. Dragging a key winds in quarter-hour clicks with an audible ratchet. When all three needles are right the handle takes; otherwise it turns dead against the dogs with the note 'The movements are not in agreement.' The Warden's Order Book working copy can be carried to the door and paged there, so nothing has to be memorised.",
+   "solution": "Movement I (ordinary day) 15 and a quarter hours: close 17:30, open 08:45. Movement II (Saturday) 44 and a quarter hours: close 12:30 Saturday, open 08:45 Monday. Movement III (the interval last set) 15 hours, from the Order Book entry for 14 September 1998: 'strongroom wound, closed 17:00, to open 08:00.' Then handle three-quarters anti-clockwise and lift the lever.",
+   "solutionSource": "The instruction plate names the three movements. The Warden's Order Book records the closing hour of every working day since 1946, Saturdays included, and the entry of 14 September 1998 is where the third number lives, and is itself evidence: somebody wound the strongroom at five o'clock on the evening a man died in this building.",
+   "hints": [
+    "Wren: 'It does not want a number I invent. It wants a number this building already keeps.'",
+    "The instruction plate, brass, cast 1911: MOVEMENT I ORDINARY DAY. MOVEMENT II SATURDAY. MOVEMENT III THE INTERVAL LAST SET.",
+    "Pike, without looking up: 'Order Book. Closing hour, every day since the war. Saturdays are not weekdays and 1974 is not 1998, and if you cannot manage that you have no business behind that door.'"
+   ],
+   "reward": "The strongroom, series 14/B, the japanned deed box and page two of Notice 74/119 on blue-black flimsy. Also, at 18:20, the door swinging to behind her.",
+   "implementation": "Canvas dials with drag-to-wind: angular delta accumulates into quarter-hour detents, needle eased per frame. State {m1,m2,m3} in quarter-hours. Win: [61,177,60] quarters exactly, then a handle drag past 270 degrees. The Order Book is a separate paged DOM panel openable over the canvas."
+  },
+  {
+   "id": "puz-bottom-shelf",
+   "name": "Bottom Shelf",
+   "act": 2,
+   "location": "The Strongroom, 23:40, in four inches of water",
+   "type": "triage under pressure (dexterity-lite) + audio transcription",
+   "premise": "The undercroft sump has backed up in the rain and water is coming under the door to ankle depth. The door will not release until seven. There is nothing to deduce here: twenty-four boxes on the bottom shelf, a failing torch, and about forty minutes.",
+   "interaction": "Stage A: near-black canvas; a torch cone follows the cursor and its radius shrinks on a battery curve. Shelf-mark stencils are legible only inside the cone. Click-and-hold two seconds lifts a box to the top shelf; the water line rises an inch every ~40s and boxes below it are marked wet. About eleven of twenty-four can be saved. No timer is displayed; the water is the timer. Stage B: afterwards, the ventilation trunk carries two women arguing over a muffled bed. The transcript pad shows dashes and fills in only what is actually audible, with three replays. Every fragment committed to the casebook must be flagged SURE or NOT CERTAIN, and the speaker field offers named options and 'a woman'.",
+   "solution": "Stage A: save what is not on film. The Duplicating Room's microfilm accession register lists 1/A, 2/C and 9/E as filmed in 1994; 14/B is not on it. Save the nine 14/B boxes (1-8 and 17) and the japanned deed box, and leave the filmed series. Stage B: transcribe the three fragments and attribute none of them. Naming a speaker records a certainty Wren does not have, and Pargeter strikes it in Act V.",
+   "solutionSource": "The microfilm accession register in the Duplicating Room, readable from Act I. Standing Order 12 on the strongroom wall: 'In flood, save by series, not by size.' The transcription discipline is Halkett's, stated in Act I and printed in the casebook's citation column.",
+   "hints": [
+    "Wren, out loud, to nobody: 'One. Which of these exists anywhere else. Two. Nothing else matters.'",
+    "The torch, swung along the top shelf, catches the microfilm register's twin volume, stencilled FILMED 1994 - SERIES 1/A 2/C 9/E.",
+    "Halkett, next morning, on procedure: 'You will want to say who it was. You will be asked how you know, in a room, by a man paid to ask, and if the answer is that you were frightened and it was dark, he will strike it and he will be right.'"
+   ],
+   "reward": "Page two of the notice, the deed box, and the argument. Boxes left in the water come back in Act IV with tide-lines and illegible passages, which costs citations at the Board: the first consequence the player can feel and cannot undo.",
+   "implementation": "Canvas with a radial-gradient mask composited over the scene for the torch, waterline as a rising rect with a refraction shimmer. State {boxes:[{mark,saved,wet}], waterY, battery}. Stage B is DOM over a WebAudio bed (band-limited noise plus two formant-filtered synth voices, replays gated to three); committing a named speaker sets flag false_attribution, consumed by the Act V board."
+  },
+  {
+   "id": "puz-deakin-authentication",
+   "name": "Five Steps on the Deakin Letter",
+   "act": 3,
+   "location": "The Binding Room bench",
+   "type": "forensic / optical multi-tool authentication",
+   "premise": "Rita's letter says the beacon was dark and the crew were told to say nothing. It is the only evidence in existence for the thing Wren now believes. Her commission obliges her to authenticate it before she can cite it, and she cannot make an exception for a document she wants to be true.",
+   "interaction": "Five stations, workable in any order. (1) RAKING LIGHT: drag a lamp arm around a 180-degree arc; at about 15 degrees a watermark rises out of the sheet. (2) CHAIN LINES: drag a beta-radiograph reference sheet over the letter and click each chain line inside a 25mm window to count them. (3) FIBRE LOUPE at 40x: click three sample points and a fibre plate names what is there. (4) POSTMARK: read the frank at zoom, then look the office up in the paged Post Office gazetteer of sorting offices. (5) RIBBON INK: overlay the typescript on each of the four Act I albums. An optional sixth: take a specimen from the Adler Gabriele in Rita's locker in the Lamp Room and overlay that. Each station is marked PASS or FAIL on the report form and the finding line is a free choice.",
+   "solution": "Steps 2, 3 and 5-against-the-office-machines pass or are neutral. Step 1 fails: the watermark is ARDWELL BOND, first manufactured June 1981. Step 4 fails: the frank is Cardew sorting office, which struck its last item on 30 September 1972. Optional third tell: the typescript matches the Adler Gabriele in Rita's locker, on a nylon ribbon not sold for that machine until 1979. Finding: not genuine; this sheet cannot have existed on 4 March 1975.",
+   "solutionSource": "The Conservancy paper-stock gazetteer and beta-radiograph reference sheets in Wren's kit; the Post Office gazetteer of sorting offices in the Reading Room; the four specimen albums from Act I; the Adler in the Lamp Room locker, findable but never signposted.",
+   "hints": [
+    "Wren: 'Five steps. Do all five. Doing four is how you get the answer you came in with.'",
+    "The gazetteer lies open at the A's; ARDWELL BOND has a first-issue date in the right-hand column.",
+    "Halkett, asked what happens if it fails: 'Then you write that it failed, in the same words you would have used if it had passed, and you send it. No, that is not a question for me either. Have you eaten?'"
+   ],
+   "reward": "The truth at the worst possible price: an honest adverse report, Rita arrested at 17:15 on 31 October, and Wren's commission revoked at 16:20 the next afternoon. The game records whether any step was fudged and Pargeter has the report in his file in Act V.",
+   "implementation": "DOM bench with five Canvas widgets. Watermark is a second canvas layer whose alpha is a function of lamp angle; chain lines are click-tally with a tolerance of +/-1; gazetteers are paged, indexed DOM books with real lookup. State {steps:{id:'pass'|'fail'|null}, finding, fudged:bool}. Win: report filed. Fudged is set if any objectively failing step is marked pass."
+  },
+  {
+   "id": "puz-chart-loft",
+   "name": "Three Flashes",
+   "act": 3,
+   "location": "The Chart Loft light table; the Rossport call box for stage A",
+   "type": "audio-rhythm timing + map/navigation registration",
+   "premise": "For twenty-four years the strongest evidence that the Nine Bells was burning has been a truthful nineteen-year-old who saw three flashes, and nobody ever asked her to count the seconds. Under the same lamp, three surveys of the same water disagree about where a ship was.",
+   "interaction": "Stage A, the call box: Norah Feaver taps the rhythm she remembers on her kitchen table against her kitchen clock, through a telephone band-pass. A stopwatch: click on the first flash, click on each subsequent one, click on the first of the next group; the readout gives group count and period. Then drag the measured characteristic onto an entry in the paged Admiralty List of Lights 1974. Stage B, the light table: three transparencies over a base sheet, each drag-moved, wheel-rotated and shift-wheel-scaled until its three triangulation marks (Brannock trig pillar, St Bride's tower, Sowens beacon) sit inside a 6px tolerance. A dividers tool measures against the printed scale bar. Two readings are entered in the casebook.",
+   "solution": "Stage A: three flashes, period 15 seconds. Nine Bells is Fl(3) W 20s; Cadran Point, nine miles SSE, is Fl(3) W 15s. Norah saw Cadran and told the exact truth for twenty-four years. Stage B: registered on the trig marks, the Inquiry's reconstructed track lies 340 yards east of the position in the finding and dead on the line a competent pilot would steer; and the 1948 sheet carries a 20ft by 12ft chamber under the north end of the undercroft that appears on no plan after 1975.",
+   "solutionSource": "Admiralty List of Lights 1974 on the Chart Loft shelf; the chart of Ivory Sound with its scale bar; the triangulation marks printed on all four sheets; the 1974 buoyage revision's own legend.",
+   "hints": [
+    "Wren: 'Three flashes is not a light. Three flashes and a period is a light.'",
+    "The List of Lights is open at Ivory Sound; two entries on the same page begin Fl(3) W and end differently.",
+    "Halkett: 'You do not register a survey by eye and you do not register it on the coastline. You register it on the marks the surveyor put there for the purpose, and if the marks will not lie down together the sheets are not of the same date.'"
+   ],
+   "reward": "The single load-bearing error of the 1975 finding, and Emrys Tain exonerated by tracing paper and a pair of dividers. Also the sealed chamber, which is where Act III goes next with a crowbar.",
+   "implementation": "Stage A: WebAudio transients through a 300-3400Hz band-pass; taps timestamped from audioContext.currentTime, tolerance +/-1.2s on the derived period. Stage B: four stacked canvases with per-layer affine transforms; registration test is max residual of three mark pairs under 6px. State {period, lightId, layers:[{x,y,rot,scale}], readings}. Win: correct light plus both readings recorded."
+  },
+  {
+   "id": "puz-tide-room",
+   "name": "The Room That Was Not There",
+   "act": 3,
+   "location": "The Undercroft north wall and the Tide Room",
+   "type": "mechanical restoration + graph reading",
+   "premise": "Nine courses of brick in a Portland stone opening, laid in cement twenty-three years younger than the wall around it, on Works Order 75/188, 'seal chamber, damp', initialled p.p. Behind it a machine has been waiting since 1908 to be asked a question, and nobody has wound it since 1975.",
+   "interaction": "Stage A: horizontal rain, site floodlights. Hover the wall for a resistance readout; the newer cement joint reads soft. Seat the crowbar in the joint, then pull with a power meter that must be released inside a band, three times, one per course. Wrong joint gives no progress and no penalty. Stage B: recommission the marigraph as an ordered sequence of six drag operations; out-of-order steps do nothing and the pen stays dry. Stage C: mount drum 1974/44 and drag the predicted-tide transparency from the Admiralty tide tables over the trace; a vernier cursor reads off the difference at a chosen time.",
+   "solution": "Stage A: the light-coloured joint, third course up, is the 1975 cement; three pulls bring the panel in. Stage B, in order: hang the driving weight; ship the drum on its spindle; smoke and mount the paper; re-ink the pen and set it to the datum; engage the clutch; wind the clock. Stage C: at 23:04 on 3 November 1974 the trace stands 1.4m above prediction, giving 4.2m over the Sowens shoal. The Inquiry assumed 2.8m.",
+   "solutionSource": "The Kelvin & White instruction plate inside the case ('TO SET GOING'), which lists the six operations in order; Sandbach's mortar note in the site hut on the two cements; the Admiralty tide tables for 1974 in the Chart Loft; the Inquiry's assumed depth in the finding, paragraph 44, which Rita can recite from memory.",
+   "hints": [
+    "Wren: 'It was walled up in June 1975. The wreck was November 1974. That is not damp, that is a decision.'",
+    "The instruction plate is under sixty years of salt; wiped, the numbered list is legible.",
+    "Halkett: 'An instrument that has been stopped proves nothing until it is running, because a stopped instrument is somebody's word for what it said. Start it in front of yourself, watch it write, and then read the old drums.'"
+   ],
+   "reward": "The marigraph writing again, sixty-seven years of drums, and the Rossport Inquiry's own working papers, returned in 1975 and walled in the same month, including the List of Persons Considered and Not Called. The one bundle in the building nobody could weed, because it was never accessioned.",
+   "implementation": "Stage A: Canvas, per-joint hit regions with a hidden hardness value, plus a sweeping power meter (release inside band). Stage B: DOM ordered-action list, six draggable operations onto the machine, validated against a fixed permutation. Stage C: Canvas with the drum trace as a polyline and the prediction as a second polyline on a draggable layer; vernier reports dy in metres. Win: reading within 0.1m at 23:04."
+  },
+  {
+   "id": "puz-reconciliation",
+   "name": "The Third Column",
+   "act": 3,
+   "location": "Pike's cottage, Cardew, the kitchen table; then the Post Room",
+   "type": "ledger audit / arithmetic deduction (the game's thesis as a mechanic)",
+   "premise": "Three books under a bare bulb: the Light Dues Ledger, the Oil Requisition Book for the Nine Bells 1966-1980, and the Keeper's Wage Sheets. A blank Conservancy reconciliation form. Nobody has ever put these three books on the same table before, because they were kept in three different rooms by three different people who each did their job correctly.",
+   "interaction": "A ruled form, 27 week-rows, four columns: DUES COLLECTED, WAGES PAID, OIL DRAWN, DIFFERENCE. The three books are open and pageable. Click a line in a book, click a cell, and the value transfers; the form casts each column on demand with a pounds-shillings-pence ready-reckoner, so arithmetic is never the obstacle and transcription is. When the form is complete the player writes the finding line into the casebook from a free field with unit boxes. Then a coda in the Post Room: cross-total the franking meter recharges of 2 August and 4 September 1974 against the despatch docket just carried out of this cottage.",
+   "solution": "Dues collected every week. Wages paid every week. Oil drawn 24 August 1974 and never again. Seventy-one days; ten complete dues weeks; 1,182 vessels charged GBP 4,180 4s 0d for a light that was not burning; GBP 200 4s 0d paid over eleven weeks to a keeper who was not there. Post Room coda: the 16 August despatch cost GBP 3 11s 0d, which is 852 pence, which is 213 impressions at fourpence, against a docket, a post book and a distribution list that all say 214.",
+   "solutionSource": "The three books and nothing else. The fourpenny rate is on the docket foot ('214 @ 4d - GBP 3 11s 4d'); the meter recharge readings are in the Meter Card Book, which the player learned to read in Act I.",
+   "hints": [
+    "Wren: 'Cast it week by week. Do not skip to the end. The end is where you make things up.'",
+    "Pike, from the doorway, not helping: 'Three books. If they agreed you would not be sat in my kitchen at one in the morning.'",
+    "Halkett: 'A reconciliation has no opinion in it. You fill it in and then you read what it says, and if you cannot bear what it says that is not a reason to have filled it in differently.'"
+   ],
+   "reward": "The Act III cliffhanger. No hint, no highlight, no chime: when the third column refuses to agree the score simply stops and the only sound for eleven seconds is rain on a kitchen window at Cardew. The player now holds the concealment, the omission, and fourpence.",
+   "implementation": "Pure DOM table, 27 rows x 4 cells, values as {pounds,shillings,pence} or gallons. Books are paged panels whose lines are drag sources. Casting is a button per column; totals render in old money. Win: all rows transcribed correctly and the finding line's four unit boxes match 4180/4/0, 1182, 71, 200/4/0. On the winning cast the audio bus fades all music to silence for eleven seconds by scripted effect, not by cue."
+  },
+  {
+   "id": "puz-per-procurationem",
+   "name": "Per Procurationem",
+   "act": 4,
+   "location": "The Chart Loft light table; the Muniment Room for stage C",
+   "type": "sorting / deduction + optical mirror-decoding",
+   "premise": "Forty-eight documents signed A. FERRIER, drawn from four separate custodies so that no one custodian could have faked the set: the strongroom, Pike's cottage, Enid's ledgers and Ottoline's biscuit tin. Sort them into two piles: signed, and signed on behalf of. Wren has known what p.p. means since her first morning, when a kind old woman taught her as an item of housekeeping.",
+   "interaction": "Stage A: forty-eight document cards on the light table, each zoomable to 200% where a 2mm 2H pencil notation in the lower left corner is either there or is not. Two trays, SIGNED and P.P. No counter, no running score, no colour coding. Stage B: the casebook demands two dates in date fields, typed unaided, with no list to choose from. Stage C, the Muniment Room: the Warden's Order Book 1972-76 with its leaves razored out at the gutter. Drag the lamp to rake the facing page at a shallow angle and drag a shaving mirror into position; where the two align, mirror-image offset ink resolves into readable text. Three passages must be found and transcribed, then three independent proofs of incapacity dragged into the citation column.",
+   "solution": "41 and 7. Every document dated 11 August to 3 November 1974 is per procurationem; the seven genuine, shaky, unmistakably male signatures are dated 2, 5, 7, 9 and 10 August and 18 and 26 November. Boundary dates 11 August 1974 and 18 November 1974: ninety-nine days. Recovered from the offsets: the deferment of the relief keeper of 18 August with wages to continue, the refusals of R.741 and R.748, and the instruction to continue the wages. Three proofs of incapacity: Dr Munn's locum mileage claims from 12 August; Nurse Kilbride's ledger ('hemiplegic R side, no speech, cannot hold pen, wife present'); the offsets themselves.",
+   "solutionSource": "The documents. Ottoline's requisition-slip lesson in Act I ('if the Warden's out, her clerk initials it p.p., on behalf of'), Standing Order 4 printed in the Registry, and Article 9 of the Charter of 1811 in the Board Room charter case, which reserves the office to a man of full age.",
+   "hints": [
+    "Wren: 'Bottom left corner. Two millimetres. Every one of them, and no assuming.'",
+    "Ottoline's voice, remembered, over the tray: 'Per procurationem, dear. On behalf of. We have done it since the Ark.'",
+    "Halkett, told the count is 41 and 0: 'Then nothing was forged and you have no forgery case. What you have is a question nobody has ever been obliged to answer, which is who. That is not a question for me. It is very much a question for you.'"
+   ],
+   "reward": "The twist, performed rather than narrated. The player has proved that the Authority of 11 August to 3 November 1974 was one person, and that no law required anybody to write down which person.",
+   "implementation": "Stage A: DOM card table with a Canvas zoom viewer; the p.p. mark is drawn at native resolution so it only resolves above 150%. State {tray:{docId:'signed'|'pp'}}. Stage B: two date inputs, exact match required, no autocomplete. Stage C: Canvas with a raking-light shader-ish alpha ramp (offset-ink layer alpha = f(angle)) plus a draggable mirror rect that horizontally flips whatever it covers. Win: 48/48 sorted, both dates exact, three passages read, three citations dropped."
+  },
+  {
+   "id": "puz-switchboard",
+   "name": "The Night Plug-Log",
+   "act": 4,
+   "location": "The Switchboard Room",
+   "type": "mechanical linkage / reconstruction from a shorthand record",
+   "premise": "A twelve-line plug board, six cord pairs, and a call-log book that records cord numbers and durations because the night clerk was nineteen and paid to be quick, not descriptive. The board has not been patched since 1991. Everything that happened in this building on the night of 3 November 1974 went through these twelve holes.",
+   "interaction": "SVG board: twelve jacks in two rows (nine internal extensions, three trunk lines), six cords drawn as draggable beziers with a plug at each end, six listening keys and a lamp field. The log book, the 1974 internal directory and the night-duty roster lie open beside it. The player patches each logged call by plugging both ends and throwing the key; a correct patch lights the lamp field in the pattern the log records and writes a reconstructed line into the casebook. Six calls in sequence, the last three tumbling over each other. Then a separate drag: match the two trunk calls to the GPO itemised account in the Accounts Office telephone file.",
+   "solution": "22:34 IN, trunk 3, Rossport Coastguard to extension 2, the Warden's Office, six minutes. 22:41 OUT, extension 2 to trunk 1, Cardew 4471, four minutes, no reply. 23:06 coastguard relay, 23:11 harbourmaster, 23:19 Rossport. The 1974 directory lists Cardew 4471 as the public call box outside Cardew Post Office, forty yards from the front door of the relief keeper who should have been on the rock. The GPO account confirms it from outside the building: '3.11.74 CARDEW 22.41 4 min 1s 9d', initialled EC.",
+   "solutionSource": "The call-log book for 3 November 1974; the 1974 internal directory hanging on a nail by the board; the night-duty roster; the GPO itemised trunk account for Q4 1974 in Enid's telephone file.",
+   "hints": [
+    "Wren: 'The log gives me cords and minutes. The board gives me who. Both, or neither.'",
+    "The directory is thumbed open at C; CARDEW 4471 is annotated in pencil, 'call box, P.O., for the relief boatman.'",
+    "Iveson, on the telephone from Rossport: 'Their own book, is it. Their own book is their word for it. Find me somebody outside that building who wrote it down for money.'"
+   ],
+   "reward": "Twenty-three minutes before impact, somebody in an empty office rang a man who was in the pub and let it ring for four minutes. Corroborated by strangers. Link 8's knowledge component, and the last thing anybody needed to know about the night of 3 November 1974.",
+   "implementation": "SVG. Cords are quadratic paths whose control point sags under a fake gravity while dragged; jacks are circles with drop tolerance. State {cords:[{a,b,keyThrown}], solvedCalls:[]}. Validation is per logged call against a fixed {from,to} pair plus key state; a wrong patch buzzes and unplugs itself. Win: six calls reconstructed plus the GPO line matched."
+  },
+  {
+   "id": "puz-september-spool",
+   "name": "The September Spool",
+   "act": 4,
+   "location": "The Stationery Store, then the Binding Room bench",
+   "type": "cipher / decoding (mirror-reversed serial record)",
+   "premise": "Enid Charnock's stationery rule 4, instituted 1968 and enforced without mercy: no new typewriter ribbon is issued until the used spool is returned. Two hundred and forty docketed spools on a shelf. One of them is the Imperial 66's, returned 21 September 1998, and a fabric ribbon remembers everything typed on it, once, in order, backwards.",
+   "interaction": "Mount the spool on a winder. Drag the crank to advance the ribbon under a fixed magnifier; the strip renders as struck-through mirrored impressions running right to left. Two toggles, MIRROR and REVERSE, orient it; a focus slider sharpens it. The transcription is not typed by the player, it is revealed as she winds. The puzzle proper is the sequence proof: drag markers onto a ribbon timeline for every splice, eyelet and colour break she can find, then place two dated markers for the two passages, then commit the assertion. Committing 'no ribbon change between' while a splice is unmarked is possible, and wrong, and struck in Act V.",
+   "solution": "MIRROR on, REVERSE on. Between the two dated passages there is no splice, no eyelet and no colour break: the sequence runs unbroken from 12.9.98, 'I know what you mean to send. Please do not send it. There is nothing in it that can help anybody now. S.', a letter typed and never sent, directly into the accident report of 14 September 1998. Two splices exist elsewhere on the spool, at the head and at 8 September, and both must be marked.",
+   "solutionSource": "Enid's stationery ledger, rule 4, and the docket tied to this spool ('IMPERIAL 66 - W.O. - fitted 2.9.98 - returned 21.9.98'); the Act I specimen album, which proves the machine; the Act I typewriter survey, which taught what a ribbon does.",
+   "hints": [
+    "Wren: 'A ribbon is a serial record. It has no memory of what it was for and no reason to lie about the order.'",
+    "Enid, before she resigns: 'I don't keep used ribbons, whatever would I want with used ribbons.' Her own ledger, rule 4, is on the shelf above the two hundred and forty of them.",
+    "Halkett: 'The words are not your evidence, the sequence is. Anyone can produce a sentence. Nobody can produce a sentence that has another sentence physically behind it on the same strip of fabric.'"
+   ],
+   "reward": "Link 5. She knew what Cormac Sallow meant to send, two days before he died, and has denied it in writing three times. The most quietly devastating object in the building, preserved by nothing nobler than a stationery economy.",
+   "implementation": "Canvas strip scrolled by crank drag (position in ribbon-millimetres); text drawn to an offscreen canvas then blitted with scaleX(-1) and/or rotate per toggle, with a blur filter driven by the focus slider. State {pos, mirror, reverse, markers:[{mm,kind}], assertion}. Win: both splices marked, both passages marked, assertion committed as 'no ribbon change between'."
+  },
+  {
+   "id": "puz-the-optic",
+   "name": "First Light",
+   "act": 5,
+   "location": "The Nine Bells Beacon, Lantern Room, dawn, 3 November 1998",
+   "type": "mechanical assembly + timing / the one thing in the game that is not evidence",
+   "premise": "The optic has been dead since 1974 and it is incomplete, because two Fresnel panels went to Antwerp in a packing crate. Ivo Sandbach drove to Rossport at four in the morning and bought one back off a shipping agent with money he does not have, and handed it over wrapped in a fleece, and said nothing. There is no reason to do this. Wren does it anyway.",
+   "interaction": "Three stages on one canvas. (1) SEAT THE PANEL: drag and rotate the Fresnel panel into the bronze frame until its lands register, then click six clips. They must be worked in opposed pairs; taking them round the ring in order visibly bows and then cracks the glass, recoverable once, with a long shame-faced beat. (2) SET THE CHARACTER: three brass occulting sector plates drag around a 360-degree ring marked in degrees; the governor turns the drum once in twenty seconds, so eighteen degrees is one second. A live observer preview at the side shows what a ship nine miles out would see, with a stopwatch readout naming the resulting character. The wrong answer is available and named: 27-degree spacing reads Fl(3) W 15s, CADRAN POINT, and Wren will not have it. (3) WIND AND SET: crank the weight to the top of its fall, then set the escapement release dial to 23:04.",
+   "solution": "Clips in opposed pairs, 1-4-2-5-3-6. Sector plates at 0, 36 and 72 degrees: flashes at 0, 2 and 4 seconds, then an eclipse of sixteen. Fl(3) W 20s, the true character of the Nine Bells. Wind to full fall. Release at 23:04.",
+   "solutionSource": "The Admiralty List of Lights 1974, carried out of the Chart Loft in Act III, and Norah Feaver counting on a kitchen clock in Wolverhampton. The 1908 optic maintenance instruction bolted inside the lantern door gives the governor rate (eighteen degrees the second) and the clip sequence ('BOLTS TO BE SET IN OPPOSED PAIRS').",
+   "hints": [
+    "Wren: 'Three flashes in twenty seconds. Not fifteen. Fifteen is nine miles south-south-east and it has never once been wrong.'",
+    "The instruction plate inside the lantern door, brass, 1908: ONE REVOLUTION IN TWENTY SECONDS. EIGHTEEN DEGREES THE SECOND.",
+    "Rita, from the gallery, not looking at her: 'Two seconds apart. That's what it was. I was five and I could tell it from Cadran with my eyes shut in the back of my dad's van.'"
+   ],
+   "reward": "At 23:04 that night, from the Board Room window, from St Bride's churchyard, from Rossport quay, from Cardew and from the ferry, the Nine Bells shows three flashes in twenty seconds for the first time since 24 August 1974, and nobody on that coast needs it explained to them. Happens in every ending, unscored, unremarked.",
+   "implementation": "Canvas. Stage 1 is drag+rotate with a snap and an ordered click list validated against [1,4,2,5,3,6]; wrong order animates a bow then a crack sprite and resets once. Stage 2 is three draggable sector angles quantised to 1 degree, with a live preview loop driven by rAF at 18deg/s that emits flash events and derives the character string. Stage 3 is a crank counter and a clock dial. State {panelSeated, clips:[], sectors:[a,b,c], wound, releaseAt}. Win: sectors equal [0,36,72] within 1 degree, wound full, release 23:04."
+  },
+  {
+   "id": "puz-board-of-dissolution",
+   "name": "The Board of Dissolution",
+   "act": 5,
+   "location": "The Board Room, Pilotage House, 14:00, 3 November 1998",
+   "type": "deduction board / citation-scored argument (the masterpiece)",
+   "premise": "Mrs Ellary Voss in the chair, Captain Dunnet as assessor, and Mr Pargeter for the Ministry, whose job is to strike. Eight links. Nothing Wren has been told may be used; a confession made to one nineteen-year-old on a rock in a gale is worth precisely nothing. Only what she can hold up to a window. Sabine sits very upright at the side with a 2H pencil behind her ear, taking her own minutes, and does not interrupt once.",
+   "interaction": "A full-screen board: eight link rows, PRESENCE, MEANS AND OPPORTUNITY, CONSCIOUSNESS OF GUILT, IDENTITY, PRIOR KNOWLEDGE, SIGNATURE, THE HAND HAS A NAME, MOTIVE AND PREDICATE, each with an assertion line and two or three empty citation slots. The casebook drawer at the foot holds every exhibit the player physically recovered, chipped with its accession number; water-damaged and unrecovered exhibits are absent or greyed with tide-lines. Drag chips into slots and click READ THE LINK. Pargeter then plays one named counter-card per link, spoken aloud, and the player answers by dragging one further exhibit from a shortlist of three. No timer, no undo after reading. Struck assertions are ruled through in red in front of the player and the printed transcript at the end has the gaps in it. Separately, in interview room 2, the referral to DS Iveson is worded from a menu of clauses the paper does or does not support.",
+   "solution": "L1 slip R98/2211 + ferry booking book + gallery time-switch counter; counter 'the Board Room and the quantity surveyor' answered by Sandbach's site diary, which puts the QS meeting on the 15th. L2 site diary items 41 and 63; counter 'a routine repair' answered by dust jar 6 against coroner's exhibit 4. L3 Duplicating Book 41 against 12, eleven minutes' lividity, box 17 with no return entry; counter 'Pike's book, Pike's room' answered by the ferry book. L4 the Warden's Board working file, 26 copies foliated and docketed the Ministry way; counter 'chain of custody, half these exhibits are stolen' answered by the docketing habit itself, outside third, upside down to the tag, which no thief could impose on another man's file. L5 the September ribbon spool plus Enid's rule 4. L6 the p.p. sort, 41 and 7, boundary dates, four independent custodies. L7 Munn, Kilbride and the razored-leaf offsets plus Inquiry list No. 33; counter, the question the whole game exists to answer, 'on what evidence does a Board name a person whom no record of this Authority has ever named', answered with item 14 of the schedule of outstanding liabilities, her superannuation claim, reckonable service from 1959, signed in her own name, which the player crossed off in the first hour of Act I. L8 Naismith's Bank letter, the quinquennial review notice, the reconciliation, the 213 impressions, the plug-log with the GPO account, the Kestrel Bequest; counter 'the 1975 finding carries a statutory presumption of correctness' answered by marigraph drum 1974/44 and the registered overlays. Referral wording: a grab and a fall from a rail known to be defective, plus everything after. Write 'murder' and it falls apart; write what the paper says and it stands.",
+   "solutionSource": "The casebook, which has been doing exactly this since Act I with a citation column the player rules and fills himself. Halkett's pre-Board briefing note explains the procedure and refuses, for the fiftieth and last time, to have an opinion about the case.",
+   "hints": [
+    "Wren's own casebook, opened at the citation column: three assertions on this page have nothing in the right-hand box.",
+    "Iveson, in the corridor beforehand: 'That's an inference, that is. Bring me an object.'",
+    "Halkett's note, folded into the case file: 'Section 41(6). An assertion supported by a document in the appraiser's possession stands unless the document is impeached. An assertion supported by what you were told stands until the first question. You have known this since October, and I am not going to have an opinion at this hour.'"
+   ],
+   "reward": "The ending, as a direct function of the citations that survive. Six links or fewer: misadventure, the 1975 finding undisturbed, Tain not cleared, Sabine unnamed, and the archive still certified and saved, because the record outlives everybody. Seven: negligence by the Authority, Tain's blame reduced, Sabine named as an officer whose identity is not established by these papers, arrest on the 1974 offences only. Eight with every counter answered: corporate manslaughter and misfeasance in public office, the 1975 finding quashed in full, Emrys Tain exonerated by name in a document posted to 214 addressees, and Sabine Ferrier-Kyne arrested on the Board Room steps.",
+   "implementation": "DOM, no canvas. Data-driven: links:[{id, assertion, requiredExhibits:[accession], counter:{text, answers:[3 ids], correct}}]. Exhibit chips are generated from the live clue inventory, so a document never recovered simply is not there and a water-damaged one carries a class that halves its weight. State {slots:{linkId:[ids]}, read:[linkId], answered:{linkId:bool}, referralClauses:[]}. Score = links standing (0-8) plus referral wording, written to the ending selector. The transcript is rendered to a printable page with struck lines as <s> and blank citation columns left visibly blank."
+  }
+ ]
+}

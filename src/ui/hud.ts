@@ -372,8 +372,11 @@ export class Hud {
     if (!shown) el.textContent = '';
     el.hidden = !shown;
 
+    // Only write when it actually changed: rewriting the accessible name of a
+    // focused control makes a screen reader re-announce the whole button.
     const base = `${btn.dataset.label} (${btn.dataset.key})`;
-    btn.setAttribute('aria-label', shown ? `${base}, ${count} new` : base);
+    const name = shown ? `${base}, ${count} new` : base;
+    if (btn.getAttribute('aria-label') !== name) btn.setAttribute('aria-label', name);
   }
 
   private onToolClick = (ev: Event) => {
@@ -674,7 +677,17 @@ export class Hud {
     this.toastPumping = true;
     try {
       while (this.toastQueue.length && !this.destroyed) {
-        await this.showToast(this.toastQueue.shift()!);
+        const req = this.toastQueue.shift()!;
+        try {
+          await this.showToast(req);
+        } catch (err) {
+          // A card that fails to render is a cosmetic problem. Letting its
+          // promise hang would be a frozen game, so the chain is released
+          // either way — `resolve` is idempotent.
+          console.error('hud: toast failed', err);
+        } finally {
+          req.resolve();
+        }
       }
     } finally {
       this.toastPumping = false;

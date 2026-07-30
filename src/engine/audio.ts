@@ -190,7 +190,10 @@ function wire(...nodes: AudioNode[]): void {
  * keeps total energy flat across the swap.
  */
 function powerCurve(from: number, to: number): Float32Array {
-  const n = 48;
+  // 129 points is one control point every ~33 ms across the longest (4.2 s)
+  // fade. `setValueCurveAtTime` interpolates linearly between them, so a
+  // coarser curve is a chain of slope discontinuities rather than a dissolve.
+  const n = 129;
   const c = new Float32Array(n);
   for (let i = 0; i < n; i++) {
     const s = i / (n - 1);
@@ -799,9 +802,12 @@ class Rig {
   }
 
   /** A continuous oscillator, started immediately and stopped on teardown. */
-  osc(type: OscillatorType, freq: number, detuneCents = 0): OscillatorNode {
+  osc(type: OscillatorType, freq: number, detuneCents = 0, wave?: PeriodicWave): OscillatorNode {
     const o = this.ctx.createOscillator();
-    o.type = type;
+    // Set before `start()`: swapping the waveform of a running oscillator is a
+    // discontinuity, and at LFO rates that discontinuity is a thump.
+    if (wave) o.setPeriodicWave(wave);
+    else o.type = type;
     o.frequency.value = freq;
     o.detune.value = detuneCents;
     this.nodes.push(o);
@@ -844,9 +850,22 @@ class Rig {
     return g;
   }
 
-  /** Ties a sub-audio oscillator to a parameter — gusts, swells, flicker. */
-  lfo(target: AudioParam, hz: number, depth: number, type: OscillatorType = 'sine'): void {
-    const o = this.osc(type, hz, Math.random() * 1200);
+  /**
+   * Ties a sub-audio oscillator to a parameter — gusts, swells, flicker.
+   *
+   * The rate is taken literally and only the phase is randomised. Beds choose
+   * mutually prime periods (0.043 / 0.071 / 0.031 Hz in the rain, say) so their
+   * layers never line up twice in a session; anything that perturbs the rate
+   * throws that away.
+   */
+  lfo(target: AudioParam, hz: number, depth: number): void {
+    let wave: PeriodicWave | undefined;
+    try {
+      wave = phasedSine(this.ctx);
+    } catch {
+      /* a zero-phase sine is an acceptable degradation */
+    }
+    const o = this.osc('sine', hz, 0, wave);
     const g = this.gain(depth);
     o.connect(g);
     g.connect(target);
