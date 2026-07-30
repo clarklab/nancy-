@@ -1731,6 +1731,15 @@ function switchboard(): PuzzleModule {
         ctx.feedback('good');
         cord.lamp.classList.add('is-lit');
         writeCall(call);
+        /* The call ends, and the operator pulls the cords down — which is not
+           only what happened at the board, it is what makes the next call
+           possible: three of the six ran through the same two holes, and a
+           hole takes one plug. The lamp stays lit; it is the record now. */
+        rig.after(reduced() ? 40 : 620, () => {
+          cord.key.set(false, true);
+          unplug(cord, 0);
+          unplug(cord, 1);
+        });
         ctx.note(
           done.size === CALLS.length
             ? 'Six calls, and every one of them through extension 2 after the building was locked.'
@@ -2088,19 +2097,11 @@ function switchboard(): PuzzleModule {
       }
 
       // -- restore -----------------------------------------------------------
+      // A reconstructed call is a lit lamp and a casebook line, not a patch
+      // still standing in the board: the cords came down when it ended.
       for (const call of CALLS) if (done.has(call.cord)) writeCall(call);
       for (const cord of cords) {
-        if (!done.has(cord.n)) continue;
-        const call = CALLS.find((c) => c.cord === cord.n);
-        if (!call) continue;
-        cord.lamp.classList.add('is-lit');
-        cord.key.set(true, true);
-        // Seat both ends after layout, so the measurements are real.
-        requestAnimationFrame(() => {
-          if (rig.closed) return;
-          seat(cord, 0, call.ends[0]);
-          seat(cord, 1, call.ends[1]);
-        });
+        if (done.has(cord.n)) cord.lamp.classList.add('is-lit');
       }
       for (const [lineId, cordN] of matched) {
         const dock = caseRows.get(cordN)?.querySelector<HTMLElement>('.sb-dock');
