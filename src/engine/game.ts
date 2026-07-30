@@ -542,9 +542,22 @@ export class Game implements Presenter {
         this.state.notify();
       },
 
-      openFirstConversation: async () => {
-        const first = this.content.dialogue.find((t) => t.act === 1);
-        if (first) await this.talk(first.characterId);
+      /**
+       * Opens a conversation and returns once it is on screen.
+       *
+       * Deliberately does NOT await `talk()`. A conversation resolves only when
+       * the player ends it, so awaiting would hang the harness forever — the
+       * same trap as blocking narration. The settle covers the portrait dress
+       * and the open animation.
+       */
+      openFirstConversation: async (characterId?: string) => {
+        const tree = characterId
+          ? this.content.dialogue.find((t) => t.characterId === characterId)
+          : this.content.dialogue.find((t) => t.act === 1);
+        if (!tree) return false;
+        void this.talk(tree.characterId);
+        await new Promise((r) => setTimeout(r, 1500));
+        return true;
       },
 
       openPuzzle: (id: string) => this.openPuzzle(id),
