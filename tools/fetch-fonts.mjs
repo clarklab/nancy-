@@ -23,6 +23,13 @@ const FAMILIES = [
   { name: 'Cormorant Garamond', spec: 'Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600' },
   { name: 'Crimson Pro', spec: 'Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600' },
   { name: 'Inter Tight', spec: 'Inter+Tight:wght@400;500;600' },
+  // Wren's pen. Caveat is a 2010s felt-tip casual script and the single most
+  // recognisable "handwriting font" on the web; on a conservator's casebook it
+  // read as a costume. This is a ballpoint hand with real pressure variation
+  // and a baseline that will not sit still, which is what a nineteen-year-old
+  // writing on a moving boat actually produces. Caveat stays vendored as the
+  // fallback so nothing goes to a system cursive if this ever fails to load.
+  { name: 'Nothing You Could Do', spec: 'Nothing+You+Could+Do' },
   { name: 'Caveat', spec: 'Caveat:wght@400;600' },
   { name: 'IBM Plex Mono', spec: 'IBM+Plex+Mono:wght@400;500' },
 ];

@@ -257,8 +257,19 @@ export class Journal {
     this.render();
     this.sound('page-turn');
 
-    // Focus the live tab, so the arrow keys are immediately meaningful.
-    this.activeTabButton()?.focus();
+    // Focus the *page*, not the thumb index.
+    //
+    // Focusing the live tab put a keyboard ring on the one piece of hardware
+    // that already paints a selected state, and because `.focus()` inherits
+    // the focus-visible heuristic it fired on every open — including opens
+    // driven by a mouse or by the HUD shortcut. The result was a lamp-yellow
+    // stroke round the CASE blank in every frame of the game, indistinguishable
+    // from selection and unmistakably a browser artefact.
+    //
+    // Initial focus on the dialog surface is the correct pattern anyway: the
+    // panel is the thing that was opened, Tab reaches the index from here, and
+    // the HUD's own shortcut keys still turn to a tab directly.
+    this.panelEl.focus({ preventScroll: true });
   }
 
   close() {
@@ -511,11 +522,38 @@ export class Journal {
 
   // -- CASE ------------------------------------------------------------------
 
+  /**
+   * The spread is two different kinds of page, which is why they are not
+   * symmetrical.
+   *
+   * The left leaf is the flyleaf of the act: what this chapter is, the line the
+   * act card opened on, and the paperwork the whole game hangs off, with the
+   * running reckoning ruled off at the foot the way a ledger keeps its totals.
+   * The right leaf is the working page — ruled, and written on in Wren's own
+   * hand.
+   *
+   * The act's standing order is deliberately *not* in the checkbox list. It
+   * arrives from the story bible as one two-hundred-character sentence and the
+   * engine files it as a task, so the page used to print the same run-on twice
+   * — once as a lede on the left and once verbatim as the single to-do on the
+   * right. It is a commission, not an errand: it is set here as numbered
+   * articles, and the checkbox list carries only the things a scene actually
+   * asked for.
+   */
   private caseMarkup(): string {
     const act = (this.state.content.acts ?? []).find((a) => a.number === this.state.act);
     const tasks = this.state.tasks ?? [];
-    const open = tasks.filter((t) => !t.done);
-    const done = tasks.filter((t) => t.done);
+    // A fieldworker heads the page with where she is sitting. It is also the
+    // only line on the flyleaf that changes as the player moves, which is what
+    // stops the lower half of the leaf from being a fixed illustration.
+    const here = this.state.content.scenes?.[this.state.scene];
+
+    const isStandingId = (id: string) => /^act-\d+$/.test(id);
+    const standing = tasks.find((t) => t.id === `act-${this.state.act}`);
+    const superseded = tasks.filter((t) => isStandingId(t.id) && t.id !== standing?.id);
+    const errands = tasks.filter((t) => !isStandingId(t.id));
+    const open = errands.filter((t) => !t.done);
+    const done = errands.filter((t) => t.done);
 
     const item = (t: { id: string; text: string; done: boolean }) =>
       `<li class="task${t.done && this.struckTasks.has(t.id) ? ' is-done' : ''}" data-task="${escapeHtml(t.id)}" data-done="${t.done}">
@@ -524,28 +562,84 @@ export class Journal {
          ${t.done ? '<span class="sr-only"> — done</span>' : ''}
        </li>`;
 
-    const list = tasks.length
+    const list = errands.length
       ? `<ul class="task-list" role="list">${[...open, ...done].map(item).join('')}</ul>`
-      : this.emptyState('No standing orders', 'Nothing is asked of you yet. Go and be curious.');
+      : '<p class="jp-note">Nothing else has been asked of me yet.</p>';
+
+    const articles = articlesOf(standing?.text ?? act?.goal ?? '');
+    const order = articles.length
+      ? `<ol class="order__articles">${articles
+          .map(
+            (line, i) =>
+              `<li class="order__article"><span class="order__num" aria-hidden="true">${roman(i + 1).toLowerCase()}</span><span class="order__text">${escapeHtml(line)}</span></li>`,
+          )
+          .join('')}</ol>`
+      : '<p class="jp-note">You are still working out what you are looking at.</p>';
+
+    const closed = superseded.length
+      ? `<ul class="order__closed" role="list">${superseded
+          .map((t) => {
+            const n = Number(t.id.slice(4));
+            const a = (this.state.content.acts ?? []).find((x) => x.number === n);
+            return `<li>Discharged — Act ${escapeHtml(roman(n))}${a ? ` · ${escapeHtml(a.title)}` : ''}</li>`;
+          })
+          .join('')}</ul>`
+      : '';
 
     return `
       <div class="journal-spread journal-spread--prose">
-        <section class="jp-col scrollable" data-scroll="left" aria-label="The case">
+        <section class="jp-col jp-col--flyleaf scrollable" data-scroll="left" aria-label="The case">
           <p class="jp-kicker">Act ${escapeHtml(roman(this.state.act))}</p>
           <h3 class="jp-title">${escapeHtml(act?.title ?? 'The case so far')}</h3>
           ${act?.epigraph ? `<p class="jp-epigraph">${escapeHtml(act.epigraph)}</p>` : ''}
-          <p class="jp-lede">${escapeHtml(act?.goal ?? 'You are still working out what you are looking at.')}</p>
+          ${COMMISSION_PLATE}
+          ${here ? `<p class="jp-margin"><span class="jp-margin__label">Written at</span><span class="jp-margin__place">${escapeHtml(here.name)}</span>${here.subtitle ? `<span class="jp-margin__sub">${escapeHtml(here.subtitle)}</span>` : ''}<span class="jp-margin__pen" aria-hidden="true">${FLOURISH}</span></p>` : ''}
           <dl class="case-stats">
             <div class="case-stat"><dt>Clues recorded</dt><dd>${this.state.clues.size}</dd></div>
             <div class="case-stat"><dt>Places seen</dt><dd>${this.state.visitedScenes.size}</dd></div>
+            <div class="case-stat"><dt>Requisitioned</dt><dd>${this.state.items.size}</dd></div>
             <div class="case-stat"><dt>Puzzles solved</dt><dd>${this.state.solvedPuzzles.size}</dd></div>
           </dl>
         </section>
-        <section class="jp-col scrollable" data-scroll="right" aria-label="Open tasks">
-          <p class="jp-kicker">To do</p>
+        <section
+          class="jp-col jp-col--ruled scrollable"
+          data-scroll="right"
+          aria-label="Standing order and open tasks"
+        >
+          <p class="jp-kicker">Standing order</p>
+          ${order}
+          ${closed}
+          <p class="jp-kicker jp-kicker--mid">To do</p>
           ${list}
         </section>
+        ${this.footFor('case', 'Casebook · W. Adare', `Act ${roman(this.state.act)} · ${act?.title ?? 'The case so far'}`)}
       </div>`;
+  }
+
+  /**
+   * The running foot: folio, foot rule, running title.
+   *
+   * A book that has been in use has furniture. Without it the two leaves are
+   * CSS columns that happen to be printed on paper — the eye reaches the end of
+   * the writing and finds nothing telling it the page has ended, which is why
+   * the lower half of a spread with a short to-do list read as abandoned rather
+   * than as generously set. Verso carries its folio at the outer (left) edge,
+   * recto at the outer (right), mirrored across the gutter the way a bound book
+   * numbers itself. `aria-hidden`, because a folio is a fact about the paper
+   * and not about the case.
+   */
+  private footFor(tab: JournalTab, verso: string, recto: string): string {
+    const at = Math.max(0, TAB_DEFS.findIndex((t) => t.id === tab));
+    const left = at * 2 + 2;
+    return `
+      <p class="jp-foot jp-foot--verso" aria-hidden="true">
+        <span class="jp-foot__folio">${left}</span>
+        <span class="jp-foot__run">${escapeHtml(verso)}</span>
+      </p>
+      <p class="jp-foot jp-foot--recto" aria-hidden="true">
+        <span class="jp-foot__run">${escapeHtml(recto)}</span>
+        <span class="jp-foot__folio">${left + 1}</span>
+      </p>`;
   }
 
   /**
@@ -1399,6 +1493,27 @@ const CHECKBOX =
   '<path class="task__box-line" stroke-width="1.6" d="M4.6 5.2c6-.7 12.2-.9 18.4-.4.7 5.8.6 11.6-.2 17.4-6 .6-12.1.7-18.1.2-.7-5.7-.8-11.4-.1-17.2Z"/>' +
   '<path class="task__tick" stroke-width="2.4" d="m7.4 14.6 4.6 5.1L21.4 7.9"/></svg>';
 
+/**
+ * The warrant, pasted onto the flyleaf.
+ *
+ * Not new fiction: every line is quoted from paper the player can hold and
+ * read in-game — `commission-s41` and `commission-minute` in
+ * `src/game/items.ts`, and the Warden's title in `src/game/characters.ts`.
+ * A case journal that carries no case reference is a to-do app with a leather
+ * texture, and the lower half of this leaf was five hundred pixels of blank
+ * stock before it was here.
+ */
+const COMMISSION_PLATE = `
+  <aside class="plate" aria-label="Commission">
+    <p class="plate__head">National Records Conservancy</p>
+    <dl class="plate__rows">
+      <div class="plate__row"><dt>Appraiser</dt><dd>W. Adare, apprentice conservator</dd></div>
+      <div class="plate__row"><dt>Warrant</dt><dd>Section 41, Coastal Services Act 1997</dd></div>
+      <div class="plate__row"><dt>Custody</dt><dd>Brannock Pilotage Authority</dd></div>
+    </dl>
+    <p class="plate__stamp" aria-hidden="true"><span>Commissioned</span><span>3 Oct 1998</span></p>
+  </aside>`;
+
 /** Pen flourish used to sign off an empty page. */
 const FLOURISH =
   '<svg viewBox="0 0 120 34" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true">' +
@@ -1487,6 +1602,24 @@ function monogram(name: string): string {
   if (!words.length) return '?';
   if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase();
   return (words[0]![0]! + words[1]![0]!).toUpperCase();
+}
+
+/**
+ * Breaks a standing order into the articles a commission is actually written
+ * in.
+ *
+ * The story bible authors an act's goal as one sentence with its clauses hung
+ * off semicolons — correct for a design document, unreadable as a single
+ * two-hundred-character run-on in a handwriting face on a journal page. This
+ * is presentation only: the task's own `text` is never altered, so a scene
+ * that completes it still matches on the string it filed.
+ */
+function articlesOf(goal: string): string[] {
+  return goal
+    .split(/[;.]\s+/)
+    .map((s) => s.trim().replace(/[;.\s]+$/, ''))
+    .filter(Boolean)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1));
 }
 
 /** Acts are numbered in the display face's own idiom. */

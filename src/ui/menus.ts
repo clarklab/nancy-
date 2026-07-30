@@ -248,7 +248,28 @@ export function applySettings(s: Settings): void {
 /** Shown quietly on the title screen. Kept in step with package.json by hand. */
 const BUILD_VERSION = '1.0.0';
 
-const KEY_ART = './art/ui/key-art.webp';
+/**
+ * The title plate, relit and resampled from the generated key art by
+ * `tools/cook-title-plate.mjs`. The raw generation has the lantern dark, which
+ * leaves the title screen with no key light at all; the cooked plate burns it.
+ */
+const KEY_ART = './art/ui/title-plate.webp';
+
+/** Small numbers read as words in a title card; '5 acts' reads as marketing. */
+const NUMERALS = [
+  'no',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+] as const;
+const spellOut = (n: number) => NUMERALS[n] ?? String(n);
 
 /**
  * Reads a duration token off the document root, in milliseconds.
@@ -656,8 +677,10 @@ export class Menus {
           <div class="title-art__fallback"></div>
           <canvas class="title-art__fog"></canvas>
           <canvas class="title-art__rain"></canvas>
+          <canvas class="title-art__rain title-art__rain--near"></canvas>
           <div class="title-art__lamp"></div>
-          <div class="title-art__vignette"></div>`;
+          <div class="title-art__vignette"></div>
+          <div class="title-art__grain"></div>`;
         layer.appendChild(art);
 
         // Painted key art if it exists; a lit room built out of gradients if
@@ -678,10 +701,17 @@ export class Menus {
         // exists to avoid.
         if (this.settingsModel.weatherEffects) {
           const fog = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__fog')!);
-          const rain = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__rain')!);
+          // Two curtains at different depths. One canvas gives a flat sheet of
+          // ticks; a far field behind a near field is what reads as a volume of
+          // falling water, and the near layer is the one that gets the blur.
+          const rainFar = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__rain')!);
+          const rainNear = new Weather(
+            art.querySelector<HTMLCanvasElement>('.title-art__rain--near')!,
+          );
           fog.set('fog');
-          rain.set('rain');
-          this.weatherOnTitle = [fog, rain];
+          rainFar.set('rain');
+          rainNear.set('rain-near');
+          this.weatherOnTitle = [fog, rainFar, rainNear];
         }
 
         // Parallax: the art drifts *against* the pointer, which reads as depth
@@ -726,28 +756,45 @@ export class Menus {
         // help, because the break is taken between two letter spans rather
         // than at the space. A nowrap wrapper per word restores normal
         // word-level wrapping while keeping the per-letter reveal.
+        //
+        // The break is authored, not left to the box. A three-word title left
+        // to wrap gives "The / Lamplight / Cipher" — a definite article on its
+        // own 100px display line, which is the first thing the eye lands on and
+        // the least important word in the title. So the last word takes the
+        // second line and everything before it takes the first.
         let index = 0;
         const words = this.state.content.title.split(' ');
-        words.forEach((word, w) => {
-          const wordEl = el('span', 'title-wordmark__word');
-          wordEl.setAttribute('aria-hidden', 'true');
-          for (const ch of word) {
-            const span = el('span', 'title-wordmark__ch', ch);
-            span.style.setProperty('--i', String(index++));
-            wordEl.appendChild(span);
-          }
-          wordmark.appendChild(wordEl);
-          if (w < words.length - 1) {
-            // A real space between wrappers, so a line may break here.
-            wordmark.appendChild(document.createTextNode(' '));
-            index++;
-          }
+        const lines =
+          words.length > 2 ? [words.slice(0, -1), words.slice(-1)] : [words];
+        lines.forEach((lineWords) => {
+          const lineEl = el('span', 'title-wordmark__line');
+          lineEl.setAttribute('aria-hidden', 'true');
+          lineWords.forEach((word, w) => {
+            const wordEl = el('span', 'title-wordmark__word');
+            for (const ch of word) {
+              const span = el('span', 'title-wordmark__ch', ch);
+              span.style.setProperty('--i', String(index++));
+              wordEl.appendChild(span);
+            }
+            lineEl.appendChild(wordEl);
+            if (w < lineWords.length - 1) {
+              // A real space between wrappers, so a line may still break here
+              // if the viewport is narrow enough to force it.
+              lineEl.appendChild(document.createTextNode(' '));
+              index++;
+            }
+          });
+          wordmark.appendChild(lineEl);
         });
         content.appendChild(wordmark);
 
         content.appendChild(el('div', 'title-rule'));
         content.appendChild(
-          el('p', 'title-subtitle', `A mystery in ${this.state.content.acts.length} acts`),
+          el(
+            'p',
+            'title-subtitle',
+            `A mystery in ${spellOut(this.state.content.acts.length)} acts`,
+          ),
         );
 
         const nav = el('nav', 'title-menu');
@@ -756,11 +803,19 @@ export class Menus {
         indicator.setAttribute('aria-hidden', 'true');
         nav.appendChild(indicator);
 
-        const items: { label: string; hint: string; enabled: boolean; run(): void }[] = [
+        const items: {
+          label: string;
+          hint: string;
+          enabled: boolean;
+          /** Extra class, for the primary route in and for the housekeeping row. */
+          rank?: 'primary' | 'minor';
+          run(): void;
+        }[] = [
           {
             label: 'New Case',
             hint: 'Begin from the first night',
             enabled: true,
+            rank: 'primary',
             run: () => finish('new'),
           },
           {
@@ -783,6 +838,7 @@ export class Menus {
             label: 'Settings',
             hint: 'Sound, picture, accessibility',
             enabled: true,
+            rank: 'minor',
             run: () => void this.settings(),
           },
         ];
@@ -793,14 +849,28 @@ export class Menus {
             indicator.classList.remove('is-on');
             return;
           }
-          indicator.style.setProperty('--y', `${btn.offsetTop + btn.offsetHeight / 2}px`);
+          // Centred on the LABEL's cap line, not on the item box. An item is
+          // two lines tall, so its own centre falls in the gap between the
+          // label and its hint — which is precisely where the old tick parked,
+          // attached to nothing.
+          const label = btn.querySelector<HTMLElement>('.title-item__label');
+          const mid = label
+            ? label.offsetTop + label.offsetHeight / 2
+            : btn.offsetHeight / 2;
+          indicator.style.setProperty('--y', `${btn.offsetTop + mid}px`);
           indicator.classList.add('is-on');
         };
 
         items.forEach((item, i) => {
           const btn = el('button', 'title-item');
+          if (item.rank) btn.classList.add(`title-item--${item.rank}`);
           btn.type = 'button';
           btn.disabled = !item.enabled;
+          // Opts out of the global focus ring: this control paints its own
+          // selected state (a lit pool and a brass bar), and a browser outline
+          // over the top of it is the one mark on this screen that could not
+          // have been drawn on purpose. See base.css.
+          btn.dataset.ring = 'own';
           btn.style.setProperty('--i', String(i));
           btn.innerHTML = `<span class="title-item__label"></span><span class="title-item__hint"></span>`;
           btn.querySelector('.title-item__label')!.textContent = item.label;
@@ -832,11 +902,14 @@ export class Menus {
         content.appendChild(nav);
         layer.appendChild(content);
 
+        // Shipped copy, not a build note. "Score and atmosphere synthesised at
+        // runtime" is an implementation detail; on a title card it reframes the
+        // whole image as a tech demo. Credit first and brighter, version under
+        // it and dimmer — the version is the least important string in the
+        // frame and should be set like it.
         const colophon = el('div', 'title-colophon');
+        colophon.appendChild(el('p', 'title-credit', '© 2026 — All rights reserved'));
         colophon.appendChild(el('p', 'title-version', `Version ${BUILD_VERSION}`));
-        colophon.appendChild(
-          el('p', 'title-credit', 'An original work — score and atmosphere synthesised at runtime'),
-        );
         layer.appendChild(colophon);
 
         // Asked for once, unconditionally: the mixer records the request even

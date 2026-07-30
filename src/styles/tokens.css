@@ -18,6 +18,36 @@
   --ink-500: #33454f;
   --ink-400: #4a5f6b;
 
+  /* Fittings: the warm-neutral blacks that anything *inside* a lamplit room is
+     cut from. The `--ink-*` ramp above is the shell — panels, scrims, menus,
+     surfaces the player reads on their own dark ground, where a cool black is
+     correct. Chrome that sits directly on painted artwork must not be: an
+     olive-and-umber room reflected in a blue-black plate reads as a browser
+     toolbar laid over a painting. Use `--fit-*` for the HUD and for any
+     shadow tint cast onto the scene. */
+  --fit-abyss: #0d0a07;
+  --fit-900: #14100b;
+  --fit-800: #1c1710;
+  --fit-700: #262019;
+  --fit-600: #33291e;
+
+  /* The black point of the world. Nothing painted may sit below this: a
+     lamplit oak interior bottoms out in warm shadow with the grain still
+     faintly legible, never in an information-free void. */
+  --scene-black: #1a1510;
+
+  /* Identity element for a `multiply` plate — the value that changes nothing.
+     Named rather than written as `#fff` so a shade gradient still reads as a
+     list of tokens. */
+  --multiply-none: #ffffff;
+
+  /* Ink on the hero document in the Ardent. A *mask*, not a coloured SVG, so
+     the writing is painted in --paper-ink like everything else the player
+     reads; the strokes are pseudo-copperplate — words with ascenders and
+     ragged line ends, not a sine wave — because a document has to read as a
+     document at a glance even when it is illegible. */
+--ink-copperplate: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20100%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22rotate(-5.4%20100%2050)%22%3E%3Cpath%20d%3D%22M14.0%2017.4%20q1.9%206.4%203.7%20-0.4%20q2.0%20-3.0%204.1%200.8%20q2.3%20-2.5%204.5%20-0.2%22%20stroke-width%3D%222.5%22%20stroke-opacity%3D%220.92%22%2F%3E%3Cpath%20d%3D%22M31.6%2016.3%20q2.3%20-3.0%204.6%200.1%20q1.9%20-3.2%203.8%20-0.8%20q2.0%20-7.1%204.0%20-0.1%22%20stroke-width%3D%222.5%22%20stroke-opacity%3D%220.92%22%2F%3E%3Cpath%20d%3D%22M49.3%2017.6%20q1.9%20-2.6%203.7%20-0.6%20q2.5%208.2%205.0%200.5%22%20stroke-width%3D%222.5%22%20stroke-opacity%3D%220.92%22%2F%3E%3Cpath%20d%3D%22M63.6%2016.7%20q1.7%20-5.7%203.4%200.2%20q2.3%20-3.6%204.5%20-0.1%20q1.7%20-3.4%203.3%200.4%22%20stroke-width%3D%222.5%22%20stroke-opacity%3D%220.92%22%2F%3E%3Cpath%20d%3D%22M79.9%2016.5%20q1.8%20-2.2%203.6%20-0.7%20q2.4%20-6.7%204.8%200.1%20q2.3%20-2.5%204.7%20-0.7%22%20stroke-width%3D%222.5%22%20stroke-opacity%3D%220.92%22%2F%3E%3Cpath%20d%3D%22M98.5%2016.7%20q1.8%20-2.7%203.5%20-0.6%20q1.8%20-6.5%203.6%20-0.6%22%20stroke-width%3D%222.5%22%20stroke-opacity%3D%220.92%22%2F%3E%3Cpath%20d%3D%22M13%2025.5h174%22%20stroke-width%3D%221.1%22%20stroke-opacity%3D%22.48%22%2F%3E%3Cpath%20d%3D%22M15.0%2036.7%20q2.1%20-3.0%204.3%20-0.5%20q2.2%208.3%204.3%20-0.7%20q1.6%20-2.9%203.3%20-0.4%20q1.7%20-3.3%203.4%200.2%20q1.7%20-2.9%203.3%20-0.5%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.86%22%2F%3E%3Cpath%20d%3D%22M37.3%2037.5%20q1.7%20-3.5%203.5%200.4%20q1.9%20-3.5%203.8%20-0.7%20q2.4%20-3.6%204.9%20-0.6%20q2.5%20-2.6%204.9%200.6%20q2.4%208.0%204.8%200.1%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.86%22%2F%3E%3Cpath%20d%3D%22M63.8%2036.7%20q1.7%20-3.0%203.5%20-0.7%20q2.6%20-8.5%205.2%200.6%20q2.6%20-2.9%205.2%20-0.3%20q1.8%20-3.1%203.6%200.5%20q1.8%20-3.3%203.6%20-0.4%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.86%22%2F%3E%3Cpath%20d%3D%22M88.7%2036.7%20q2.4%20-7.4%204.8%200.4%20q1.6%20-2.6%203.3%200.2%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.86%22%2F%3E%3Cpath%20d%3D%22M100.7%2037.0%20q2.1%20-3.6%204.2%20-0.5%20q2.0%20-2.3%204.0%200.4%20q2.1%20-5.5%204.2%200.6%20q2.1%20-3.2%204.2%20-0.2%20q2.5%20-2.9%205.0%20-0.4%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.86%22%2F%3E%3Cpath%20d%3D%22M15.0%2046.9%20q1.8%20-3.3%203.6%200.2%20q1.8%20-3.0%203.6%20-0.4%20q1.8%20-7.0%203.7%20-0.6%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.80%22%2F%3E%3Cpath%20d%3D%22M29.8%2047.5%20q2.3%20-3.7%204.6%20-0.1%20q2.5%20-5.9%205.0%20-0.1%20q2.4%20-3.1%204.8%200.4%20q2.4%20-3.3%204.9%20-0.1%20q1.8%20-2.4%203.7%200.1%20q2.1%20-2.4%204.1%20-0.3%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.80%22%2F%3E%3Cpath%20d%3D%22M62.1%2046.6%20q2.1%20-3.0%204.3%20-0.8%20q2.3%20-2.4%204.5%200.7%20q1.9%20-2.9%203.8%200.2%20q1.6%205.9%203.2%200.2%20q1.9%20-3.2%203.8%200.3%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.80%22%2F%3E%3Cpath%20d%3D%22M86.9%2046.7%20q2.4%20-3.7%204.8%200.2%20q2.5%20-7.6%205.1%200.5%20q2.3%20-3.2%204.5%20-0.1%20q1.8%20-2.2%203.6%200.1%20q1.8%20-2.9%203.6%20-0.0%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.80%22%2F%3E%3Cpath%20d%3D%22M112.6%2046.6%20q2.1%20-2.9%204.3%20-0.5%20q2.3%20-3.1%204.6%20-0.8%20q2.1%20-2.9%204.1%20-0.5%20q2.0%20-6.0%204.0%200.5%20q2.4%20-3.4%204.9%20-0.7%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.80%22%2F%3E%3Cpath%20d%3D%22M15.0%2057.3%20q2.3%20-3.7%204.7%20-0.4%20q2.4%20-3.5%204.7%200.3%20q1.6%20-3.7%203.3%20-0.7%20q2.0%20-5.8%204.0%200.7%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.74%22%2F%3E%3Cpath%20d%3D%22M37.4%2057.6%20q2.0%20-3.7%204.0%200.1%20q2.2%207.2%204.5%20-0.7%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.74%22%2F%3E%3Cpath%20d%3D%22M50.1%2056.8%20q1.6%206.6%203.3%200.0%20q1.8%20-3.7%203.6%20-0.3%20q1.7%20-2.2%203.3%20-0.7%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.74%22%2F%3E%3Cpath%20d%3D%22M65.5%2057.4%20q1.8%20-2.5%203.5%20-0.4%20q2.1%20-3.6%204.1%200.8%20q2.3%20-2.3%204.6%200.4%20q2.4%20-3.0%204.8%20-0.7%20q2.0%20-7.3%204.0%20-0.4%20q1.9%20-2.5%203.8%200.4%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.74%22%2F%3E%3Cpath%20d%3D%22M94.6%2057.9%20q2.1%205.9%204.2%200.7%20q2.0%20-2.6%204.0%20-0.2%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.74%22%2F%3E%3Cpath%20d%3D%22M108.3%2056.9%20q2.2%20-3.4%204.5%20-0.3%20q1.9%20-3.1%203.7%20-0.2%20q1.6%20-3.1%203.3%20-0.2%20q2.1%207.4%204.1%200.3%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.74%22%2F%3E%3Cpath%20d%3D%22M15.0%2067.4%20q2.3%20-3.1%204.6%20-0.5%20q1.8%207.1%203.7%20-0.5%20q2.0%20-2.8%204.0%20-0.6%20q2.5%20-3.5%205.0%200.7%20q2.5%20-3.6%204.9%200.7%20q2.1%20-2.3%204.2%200.2%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.68%22%2F%3E%3Cpath%20d%3D%22M46.8%2067.6%20q2.6%20-2.7%205.2%20-0.1%20q1.9%206.7%203.7%200.3%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.68%22%2F%3E%3Cpath%20d%3D%22M61.4%2067.2%20q1.7%20-3.1%203.3%20-0.3%20q1.6%20-3.4%203.3%200.2%20q2.4%20-3.2%204.7%20-0.2%20q2.1%20-5.5%204.3%200.4%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.68%22%2F%3E%3Cpath%20d%3D%22M81.7%2067.1%20q2.4%20-3.0%204.9%20-0.3%20q2.3%20-2.7%204.6%200.7%20q2.5%20-2.8%204.9%20-0.0%20q1.9%20-6.1%203.7%200.2%20q1.6%20-2.6%203.3%20-0.0%20q2.3%20-3.5%204.7%20-0.7%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.68%22%2F%3E%3Cpath%20d%3D%22M111.8%2068.3%20q2.1%20-3.0%204.2%200.6%20q1.8%20-2.8%203.7%20-0.1%20q2.1%20-3.6%204.3%20-0.5%20q1.8%20-3.5%203.6%20-0.5%20q2.0%20-6.4%204.0%20-0.0%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.68%22%2F%3E%3Cpath%20d%3D%22M15.0%2077.8%20q2.2%20-5.9%204.4%200.0%20q2.5%20-2.8%205.1%200.2%20q2.2%20-2.6%204.5%20-0.5%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.62%22%2F%3E%3Cpath%20d%3D%22M33.1%2078.3%20q2.3%20-3.3%204.6%200.8%20q2.0%20-2.3%204.0%200.4%20q2.4%20-6.1%204.8%20-0.1%20q1.9%20-2.5%203.7%200.3%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.62%22%2F%3E%3Cpath%20d%3D%22M55.7%2078.2%20q1.6%206.9%203.3%20-0.4%20q1.8%20-2.7%203.6%200.7%20q2.3%20-3.7%204.7%20-0.5%20q2.0%20-3.6%203.9%20-0.5%20q1.7%20-2.5%203.4%200.6%20q2.1%20-3.4%204.2%200.5%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.62%22%2F%3E%3Cpath%20d%3D%22M84.2%2077.7%20q2.2%20-3.4%204.3%20-0.6%20q1.9%20-3.2%203.8%200.7%20q2.5%20-2.2%205.1%200.5%20q2.4%20-2.4%204.7%200.2%20q2.1%20-5.6%204.2%200.6%22%20stroke-width%3D%221.7%22%20stroke-opacity%3D%220.62%22%2F%3E%3Cpath%20d%3D%22M145%2030v54%22%20stroke-width%3D%221.1%22%20stroke-opacity%3D%22.44%22%2F%3E%3Cpath%20d%3D%22M151.0%2036.3%20q2.3%20-2.6%204.6%200.4%20q2.4%20-3.4%204.8%200.4%20q1.8%20-3.1%203.7%20-0.8%20q2.2%20-2.7%204.5%200.1%20q2.5%206.6%205.0%20-0.8%22%20stroke-width%3D%221.45%22%20stroke-opacity%3D%220.70%22%2F%3E%3Cpath%20d%3D%22M151.0%2047.8%20q1.7%20-3.7%203.4%200.7%20q1.7%20-3.2%203.3%20-0.8%20q2.6%20-2.8%205.2%20-0.3%20q1.9%20-2.9%203.9%200.3%20q2.0%20-7.9%204.1%200.1%20q2.4%20-2.6%204.9%20-0.6%22%20stroke-width%3D%221.45%22%20stroke-opacity%3D%220.65%22%2F%3E%3Cpath%20d%3D%22M151.0%2056.8%20q1.6%20-3.3%203.2%20-0.7%20q1.8%205.5%203.6%20-0.0%20q2.2%20-3.6%204.4%200.6%20q1.9%20-3.0%203.7%200.3%20q1.8%20-2.7%203.6%20-0.2%22%20stroke-width%3D%221.45%22%20stroke-opacity%3D%220.60%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2280%22%20r%3D%227.6%22%20stroke-width%3D%222%22%20stroke-opacity%3D%22.78%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2280%22%20r%3D%223.9%22%20stroke-width%3D%221.2%22%20stroke-opacity%3D%22.5%22%2F%3E%3Cpath%20d%3D%22M165.6%2076.4a5.6%205.6%200%200%201%208.8%200%22%20stroke-width%3D%221.2%22%20stroke-opacity%3D%22.46%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+
   /* Warm key: lamplight. The only saturated warm in the UI, so it always
      reads as "this is interactive" or "this matters". */
   --lamp-100: #fff3d6;
@@ -41,6 +71,15 @@
   --paper-ink: #2c231a;
   --paper-ink-faded: #5c4b38;
 
+  /* The player's own pen, as distinct from the printing on the page.
+     Everything Wren writes into the casebook is in one ink and everything the
+     Conservancy printed is in another; without that split a journal is just a
+     web page with two type colours. Iron-gall blue-black, built from the shell
+     blue pulled toward moonlight so it stays cool against a warm sheet, and
+     never a UI accent — a violet number in a ledger reads as a badge, not as
+     something a nineteen-year-old wrote at half past one in the morning. */
+  --ink-hand: color-mix(in srgb, var(--ink-700) 74%, var(--moon-400));
+
   /* Signal colours, used sparingly. */
   --blood: #8f2f28;
   --blood-bright: #c2453a;
@@ -54,11 +93,24 @@
   --surface-raised: color-mix(in srgb, var(--ink-600) 96%, transparent);
   --text-primary: var(--moon-100);
   --text-secondary: var(--moon-300);
+  /* Display type laid directly on painted artwork. `--text-primary` is
+     moonlight, which is correct on the game's own dark panels and wrong the
+     moment it is set over an oil-lit oak interior: a #dce9f2 title in a room
+     whose every other value is umber reads as a browser heading dropped on a
+     painting. This is the same white after it has passed through lamplight —
+     still the brightest type in the lockup, but made of the room. */
+  --text-on-art: color-mix(in srgb, var(--paper-100) 74%, var(--moon-100));
   --text-muted: var(--ink-400);
   --accent: var(--lamp-300);
   --accent-strong: var(--lamp-200);
   --accent-dim: var(--lamp-500);
   --danger: var(--blood-bright);
+
+  /* Shade that keeps its chroma. --ink-abyss is all but neutral, so laying it
+     over a painting at high opacity crushes AND desaturates: the picture stops
+     continuing into shadow and starts looking like a panel on top of it. Every
+     scrim that sits over artwork uses this instead. */
+  --scrim-cool: color-mix(in srgb, var(--ink-abyss) 62%, var(--ink-700));
 
   --border-hairline: 1px solid color-mix(in srgb, var(--lamp-500) 22%, transparent);
   --border-brass: 1px solid color-mix(in srgb, var(--lamp-400) 45%, transparent);
@@ -67,11 +119,32 @@
   /* -- Typography -------------------------------------------------------- */
   /* Display: high-contrast transitional serif for titles and nameplates.
      Body: humanist serif that stays readable at small sizes over artwork.
-     UI:   spaced small-caps sans for labels, so chrome never competes with prose. */
+     UI:   spaced small-caps sans for labels, so chrome never competes with prose.
+     Front: the engraved register — tracked caps cut from the display serif.
+            Used only where chrome is *part of the picture* (the title card,
+            its menu, its colophon), because a UI grotesque there reads as a
+            web page no matter how it is spaced. */
   --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   --font-body: 'Crimson Pro', 'Iowan Old Style', Georgia, serif;
   --font-ui: 'Inter Tight', 'Inter', system-ui, sans-serif;
-  --font-hand: 'Caveat', 'Segoe Script', cursive;
+  /* Labels printed *on an object* — a ledger column, a rubber stamp, the word
+     stamped into a thumb index. `--font-ui` is a 2020s grotesk and is correct
+     for genuine system chrome; set at 11px with 0.14em of tracking on a 1930s
+     casebook it is the single loudest "web page in a costume" signal there is.
+     Used with `font-variant-caps: all-small-caps`, which is what a ledger
+     actually sets its column heads in. */
+  --font-label: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-front: 'Cormorant Garamond', 'Playfair Display', 'Copperplate', Georgia, serif;
+  /* Wren's pen. Caveat — the felt-tip casual script every Google-Fonts page in
+     the world reaches for — has a perfectly even monoline, a single-storey 'a'
+     and a bounce that is the same bounce on every line: at a glance it says
+     "web page in costume" louder than anything else on the leaf. This is a
+     ballpoint hand with genuine pressure variation, a baseline that will not
+     sit still and a slight forward lean, which is what a nineteen-year-old
+     writing up an appraisal on a moving boat actually leaves behind. It is a
+     lighter face than Caveat, so anything set in it wants its ink at full
+     strength rather than mixed back toward the paper. */
+  --font-hand: 'Nothing You Could Do', 'Caveat', 'Segoe Script', cursive;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* Modular scale, 1.25 ratio, anchored to a fluid base. */
@@ -85,7 +158,16 @@
   --step-5: clamp(2.9rem, 2.42rem + 2.4vw, 3.42rem);
 
   --tracking-ui: 0.14em;
-  --tracking-display: 0.02em;
+  /* Small caps are already open; the grotesque's 0.14em blows them apart. */
+  --tracking-label: 0.08em;
+  /* Tracking is a function of size, not a constant. Cormorant Garamond is
+     loosely fitted by design, so at display sizes it needs pulling *in*: at
+     35px, +0.02em opened visible holes between T-h-e and A-r-d. The default is
+     therefore the large-size value, because every display use in the game
+     except one is set at 28px or above. `--tracking-display-sm` is the escape
+     hatch for the sub-24px uses, where the same face needs a little air back. */
+  --tracking-display: -0.012em;
+  --tracking-display-sm: 0.01em;
   --leading-tight: 1.15;
   --leading-body: 1.62;
 

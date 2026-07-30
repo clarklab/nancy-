@@ -9,10 +9,47 @@
 
 import type { GameState } from './state';
 import type { Hotspot, Scene, SceneLayer } from './types';
+import type { Aperture, Drip } from './weather';
 import { Weather } from './weather';
 
 const STAGE_W = 1920;
 const STAGE_H = 1200;
+
+/**
+ * Per-scene optics.
+ *
+ * The painted plates are lit, but they are flat files: nothing in them knows
+ * where the sky is or where the key light hangs. This table is that knowledge,
+ * kept next to the renderer that consumes it rather than in the content files,
+ * because it describes the *camera*, not the story.
+ *
+ *   `aperture` — the only place weather may fall (interiors only). Normalised
+ *               to the 16:10 stage, traced off the artwork.
+ *   `drip`     — an interior leak, so an enclosed room still has water in it.
+ *   `keyWarm`  — how much of the scene's key light is lamplight rather than
+ *               daylight, published to the HUD so its fittings pick up the same
+ *               temperature as the room they are screwed into.
+ */
+interface SceneOptics {
+  aperture?: Aperture;
+  drip?: Drip;
+  keyWarm?: number;
+}
+
+const OPTICS: Record<string, SceneOptics> = {
+  // The cabin of the Ardent: one scuttle camera-left, an oil lamp camera-right.
+  // Rain outside the glass, beading on it, and a seam that leaks by the beam.
+  'the-ardent': {
+    aperture: [
+      [0.113, 0.132],
+      [0.412, 0.166],
+      [0.396, 0.424],
+      [0.096, 0.448],
+    ],
+    drip: { x: 0.598, y: 0.208, fall: 0.42, everyMs: 20_000 },
+    keyWarm: 0.9,
+  },
+};
 
 export interface SceneViewCallbacks {
   onHotspot(hotspot: Hotspot): void;
@@ -40,13 +77,26 @@ export class SceneView {
 
     this.el = document.createElement('div');
     this.el.className = 'scene-view';
+    // Order is the lighting chain, and it is load-bearing:
+    //   plate → conditional layers → key (additive) → shade (subtractive) →
+    //   painted detail → defocus → weather → vignette → black-point floor →
+    //   hotspots.
+    // Defocus is a lens, so it comes after everything that is *in* the room
+    // and before everything that is between the room and the camera.
+    // The floor sits *above* the vignette on purpose: it clamps the vignette's
+    // own falloff too, so no corner of any scene can crush to a blue void.
     this.el.innerHTML = `
       <div class="scene-stage">
         <div class="scene-bg"></div>
         <div class="scene-layers"></div>
+        <div class="scene-key"></div>
+        <div class="scene-shade"></div>
+        <div class="scene-props"></div>
+        <div class="scene-defocus"></div>
         <canvas class="scene-weather"></canvas>
-        <div class="scene-hotspots"></div>
         <div class="scene-vignette"></div>
+        <div class="scene-floor"></div>
+        <div class="scene-hotspots"></div>
       </div>`;
 
     this.bg = this.el.querySelector('.scene-bg')!;
@@ -82,9 +132,17 @@ export class SceneView {
 
     this.bg.style.backgroundImage = `url("${incoming}")`;
     this.el.style.setProperty('--scene-grade', scene.grade ?? 'none');
+    // Drives the per-scene light plates in base.css.
+    this.el.dataset.scene = scene.id;
     this.renderLayers(scene);
     this.renderHotspots(scene);
+
+    const optics = OPTICS[scene.id];
     this.weather.set(scene.weather ?? 'none');
+    this.weather.setAperture(optics?.aperture ?? null, optics?.drip ?? null);
+    // Published on the root so the HUD's fittings can carry the same key
+    // temperature as the room; a scene with no rig falls back to neutral.
+    document.documentElement.style.setProperty('--scene-key-warm', String(optics?.keyWarm ?? 0.35));
 
     await new Promise((r) => setTimeout(r, transition === 'none' ? 0 : 460));
     this.el.classList.remove('is-transitioning');

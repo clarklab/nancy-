@@ -40,13 +40,40 @@
      values still resolve against the frame, since that is where they are used. */
   --spine-w: clamp(1.1rem, 3cqw, 2.6rem);
   --page-pad: clamp(0.85rem, 2.1cqw, 2.1rem);
-  --leaf-radius: clamp(2px, 0.5cqw, 6px);
+  /* Paper is guillotined, boards are rounded on a former — but a 2px page
+     inside an 18px board reads as a square block dropped into a soft one. The
+     leaf keeps the tighter radius of the two; it is no longer a different
+     shape language. */
+  --leaf-radius: clamp(5px, 0.75cqw, 9px);
+
+  /* One width for everything cut into the fore edge, so the thumb index and
+     the close catch are the same piece of hardware. */
+  --tab-w: clamp(2.1rem, 2.9cqw, 3.3rem);
+
+  /**
+   * The ruling of the working page, and the baseline grid everything written
+   * on it is set to.
+   *
+   * A rule that is not the line box of the writing above it cuts through the
+   * descenders, which is what the old 2.1em pitch did — 2.1em resolved against
+   * the list's inherited size while the writing was set a step larger. Every
+   * block in the ruled column therefore takes `--rule-pitch` as its
+   * line-height and margins that are whole multiples of it, so the page is one
+   * grid rather than three that nearly agree.
+   */
+  --rule-pitch: calc(var(--step-1) * 1.42);
+  --rule-ink: color-mix(in srgb, var(--paper-ink) 13%, transparent);
+
+  /* Foxing is iron in the fibre going rusty, not a smudge on the lens. */
+  --foxing: color-mix(in srgb, var(--lamp-600) 55%, var(--blood));
 
   /* Leather: warm brown built from the lamp key, never a brown literal. */
   --leather-hi: color-mix(in srgb, var(--lamp-600) 46%, var(--ink-700));
   --leather-mid: color-mix(in srgb, var(--lamp-600) 26%, var(--ink-900));
   --leather-lo: color-mix(in srgb, var(--lamp-600) 12%, var(--ink-abyss));
-  --thread: color-mix(in srgb, var(--paper-300) 40%, transparent);
+  /* A stitch is a lit thread lying in a dark needle hole, not a dash. */
+  --thread-lit: color-mix(in srgb, var(--paper-300) 58%, transparent);
+  --thread-hole: color-mix(in srgb, var(--ink-abyss) 74%, transparent);
   /* Cork is the one warm mid-tone in the game that is neither paper nor
      leather: baked tan pulled toward the lamp key, then knocked back into the
      room so the dark suspect cards still read as objects sitting on it. Mixed
@@ -67,23 +94,46 @@
   transition-delay: 0s;
 }
 
+/**
+ * The room, put out of focus — not deleted.
+ *
+ * At 62-88% abyss over a 3px blur the scrim annihilated the scene: every
+ * corner of the frame sampled the same information-free blue-black and the
+ * book floated in a void, which is the one thing a book on a desk never does.
+ * Shallower and much softer reads as a defocused lamplit cabin behind the
+ * page, and the warm pool at the foot is the light of that cabin bouncing off
+ * whatever the book is lying on.
+ */
 .journal__scrim {
   position: absolute;
   inset: 0;
   cursor: pointer;
   opacity: 0;
   background:
+    /* Bounce: the lamp coming back off whatever the book is lying on. */
     radial-gradient(
-      70% 60% at 50% 46%,
-      color-mix(in srgb, var(--ink-abyss) 62%, transparent) 0%,
-      color-mix(in srgb, var(--ink-abyss) 88%, transparent) 100%
+      74% 42% at 50% 99%,
+      color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
+      transparent 76%
+    ),
+    /* Ambient. The blacks bottomed out at value 7 with no tonal information
+       anywhere in them; a lamplit room has no such thing as an empty black. */
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--lamp-600) 7%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 12%, transparent) 100%
+    ),
+    radial-gradient(
+      78% 66% at 46% 42%,
+      color-mix(in srgb, var(--ink-abyss) 34%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 58%, transparent) 100%
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ink-900) 70%, transparent),
-      color-mix(in srgb, var(--ink-abyss) 92%, transparent)
+      color-mix(in srgb, var(--ink-900) 34%, transparent),
+      color-mix(in srgb, var(--ink-abyss) 52%, transparent)
     );
-  backdrop-filter: blur(3px) saturate(0.72);
+  backdrop-filter: blur(10px) saturate(0.94);
   transition: opacity var(--dur-slow) var(--ease-out);
 }
 
@@ -106,9 +156,16 @@
 
 .journal__book {
   position: absolute;
-  inset: 5cqh 11cqw 5cqh 6cqw;
+  /* Asymmetric only by the width of the thumb index: the book *plus* its tabs
+     is what has to sit centred in the frame, not the boards on their own.
+     The vertical inset is deliberately close to the horizontal one. At 4.4cqh
+     the boards cleared the head and foot of the frame by 53px while sitting in
+     130px side gutters — a spread that kisses two edges and floats off the
+     other two, which reads as a modal stretched to fit rather than an object
+     lying on a desk. Matched margins make it an object. */
+  inset: 6.6cqh 9.5cqw 6.6cqh 6.8cqw;
   border-radius: calc(var(--leaf-radius) * 2);
-  padding: clamp(0.5rem, 1.3cqw, 1.4rem);
+  padding: clamp(0.75rem, 1.85cqw, 2rem);
   transform-style: preserve-3d;
   /* Origin on the spine: the book opens like a door hinged at its centre. */
   transform-origin: 50% 50%;
@@ -157,17 +214,49 @@
   opacity: 0.4;
 }
 
-/** The saddle stitch running just inside the cover edge. */
+/**
+ * The saddle stitch running just inside the cover edge.
+ *
+ * `border: 1px dashed` is unmistakable at any zoom: perfectly even dashes with
+ * no thread thickness and no needle hole under them. Each run here is two
+ * strips a pixel apart — the lit top of the thread and the dark indentation it
+ * lies in — with an uneven 7-on/5-off rhythm, because a hand-worked saddle
+ * stitch is not a 50% duty cycle.
+ */
 .journal__stitch {
   position: absolute;
-  inset: clamp(0.28rem, 0.7cqw, 0.75rem);
+  inset: clamp(0.4rem, 0.95cqw, 1.05rem);
   border-radius: calc(var(--leaf-radius) * 1.6);
-  border: 1px dashed var(--thread);
-  opacity: 0.5;
   pointer-events: none;
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 40%, transparent),
-    0 1px 0 color-mix(in srgb, var(--ink-abyss) 55%, transparent);
+  opacity: 0.72;
+  background-repeat: repeat-x, repeat-x, repeat-x, repeat-x, repeat-y, repeat-y, repeat-y, repeat-y;
+  background-image:
+    repeating-linear-gradient(90deg, var(--thread-lit) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(90deg, var(--thread-hole) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(90deg, var(--thread-lit) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(90deg, var(--thread-hole) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(180deg, var(--thread-lit) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(180deg, var(--thread-hole) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(180deg, var(--thread-lit) 0 7px, transparent 7px 12px),
+    repeating-linear-gradient(180deg, var(--thread-hole) 0 7px, transparent 7px 12px);
+  background-size:
+    100% 1px,
+    100% 1px,
+    100% 1px,
+    100% 1px,
+    1px 100%,
+    1px 100%,
+    1px 100%,
+    1px 100%;
+  background-position:
+    0 1px,
+    0 0,
+    0 100%,
+    0 calc(100% - 1px),
+    1px 0,
+    0 3px,
+    100% 0,
+    calc(100% - 1px) 3px;
 }
 
 /* ===========================================================================
@@ -185,74 +274,241 @@
     inset 0 0 30px -6px color-mix(in srgb, var(--ink-abyss) 60%, transparent);
 }
 
+/**
+ * The paper stock, and *only* the paper stock.
+ *
+ * Every trace of directional light has been taken off this element. A leaf is
+ * half the spread, so any gradient written here is a gradient that restarts at
+ * the gutter — which is how the spread ended up with two light sources and a
+ * top-to-bottom ramp that read as exactly what it was. The modelling is one
+ * radial key laid over the whole spread in `.journal__vignette`; what is left
+ * here is stock: colour, sizing, foxing, fibre.
+ */
 .journal__leaf {
   position: absolute;
   top: 0;
   bottom: 0;
   width: calc(50% + 1px);
-  background-color: var(--paper-200);
-  /* Aged sizing: a bright quarter where the lamp falls, foxing in the
-     corners, and a warm shift toward the gutter where the page curves away. */
-  background-image:
-    radial-gradient(
-      70% 52% at 26% 16%,
-      color-mix(in srgb, var(--paper-100) 95%, transparent) 0%,
-      transparent 64%
-    ),
-    radial-gradient(
-      22% 16% at 74% 26%,
-      color-mix(in srgb, var(--paper-400) 26%, transparent) 0%,
-      transparent 72%
-    ),
-    radial-gradient(
-      16% 12% at 18% 78%,
-      color-mix(in srgb, var(--paper-400) 22%, transparent) 0%,
-      transparent 74%
-    ),
-    radial-gradient(
-      30% 22% at 88% 92%,
-      color-mix(in srgb, var(--paper-400) 30%, transparent) 0%,
-      transparent 70%
-    ),
-    linear-gradient(
-      177deg,
-      color-mix(in srgb, var(--paper-100) 86%, transparent) 0%,
-      color-mix(in srgb, var(--paper-200) 92%, transparent) 46%,
-      color-mix(in srgb, var(--paper-300) 72%, transparent) 100%
-    );
+  background-color: var(--paper-100);
+  background-repeat: no-repeat;
 }
 
+/**
+ * Foxing: iron in the fibre going rusty. A stain has an edge — a faint rim
+ * with a paler middle — where four large soft Gaussian blobs read as smudges
+ * on the lens. Scattered small and often at a quarter of the old strength, so
+ * it registers as tooth in the paper rather than as bubbles on it, and the two
+ * leaves carry different sets, because the one thing that would give the whole
+ * surface away as a tile is the same four spots twice.
+ */
 .journal__leaf--left {
   left: 0;
   box-shadow: inset -14px 0 24px -18px color-mix(in srgb, var(--paper-ink) 80%, transparent);
+  background-image:
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 9%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 7%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 5%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 6%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 11%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 6%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 8%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 5%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 10%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 7%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 9%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      74% 52% at 34% 88%,
+      color-mix(in srgb, var(--paper-300) 26%, transparent) 0%,
+      transparent 72%
+    );
+  background-size:
+    42px 34px,
+    58px 49px,
+    31px 27px,
+    64px 51px,
+    37px 33px,
+    49px 41px,
+    27px 24px,
+    54px 44px,
+    100% 100%;
+  /* Kept out of the text safe area. A stain sitting under running copy is not
+     age in the paper, it is a loss of contrast exactly where the reader needs
+     it — the ring at 58%/12% landed across the second line of the epigraph. */
+  background-position:
+    14% 26%,
+    76% 63%,
+    31% 84%,
+    54% 62%,
+    88% 34%,
+    9% 58%,
+    47% 45%,
+    67% 92%,
+    0 0;
 }
 
 .journal__leaf--right {
   right: 0;
   box-shadow: inset 14px 0 24px -18px color-mix(in srgb, var(--paper-ink) 80%, transparent);
-}
-
-/* Fibre. Multiply, so it darkens the tooth of the paper instead of fogging it. */
-.journal__leaf::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--grain-fine);
-  background-size: 140px 140px;
-  mix-blend-mode: multiply;
-  opacity: 0.11;
-  pointer-events: none;
+  background-image:
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 8%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 5%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 10%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 6%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 9%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 7%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 5%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 6%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 11%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 8%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
+      color-mix(in srgb, var(--foxing) 6%, transparent) 63%,
+      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      transparent 90%
+    ),
+    radial-gradient(
+      66% 46% at 86% 82%,
+      color-mix(in srgb, var(--paper-300) 30%, transparent) 0%,
+      transparent 74%
+    );
+  background-size:
+    38px 33px,
+    52px 43px,
+    67px 55px,
+    33px 29px,
+    46px 39px,
+    29px 26px,
+    60px 48px,
+    41px 36px,
+    100% 100%;
+  background-position:
+    82% 19%,
+    23% 47%,
+    64% 78%,
+    12% 88%,
+    91% 66%,
+    45% 31%,
+    33% 8%,
+    72% 55%,
+    0 0;
 }
 
 /**
- * The lamp falloff and the fore edges, laid over the whole spread.
+ * The key light. One lamp, one origin, one falloff, across both leaves.
  *
- * The leaves paint the page; this paints the *room*. Everything the panel
- * renders sits under a pool of light that drops off into the corners, and the
- * two outer edges carry the hairline stack of the leaves underneath — which
- * is what stops an open book from reading as two rectangles of texture. It
- * multiplies, so it darkens the page it is over rather than fogging it, and
- * it is the topmost layer in the frame so it falls on the content too.
+ * This is the layer that makes the spread a lit object instead of a pair of
+ * rectangles: the hot spot sits off the top-left corner of the book, the page
+ * falls away from it diagonally, and the far corner of the *right* leaf is the
+ * darkest paper in the frame — so the two leaves are demonstrably not lit by
+ * the same flat wash. The second layer is the cooling: light that has crossed
+ * the gutter has further to travel and has picked up the blue of the cabin, so
+ * the right-hand third loses a few percent of value and a little chroma.
+ *
+ * Written as multiply against `--multiply-none`, which is the identity value
+ * for that blend — so every stop is still a token and the layer darkens the
+ * page (and the type on it) rather than fogging them. Topmost in the frame on
+ * purpose: ink in shadow is ink in shadow.
  */
 .journal__vignette {
   position: absolute;
@@ -260,56 +516,127 @@
   z-index: 3;
   pointer-events: none;
   mix-blend-mode: multiply;
+  /* The two layers have to multiply with *each other* as well as with the
+     page: an opaque shade laid over an opaque shade is just the top one. */
+  background-blend-mode: multiply;
   background:
-    repeating-linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--paper-400) 72%, transparent) 0 1px,
-        transparent 1px 3px
-      )
-      left / clamp(3px, 0.7cqw, 9px) 100% no-repeat,
-    repeating-linear-gradient(
-        270deg,
-        color-mix(in srgb, var(--paper-400) 72%, transparent) 0 1px,
-        transparent 1px 3px
-      )
-      right / clamp(3px, 0.7cqw, 9px) 100% no-repeat,
+    linear-gradient(
+      92deg,
+      var(--multiply-none) 0%,
+      var(--multiply-none) 44%,
+      color-mix(in srgb, var(--moon-300) 13%, var(--multiply-none)) 100%
+    ),
     radial-gradient(
-      118% 96% at 34% 22%,
-      transparent 0%,
-      transparent 42%,
-      color-mix(in srgb, var(--paper-400) 30%, transparent) 76%,
-      color-mix(in srgb, var(--paper-ink) 24%, transparent) 100%
+      115% 135% at 18% -6%,
+      var(--multiply-none) 0%,
+      color-mix(in srgb, var(--paper-200) 34%, var(--multiply-none)) 24%,
+      color-mix(in srgb, var(--paper-300) 48%, var(--multiply-none)) 54%,
+      color-mix(in srgb, var(--paper-400) 60%, var(--multiply-none)) 80%,
+      color-mix(in srgb, var(--paper-ink) 34%, var(--multiply-none)) 100%
     );
 }
 
-/** The spine shadow: where the two leaves fall into the binding. */
+/**
+ * The fore edges: the stack of leaves under the one being read.
+ *
+ * Three flat hairlines at 72% of one tone is a ruling, not a stack. A stack
+ * has a seam where it meets the board, a lit top leaf, the body of the block
+ * in half-shadow and an undercut below it — four values across five to eleven
+ * pixels. It cannot live in the vignette because two of those values are
+ * *lighter* than the page and the vignette multiplies, so it sits above it.
+ */
+.journal__spread-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--paper-ink) 42%, transparent) 0 1px,
+      color-mix(in srgb, var(--paper-100) 78%, transparent) 1px 2px,
+      color-mix(in srgb, var(--paper-300) 46%, transparent) 2px 4px,
+      color-mix(in srgb, var(--paper-400) 52%, transparent) 4px 5px,
+      color-mix(in srgb, var(--paper-ink) 22%, transparent) 5px 6px,
+      transparent 6px
+    ),
+    linear-gradient(
+      270deg,
+      color-mix(in srgb, var(--paper-ink) 46%, transparent) 0 1px,
+      color-mix(in srgb, var(--paper-100) 70%, transparent) 1px 2px,
+      color-mix(in srgb, var(--paper-300) 52%, transparent) 2px 4px,
+      color-mix(in srgb, var(--paper-400) 58%, transparent) 4px 5px,
+      color-mix(in srgb, var(--paper-ink) 26%, transparent) 5px 6px,
+      transparent 6px
+    );
+  background-size:
+    clamp(6px, 0.9cqw, 11px) 100%,
+    clamp(6px, 0.9cqw, 11px) 100%;
+  background-position:
+    left,
+    right;
+}
+
+/**
+ * The binding: where the two leaves stop being flat and fall into the fold.
+ *
+ * A straight-sided bar of constant width and constant value is a printed line,
+ * not a bound gutter — profiled at any height it gave the identical symmetric
+ * V, which is the signature of two rectangles with a rule between them. A real
+ * open book does three things this now does. The paper *curves* into the fold,
+ * so the darkening is a long gradual ramp across a third of the spine rather
+ * than a step. The fold is not symmetric — the leaf the lamp is on catches
+ * light further in, so the left ramp is longer and shallower than the right.
+ * And the block is gripped hardest at head and foot, so the shadow widens and
+ * deepens toward the ends and is at its thinnest where the pages are open
+ * flattest, a little above centre.
+ */
 .journal__gutter {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
-  width: var(--spine-w);
+  /* Three times the old bar: the curve needs room to be a curve. */
+  width: calc(var(--spine-w) * 3);
   transform: translateX(-50%);
   pointer-events: none;
   z-index: 1;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 0%,
-      color-mix(in srgb, var(--paper-ink) 10%, transparent) 24%,
-      color-mix(in srgb, var(--paper-ink) 34%, transparent) 46%,
-      color-mix(in srgb, var(--paper-ink) 40%, transparent) 50%,
-      color-mix(in srgb, var(--paper-ink) 30%, transparent) 54%,
-      color-mix(in srgb, var(--paper-ink) 8%, transparent) 76%,
-      transparent 100%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ink-abyss) 22%, transparent) 0%,
-      transparent 12%,
-      transparent 88%,
-      color-mix(in srgb, var(--ink-abyss) 22%, transparent) 100%
-    );
+  /*
+   * The depth of the fold, as a function of height only. A second background
+   * layer cannot express the pinch, because layers composite by alpha and any
+   * vertical ramp painted as its own layer is uniform across the spine — which
+   * puts a hard-edged rectangle of shade on the page at the two places the box
+   * ends. (It did: a 13-level step at x=997, straight down the leaf.) The
+   * vertical term therefore lives in the paint and the horizontal term lives in
+   * the mask, so the two genuinely multiply and the shape dies out to nothing
+   * at the edge of the element no matter how deep the fold gets.
+   */
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--paper-ink) 46%, transparent) 0%,
+    color-mix(in srgb, var(--paper-ink) 36%, transparent) 20%,
+    color-mix(in srgb, var(--paper-ink) 33%, transparent) 42%,
+    color-mix(in srgb, var(--paper-ink) 40%, transparent) 74%,
+    color-mix(in srgb, var(--paper-ink) 54%, transparent) 100%
+  );
+  /* The curve of the paper into the fold, asymmetric across the spine: the leaf
+     the lamp is on holds its light further in, so the left ramp is the longer
+     and shallower of the two. Alpha ramps, not colours — there is no token for
+     "opaque". */
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(0 0 0 / 0.08) 22%,
+    rgb(0 0 0 / 0.27) 38%,
+    rgb(0 0 0 / 0.68) 46%,
+    rgb(0 0 0 / 1) 50%,
+    rgb(0 0 0 / 0.6) 55%,
+    rgb(0 0 0 / 0.2) 68%,
+    rgb(0 0 0 / 0.06) 84%,
+    transparent 100%
+  );
 }
 
 /* ===========================================================================
@@ -364,10 +691,91 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
+/**
+ * A spread is two columns of type over a foot rule, not two columns of type.
+ *
+ * The second row is the page furniture — folio, rule, running title — which is
+ * why it lives in the grid rather than being absolutely positioned: it has to
+ * measure exactly one column and it has to take its height out of the text
+ * block above it, so the writing can never run into it.
+ */
 .journal-spread--prose {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(0, 1fr) auto;
   column-gap: var(--spine-w);
+}
+
+.journal-spread--prose > .jp-col {
+  grid-row: 1;
+}
+
+/**
+ * Mirrored margins.
+ *
+ * Book layout puts the *larger* margin at the gutter — the fold eats a few
+ * millimetres of it and the reader's thumb eats a few more — and the two leaves
+ * mirror each other across the spine. Both columns were doing the opposite,
+ * hugging the fold and standing off the fore edge, which is what made a
+ * symmetric spread read as very slightly lopsided.
+ */
+.jp-col--flyleaf {
+  padding-inline: 0 var(--sp-6);
+}
+
+.jp-col--ruled {
+  /* The trailing value is the scroll track's seat, so the thumb never lands on
+     top of the writing when a long standing order overruns the leaf. */
+  padding-inline: var(--sp-6) var(--sp-3);
+}
+
+/* The foot takes the same mirror as *margin*, not padding: the rule above the
+   folio has to measure the type block exactly, and a padded border would run
+   the full grid cell and overhang the writing it is ruling off. */
+.jp-foot--verso {
+  margin-inline: 0 var(--sp-6);
+}
+
+.jp-foot--recto {
+  margin-inline: var(--sp-6) var(--sp-3);
+}
+
+.jp-foot {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 20%, transparent);
+  font-family: var(--font-label);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--paper-ink-faded) 58%, transparent);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* The folio is the one number on the page that was set by the binder, so it is
+   printed in the body serif at lining figures rather than in small caps. */
+.jp-foot__folio {
+  font-family: var(--font-body);
+  font-variant-caps: normal;
+  font-variant-numeric: lining-nums;
+  letter-spacing: 0;
+  color: color-mix(in srgb, var(--paper-ink-faded) 74%, transparent);
+}
+
+.jp-foot__run {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jp-foot--recto {
+  text-align: right;
 }
 
 .journal-scroll,
@@ -393,20 +801,31 @@
   );
 }
 
+/**
+ * Page labels.
+ *
+ * Set in small-cap Garamond rather than a tracked grotesque. The old
+ * `--font-ui` at 11px with 0.14em was the loudest costume-shop signal in the
+ * frame: a SaaS dashboard's column heads sitting on a leather book, fighting
+ * the Cormorant title six millimetres below them. `all-small-caps` is what a
+ * 1930s ledger prints its heads in, and because small caps stand about
+ * three-quarters of cap height, the size has to go *up* two steps to land at
+ * the same optical weight.
+ */
 .jp-kicker {
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
+  font-family: var(--font-label);
+  font-size: var(--step-0);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
-  color: color-mix(in srgb, var(--paper-ink-faded) 88%, transparent);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--paper-ink-faded) 92%, transparent);
   margin-bottom: var(--sp-2);
   padding-bottom: var(--sp-2);
   border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 22%, transparent);
 }
 
 .jp-kicker--cork {
-  color: color-mix(in srgb, var(--paper-100) 76%, transparent);
+  color: color-mix(in srgb, var(--paper-100) 78%, transparent);
   border-bottom-color: color-mix(in srgb, var(--ink-abyss) 34%, transparent);
 }
 
@@ -422,55 +841,370 @@
 .jp-epigraph {
   font-style: italic;
   color: var(--paper-ink-faded);
-  font-size: var(--step-0);
-  margin-bottom: var(--sp-3);
-  padding-left: var(--sp-4);
-  border-left: 2px solid color-mix(in srgb, var(--blood) 40%, transparent);
-}
-
-.jp-lede {
   font-size: var(--step-1);
   line-height: var(--leading-body);
-  color: color-mix(in srgb, var(--paper-ink) 92%, transparent);
-  margin-bottom: var(--sp-5);
+  margin-bottom: var(--sp-4);
+  padding-left: var(--sp-4);
+  /* `--blood` is the token the palette assigns to `--danger`. A dull rose bar
+     beside an epigraph is a semantic lie as well as the only cool-adjacent
+     accent on a warm sheet: the mark a reader's own pencil leaves down the
+     margin of a passage is graphite, or it is the same iron-gall the page is
+     written in. This is the latter, half strength. */
+  border-left: 2px solid color-mix(in srgb, var(--paper-ink) 34%, transparent);
   text-wrap: pretty;
 }
 
-.case-stats {
+/* ---------------------------------------------------------------------------
+   The flyleaf: what this act is, the warrant it runs under, and the reckoning
+   ruled off at the foot.
+   ------------------------------------------------------------------------- */
+
+.jp-col--flyleaf,
+.jp-col--ruled {
+  display: flex;
+  flex-direction: column;
+}
+
+/**
+ * The commission, pasted in.
+ *
+ * A separate slip of stock lying on the leaf — brighter, squarer, very
+ * slightly askew, and casting its own shadow onto the page under it. It is
+ * here because the lower two thirds of this leaf were blank paper: a case
+ * journal that carries no case reference is a to-do list wearing leather.
+ */
+.plate {
+  position: relative;
+  margin: var(--sp-4) 0 var(--sp-6);
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  transform: rotate(-0.4deg);
+  border-radius: var(--radius-sm);
+  background-color: var(--paper-100);
+  background-image:
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--paper-100) 97%, transparent) 0%,
+      color-mix(in srgb, var(--paper-200) 88%, transparent) 100%
+    ),
+    var(--grain-fine);
+  background-size:
+    100% 100%,
+    140px 140px;
+  background-blend-mode: normal, multiply;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 94%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 52%, transparent),
+    2px 6px 14px -7px color-mix(in srgb, var(--paper-ink) 62%, transparent),
+    var(--shadow-1);
+}
+
+.plate__head {
+  font-family: var(--font-label);
+  font-size: var(--step-1);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: var(--paper-ink);
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  /* A printed letterhead rule is two lines and a gap, which is what `double`
+     is for; a single hairline here would read as another UI divider. */
+  border-bottom: 3px double color-mix(in srgb, var(--paper-ink) 46%, transparent);
+}
+
+.plate__rows {
   display: grid;
   gap: var(--sp-2);
-  padding-top: var(--sp-4);
-  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 18%, transparent);
+}
+
+.plate__row {
+  display: grid;
+  grid-template-columns: minmax(0, 7.5em) 1fr;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.plate__row dt {
+  font-family: var(--font-label);
+  font-size: var(--step-0);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--paper-ink-faded) 92%, transparent);
+}
+
+.plate__row dd {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.3;
+  color: var(--paper-ink);
+}
+
+/**
+ * The date stamp.
+ *
+ * The violet finally has an honest job. `--amethyst` was being used as the
+ * colour of Wren's handwriting, where it read as a UI accent; a rubber stamp
+ * is the one thing in an archive that genuinely is violet, and the content
+ * says so — the commission carries "a countersignature in violet ink". Rolled
+ * off the corner of the slip and struck at an angle, because nobody has ever
+ * aligned a hand stamp to a paste-up.
+ */
+.plate__stamp {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: clamp(-1.5rem, -2cqh, -0.6rem);
+  display: grid;
+  justify-items: center;
+  gap: 0.05em;
+  padding: 0.4em 0.75em 0.3em;
+  transform: rotate(-7deg);
+  border: 2px solid currentcolor;
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--amethyst) 74%, var(--paper-ink));
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+  font-family: var(--font-label);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/**
+ * The dateline, written in the lower margin in her own hand.
+ *
+ * The flyleaf had five blocks stacked in its top forty-five percent and five
+ * hundred pixels of nothing under them; the free space is now split above and
+ * below this, so the page reads as generously set rather than abandoned. It is
+ * also the one line here that changes as the player moves, so the leaf is not
+ * a fixed illustration.
+ */
+.jp-margin {
+  display: grid;
+  justify-items: end;
+  gap: 0.1em;
+  margin-top: auto;
+  padding-bottom: var(--sp-5);
+  text-align: right;
+  color: var(--ink-hand);
+}
+
+.jp-margin__label {
+  font-family: var(--font-label);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--paper-ink-faded) 78%, transparent);
+}
+
+.jp-margin__place {
+  font-family: var(--font-hand);
+  font-size: var(--step-2);
+  line-height: 1.1;
+}
+
+.jp-margin__sub {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  line-height: 1.2;
+  /* The pen is a light face: ink mixed back this far went to a grey suggestion
+     of a line rather than something written. */
+  color: color-mix(in srgb, var(--ink-hand) 86%, transparent);
+}
+
+.jp-margin__pen {
+  display: block;
+  width: clamp(5rem, 11cqw, 8.5rem);
+  margin-top: var(--sp-2);
+  color: color-mix(in srgb, var(--ink-hand) 42%, transparent);
+}
+
+.jp-margin__pen svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Half the slack sits above the dateline and half below the commission, so
+   the leaf breathes evenly instead of pooling one hole in its middle. */
+.plate {
+  margin-bottom: auto;
+}
+
+/**
+ * The reckoning. Pushed to the foot of the leaf, the way a ledger keeps its
+ * totals — which also stops the page from being five blocks in the top 45%
+ * and nothing underneath.
+ */
+.case-stats {
+  display: grid;
+  gap: var(--sp-1);
+  padding-top: var(--sp-3);
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 26%, transparent);
+}
+
+/* The dateline above it normally does the pushing; with no scene to name, the
+   totals take the job back so they never float in the middle of the leaf. */
+.jp-col--flyleaf:not(:has(.jp-margin)) .case-stats {
+  margin-top: auto;
 }
 
 .case-stat {
   display: flex;
   align-items: baseline;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
 }
 
 .case-stat dt {
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-family: var(--font-label);
+  font-size: var(--step-0);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
   color: var(--paper-ink-faded);
 }
 
 /* A leader rule between label and figure, the way a ledger sets a column. */
 .case-stat dt::after {
   content: '';
-  display: inline-block;
-  vertical-align: middle;
-  width: 0;
+  flex: 1;
+  height: 0;
+  transform: translateY(-0.3em);
+  border-bottom: 1px dotted color-mix(in srgb, var(--paper-ink) 34%, transparent);
 }
 
 .case-stat dd {
-  margin-left: auto;
+  margin: 0;
   font-family: var(--font-hand);
   font-size: var(--step-2);
   line-height: 1;
-  color: color-mix(in srgb, var(--amethyst) 70%, var(--paper-ink));
+  /* A ledger's figures stand in a column of one width. Set flush right, a
+     handwritten '1' is far narrower than a '0' and its stroke lands well
+     inside the column edge, so the four totals ragged visibly down the foot of
+     the leaf. Each figure now sits centred in a fixed cell, which is what a
+     ruled money column does, and grows for a three-figure count. */
+  min-width: 1.4ch;
+  text-align: center;
+  font-variant-numeric: lining-nums tabular-nums;
+  /* Her pen, not a UI accent — the same ink as everything else she wrote. */
+  color: var(--ink-hand);
+}
+
+/* ---------------------------------------------------------------------------
+   The working page: ruled stock, and the standing order set on it as articles
+   ------------------------------------------------------------------------- */
+
+/**
+ * The ruling runs the height of the leaf, not the height of the list.
+ *
+ * It is painted on the column with `background-attachment: local` so the lines
+ * travel with the writing when the page scrolls, and `background-origin:
+ * content-box` so the first rule lands on the first line box rather than on
+ * the padding. Every child below sets its line-height to `--rule-pitch` and
+ * its margins to whole multiples of it, which is the only way rules and
+ * baselines stay registered once a block wraps.
+ *
+ * Warm ink: the old ruling was `--moon-400`, a cool blue, on a warm sheet.
+ */
+.jp-col--ruled {
+  padding-top: 0;
+  background-image: linear-gradient(180deg, transparent calc(100% - 1px), var(--rule-ink) 0);
+  background-size: 100% var(--rule-pitch);
+  background-origin: content-box;
+  background-attachment: local;
+}
+
+.jp-col--ruled > * {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.jp-col--ruled .jp-kicker {
+  height: var(--rule-pitch);
+  line-height: var(--rule-pitch);
+  margin-bottom: var(--rule-pitch);
+  color: color-mix(in srgb, var(--paper-ink-faded) 96%, transparent);
+}
+
+.jp-kicker--mid {
+  margin-top: var(--rule-pitch);
+}
+
+.order__articles {
+  list-style: none;
+}
+
+/**
+ * An act's standing order is a commission, and a commission is written as
+ * numbered articles. It arrives from the story bible as one sentence with its
+ * clauses hung off semicolons; printed straight it was a two-hundred-character
+ * run-on, and because the engine also files it as a task the page printed it
+ * twice — as a lede on the left leaf and verbatim as the only to-do on the
+ * right. Set as articles it is the Conservancy's printing, so it is in the
+ * body serif, and the checkbox list below it is in Wren's hand.
+ */
+.order__article {
+  display: grid;
+  grid-template-columns: 2.4em 1fr;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--rule-pitch);
+  color: color-mix(in srgb, var(--paper-ink) 94%, transparent);
+  text-wrap: pretty;
+}
+
+.order__num {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--paper-ink-faded) 82%, transparent);
+}
+
+.order__closed {
+  list-style: none;
+  margin-top: var(--rule-pitch);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  line-height: var(--rule-pitch);
+  color: color-mix(in srgb, var(--paper-ink-faded) 62%, transparent);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--ink-hand) 45%, transparent);
+}
+
+/** A line in her own hand where a list would be overkill. */
+.jp-note {
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: var(--rule-pitch);
+  color: color-mix(in srgb, var(--ink-hand) 88%, transparent);
+}
+
+/** The pen flourish that closes off a page with room left on it. */
+.jp-sign {
+  margin-top: auto;
+  padding-top: var(--sp-5);
+  color: color-mix(in srgb, var(--paper-ink) 30%, transparent);
+}
+
+.jp-sign svg {
+  display: block;
+  width: clamp(6rem, 13cqw, 10rem);
+  height: auto;
+  margin-left: auto;
+  /* Mirrored, because the flyleaf carries the same flourish under its dateline
+     and the same pen stroke twice in one spread is a tell. */
+  transform: scaleX(-1);
 }
 
 /* -- empty states ---------------------------------------------------------- */
@@ -520,7 +1254,7 @@
 .journal__tabs {
   position: absolute;
   left: calc(100% - 1px);
-  top: 7%;
+  top: 12%;
   display: flex;
   flex-direction: column;
   gap: clamp(0.2rem, 0.7cqh, 0.6rem);
@@ -532,8 +1266,12 @@
      to the length of the word would read as an accident. */
   display: grid;
   place-items: center;
+  width: var(--tab-w);
   min-height: clamp(4.4rem, 10.5cqh, 8.5rem);
-  padding: clamp(0.6rem, 1.5cqh, 1.2rem) clamp(0.3rem, 0.7cqw, 0.6rem);
+  /* The extra foot is the seat for the pip. It used to sit at 50%/0.35em,
+     which on a thirty-four pixel vertical tab is the dead centre of the word:
+     a debug dot punched through DEDUCTION, not a status light. */
+  padding: clamp(0.6rem, 1.5cqh, 1.2rem) 0 clamp(1.3rem, 3cqh, 2.1rem);
   border: 0;
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   background-color: var(--leather-mid);
@@ -560,37 +1298,47 @@
     box-shadow var(--dur-med) var(--ease-out);
 }
 
+/* Blocked into the hide in the same small-cap serif the pages are labelled in,
+   so the index belongs to the book rather than to a settings menu. */
 .journal-tab__face {
   display: block;
   writing-mode: vertical-rl;
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
+  font-family: var(--font-label);
+  font-size: var(--step-1);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
-  color: color-mix(in srgb, var(--paper-200) 62%, transparent);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--paper-200) 66%, transparent);
   text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
   transition: color var(--dur-med) var(--ease-out);
 }
 
-/** The brass pip that lights when a tab is the live one. */
+/**
+ * The brass eyelet at the foot of the tab, dark until this is the live page.
+ * Seated below the word, never through it — and unlit it reads as a punched
+ * hole in the hide with a lit lower lip, which is what an eyelet is.
+ */
 .journal-tab__pip {
   position: absolute;
-  left: 0.35em;
-  top: 50%;
-  width: 3px;
-  height: 3px;
-  margin-top: -1.5px;
+  left: 50%;
+  bottom: clamp(0.5rem, 1.2cqh, 0.85rem);
+  width: 4px;
+  height: 4px;
+  transform: translateX(-50%);
   border-radius: 50%;
-  background: color-mix(in srgb, var(--lamp-600) 70%, transparent);
+  background: color-mix(in srgb, var(--ink-abyss) 66%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent);
   transition:
     background var(--dur-med) var(--ease-out),
     box-shadow var(--dur-med) var(--ease-out);
 }
 
+/* Hover lifts the tab a couple of millimetres proud of the board. It must not
+   clear the fore edge: a thumb index that leaves the book on mouseover is a
+   chip floating in the room, not a tab you could put a thumb behind. */
 .journal-tab:hover,
 .journal-tab:focus-visible {
-  transform: translateX(0.55cqw);
+  transform: translateX(-0.12cqw);
   filter: brightness(1.14);
 }
 
@@ -599,8 +1347,25 @@
   color: color-mix(in srgb, var(--paper-100) 88%, transparent);
 }
 
+/**
+ * The live tab. Still in the book, and longer than its neighbours.
+ *
+ * Every version of this rule that moved the selected tab *right* inverted the
+ * affordance: `translateX` slides the whole blank, so the live index left the
+ * cover behind and hung in the black with a nine-pixel gap where its root
+ * should be, while the four unselected ones stayed stitched to the board. A
+ * thumb index you have pulled is the one tab that is *most* attached to the
+ * page it opens. So the travel is gone — every tab shares one left edge buried
+ * in the fore edge — and the live one is told apart by three things a real
+ * leather index would use: it is cut longer, it is lit brass rather than dark
+ * hide, and it carries a hard seam where it enters the board.
+ */
 .journal-tab.is-active {
-  transform: translateX(1.1cqw);
+  /* Identical to the resting transform, so the root of the tab stays inside
+     the cover. Prominence is width and value, never distance. */
+  transform: translateX(-0.35cqw);
+  width: calc(var(--tab-w) + 0.9cqw);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   background-image:
     linear-gradient(
       180deg,
@@ -611,101 +1376,148 @@
     var(--grain-hide);
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
-    inset -1px 0 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
-    var(--shadow-2),
-    var(--glow-lamp-soft);
+    inset 3px 0 5px -3px color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    var(--shadow-2);
 }
 
+/**
+ * Lit brass, not white-hot.
+ *
+ * At `--lamp-100` the five letters of the live tab were the brightest pixels
+ * in the frame — brighter than any paper the lamp was falling on — and
+ * subpixel rasterising pushed the clipped edges higher still. Held at
+ * `--lamp-300` the label is 130 levels up on the hide it is blocked into,
+ * which is all the separation a selected index needs, and the top of the
+ * frame's value range stays where it belongs: on the page.
+ */
 .journal-tab.is-active .journal-tab__face {
-  color: var(--lamp-100);
+  color: var(--lamp-300);
 }
 
+/* Held to the same ceiling as the label: a four-pixel eyelet has no business
+   being the brightest thing in a frame whose subject is a lamplit page. */
 .journal-tab.is-active .journal-tab__pip {
-  background: var(--lamp-200);
-  box-shadow: var(--glow-lamp);
+  background: var(--lamp-300);
+  box-shadow: var(--glow-lamp-soft);
 }
 
 /* ===========================================================================
    Close catch
    ========================================================================= */
 
+/**
+ * The clasp.
+ *
+ * It was a flat grey circle straddling the top-right corner of the boards —
+ * the only round thing in a frame of rectangles, cutting the cover silhouette
+ * and tangenting the tab rail: a web modal's close button parked on a leather
+ * book. It is now a brass catch of the same gauge as the thumb index, seated
+ * on the fore edge above the first tab, so it reads as the piece of hardware
+ * that holds the book shut. Real specular: a lit top rim, a warm body, a dark
+ * undercut.
+ *
+ * Struck bright it was worse than the circle it replaced: a polished brass
+ * plate in the top corner out-valued the lamplit page and became the first
+ * thing the eye found on a spread whose subject is the writing. Brass in this
+ * room is lit *by* the lamp, so it cannot be lighter than the paper the lamp is
+ * falling on — the body is mixed down into the mid-brass range and only the
+ * one-pixel top rim carries any real specular.
+ */
 .journal__close {
   position: absolute;
-  top: calc(var(--sp-3) * -1);
-  right: calc(var(--sp-3) * -1);
+  left: calc(100% - 1px);
+  top: 3cqh;
   z-index: 3;
   display: grid;
   place-items: center;
-  width: clamp(1.8rem, 3.2cqw, 2.8rem);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  color: var(--lamp-200);
+  width: var(--tab-w);
+  height: clamp(1.7rem, 3.6cqh, 2.7rem);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  color: var(--lamp-100);
+  /* Knocked below the live tab on purpose. A catch struck brighter than the
+     thumb index makes the way *out* of the book the most valuable object on
+     the spread, which inverts the reading order at the busiest corner of the
+     frame: the eye should find the page, then the index, then the clasp. */
   background-image:
     linear-gradient(
-      170deg,
-      color-mix(in srgb, var(--lamp-400) 46%, var(--ink-700)) 0%,
-      color-mix(in srgb, var(--ink-800) 92%, var(--lamp-600)) 72%,
-      var(--ink-900) 100%
-    );
+      163deg,
+      color-mix(in srgb, var(--lamp-400) 46%, var(--lamp-600)) 0%,
+      color-mix(in srgb, var(--lamp-600) 82%, var(--ink-800)) 38%,
+      color-mix(in srgb, var(--lamp-600) 44%, var(--ink-800)) 82%,
+      color-mix(in srgb, var(--ink-900) 82%, var(--lamp-600)) 100%
+    ),
+    var(--grain-hide);
+  background-size:
+    100% 100%,
+    200px 200px;
+  background-blend-mode: normal, overlay;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 44%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    inset 3px 0 5px -3px color-mix(in srgb, var(--ink-abyss) 80%, transparent),
     var(--shadow-2);
+  transform: translateX(-0.35cqw);
   transition:
     transform var(--dur-fast) var(--ease-out),
     filter var(--dur-fast) var(--ease-out);
 }
 
 .journal__close svg {
-  width: 62%;
-  height: 62%;
+  width: 58%;
+  height: 58%;
+  color: color-mix(in srgb, var(--ink-900) 82%, var(--lamp-600));
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--lamp-100) 45%, transparent));
 }
 
+/* Like the index, the catch stays seated in the fore edge when it lights up. */
 .journal__close:hover,
 .journal__close:focus-visible {
-  filter: brightness(1.2);
-  transform: rotate(90deg);
+  filter: brightness(1.16);
+  transform: translateX(-0.12cqw);
 }
 
 .journal__close:active {
-  transform: rotate(90deg) scale(0.94);
+  transform: translateX(-0.12cqw) scale(0.97);
 }
 
 /* ===========================================================================
    CASE — handwritten task list
    ========================================================================= */
 
+/**
+ * The ruling used to live here, at a 2.1em pitch that resolved against the
+ * list's inherited size while the writing was set a step larger — which is why
+ * the second rule ran through the descenders and the ruling stopped dead three
+ * lines down an eight-hundred-pixel page. It now belongs to the leaf
+ * (`.jp-col--ruled`), and the list simply writes on it: line boxes are one
+ * `--rule-pitch` tall, so every line of every task lands on a printed line.
+ */
 .task-list {
   display: grid;
-  gap: var(--sp-3);
   list-style: none;
-  padding: 0;
-  /* Faint ruling, so the hand-written list sits on lines like a real page. */
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0,
-    transparent calc(2.1em - 1px),
-    color-mix(in srgb, var(--moon-400) 16%, transparent) calc(2.1em - 1px),
-    color-mix(in srgb, var(--moon-400) 16%, transparent) 2.1em
-  );
 }
 
 .task {
   display: grid;
-  grid-template-columns: auto 1fr;
+  /* The same 2.4em margin the standing order's numerals sit in, so the ticks
+     and the articles share one hanging indent down the page. */
+  grid-template-columns: 2.4em 1fr;
   align-items: start;
-  gap: var(--sp-3);
   font-family: var(--font-hand);
   font-size: var(--step-1);
-  line-height: 1.35;
-  color: color-mix(in srgb, var(--amethyst) 55%, var(--paper-ink));
+  line-height: var(--rule-pitch);
+  /* Her pen. Iron-gall blue-black — a second, wetter hand than the printing,
+     used for everything the player wrote and for nothing else. */
+  color: var(--ink-hand);
+  text-shadow: 0 0 1px color-mix(in srgb, currentcolor 30%, transparent);
 }
 
 .task__box {
   display: block;
   width: 1.15em;
   height: 1.15em;
-  margin-top: 0.12em;
+  /* Centred in the first ruled line box rather than nudged by a magic em. */
+  margin-top: calc((var(--rule-pitch) - 1.15em) * 0.5);
   color: color-mix(in srgb, var(--paper-ink) 62%, transparent);
 }
 
@@ -808,9 +1620,11 @@
   position: absolute;
   right: 0;
   top: 0;
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  letter-spacing: var(--tracking-ui);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  font-size: var(--step-0);
+  letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
 }
 
@@ -903,10 +1717,11 @@
 }
 
 .clue-card__act {
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  font-size: var(--step-0);
+  letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
 }
 
@@ -1087,10 +1902,11 @@
 }
 
 .person-card__role {
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  font-size: var(--step-0);
+  letter-spacing: var(--tracking-label);
   color: var(--paper-ink-faded);
   margin: var(--sp-2) 0 var(--sp-3);
 }
@@ -1104,10 +1920,11 @@
 
 .person-card__label {
   margin: var(--sp-3) 0 var(--sp-2);
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  font-size: var(--step-0);
+  letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink-faded) 76%, transparent);
 }
 
@@ -1331,10 +2148,11 @@
 }
 
 .ded-card__cat {
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  font-size: var(--step-0);
+  letter-spacing: var(--tracking-label);
   color: color-mix(in srgb, var(--paper-ink-faded) 72%, transparent);
 }
 
@@ -1793,11 +2611,53 @@
   outline-offset: 2px;
 }
 
-.journal__panel .ded :focus-visible,
-.journal-tab:focus-visible,
-.journal__close:focus-visible {
+.journal__panel .ded :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+/**
+ * The index and the clasp take their ring *inside* the object.
+ *
+ * An outline at a positive offset rounds every corner by the offset, so a tab
+ * whose left edge is square and buried in the board came back as a fully
+ * rounded capsule floating clear of it — a browser focus ring on a detached
+ * chip. Held at a negative offset the ring follows the real silhouette and
+ * reads as an engraved rim on a piece of brass.
+ *
+ * Its *value* is capped on purpose. At `--lamp-200` the rim measured 250 while
+ * the brightest lamplit paper in the frame measured 239, so a two-pixel piece
+ * of keyboard chrome in the far corner was the lightest thing in the picture
+ * and took the eye off the page. Nothing in this book may out-value the paper:
+ * the rim is mixed down until it sits inside the lit-brass range, where it is
+ * still unmistakable against dark hide but reads as a polished edge.
+ */
+.journal__tabs .journal-tab:focus-visible,
+.journal__frame .journal__close:focus-visible {
+  /* No stroke at all. An `outline` — at any offset, in any colour — is a
+     rectangle laid over a piece of hardware, and on the *live* tab it was
+     indistinguishable from the brass face that already means "this is the page
+     you are on": selection and focus rendered as the same yellow ring. The
+     selectors are deliberately one level deeper than the global ring in
+     base.css so this wins on specificity rather than on file order. */
+  outline: none;
+  /* Focus is a light *on* the object: a hot rim along the three edges that are
+     actually proud of the board, dying out at the root where the blank enters
+     the fore edge, plus the eyelet catching the lamp. It follows the tab's own
+     silhouette because it is drawn inside its own border radius, so the square
+     left edge stays square. */
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--lamp-100) 78%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--lamp-100) 78%, transparent),
+    inset -2px 0 0 color-mix(in srgb, var(--lamp-100) 78%, transparent),
+    inset 8px 0 10px -8px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    var(--shadow-2),
+    var(--glow-lamp-soft);
+}
+
+.journal__tabs .journal-tab:focus-visible .journal-tab__pip {
+  background: var(--lamp-200);
+  box-shadow: var(--glow-lamp);
 }
 
 /* Paper surfaces get an ink-toned track; the cork board keeps the brass one

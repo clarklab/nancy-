@@ -311,8 +311,12 @@
 .title-art {
   position: absolute;
   /* Overscan: the plate is larger than the frame so parallax can never expose
-     an edge, however far it drifts. */
-  inset: -3vmax;
+     an edge, however far it drifts.
+     Kept as tight as the parallax throw allows (14px, see PARALLAX_MAX) plus
+     the breath. Every extra vmax here is resampling the painting further past
+     its native width, and the first thing that costs is the masonry and the
+     edge on the surf. */
+  inset: -1.6vmax;
   overflow: hidden;
   transform: translate3d(var(--par-x, 0), var(--par-y, 0), 0);
   /* Short enough to feel attached to the hand. A long ease here reads as lag,
@@ -342,13 +346,17 @@
   opacity: 1;
 }
 
+/* A breath, not a zoom. The old 1.04–1.085 pushed a 2304px plate out to
+   ~2150 rendered pixels of a 1980px box; at that magnification the gallery
+   rail and the lantern glazing bars dissolve. 2.3% of travel is still
+   perfectly legible as movement and costs almost no resolution. */
 @keyframes title-breath {
   0%,
   100% {
-    transform: scale(1.04);
+    transform: scale(1.012);
   }
   50% {
-    transform: scale(1.085);
+    transform: scale(1.035);
   }
 }
 
@@ -414,19 +422,42 @@
 }
 
 .title-art__rain {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
-/* A slow warm pulse over the whole frame, as if the lamp were guttering. */
+/* The near curtain: bigger, faster, and very slightly out of focus, so the
+   rain has a front and a back instead of one flat sheet of ticks. */
+.title-art__rain--near {
+  opacity: 0.75;
+  filter: blur(0.5px);
+}
+
+/**
+ * The gutter.
+ *
+ * The lamp itself is painted into the plate — a burning core, a halo, and warm
+ * speculars on the crests it actually reaches. This layer only *modulates* it,
+ * so it has to sit exactly on the lantern or the whole right half lifts like
+ * fog instead of pulsing like a flame. 75.8% / 37.4% is the lantern glazing at
+ * this frame's cover-crop; the falloff is deliberately tight for the same
+ * reason, with one much wider, much fainter ring for the air around it.
+ */
 .title-art__lamp {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(
-    52% 52% at 72% 54%,
-    color-mix(in srgb, var(--lamp-300) 16%, transparent) 0%,
-    transparent 70%
-  );
+  background:
+    radial-gradient(
+      7% 8% at 75.8% 37.4%,
+      color-mix(in srgb, var(--lamp-100) 34%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-300) 16%, transparent) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      30% 26% at 75.8% 37.4%,
+      color-mix(in srgb, var(--lamp-400) 9%, transparent) 0%,
+      transparent 70%
+    );
   mix-blend-mode: screen;
   animation: title-gutter calc(var(--dur-scene) * 15) var(--ease-in-out) infinite;
 }
@@ -444,22 +475,62 @@
   }
 }
 
+/**
+ * Shade, not a wall.
+ *
+ * The type needs a dark ground on the left, but a 90deg ramp of near-neutral
+ * black gives you a CSS panel laid over a photograph: it crushes the left
+ * third to R=G=B, kills the sunset band dead at its edge, and leaves a visible
+ * vertical seam where it lets go. So: an elliptical pool anchored under the
+ * type block, mixed from `--scrim-cool` so the darks keep the picture's teal,
+ * and capped well short of opaque so the ochre band survives to the frame
+ * edge and the house silhouette stays readable.
+ */
 .title-art__vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
+    radial-gradient(
+      82% 116% at 6% 52%,
+      color-mix(in srgb, var(--scrim-cool) 88%, transparent) 0%,
+      color-mix(in srgb, var(--scrim-cool) 46%, transparent) 46%,
+      color-mix(in srgb, var(--scrim-cool) 16%, transparent) 70%,
+      transparent 86%
+    ),
     linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--ink-abyss) 88%, transparent) 0%,
-      color-mix(in srgb, var(--ink-abyss) 34%, transparent) 38%,
-      transparent 62%
+      180deg,
+      transparent 52%,
+      color-mix(in srgb, var(--scrim-cool) 34%, transparent) 100%
     ),
     radial-gradient(
       130% 110% at 50% 46%,
-      transparent 38%,
-      color-mix(in srgb, var(--ink-abyss) 82%, transparent) 100%
+      transparent 40%,
+      color-mix(in srgb, var(--scrim-cool) 70%, transparent) 100%
     );
+}
+
+/**
+ * Emulsion, and a dither.
+ *
+ * The global film grain is 5% soft-light, which does almost nothing on a
+ * picture whose entire tonal range lives under 40% luma — and this frame is
+ * mostly smooth gradient, which is exactly what bands on an 8-bit panel. This
+ * pass sits over the plate *and* over the scrim above, so the shade gradient
+ * is dithered too.
+ */
+.title-art__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--menu-grain);
+  background-size: 160px 160px;
+  mix-blend-mode: overlay;
+  opacity: 0.05;
+}
+
+:root[data-grain='off'] .title-art__grain {
+  display: none;
 }
 
 /* -- Type ------------------------------------------------------------------ */
@@ -469,17 +540,107 @@
   z-index: 1;
   align-self: center;
   justify-self: start;
-  max-width: min(46rem, 52vw);
+  /* Wide enough that 'The Lamplight' holds one line at the display size — the
+     authored break is only an authored break if the box lets it happen. */
+  max-width: min(62rem, 64vw);
   padding: 0 clamp(var(--sp-6), 7vw, 9rem);
+  /* Lifted off dead centre. Two things sit at the vertical middle of this
+     frame: the sea horizon, and the rule under the wordmark. Left level they
+     run parallel 20px apart and read as one mis-registered line. */
+  transform: translateY(-4vh);
 }
 
+/**
+ * One sheet of lit metal.
+ *
+ * The gilding lives here, on the block, not on the letters. Clipping a
+ * gradient to each glyph re-runs the whole cream→amber ramp inside every
+ * character box, so an x-height 'a' finishes the ramp in 40px while the 'L'
+ * beside it spreads it over 100 — the word comes out blotchy, like tarnish,
+ * and the tittle over the 'i' turns into a white bead. Clipped once at this
+ * level, a single rake of light crosses all of it.
+ *
+ * The ramp is not a fade. Real brass turns dark at the waist and comes back
+ * up: that dark band at 54% is what separates 'Cipher' from the ochre cloud
+ * behind it, and is why the type needs almost no cast shadow to read.
+ */
 .title-wordmark {
-  margin: 0;
+  margin: 0 0 0 -0.03em; /* optical: hangs the flat T-stem onto the rule's axis */
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(3rem, 7.2vw, 6.4rem);
-  line-height: 0.98;
-  letter-spacing: 0.015em;
+  font-size: clamp(2.6rem, 6.2vw, 5.9rem);
+  line-height: 1.06;
+  letter-spacing: -0.012em;
+  background: linear-gradient(
+    176deg,
+    var(--lamp-100) 0%,
+    var(--lamp-200) 20%,
+    var(--lamp-400) 42%,
+    var(--lamp-600) 56%,
+    var(--lamp-300) 66%,
+    var(--lamp-500) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Contact shading, not a drop shadow. The key is the lantern up and to the
+     right, so the letters throw down and to the left, short and tight. A
+     22px-offset black blob under the type is a Photoshop layer effect. */
+  filter:
+    drop-shadow(0 0 20px color-mix(in srgb, var(--lamp-400) 30%, transparent))
+    drop-shadow(-3px 3px 5px rgb(6 12 16 / 0.85));
+  /* The reveal is a wipe of the whole block, not a stagger of its letters.
+     A per-letter animation gives every span its own compositing layer, and a
+     `background-clip: text` on the parent cannot clip into a layer it does not
+     paint — the gilding simply falls off and the title disappears. Masking the
+     block keeps one gradient and still lights the words left to right. */
+  -webkit-mask-image: linear-gradient(
+    100deg,
+    #000 0%,
+    #000 34%,
+    rgb(0 0 0 / 0) 62%,
+    rgb(0 0 0 / 0) 100%
+  );
+  mask-image: linear-gradient(
+    100deg,
+    #000 0%,
+    #000 34%,
+    rgb(0 0 0 / 0) 62%,
+    rgb(0 0 0 / 0) 100%
+  );
+  -webkit-mask-size: 320% 100%;
+  mask-size: 320% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: title-gild calc(var(--dur-scene) * 2.6) var(--ease-out) both;
+  animation-delay: var(--dur-med);
+}
+
+/* With `mask-size: 320%`, `mask-position: 100%` parks the mask's transparent
+   tail over the box and `0%` parks its opaque head there — so the light enters
+   from the left and runs the length of the words. Anything outside 0-100% with
+   `no-repeat` slides the mask clean off the element and hides it. */
+@keyframes title-gild {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+}
+
+/* Two lines, and the article is not one of them. 'The Lamplight' / 'Cipher':
+   a definite article given a 100px display line of its own is the first thing
+   the eye lands on, and it is the least important word in the title. */
+.title-wordmark__line {
+  display: block;
+}
+
+.title-wordmark__line + .title-wordmark__line {
+  /* Round caps overhang a flat stem. */
+  text-indent: -0.035em;
 }
 
 .title-wordmark__word {
@@ -489,54 +650,61 @@
   white-space: nowrap;
 }
 
+/**
+ * The letter spans are now purely structural.
+ *
+ * They carry no paint and no animation of their own — anything that gives one
+ * of them a compositing layer (a transform, an opacity, a filter, a will-change)
+ * takes it out of the parent's `background-clip: text` and the gilding falls
+ * off that glyph. They are kept because the reveal is authored per letter
+ * upstream and because they are what lets a future build kern individually.
+ */
 .title-wordmark__ch {
   display: inline-block;
-  /* Warm metal, brightest at the top of the letterform. */
-  background: linear-gradient(
-    176deg,
-    var(--lamp-100) 0%,
-    var(--lamp-200) 28%,
-    var(--lamp-300) 54%,
-    var(--lamp-500) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  /* Inner glow plus a long soft cast, in that order, so the glow reads as
-     coming off the letter and the shadow as falling away from it. */
-  filter:
-    drop-shadow(0 0 18px color-mix(in srgb, var(--lamp-300) 42%, transparent))
-    drop-shadow(0 2px 1px rgb(0 0 0 / 0.6))
-    drop-shadow(0 22px 34px rgb(0 0 0 / 0.72));
-  animation: title-letter var(--dur-scene) var(--ease-out) both;
-  animation-delay: calc(var(--i) * var(--dur-fast) * 0.6 + var(--dur-med));
 }
 
-@keyframes title-letter {
-  from {
-    opacity: 0;
-    transform: translateY(0.28em) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
+/**
+ * An incised brass line, not an `<hr>`.
+ *
+ * Two things were wrong with a full-width hairline here. It ran to whatever
+ * width the box happened to be, overhanging the longest word and stopping in
+ * mid-air; and at 1px, 20px above the sea horizon and exactly parallel to it,
+ * it read as a mis-registered second horizon. So it is cut to the width of the
+ * payoff word — an underscore belonging to the wordmark — seated with a black
+ * line under it and a warm one over it, and terminated with a lozenge so the
+ * right end has a reason to stop.
+ */
 .title-rule {
   position: relative;
-  height: 1px;
-  margin: var(--sp-5) 0 var(--sp-4);
+  width: min(19rem, 62%);
+  height: 2px;
+  margin: var(--sp-4) 0 var(--sp-4);
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--lamp-300) 82%, transparent) 0%,
-    color-mix(in srgb, var(--lamp-500) 40%, transparent) 46%,
-    transparent 100%
+    color-mix(in srgb, var(--lamp-300) 88%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-500) 52%, transparent) 62%,
+    color-mix(in srgb, var(--lamp-600) 30%, transparent) 100%
   );
-  box-shadow: 0 1px 0 rgb(0 0 0 / 0.6);
+  box-shadow:
+    0 -1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    0 1px 0 rgb(0 0 0 / 0.7);
   transform-origin: left center;
   animation: title-rule var(--dur-scene) var(--ease-out) both;
   animation-delay: calc(var(--dur-slow) * 1.6);
+}
+
+/* The terminal lozenge. Small enough to read as a fitting, not an ornament. */
+.title-rule::after {
+  content: '';
+  position: absolute;
+  right: -0.32rem;
+  top: 50%;
+  width: 0.34rem;
+  height: 0.34rem;
+  margin-top: -0.17rem;
+  transform: rotate(45deg);
+  background: var(--brass-face);
+  box-shadow: var(--glow-lamp);
 }
 
 @keyframes title-rule {
@@ -551,11 +719,20 @@
 }
 
 .title-subtitle {
-  margin: 0 0 var(--sp-7);
+  /* The gap under the subtitle does double duty: it separates the title
+     lockup from the menu, and it is what drops the menu clear of the sea
+     horizon so the primary action is never set on the frame's brightest band. */
+  margin: 0 0 calc(var(--sp-7) * 1.8);
   font-family: var(--font-body);
   font-style: italic;
   font-size: var(--step-1);
-  color: var(--moon-200);
+  letter-spacing: 0.04em;
+  /* Warmed toward the wordmark. Nothing in this frame casts a cool light on
+     the left third — the only sources are the lantern and the dying band on
+     the horizon — so a blue-white line 40px under gilt type had the two type
+     elements on opposite sides of the colour wheel with nothing between them. */
+  color: color-mix(in srgb, var(--moon-200) 52%, var(--lamp-200));
+  font-variant-numeric: oldstyle-num;
   text-shadow: 0 1px 6px rgb(0 0 0 / 0.8);
   animation: title-fade var(--dur-scene) var(--ease-out) both;
   animation-delay: calc(var(--dur-slow) * 1.9);
@@ -577,18 +754,48 @@
 .title-menu {
   position: relative;
   display: grid;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   justify-items: start;
+  /* The bar hangs in the page margin, left of the label column, so the labels
+     themselves start on exactly the same axis as the rule and the wordmark.
+     The old build reserved that room with 24px of button padding, which put
+     four different left edges inside a 31px band. */
+  --title-gutter: 1.35rem;
+}
+
+/**
+ * The menu's own pool of shade.
+ *
+ * The vignette is anchored on the type block above and has largely let go by
+ * the time it reaches this far down the frame — which is where the labels
+ * cross the chimney stacks and the roof slope of the foreground house, the
+ * busiest silhouette edges in the picture. Text-shadow alone does not survive
+ * a background that steps value under every second letter.
+ */
+.title-menu::before {
+  content: '';
+  position: absolute;
+  /* The falloff must reach zero *inside* this box in both axes, or the pool
+     stops being a pool and becomes a rectangle with soft corners. */
+  inset: -5rem -9rem -5rem -8rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    color-mix(in srgb, var(--scrim-cool) 56%, transparent) 0%,
+    color-mix(in srgb, var(--scrim-cool) 24%, transparent) 52%,
+    transparent 100%
+  );
 }
 
 .title-item {
+  position: relative;
   display: grid;
-  gap: 0.1rem;
-  padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-5);
+  gap: 0.05rem;
+  padding: var(--sp-2) var(--sp-4) var(--sp-2) 0;
   text-align: left;
   background: none;
   border: 0;
-  border-radius: var(--radius-sm);
   cursor: pointer;
   color: var(--moon-200);
   animation: title-fade var(--dur-scene) var(--ease-out) both;
@@ -598,79 +805,177 @@
     transform var(--dur-med) var(--ease-out);
 }
 
+/**
+ * The selected state: light, not a box.
+ *
+ * A warm pool bleeding off the left edge and dying out under the label, plus
+ * the travelling bar in the gutter and a glow on the letterforms themselves.
+ * Nothing here has an edge, which is the point — this screen has no brass,
+ * glass or leather in it, so a bordered plate hung on the painting would be
+ * the second thing that looked like chrome. The lamp in the picture is the
+ * only source; the selection is that source reaching the menu.
+ */
+.title-item::before {
+  content: '';
+  position: absolute;
+  /* Generous on every side, because the gradient has to die inside the box:
+     a warm pool with a visible edge is a highlight plate, which is the thing
+     this state exists to not be. */
+  inset: -2.2rem -9rem -2.2rem -5rem;
+  z-index: -1;
+  pointer-events: none;
+  /* Radii of exactly 50% at 50% put the ellipse's zero stop on all four edges,
+     so there is no edge anywhere. Anything off-centre or wider is still
+     carrying value when it reaches the box and draws the rectangle back. */
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    color-mix(in srgb, var(--lamp-500) 28%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-600) 15%, transparent) 42%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
 .title-item__label {
-  font-family: var(--font-ui);
-  font-size: var(--step-0);
-  font-weight: 500;
-  letter-spacing: 0.22em;
+  font-family: var(--font-front);
+  font-size: calc(var(--step-1) * 1.06);
+  font-weight: 600;
+  line-height: 1.1;
+  /* 0.22em on a 17px grotesque is 3.7px of gap — enough that 'LOAD CASE'
+     loses word cohesion and reads 'LOADCASE'. Tracked caps cut from the
+     display serif carry the period register at far less spacing, and the word
+     space is opened to roughly 1.5x the letter gap so the break registers. */
+  letter-spacing: 0.15em;
+  word-spacing: 0.28em;
   text-transform: uppercase;
   text-shadow: 0 1px 5px rgb(0 0 0 / 0.85);
   transition: text-shadow var(--dur-med) var(--ease-out);
 }
 
+/**
+ * Hints are permanent, at a low steady level.
+ *
+ * Previously they were hidden on every item *except* the disabled ones, so the
+ * two things the player could not do were the only rows carrying explanatory
+ * text, and the column had no rhythm at all. Every row now has two lines.
+ */
 .title-item__hint {
   font-family: var(--font-body);
   font-size: var(--step--1);
   font-style: italic;
-  color: var(--text-muted);
-  opacity: 0;
-  transform: translateY(-0.15rem);
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--moon-300) 72%, transparent);
+  opacity: 1;
   transition:
     opacity var(--dur-med) var(--ease-out),
-    transform var(--dur-med) var(--ease-out),
     color var(--dur-med) var(--ease-out);
 }
 
 .title-item:hover:not(:disabled),
 .title-item:focus-visible {
   color: var(--accent-strong);
-  transform: translateX(0.25rem);
+  transform: translateX(0.2rem);
+}
+
+.title-item:hover:not(:disabled)::before,
+.title-item:focus-visible::before {
+  opacity: 1;
 }
 
 .title-item:hover:not(:disabled) .title-item__label,
 .title-item:focus-visible .title-item__label {
   text-shadow:
-    0 0 18px color-mix(in srgb, var(--lamp-300) 60%, transparent),
+    0 0 22px color-mix(in srgb, var(--lamp-300) 70%, transparent),
+    0 0 6px color-mix(in srgb, var(--lamp-200) 45%, transparent),
     0 1px 5px rgb(0 0 0 / 0.85);
 }
 
 .title-item:hover:not(:disabled) .title-item__hint,
 .title-item:focus-visible .title-item__hint {
-  opacity: 1;
-  transform: none;
-  color: var(--moon-300);
+  color: color-mix(in srgb, var(--lamp-200) 46%, var(--moon-200));
 }
 
+/* The primary route in. It is the first row, it is warm, and it is a size up:
+   hierarchy carried by the type rather than by a highlight. */
+.title-item--primary .title-item__label {
+  font-size: calc(var(--step-2) * 1.02);
+  color: color-mix(in srgb, var(--lamp-200) 62%, var(--moon-100));
+}
+
+/* Settings is housekeeping, not a way into the story. It sits below a hairline
+   at a smaller size so the three case actions read as one group. */
+.title-item--minor {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+}
+
+.title-item--minor::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 7rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-500) 34%, transparent),
+    transparent
+  );
+}
+
+.title-item--minor .title-item__label {
+  font-size: var(--step-0);
+  letter-spacing: 0.17em;
+  color: var(--text-secondary);
+}
+
+/**
+ * Unavailable, not invisible.
+ *
+ * `--ink-400` is a dark-scale token; used as text on a dark ground it measured
+ * 2.4:1, under even the non-text threshold. A dimmed *moon* keeps the rows
+ * legible as rows — the player can see what the game offers and that it is not
+ * offering it yet, which is the whole job of a disabled state.
+ */
 .title-item:disabled {
-  color: color-mix(in srgb, var(--ink-400) 80%, transparent);
+  /* Measured on the shipped frame: ~3.7:1 for the label and ~3:1 for its
+     hint against the vignetted water behind them. Unmistakably secondary,
+     still unmistakably readable. */
+  color: color-mix(in srgb, var(--moon-300) 74%, transparent);
   cursor: default;
 }
 
 .title-item:disabled .title-item__label {
-  text-shadow: none;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.7);
 }
 
 .title-item:disabled .title-item__hint {
-  opacity: 0.7;
-  transform: none;
+  color: color-mix(in srgb, var(--moon-400) 82%, transparent);
 }
 
-/** The travelling indicator: a small brass tick that slides to the live item. */
+/**
+ * The travelling indicator: a lit bar hung in the gutter.
+ *
+ * It used to be a 14px horizontal hairline at `left: 0` — which, with 24px of
+ * padding on the item, put it *inside* the button, centred on the two-line box
+ * rather than on the label, i.e. floating in the gap between the label and its
+ * hint like a rendering artefact. Now it is a vertical brass bar in the margin,
+ * driven off the label's own centre line, and it grows out of nothing.
+ */
 .title-menu__indicator {
   position: absolute;
-  left: 0;
+  left: calc(var(--title-gutter) * -1);
   top: 0;
-  width: 0.85rem;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--lamp-200) 95%, transparent),
-    transparent
-  );
-  box-shadow: 0 0 10px color-mix(in srgb, var(--lamp-300) 70%, transparent);
+  width: 3px;
+  height: 1.5rem;
+  background: var(--brass-face);
+  box-shadow:
+    var(--glow-lamp),
+    0 0 6px color-mix(in srgb, var(--lamp-200) 60%, transparent);
   opacity: 0;
-  transform: translateY(calc(var(--y, 0px) - 50%)) scaleX(0.3);
-  transform-origin: left center;
+  transform: translateY(calc(var(--y, 0px) - 50%)) scaleY(0.2);
+  transform-origin: center;
   transition:
     transform var(--dur-slow) var(--ease-drama),
     opacity var(--dur-med) var(--ease-out);
@@ -679,15 +984,17 @@
 
 .title-menu__indicator.is-on {
   opacity: 1;
-  transform: translateY(calc(var(--y, 0px) - 50%)) scaleX(1);
+  transform: translateY(calc(var(--y, 0px) - 50%)) scaleY(1);
 }
 
 /* -- Colophon -------------------------------------------------------------- */
 
 .title-colophon {
   position: absolute;
-  right: clamp(var(--sp-5), 4vw, var(--sp-8));
-  bottom: clamp(var(--sp-4), 3vh, var(--sp-6));
+  /* Matched to `.title-content`'s left inset, so the frame's safe area is
+     symmetric instead of 134px one side and 75px the other. */
+  right: clamp(var(--sp-6), 7vw, 9rem);
+  bottom: clamp(var(--sp-5), 4vh, var(--sp-7));
   z-index: 1;
   text-align: right;
   animation: title-fade var(--dur-scene) var(--ease-out) both;
@@ -710,26 +1017,35 @@
   pointer-events: none;
   background: radial-gradient(
     130% 150% at 100% 100%,
-    color-mix(in srgb, var(--ink-abyss) 82%, transparent) 0%,
-    color-mix(in srgb, var(--ink-abyss) 40%, transparent) 55%,
+    color-mix(in srgb, var(--scrim-cool) 78%, transparent) 0%,
+    color-mix(in srgb, var(--scrim-cool) 34%, transparent) 55%,
     transparent 78%
   );
 }
 
-.title-version,
+/* Engraved caps, like the menu — the one corner of the old build that said
+   "web page" out loud was a 12px grotesque explaining the audio pipeline. */
 .title-credit {
   margin: 0;
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  letter-spacing: 0.1em;
-  color: var(--text-secondary);
+  font-family: var(--font-front);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--moon-300) 82%, transparent);
   text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
 }
 
-.title-credit {
-  margin-top: 0.15rem;
-  font-style: normal;
-  color: color-mix(in srgb, var(--moon-300) 78%, transparent);
+/* The least important string in the frame, set like it. */
+.title-version {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-front);
+  font-size: var(--step--2);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-variant-numeric: lining-nums;
+  color: color-mix(in srgb, var(--text-secondary) 62%, transparent);
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
 }
 
 /* ===========================================================================
@@ -1879,6 +2195,7 @@
   --font-body: 'Atkinson Hyperlegible', Verdana, 'Trebuchet MS', system-ui, sans-serif;
   --font-hand: 'Atkinson Hyperlegible', Verdana, system-ui, sans-serif;
   --tracking-display: 0.03em;
+  --tracking-display-sm: 0.03em;
   --leading-body: 1.75;
 }
 

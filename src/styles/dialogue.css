@@ -323,7 +323,9 @@
   font-family: var(--font-display);
   font-size: var(--step-1);
   font-weight: 600;
-  letter-spacing: var(--tracking-display);
+  /* The one display use in the game below 24px, so it takes the small-size
+     tracking rather than the negative display default. */
+  letter-spacing: var(--tracking-display-sm);
   line-height: var(--leading-tight);
   color: var(--lamp-100);
   /* Engraved: a lit top bevel and a dark cut below it. */

@@ -142,10 +142,20 @@ hr {
    Deliberately no `border-radius` here. Setting one would rewrite the geometry
    of every focused element — a pill button or a round pip would square off the
    instant it took focus — and it buys nothing, because `outline` already
-   follows the element's own corner radius. */
-:focus-visible {
+   follows the element's own corner radius.
+
+   The opt-out is for controls that *paint their own* selected state. The title
+   menu is the case that matters: a 2px stroke round a bounding box is the one
+   mark on that screen that could only have come from a browser, and it landed
+   on the primary call to action. Anything carrying `data-ring="own"` is
+   promising to be at least as legible as this ring; see `.title-item`. */
+:focus-visible:not([data-ring='own']) {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+[data-ring='own']:focus-visible {
+  outline: none;
 }
 
 :focus:not(:focus-visible) {
@@ -398,24 +408,300 @@ hr {
   inset: 0;
 }
 
+/* ---------------------------------------------------------------------------
+   The light rig
+   ---------------------------------------------------------------------------
+   A painted plate is a photograph of a room, not the room: it has no idea
+   where its own key light hangs, so it cannot throw one. These three plates
+   are the lighting the artwork is missing, and they are physics, not polish.
+
+     .scene-key    additive. What each source actually emits — the bloom on a
+                   flame, the pool it lays on the deckhead, the falloff cone.
+     .scene-shade  subtractive. What is *far* from a source, and what is too
+                   bright for its place in the hierarchy.
+     .scene-props  painted detail the plate is missing at close range.
+
+   Every scene gets the frame (floor + vignette); a scene with a rig in
+   `OPTICS` (src/engine/scene-view.ts) additionally gets its own sources.
+   ------------------------------------------------------------------------ */
+
+.scene-key,
+.scene-shade,
+.scene-props,
+.scene-defocus,
+.scene-floor,
 .scene-vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
+}
+
+/**
+ * Depth of field.
+ *
+ * The plates are rendered at a deep stop — the paperknife and the far bulkhead
+ * are equally sharp — and a frame with no focal plane makes no statement about
+ * what matters. This is the lens the artwork was not shot with: focus on the
+ * chart table, everything behind it falling off. The blur is applied through a
+ * mask so the falloff is a depth ramp rather than a switch, and it is
+ * deliberately shallow — a couple of pixels reads as a lens, ten reads as a
+ * background image somebody forgot to sharpen.
+ */
+.scene-defocus {
+  backdrop-filter: blur(var(--scene-defocus, 0));
+  -webkit-backdrop-filter: blur(var(--scene-defocus, 0));
+  -webkit-mask-image: var(--scene-defocus-mask, none);
+  mask-image: var(--scene-defocus-mask, none);
+}
+
+.scene-key {
+  background: var(--scene-key, none);
+  mix-blend-mode: screen;
+}
+
+.scene-shade {
+  background: var(--scene-shade, none);
+  mix-blend-mode: multiply;
+}
+
+/* The world's black point. `lighten` is a per-channel max, which makes this a
+   true floor rather than a wash: anything already brighter than
+   `--scene-black` is untouched, and only the crushed void gets lifted — into
+   warm shadow, because the room is lamplit and its darks are not blue.
+
+   The `opacity` is the whole craft of it. At full strength a max() floor is a
+   *clamp*: everywhere the picture falls below the black point it returns the
+   black point exactly, so the deep corners came back as a flat warm slab —
+   measured, the bottom corners had a 1-value spread across 60,000 pixels, which
+   is a rendering artefact wearing the costume of a shadow. Held back, the floor
+   is a blend between the painting and the clamp, so the crushed zone keeps a
+   third of its own micro-contrast: the oak grain stays faintly legible down
+   there, which was the point of having a black point at all. */
+.scene-floor {
+  background: var(--scene-black);
+  mix-blend-mode: lighten;
+  opacity: 0.68;
+}
+
+/* Symmetric and centred, so it reads as a lens rather than as a rendering
+   accident. Warm-black, and shallow enough that the floor above it still
+   wins in the corners.
+
+   Shallower than it looks like it should be, because it is the *second*
+   vignette in the chain — the painted plates carry their own, and two stacked
+   falloffs multiply into an information-free border. A lens vignette you can
+   consciously see is already too strong. */
+.scene-vignette {
+  background: radial-gradient(
+    128% 116% at 50% 48%,
+    transparent 48%,
+    color-mix(in srgb, var(--fit-abyss) 17%, transparent) 78%,
+    color-mix(in srgb, var(--fit-abyss) 38%, transparent) 100%
+  );
+}
+
+/* -- The Ardent -----------------------------------------------------------
+   One cold source (the scuttle, camera-left) and one warm one (the gimballed
+   oil lamp, camera-right, flame at 64%/13.5%). Before this, the lamp was a lit
+   wick that emitted nothing and the chart table was warm for no reason at all.
+   ------------------------------------------------------------------------ */
+
+.scene-view[data-scene='the-ardent'] {
+  /* Focus on the chart table; the companionway and the sea beyond the scuttle
+     fall away. Roughly a 40mm wide open rather than the plate's own deep stop. */
+  --scene-defocus: 1.7px;
+  --scene-defocus-mask: radial-gradient(
+    82% 96% at 42% 80%,
+    transparent 0%,
+    transparent 46%,
+    color-mix(in srgb, var(--scene-black) 40%, transparent) 76%,
+    var(--scene-black) 100%
+  );
+
+  --scene-key:
+    /* the flame itself, blown out at the core. Sized as an ellipse in
+       percentages, never `circle <pct>` — a circle radius may not be a
+       percentage, and one invalid stop silently voids the whole plate. */
     radial-gradient(
-      118% 96% at 50% 44%,
-      transparent 40%,
-      color-mix(in srgb, var(--ink-abyss) 42%, transparent) 76%,
-      color-mix(in srgb, var(--ink-abyss) 78%, transparent) 100%
+      2.4% 3.8% at 64% 13.4%,
+      color-mix(in srgb, var(--lamp-100) 72%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-200) 34%, transparent) 45%,
+      transparent 100%
     ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--ink-abyss) 32%, transparent) 0%,
-      transparent 18%,
-      transparent 74%,
-      color-mix(in srgb, var(--ink-abyss) 38%, transparent) 100%
+    /* its halo through the chimney glass */
+    radial-gradient(
+      9% 13% at 64% 13.4%,
+      color-mix(in srgb, var(--lamp-300) 38%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-400) 12%, transparent) 46%,
+      transparent 100%
+    ),
+    /* the pool it lays on the deckhead and the near face of the beam */
+    radial-gradient(
+      30% 26% at 67% 2%,
+      color-mix(in srgb, var(--lamp-300) 34%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 14%, transparent) 48%,
+      transparent 100%
+    ),
+    /* the specular shoulder of the brass fount facing the flame */
+    radial-gradient(
+      3.2% 2.2% at 62.5% 19.2%,
+      color-mix(in srgb, var(--lamp-100) 55%, transparent) 0%,
+      transparent 100%
+    ),
+    /* the falloff cone down the column onto the far bulkhead */
+    radial-gradient(
+      15% 26% at 70% 26%,
+      color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
+      transparent 100%
+    ),
+    /* what reaches the chart table: hottest at the edge nearest the lamp */
+    radial-gradient(
+      31% 25% at 76% 72%,
+      color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
+      transparent 100%
+    ),
+    /* a last breath of it across the folded chart */
+    radial-gradient(
+      16% 12% at 54% 68%,
+      color-mix(in srgb, var(--lamp-500) 18%, transparent) 0%,
+      transparent 100%
+    ),
+    /* The pool the lamp actually lays on the desktop.
+       This is a focal-hierarchy term, not a decorative one. In a point-and-click
+       the brightest object in the frame teaches the player where to look, and
+       the brightest object here was the storm window — scenery. The satchel,
+       the chart and the paperknife are what the scene is *for*, and they were
+       sitting a full stop under it. Broad and low-contrast: the eye needs the
+       desk to be the lit plane, not to see a spotlight edge on it. */
+    radial-gradient(
+      36% 26% at 47% 79%,
+      color-mix(in srgb, var(--lamp-500) 15%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 8%, transparent) 52%,
+      transparent 100%
+    ),
+    /* Bounce off the desktop into the near-left corner. A polished oak table
+       under an oil lamp throws light back into the room; without it the
+       bottom-left eighth of the frame carried no information at all, which is
+       a quarter of a 1920x1200 stage doing no work. */
+    radial-gradient(
+      34% 32% at 7% 97%,
+      color-mix(in srgb, var(--lamp-600) 26%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 12%, transparent) 46%,
+      transparent 100%
+    ),
+    /* and the same bounce reaching the sole and the locker fronts on the far
+       side, so the right third has silhouettes in it rather than murk */
+    radial-gradient(
+      40% 34% at 92% 95%,
+      color-mix(in srgb, var(--lamp-600) 14%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 6%, transparent) 50%,
+      transparent 100%
+    ),
+    /* and the ambient the source throws over its own side of the room. The
+       lamp hangs camera-right, so the right third cannot be the darkest part
+       of the frame — it was, which is what a decorative light looks like. */
+    radial-gradient(
+      38% 54% at 79% 36%,
+      color-mix(in srgb, var(--lamp-500) 17%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 9%, transparent) 46%,
+      transparent 100%
     );
+
+  /* Every blob fades to `transparent`, never to `--multiply-none`: a stack of
+     gradients that end opaque white means only the topmost one is ever seen,
+     and the four beneath it are dead code that looks like working code. A
+     multiply plate is weighted by its own alpha, so alpha 0 is the true
+     no-op and white is only ever a *mixing* end. */
+  --scene-shade:
+    /* the storm sea was the second-brightest thing in the frame and competing
+       with the documents; take the crest back about a stop */
+    radial-gradient(
+      20% 21% at 34% 19%,
+      color-mix(in srgb, var(--moon-400) 40%, var(--multiply-none)) 0%,
+      color-mix(in srgb, var(--moon-400) 22%, var(--multiply-none)) 44%,
+      transparent 92%
+    ),
+    /* and the specular on the breaking surf below it, which takes over as the
+       brightest thing in the frame the moment the crest comes down */
+    radial-gradient(
+      15% 14% at 14% 31%,
+      color-mix(in srgb, var(--moon-400) 34%, var(--multiply-none)) 0%,
+      transparent 88%
+    ),
+    /* the paper's own far corner, warmed as it comes down */
+    radial-gradient(
+      9% 8% at 51% 64.5%,
+      color-mix(in srgb, var(--paper-400) 26%, var(--multiply-none)) 0%,
+      transparent 84%
+    ),
+    /* a continuous contact shadow under the paperknife, so its right end
+       stops floating */
+    radial-gradient(
+      7% 1.5% at 53% 81.3%,
+      color-mix(in srgb, var(--fit-800) 36%, var(--multiply-none)) 0%,
+      transparent 92%
+    ),
+    radial-gradient(
+      5% 1.3% at 61.5% 78.6%,
+      color-mix(in srgb, var(--fit-800) 38%, var(--multiply-none)) 0%,
+      transparent 92%
+    ),
+    /* and the far corner of the desk, which no source reaches */
+    radial-gradient(
+      26% 22% at 6% 84%,
+      color-mix(in srgb, var(--ink-700) 22%, var(--multiply-none)) 0%,
+      transparent 84%
+    );
+}
+
+/* The document. A hero prop the whole act title points at cannot be a blank
+   grey slab; it needs to read as a document even at a glance, and even
+   illegibly. Ink is a mask over a token colour rather than a coloured SVG, so
+   the writing stays on the palette. Clipped to the flat of the top leaf and
+   rotated onto its plane. */
+.scene-view[data-scene='the-ardent'] .scene-props::before {
+  content: '';
+  position: absolute;
+  left: 49.5%;
+  top: 58.1%;
+  width: 17.4%;
+  height: 13.6%;
+  /* The flat of the top leaf, traced off the plate; the writing's own plane
+     rotation is baked into the mask so this clip stays true to the paper. */
+  clip-path: polygon(0% 17.6%, 84% 1%, 93% 62%, 12.1% 100%);
+  background-color: color-mix(in srgb, var(--paper-ink-faded) 78%, transparent);
+  -webkit-mask-image: var(--ink-copperplate);
+  mask-image: var(--ink-copperplate);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.58;
+}
+
+/* A warm specular along the top spine of the bone paperknife, facing the
+   lamp. One hairline: bone is not chrome, it just catches an edge. */
+.scene-view[data-scene='the-ardent'] .scene-props::after {
+  content: '';
+  position: absolute;
+  left: 47.3%;
+  top: 79.4%;
+  width: 15.4%;
+  height: 0.2%;
+  transform-origin: left center;
+  transform: rotate(-7deg);
+  border-radius: 99px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--lamp-200) 60%, transparent) 22%,
+    color-mix(in srgb, var(--lamp-100) 85%, transparent) 58%,
+    color-mix(in srgb, var(--lamp-300) 40%, transparent) 84%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.85;
 }
 
 /**
