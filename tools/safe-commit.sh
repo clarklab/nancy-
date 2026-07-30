@@ -55,6 +55,14 @@ fi
 echo "safe-commit: running tests…"
 npx vitest run --silent >/dev/null
 
+# Typecheck alone does not catch a broken import graph or a missing stylesheet,
+# both of which only surface when the bundler actually resolves everything.
+echo "safe-commit: building…"
+if ! npx vite build --logLevel error >/dev/null; then
+  echo "safe-commit: REFUSING to commit — build failed" >&2
+  exit 1
+fi
+
 git add -A
 git commit -q -m "$MSG"
 echo "safe-commit: committed — $(git log --oneline -1)"

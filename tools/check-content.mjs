@@ -24,6 +24,13 @@ const server = await createServer({
   configFile: path.join(ROOT, 'vite.config.ts'),
   server: { middlewareMode: true },
   logLevel: 'error',
+  // We only ever call `ssrLoadModule`, which resolves through Node. The browser
+  // dependency optimiser is pure overhead here, and worse: its esbuild scan
+  // crawls every HTML entry (including the smoke and audio-probe harnesses) on
+  // a background task that outlives our `server.close()`, producing a spurious
+  // "server is being restarted or closed" failure. Turning discovery off
+  // removes both the work and the race.
+  optimizeDeps: { noDiscovery: true, include: [] },
 });
 
 try {

@@ -1181,18 +1181,21 @@
 }
 
 /**
- * Red string sits above the cork and below the cards, so a run disappears
- * behind whatever it passes under and re-emerges on the other side. Drawn on
- * top instead it crosses the card titles at x-height and every connected clue
- * reads as struck through — legibility beats the literal truth of how twine
- * is wound.
+ * Red string runs over everything it connects, the way it does on a real
+ * board: the twine is wound round the pin heads last. Under the cards it
+ * would be invisible — the tray and the suspect columns leave almost no bare
+ * cork between them — so it is drawn on top and given enough body to read as
+ * cord rather than as a line struck through the titles it crosses.
+ *
+ * Three passes per run: a soft shadow cast onto the board, a dark casing that
+ * separates the cord from whatever type is under it, and the lit core.
  */
 .ded__strings {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
   overflow: visible;
 }
@@ -1200,18 +1203,22 @@
 .ded-string {
   fill: none;
   stroke: var(--blood-bright);
-  stroke-width: 1.6;
+  stroke-width: 1.9;
   stroke-linecap: round;
-  opacity: 0.88;
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--blood) 60%, transparent));
+}
+
+.ded-string--casing {
+  stroke: color-mix(in srgb, var(--blood) 55%, var(--ink-abyss));
+  stroke-width: 4.2;
+  opacity: 0.85;
 }
 
 .ded-string--shadow {
   stroke: var(--ink-abyss);
-  stroke-width: 2.6;
-  opacity: 0.34;
-  filter: blur(1.4px);
-  transform: translate(1.5px, 3px);
+  stroke-width: 5.4;
+  opacity: 0.36;
+  filter: blur(2.4px);
+  transform: translate(2px, 4px);
 }
 
 .ded__tray,

@@ -1282,8 +1282,11 @@ export class Journal {
       }
     }
 
+    // Painted in three full passes rather than three paths per run, so every
+    // shadow lies under every cord and the runs never interleave.
     svg.innerHTML =
       paths.map((d) => `<path class="ded-string ded-string--shadow" d="${d}"/>`).join('') +
+      paths.map((d) => `<path class="ded-string ded-string--casing" d="${d}"/>`).join('') +
       paths.map((d) => `<path class="ded-string" d="${d}"/>`).join('');
   }
 

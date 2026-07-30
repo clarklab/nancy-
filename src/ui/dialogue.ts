@@ -240,7 +240,7 @@ export class DialogueView {
         await this.speak(lines(tree.farewell), character.name);
       }
 
-      this.cb.onSound?.('latch');
+      if (!this.destroyed) this.cb.onSound?.('latch');
     } finally {
       this.active = false;
       await this.close();
