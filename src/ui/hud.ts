@@ -79,6 +79,8 @@ export class Hud {
 
   private unsubscribe: (() => void) | null = null;
   private timers = new Set<number>();
+  /** Resolvers for in-flight `sleep`s, so teardown can settle them all. */
+  private pending = new Set<() => void>();
 
   private selectedItem: string | null = null;
   /** Roving-tabindex cursor for the belt, so Tab enters it exactly once. */
@@ -140,6 +142,8 @@ export class Hud {
     this.timers.clear();
     // Never leave an awaited toast hanging — a stalled effect chain would
     // silently freeze the game on teardown.
+    for (const settle of [...this.pending]) settle();
+    this.pending.clear();
     for (const req of this.toastQueue) req.resolve();
     this.toastQueue = [];
     this.el.remove();

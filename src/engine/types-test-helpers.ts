@@ -39,7 +39,8 @@ export function makeContent(overrides: Partial<GameContent> = {}): GameContent {
 /** A presenter whose every method is a spy resolving immediately. */
 export function makePresenter() {
   return {
-    narrate: vi.fn(async () => {}),
+    // Typed with its real signature so tests can assert on the lines passed in.
+    narrate: vi.fn(async (_lines: string[], _speaker?: string) => {}),
     think: vi.fn(async () => {}),
     toastItem: vi.fn(async () => {}),
     toastClue: vi.fn(async () => {}),
