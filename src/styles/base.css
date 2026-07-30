@@ -1,0 +1,1023 @@
+/**
+ * Global reset, the letterboxed stage, and every class the scene renderer
+ * paints into.
+ *
+ * The rule of the house: nothing here is a flat fill. A surface is a lit
+ * physical object — it has a gradient body, a highlight along the edge the
+ * lamp reaches, and a dark inner shadow where it falls away. Colour, type,
+ * spacing, easing and duration come from `tokens.css` only; a literal value
+ * in this file is a bug unless it is geometry (a percentage, a hairline) or
+ * part of a hand-drawn SVG.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@400&family=Inter+Tight:wght@400;500;600&display=swap');
+@import './tokens.css';
+
+/* ===========================================================================
+   1. Reset
+   ---------------------------------------------------------------------------
+   Deliberately small. We are not normalising a document, we are clearing the
+   floor of a game canvas: kill intrinsic margins, make sizing predictable,
+   and stop the browser from ever scrolling the stage.
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* The stage is a fixed viewport. Any scrollbar here is a layout failure,
+     so we forbid it outright rather than hunting the overflow later. */
+  overflow: hidden;
+}
+
+body {
+  min-height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  color: var(--text-primary);
+  background-color: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis-weight: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  /* Painted art is the point; never let a browser soften it on scale-down. */
+  image-rendering: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+
+hr {
+  border: 0;
+  border-top: var(--border-hairline);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ===========================================================================
+   2. Shared chrome primitives
+   ========================================================================= */
+
+::selection {
+  background: color-mix(in srgb, var(--lamp-400) 42%, transparent);
+  color: var(--lamp-100);
+}
+
+/* One ring, everywhere: warm, offset, and never clipped by a parent. Mouse
+   users never see it; keyboard users always do. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Panels scroll; the stage does not. Scrollbars read as a brass track sunk
+   into the panel rather than as an operating-system control. */
+.scrollable {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--lamp-500) 55%, transparent) transparent;
+  overscroll-behavior: contain;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: linear-gradient(
+    90deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--ink-abyss) 70%, transparent) 3px calc(100% - 3px),
+    transparent calc(100% - 3px)
+  );
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 99px;
+  background-color: color-mix(in srgb, var(--lamp-500) 55%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 35%, transparent);
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--lamp-400) 70%, transparent);
+}
+
+/** Screen-reader-only text that still participates in the accessibility tree. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===========================================================================
+   3. The app frame & letterbox
+   ---------------------------------------------------------------------------
+   The game is a fixed 16:10 window into a painted world. Everything outside
+   it is not "black bars" — it is the unlit room the player is sitting in, so
+   it falls off radially into --ink-abyss and picks up the faintest spill of
+   lamplight from the stage edge.
+   ========================================================================= */
+
+#app,
+.app-frame {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      120% 100% at 50% 42%,
+      color-mix(in srgb, var(--ink-800) 55%, var(--ink-abyss)) 0%,
+      color-mix(in srgb, var(--ink-900) 70%, var(--ink-abyss)) 38%,
+      var(--ink-abyss) 78%
+    ),
+    var(--bg-app);
+}
+
+/* A hair of warm bounce along the stage's horizon, so the letterbox never
+   reads as a hard cut between artwork and chrome. */
+#app::before,
+.app-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    68% 46% at 50% 56%,
+    color-mix(in srgb, var(--lamp-600) 12%, transparent) 0%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+
+/**
+ * The canonical stage box. `.scene-stage` and any HUD/panel layer that must
+ * align to the artwork share this one recipe so they can never drift apart
+ * by a pixel at some in-between window size.
+ */
+.scene-stage,
+.stage-box {
+  position: relative;
+  width: 100%;
+  max-width: calc(100dvh * (16 / 10));
+  max-height: 100%;
+  aspect-ratio: var(--stage-ratio);
+}
+
+/* ===========================================================================
+   4. Scene layer — mirrors src/engine/scene-view.ts exactly
+   ========================================================================= */
+
+.scene-view {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-scene);
+  display: grid;
+  place-items: center;
+  /* Replaces the arrow the moment the pointer is over the world. */
+  cursor: var(--cur-default);
+}
+
+.scene-stage {
+  overflow: hidden;
+  background-color: var(--ink-abyss);
+  box-shadow:
+    var(--shadow-4),
+    0 0 0 1px color-mix(in srgb, var(--lamp-600) 22%, transparent);
+  /* No stacking context here beyond the default: scene layers rely on
+     mix-blend-mode reaching all the way down to .scene-bg. */
+}
+
+.scene-bg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: translateZ(0);
+}
+
+.scene-layers {
+  position: absolute;
+  inset: 0;
+  /* Intentionally unpositioned in z: a stacking context here would trap the
+     children's blend modes and every glow layer would go flat. */
+}
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  will-change: opacity;
+}
+
+.scene-layer.is-in {
+  opacity: var(--layer-opacity, 1);
+}
+
+.scene-weather {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.scene-hotspots {
+  position: absolute;
+  inset: 0;
+}
+
+.scene-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      118% 96% at 50% 44%,
+      transparent 40%,
+      color-mix(in srgb, var(--ink-abyss) 42%, transparent) 76%,
+      color-mix(in srgb, var(--ink-abyss) 78%, transparent) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--ink-abyss) 32%, transparent) 0%,
+      transparent 18%,
+      transparent 74%,
+      color-mix(in srgb, var(--ink-abyss) 38%, transparent) 100%
+    );
+}
+
+/**
+ * Colour grade. `Scene.grade` is authored as a CSS filter function list
+ * (`sepia(.18) saturate(.86) hue-rotate(-8deg)`); the literal string `none`
+ * means "ungraded", which is why the default is safe. Grading through a
+ * backdrop rather than a `filter` on the stage keeps the scene layers' blend
+ * modes intact underneath it.
+ */
+.scene-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  backdrop-filter: var(--scene-grade, none);
+  -webkit-backdrop-filter: var(--scene-grade, none);
+}
+
+/* -- Scene transitions ----------------------------------------------------
+   The renderer swaps the artwork, forces a reflow, then holds
+   `.is-transitioning` for ~460ms. So these animations always describe the
+   *incoming* frame arriving, never the outgoing one leaving. */
+
+.scene-view.is-transitioning .scene-bg,
+.scene-view.is-transitioning .scene-layers,
+.scene-view.is-transitioning .scene-weather {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: both;
+}
+
+.scene-view.is-transitioning .scene-hotspots {
+  /* Never let a hotspot be clickable mid-wipe — the player would be aiming
+     at a frame that is still moving. */
+  pointer-events: none;
+  opacity: 0;
+}
+
+.scene-view.is-transitioning[data-transition='fade'] .scene-bg,
+.scene-view.is-transitioning[data-transition='fade'] .scene-layers,
+.scene-view.is-transitioning[data-transition='fade'] .scene-weather {
+  animation-name: scene-fade-in;
+}
+
+.scene-view.is-transitioning[data-transition='push-left'] .scene-bg,
+.scene-view.is-transitioning[data-transition='push-left'] .scene-layers,
+.scene-view.is-transitioning[data-transition='push-left'] .scene-weather {
+  animation-name: scene-push-left;
+}
+
+.scene-view.is-transitioning[data-transition='push-right'] .scene-bg,
+.scene-view.is-transitioning[data-transition='push-right'] .scene-layers,
+.scene-view.is-transitioning[data-transition='push-right'] .scene-weather {
+  animation-name: scene-push-right;
+}
+
+.scene-view.is-transitioning[data-transition='iris'] .scene-bg,
+.scene-view.is-transitioning[data-transition='iris'] .scene-layers,
+.scene-view.is-transitioning[data-transition='iris'] .scene-weather {
+  animation-name: scene-iris;
+}
+
+.scene-view.is-transitioning[data-transition='none'] .scene-bg,
+.scene-view.is-transitioning[data-transition='none'] .scene-layers,
+.scene-view.is-transitioning[data-transition='none'] .scene-weather {
+  animation: none;
+}
+
+/* A held breath of lamplight over the cut, so a room change reads as a
+   camera move rather than a DOM swap. */
+.scene-view.is-transitioning .scene-vignette {
+  animation: scene-veil var(--dur-slow) var(--ease-in-out) both;
+}
+
+@keyframes scene-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.018);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scene-push-left {
+  from {
+    opacity: 0.15;
+    transform: translateX(7%) scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes scene-push-right {
+  from {
+    opacity: 0.15;
+    transform: translateX(-7%) scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes scene-iris {
+  from {
+    opacity: 0.25;
+    clip-path: circle(14% at 50% 50%);
+  }
+  to {
+    opacity: 1;
+    clip-path: circle(85% at 50% 50%);
+  }
+}
+
+@keyframes scene-veil {
+  0% {
+    opacity: 1;
+    filter: brightness(2.4);
+  }
+  60% {
+    opacity: 1;
+    filter: brightness(1.25);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+/* -- Living layers --------------------------------------------------------
+   Opacity is expressed relative to --layer-opacity so a content author can
+   dim a flickering lamp without also flattening its flicker. */
+
+.scene-layer.is-in[data-animate='flicker'] {
+  animation: layer-flicker calc(var(--dur-scene) * 4) steps(1, end) infinite;
+}
+
+.scene-layer.is-in[data-animate='drift'] {
+  animation: layer-drift calc(var(--dur-scene) * 26) var(--ease-in-out) infinite alternate;
+}
+
+.scene-layer.is-in[data-animate='pulse'] {
+  animation: layer-pulse calc(var(--dur-scene) * 9) var(--ease-in-out) infinite alternate;
+}
+
+@keyframes layer-flicker {
+  0%,
+  100% {
+    opacity: var(--layer-opacity, 1);
+  }
+  12% {
+    opacity: calc(var(--layer-opacity, 1) * 0.82);
+  }
+  18% {
+    opacity: calc(var(--layer-opacity, 1) * 1);
+  }
+  44% {
+    opacity: calc(var(--layer-opacity, 1) * 0.9);
+  }
+  50% {
+    opacity: calc(var(--layer-opacity, 1) * 0.68);
+  }
+  56% {
+    opacity: calc(var(--layer-opacity, 1) * 0.97);
+  }
+  74% {
+    opacity: calc(var(--layer-opacity, 1) * 0.86);
+  }
+  82% {
+    opacity: calc(var(--layer-opacity, 1) * 1);
+  }
+}
+
+@keyframes layer-drift {
+  from {
+    transform: translate3d(-0.5%, 0.35%, 0) scale(1.012);
+  }
+  to {
+    transform: translate3d(0.6%, -0.4%, 0) scale(1.02);
+  }
+}
+
+@keyframes layer-pulse {
+  from {
+    opacity: calc(var(--layer-opacity, 1) * 0.72);
+  }
+  to {
+    opacity: var(--layer-opacity, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-layer.is-in[data-animate='flicker'],
+  .scene-layer.is-in[data-animate='drift'],
+  .scene-layer.is-in[data-animate='pulse'] {
+    animation: none;
+  }
+}
+
+/* ===========================================================================
+   5. Hotspots
+   ---------------------------------------------------------------------------
+   A hotspot is INVISIBLE. The painted scene is the interface; drawing boxes
+   over it would turn a room into a form. Feedback is entirely light: a warm
+   bloom the lamp seems to throw onto the object, and a thin ring that sweeps
+   once around it. Travel hotspots additionally breathe a chevron in their
+   direction of travel.
+   ========================================================================= */
+
+@property --hotspot-sweep {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.hotspot {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: inherit;
+  /* Hit area only: no paint of its own, ever. */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.hotspot::before,
+.hotspot::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+/* The bloom: an elliptical wash of lamplight, brightest just off-centre so it
+   reads as a light source in the room rather than a UI highlight. */
+.hotspot::before {
+  inset: -6%;
+  border-radius: 46%;
+  background: radial-gradient(
+    62% 62% at 50% 46%,
+    color-mix(in srgb, var(--lamp-200) 34%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-400) 16%, transparent) 42%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+  transform: scale(0.9);
+  filter: blur(0.4px);
+}
+
+/* The ring: a 1px brass hairline with a sweep of light travelling round it. */
+.hotspot::after {
+  inset: 4%;
+  border-radius: calc(var(--radius-lg) * 3);
+  padding: 1px;
+  background: conic-gradient(
+    from var(--hotspot-sweep),
+    transparent 0deg,
+    color-mix(in srgb, var(--lamp-100) 92%, transparent) 42deg,
+    color-mix(in srgb, var(--lamp-300) 40%, transparent) 96deg,
+    transparent 190deg,
+    transparent 360deg
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-300) 26%, transparent);
+  transform: scale(1.03);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+}
+
+.hotspot:hover::before,
+.hotspot:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hotspot:hover::after,
+.hotspot:focus-visible::after {
+  opacity: 1;
+  transform: scale(1);
+  animation: hotspot-sweep calc(var(--dur-scene) * 4) linear infinite;
+}
+
+.hotspot:active::before {
+  opacity: 1;
+  transform: scale(0.965);
+  transition-duration: var(--dur-fast);
+}
+
+@keyframes hotspot-sweep {
+  to {
+    --hotspot-sweep: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot:hover::after,
+  .hotspot:focus-visible::after {
+    animation: none;
+  }
+}
+
+/* -- Travel affordance ---------------------------------------------------- */
+
+.hotspot.is-travel::before {
+  background-image:
+    var(--chevron-up),
+    radial-gradient(
+      62% 62% at 50% 50%,
+      color-mix(in srgb, var(--lamp-200) 30%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-400) 14%, transparent) 44%,
+      transparent 74%
+    );
+  background-repeat: no-repeat;
+  background-position:
+    center,
+    center;
+  background-size:
+    clamp(28px, 3.2vw, 46px),
+    100% 100%;
+}
+
+.hotspot.is-travel:hover::before,
+.hotspot.is-travel:focus-visible::before {
+  animation: travel-drift calc(var(--dur-scene) * 3) var(--ease-in-out) infinite;
+}
+
+.hotspot.is-travel[data-cursor='walk-left']::before {
+  background-image:
+    var(--chevron-left),
+    radial-gradient(
+      62% 62% at 50% 50%,
+      color-mix(in srgb, var(--lamp-200) 30%, transparent) 0%,
+      transparent 74%
+    );
+}
+
+.hotspot.is-travel[data-cursor='walk-right']::before {
+  background-image:
+    var(--chevron-right),
+    radial-gradient(
+      62% 62% at 50% 50%,
+      color-mix(in srgb, var(--lamp-200) 30%, transparent) 0%,
+      transparent 74%
+    );
+}
+
+.hotspot.is-travel[data-cursor='walk-back']::before {
+  background-image:
+    var(--chevron-down),
+    radial-gradient(
+      62% 62% at 50% 50%,
+      color-mix(in srgb, var(--lamp-200) 30%, transparent) 0%,
+      transparent 74%
+    );
+}
+
+.hotspot.is-travel[data-cursor='walk-left']:hover::before,
+.hotspot.is-travel[data-cursor='walk-left']:focus-visible::before {
+  animation-name: travel-drift-left;
+}
+
+.hotspot.is-travel[data-cursor='walk-right']:hover::before,
+.hotspot.is-travel[data-cursor='walk-right']:focus-visible::before {
+  animation-name: travel-drift-right;
+}
+
+.hotspot.is-travel[data-cursor='walk-back']:hover::before,
+.hotspot.is-travel[data-cursor='walk-back']:focus-visible::before {
+  animation-name: travel-drift-down;
+}
+
+@keyframes travel-drift {
+  0%,
+  100% {
+    background-position:
+      center calc(50% + 3px),
+      center;
+  }
+  50% {
+    background-position:
+      center calc(50% - 5px),
+      center;
+  }
+}
+
+@keyframes travel-drift-left {
+  0%,
+  100% {
+    background-position:
+      calc(50% + 3px) center,
+      center;
+  }
+  50% {
+    background-position:
+      calc(50% - 5px) center,
+      center;
+  }
+}
+
+@keyframes travel-drift-right {
+  0%,
+  100% {
+    background-position:
+      calc(50% - 3px) center,
+      center;
+  }
+  50% {
+    background-position:
+      calc(50% + 5px) center,
+      center;
+  }
+}
+
+@keyframes travel-drift-down {
+  0%,
+  100% {
+    background-position:
+      center calc(50% - 3px),
+      center;
+  }
+  50% {
+    background-position:
+      center calc(50% + 5px),
+      center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot.is-travel:hover::before,
+  .hotspot.is-travel:focus-visible::before {
+    animation: none;
+  }
+}
+
+/* -- Blocked ------------------------------------------------------------- */
+
+/* Still clickable — it plays `blockedEffects` — so it must still respond,
+   just coldly. Moonlight instead of lamplight reads as "not yet". */
+.hotspot.is-disabled::before {
+  background-image: radial-gradient(
+    62% 62% at 50% 50%,
+    color-mix(in srgb, var(--moon-200) 18%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.hotspot.is-disabled::after {
+  display: none;
+}
+
+/* -- The "look" reveal ---------------------------------------------------- */
+
+.scene-hotspots.is-revealing .hotspot.is-huntable::after {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+  animation: hotspot-reveal calc(var(--dur-scene) * 1.3) var(--ease-out) 2;
+}
+
+@keyframes hotspot-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+}
+
+/* -- Carrying an item ----------------------------------------------------- */
+
+/* While something is in hand the whole room is asked a question, so valid
+   answers glow on their own and everything else steps back. */
+.scene-view.is-carrying {
+  cursor: var(--cur-use);
+}
+
+.scene-view.is-carrying .hotspot {
+  cursor: inherit;
+}
+
+.hotspot.is-target::before,
+.hotspot.is-dragover::before {
+  opacity: 1;
+  transform: scale(1);
+  animation: target-breathe calc(var(--dur-scene) * 3) var(--ease-in-out) infinite alternate;
+}
+
+.hotspot.is-target::after {
+  opacity: 0.7;
+  transform: scale(1);
+}
+
+.hotspot.is-dragover::before {
+  filter: brightness(1.5) saturate(1.15);
+}
+
+.hotspot.is-dragover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes target-breathe {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot.is-target::before,
+  .hotspot.is-dragover::before {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
+/* ===========================================================================
+   6. Custom cursors
+   ---------------------------------------------------------------------------
+   Every cursor is drawn twice in the same path: a wide near-black stroke
+   underneath and a narrow lamp-amber stroke on top. That gives one shape that
+   stays legible over a white letter and over a black staircase alike, which
+   is the whole reason not to ship flat PNG cursors.
+   ========================================================================= */
+
+:root {
+  --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='16' cy='16' r='6.5' stroke='%23070a0d' stroke-opacity='.6' stroke-width='3.4'/%3E%3Ccircle cx='16' cy='16' r='6.5' stroke='%23dce9f2' stroke-opacity='.8' stroke-width='1'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='2.4' fill='%23070a0d' fill-opacity='.6'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%23f5c96f'/%3E%3C/svg%3E")
+    16 16, default;
+
+  --cur-look: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cg stroke='%23070a0d' stroke-opacity='.65' stroke-width='4.2'%3E%3Ccircle cx='13' cy='13' r='7.6'/%3E%3Cpath d='M18.6 18.6 27.5 27.5'/%3E%3C/g%3E%3Cg stroke='%23f5c96f' stroke-width='1.7'%3E%3Ccircle cx='13' cy='13' r='7.6'/%3E%3Cpath d='M18.6 18.6 27.5 27.5'/%3E%3C/g%3E%3Cpath d='M8.6 10.6a5 5 0 0 1 3.4-3.2' stroke='%23fff3d6' stroke-opacity='.75' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E")
+    13 13, zoom-in;
+
+  --cur-take: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='34' viewBox='0 0 32 34'%3E%3Cpath d='M9 21v-8a2.1 2.1 0 0 1 4.2 0v-3.4a2.1 2.1 0 0 1 4.2 0v1.2a2.1 2.1 0 0 1 4.2 0v2a2.1 2.1 0 0 1 4.2 0v7.4A9 9 0 0 1 16.8 29h-1.3A8.5 8.5 0 0 1 9 21Z' fill='%23070a0d' fill-opacity='.72' stroke='%23070a0d' stroke-opacity='.72' stroke-width='3.4' stroke-linejoin='round'/%3E%3Cpath d='M9 21v-8a2.1 2.1 0 0 1 4.2 0v-3.4a2.1 2.1 0 0 1 4.2 0v1.2a2.1 2.1 0 0 1 4.2 0v2a2.1 2.1 0 0 1 4.2 0v7.4A9 9 0 0 1 16.8 29h-1.3A8.5 8.5 0 0 1 9 21Z' fill='none' stroke='%23f5c96f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M13.2 13v4.4M17.4 9.8v7.6M21.6 12.8v4.6' fill='none' stroke='%23f5c96f' stroke-opacity='.5' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E")
+    16 16, grab;
+
+  --cur-talk: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='32' viewBox='0 0 34 32'%3E%3Cpath d='M6.5 6h21a3.5 3.5 0 0 1 3.5 3.5v9A3.5 3.5 0 0 1 27.5 22H16l-6.5 5.4V22H6.5A3.5 3.5 0 0 1 3 18.5v-9A3.5 3.5 0 0 1 6.5 6Z' fill='%23070a0d' fill-opacity='.72' stroke='%23070a0d' stroke-opacity='.72' stroke-width='3.2' stroke-linejoin='round'/%3E%3Cpath d='M6.5 6h21a3.5 3.5 0 0 1 3.5 3.5v9A3.5 3.5 0 0 1 27.5 22H16l-6.5 5.4V22H6.5A3.5 3.5 0 0 1 3 18.5v-9A3.5 3.5 0 0 1 6.5 6Z' fill='none' stroke='%23f5c96f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cg fill='%23f5c96f'%3E%3Ccircle cx='11' cy='14' r='1.5'/%3E%3Ccircle cx='17' cy='14' r='1.5'/%3E%3Ccircle cx='23' cy='14' r='1.5'/%3E%3C/g%3E%3C/svg%3E")
+    9 27, help;
+
+  --cur-use: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 4a5.4 5.4 0 0 1 3.1 9.8L21.6 27h-11.2l2.5-13.2A5.4 5.4 0 0 1 16 4Z' fill='%23070a0d' fill-opacity='.74' stroke='%23070a0d' stroke-opacity='.74' stroke-width='3.2' stroke-linejoin='round'/%3E%3Cpath d='M16 4a5.4 5.4 0 0 1 3.1 9.8L21.6 27h-11.2l2.5-13.2A5.4 5.4 0 0 1 16 4Z' fill='none' stroke='%23f5c96f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M13.4 7.9a3.6 3.6 0 0 1 2.3-1.5' fill='none' stroke='%23fff3d6' stroke-opacity='.7' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E")
+    16 16, pointer;
+
+  --cur-puzzle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cg stroke='%23070a0d' stroke-opacity='.68' stroke-width='5.6'%3E%3Cpath d='M23 16h3.5M20.9 20.9l2.5 2.5M16 23v3.5M11.1 20.9l-2.5 2.5M9 16H5.5M11.1 11.1 8.6 8.6M16 9V5.5M20.9 11.1l2.5-2.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='7' stroke='%23070a0d' stroke-opacity='.68' stroke-width='5'/%3E%3Ccircle cx='16' cy='16' r='7' stroke='%23f5c96f' stroke-width='1.7'/%3E%3Cg stroke='%23f5c96f' stroke-width='2.6'%3E%3Cpath d='M23 16h3.5M20.9 20.9l2.5 2.5M16 23v3.5M11.1 20.9l-2.5 2.5M9 16H5.5M11.1 11.1 8.6 8.6M16 9V5.5M20.9 11.1l2.5-2.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='2.6' stroke='%23f5c96f' stroke-opacity='.6' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E")
+    16 16, pointer;
+
+  --cur-walk: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23070a0d' stroke-opacity='.68' stroke-width='6'%3E%3Cpath d='M8 17.5 16 9l8 8.5'/%3E%3Cpath d='M11 26l5-5.2 5 5.2'/%3E%3C/g%3E%3Cg stroke='%23f5c96f' stroke-width='2.4'%3E%3Cpath d='M8 17.5 16 9l8 8.5'/%3E%3Cpath d='M11 26l5-5.2 5 5.2' stroke-opacity='.55'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+    16 11, pointer;
+
+  --cur-walk-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23070a0d' stroke-opacity='.68' stroke-width='6'%3E%3Cpath d='M14.5 8 6 16l8.5 8'/%3E%3Cpath d='M23 11l-5.2 5 5.2 5'/%3E%3C/g%3E%3Cg stroke='%23f5c96f' stroke-width='2.4'%3E%3Cpath d='M14.5 8 6 16l8.5 8'/%3E%3Cpath d='M23 11l-5.2 5 5.2 5' stroke-opacity='.55'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+    8 16, pointer;
+
+  --cur-walk-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23070a0d' stroke-opacity='.68' stroke-width='6'%3E%3Cpath d='M17.5 8 26 16l-8.5 8'/%3E%3Cpath d='M9 11l5.2 5L9 21'/%3E%3C/g%3E%3Cg stroke='%23f5c96f' stroke-width='2.4'%3E%3Cpath d='M17.5 8 26 16l-8.5 8'/%3E%3Cpath d='M9 11l5.2 5L9 21' stroke-opacity='.55'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+    24 16, pointer;
+
+  --cur-walk-back: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23070a0d' stroke-opacity='.68' stroke-width='6'%3E%3Cpath d='M8 14.5 16 23l8-8.5'/%3E%3Cpath d='M11 6l5 5.2L21 6' stroke-opacity='.9'/%3E%3C/g%3E%3Cg stroke='%23f5c96f' stroke-width='2.4'%3E%3Cpath d='M8 14.5 16 23l8-8.5'/%3E%3Cpath d='M11 6l5 5.2L21 6' stroke-opacity='.55'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+    16 21, pointer;
+
+  /* Chevron glyphs reused as the travel-hotspot affordance inside the scene. */
+  --chevron-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff3d6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' stroke-opacity='.9'%3E%3Cpath d='M11 27 24 14l13 13'/%3E%3Cpath d='M14 38l10-10 10 10' stroke-opacity='.4'/%3E%3C/g%3E%3C/svg%3E");
+  --chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff3d6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' stroke-opacity='.9'%3E%3Cpath d='M11 21 24 34l13-13'/%3E%3Cpath d='M14 10l10 10 10-10' stroke-opacity='.4'/%3E%3C/g%3E%3C/svg%3E");
+  --chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff3d6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' stroke-opacity='.9'%3E%3Cpath d='M27 11 14 24l13 13'/%3E%3Cpath d='M38 14 28 24l10 10' stroke-opacity='.4'/%3E%3C/g%3E%3C/svg%3E");
+  --chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff3d6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' stroke-opacity='.9'%3E%3Cpath d='M21 11 34 24 21 37'/%3E%3Cpath d='M10 14l10 10-10 10' stroke-opacity='.4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.hotspot[data-cursor='look'] {
+  cursor: var(--cur-look);
+}
+
+.hotspot[data-cursor='take'] {
+  cursor: var(--cur-take);
+}
+
+.hotspot[data-cursor='talk'] {
+  cursor: var(--cur-talk);
+}
+
+.hotspot[data-cursor='use'] {
+  cursor: var(--cur-use);
+}
+
+.hotspot[data-cursor='puzzle'] {
+  cursor: var(--cur-puzzle);
+}
+
+.hotspot[data-cursor='walk'] {
+  cursor: var(--cur-walk);
+}
+
+.hotspot[data-cursor='walk-left'] {
+  cursor: var(--cur-walk-left);
+}
+
+.hotspot[data-cursor='walk-right'] {
+  cursor: var(--cur-walk-right);
+}
+
+.hotspot[data-cursor='walk-back'] {
+  cursor: var(--cur-walk-back);
+}
+
+/* Chrome is an interface, not a room: the ordinary pointer returns. */
+.hud,
+.panel,
+.dialogue,
+.puzzle,
+.menu,
+.cinematic {
+  cursor: default;
+}
+
+/* ===========================================================================
+   7. Film grain
+   ---------------------------------------------------------------------------
+   A single global pass over everything. It is what glues crisp DOM chrome to
+   painted artwork — without it the HUD looks pasted on. Kept under 4% and
+   soft-light so it reads as emulsion, never as noise.
+   ========================================================================= */
+
+#app::after,
+.app-frame::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  pointer-events: none;
+  z-index: 150;
+  opacity: 0.05;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  animation: film-grain calc(var(--dur-scene) * 1.4) steps(1, end) infinite;
+  will-change: transform;
+}
+
+@keyframes film-grain {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-6%, 4%, 0);
+  }
+  40% {
+    transform: translate3d(5%, -5%, 0);
+  }
+  60% {
+    transform: translate3d(-4%, -3%, 0);
+  }
+  80% {
+    transform: translate3d(3%, 6%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Static grain still unifies the image; a jittering one is the part that
+     causes trouble, so only the movement goes. */
+  #app::after,
+  .app-frame::after {
+    animation: none;
+  }
+}

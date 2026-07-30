@@ -1,0 +1,149 @@
+/**
+ * Design tokens — the single source of visual truth.
+ *
+ * The look is "period artifact, dimly lit": deep desaturated blues for the
+ * shell, warm lamp-amber for anything the player can act on, and aged paper
+ * for anything they can read. Nothing in the UI is pure black or pure white;
+ * every surface carries a tint so it sits inside the painted scenes rather
+ * than floating on top of them.
+ */
+
+:root {
+  /* -- Core palette ------------------------------------------------------ */
+  --ink-abyss: #070a0d;
+  --ink-900: #0c1116;
+  --ink-800: #121a21;
+  --ink-700: #1a252e;
+  --ink-600: #24323d;
+  --ink-500: #33454f;
+  --ink-400: #4a5f6b;
+
+  /* Warm key: lamplight. The only saturated warm in the UI, so it always
+     reads as "this is interactive" or "this matters". */
+  --lamp-100: #fff3d6;
+  --lamp-200: #ffe2a8;
+  --lamp-300: #f5c96f;
+  --lamp-400: #e0a83f;
+  --lamp-500: #b8822a;
+  --lamp-600: #8a5f1d;
+
+  /* Cool fill: moonlight and rain. */
+  --moon-100: #dce9f2;
+  --moon-200: #b3cbdb;
+  --moon-300: #7e9db2;
+  --moon-400: #55768c;
+
+  /* Paper: journal, letters, documents. */
+  --paper-100: #f4ead3;
+  --paper-200: #e7d9ba;
+  --paper-300: #d4c199;
+  --paper-400: #b09b72;
+  --paper-ink: #2c231a;
+  --paper-ink-faded: #5c4b38;
+
+  /* Signal colours, used sparingly. */
+  --blood: #8f2f28;
+  --blood-bright: #c2453a;
+  --verdigris: #4a8577;
+  --amethyst: #6b5a8a;
+
+  /* -- Semantic roles ---------------------------------------------------- */
+  --bg-app: var(--ink-abyss);
+  --surface-1: color-mix(in srgb, var(--ink-800) 92%, transparent);
+  --surface-2: color-mix(in srgb, var(--ink-700) 94%, transparent);
+  --surface-raised: color-mix(in srgb, var(--ink-600) 96%, transparent);
+  --text-primary: var(--moon-100);
+  --text-secondary: var(--moon-300);
+  --text-muted: var(--ink-400);
+  --accent: var(--lamp-300);
+  --accent-strong: var(--lamp-200);
+  --accent-dim: var(--lamp-500);
+  --danger: var(--blood-bright);
+
+  --border-hairline: 1px solid color-mix(in srgb, var(--lamp-500) 22%, transparent);
+  --border-brass: 1px solid color-mix(in srgb, var(--lamp-400) 45%, transparent);
+  --border-strong: 2px solid color-mix(in srgb, var(--lamp-400) 60%, transparent);
+
+  /* -- Typography -------------------------------------------------------- */
+  /* Display: high-contrast transitional serif for titles and nameplates.
+     Body: humanist serif that stays readable at small sizes over artwork.
+     UI:   spaced small-caps sans for labels, so chrome never competes with prose. */
+  --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-body: 'Crimson Pro', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --font-hand: 'Caveat', 'Segoe Script', cursive;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Modular scale, 1.25 ratio, anchored to a fluid base. */
+  --step--2: clamp(0.68rem, 0.66rem + 0.1vw, 0.75rem);
+  --step--1: clamp(0.8rem, 0.77rem + 0.15vw, 0.9rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.12rem);
+  --step-1: clamp(1.19rem, 1.1rem + 0.42vw, 1.4rem);
+  --step-2: clamp(1.48rem, 1.35rem + 0.68vw, 1.75rem);
+  --step-3: clamp(1.85rem, 1.64rem + 1.05vw, 2.19rem);
+  --step-4: clamp(2.32rem, 2rem + 1.6vw, 2.74rem);
+  --step-5: clamp(2.9rem, 2.42rem + 2.4vw, 3.42rem);
+
+  --tracking-ui: 0.14em;
+  --tracking-display: 0.02em;
+  --leading-tight: 1.15;
+  --leading-body: 1.62;
+
+  /* -- Space & radius ---------------------------------------------------- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 5px;
+
+  /* -- Elevation --------------------------------------------------------- */
+  /* Shadows are near-black and tall: objects sit in a dark room, lit from
+     one side, so they cast long soft shadows rather than a uniform halo. */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.6), 0 2px 4px rgb(0 0 0 / 0.4);
+  --shadow-3: 0 18px 44px -8px rgb(0 0 0 / 0.72), 0 4px 12px rgb(0 0 0 / 0.5);
+  --shadow-4: 0 42px 90px -16px rgb(0 0 0 / 0.82), 0 8px 24px rgb(0 0 0 / 0.55);
+  --glow-lamp: 0 0 22px -4px color-mix(in srgb, var(--lamp-300) 55%, transparent);
+  --glow-lamp-soft: 0 0 40px -8px color-mix(in srgb, var(--lamp-400) 40%, transparent);
+
+  /* -- Motion ------------------------------------------------------------ */
+  /* Slow, weighted easing. Nothing in this game snaps; it settles. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-drama: cubic-bezier(0.22, 1.15, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-med: 260ms;
+  --dur-slow: 460ms;
+  --dur-scene: 620ms;
+
+  /* -- Layout ------------------------------------------------------------ */
+  --stage-ratio: 16 / 10;
+  --hud-h: 4.5rem;
+  --z-scene: 10;
+  --z-hud: 40;
+  --z-panel: 60;
+  --z-dialogue: 70;
+  --z-puzzle: 80;
+  --z-cinematic: 90;
+  --z-menu: 100;
+  --z-toast: 110;
+  --z-cursor: 200;
+}
+
+/* Reduced motion: keep the atmosphere, drop the travel. Transitions shrink
+   rather than vanish so state changes stay legible. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-med: 60ms;
+    --dur-slow: 90ms;
+    --dur-scene: 120ms;
+  }
+}
