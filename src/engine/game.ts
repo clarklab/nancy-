@@ -495,11 +495,20 @@ export class Game implements Presenter {
     return {
       ready: true,
 
-      /** Jumps straight into the first playable scene. */
-      startNewGameSkippingIntro: async () => {
+      /**
+       * Jumps straight into the first playable scene.
+       *
+       * Auto-advance is enabled first: a scene's arrival narration blocks on a
+       * player click, so without it `goto()` never resolves under automation.
+       */
+      startNewGameSkippingIntro: async (dwellMs = 40) => {
+        this.narration.setAutoAdvance(dwellMs);
         this.menus.forceClose();
         await this.goto(this.content.startScene, 'none');
       },
+
+      /** Lets a harness re-enable normal click-to-advance pacing. */
+      setAutoAdvance: (ms: number | null) => this.narration.setAutoAdvance(ms),
 
       openJournal: (tab?: string) => {
         this.journal.open(tab as never);

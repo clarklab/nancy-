@@ -413,6 +413,13 @@
   color: var(--text-secondary);
 }
 
+.tl-movement .mech-caption {
+  white-space: normal;
+  text-align: center;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
 .tl-face {
   position: relative;
   width: var(--face);
@@ -775,6 +782,9 @@
   grid-auto-columns: 1fr;
   gap: 2px;
   height: clamp(0.85rem, 3.4cqh, 1.5rem);
+  /* Wider than the opening, so a half-bond course shifted left still fills
+     the reveal instead of showing a slot of black at the far end. */
+  width: 110%;
   transform: translateX(calc(var(--offset) * -8%));
   transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out);
 }
@@ -1617,8 +1627,14 @@
 }
 
 .sb-key {
-  transform: scale(0.82);
+  font-size: 0.74em;
+  transform: scale(0.86);
   transform-origin: 50% 50%;
+}
+
+.sb-key .pz-toggle-legend {
+  font-size: 0.9em;
+  white-space: nowrap;
 }
 
 .sb-lamps {
@@ -1942,10 +1958,10 @@
   content: '';
   position: absolute;
   left: 50%;
-  top: 2%;
-  width: 0.42em;
-  height: 22%;
-  margin-left: -0.21em;
+  top: 1.5%;
+  width: 0.5em;
+  height: 11%;
+  margin-left: -0.25em;
   border-radius: 2px;
   background-image: var(--mech-bronze);
   box-shadow: var(--mech-edge);
@@ -2137,6 +2153,12 @@
   opacity: 0.9;
 }
 
+.op-collar-well {
+  display: grid;
+  justify-items: center;
+  gap: 0.3em;
+}
+
 .op-collar {
   position: relative;
   width: 2.6em;
@@ -2159,12 +2181,6 @@
   margin-left: -1.5px;
   border-radius: 2px;
   background: var(--ink-abyss);
-}
-
-.op-collar .mech-caption {
-  transform: rotate(calc(-1 * var(--rot, 0deg)));
-  font-size: 0.6em;
-  color: var(--ink-900);
 }
 
 .op-cue {

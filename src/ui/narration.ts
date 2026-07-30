@@ -18,6 +18,16 @@ export class Narration {
   /** Set while text is still revealing, so a click completes instead of advancing. */
   private completeReveal: (() => void) | null = null;
   private reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /**
+   * Screenshot/automation mode.
+   *
+   * Narration deliberately blocks until the player acknowledges it — that is
+   * how the game paces itself. An automated harness has nobody to click, so a
+   * scene's arrival beat would hang `goto()` forever. In this mode each panel
+   * still renders (so it can be captured) but settles on a timer instead of an
+   * input.
+   */
+  private autoAdvanceMs: number | null = null;
 
   constructor() {
     this.root = document.createElement('div');
@@ -114,6 +124,14 @@ export class Narration {
       });
       this.completeReveal = stop;
       this.current = finish;
+
+      if (this.autoAdvanceMs !== null) {
+        // Complete the reveal immediately so the captured frame shows the
+        // whole line, then dismiss after the configured dwell.
+        stop();
+        this.completeReveal = null;
+        setTimeout(finish, this.autoAdvanceMs);
+      }
     });
   }
 
@@ -192,7 +210,7 @@ export class Narration {
       this.root.appendChild(card);
       requestAnimationFrame(() => card.classList.add('is-in'));
 
-      const hold = this.reduced ? 900 : 4200;
+      const hold = this.autoAdvanceMs !== null ? this.autoAdvanceMs : this.reduced ? 900 : 4200;
       const done = () => {
         card.classList.remove('is-in');
         card.classList.add('is-out');
@@ -213,6 +231,15 @@ export class Narration {
         { once: true },
       );
     });
+  }
+
+  /**
+   * Enables timer-based dismissal for the screenshot harness.
+   *
+   * @param ms Dwell per panel, or `null` to restore normal click-to-advance.
+   */
+  setAutoAdvance(ms: number | null) {
+    this.autoAdvanceMs = ms;
   }
 
   destroy() {

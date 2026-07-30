@@ -293,7 +293,7 @@ const MOVEMENTS: MovementSpec[] = [
     title: 'Ordinary day',
     scale: 48,
     answer: 61, // 15¼ h — 17:30 to 08:45
-    legend: 'Closing hour to opening hour, Monday to Friday',
+    legend: 'Close to open, Monday to Friday',
   },
   {
     key: 'm2',
@@ -301,7 +301,7 @@ const MOVEMENTS: MovementSpec[] = [
     title: 'Saturday',
     scale: 72,
     answer: 177, // 44¼ h — Sat 12:30 to Mon 08:45
-    legend: 'Saturday closing to the next working morning',
+    legend: 'Saturday close to Monday open',
   },
   {
     key: 'm3',
@@ -309,7 +309,7 @@ const MOVEMENTS: MovementSpec[] = [
     title: 'The interval last set',
     scale: 48,
     answer: 60, // 15 h — 17:00 to 08:00, 14 September 1998
-    legend: 'As entered by hand at the last winding',
+    legend: 'As entered at the last winding',
   },
 ];
 
@@ -1453,23 +1453,26 @@ function tideRoom(): PuzzleModule {
 interface Jack {
   id: string;
   face: string;
+  /** Engraved on the face plate under the hole. Kept short by the board. */
+  short: string;
+  /** Spoken to a screen reader, and written into the plug's label. */
   name: string;
   kind: 'ext' | 'trunk';
 }
 
 const JACKS: Jack[] = [
-  { id: 'x1', face: '1', name: 'Registry counter', kind: 'ext' },
-  { id: 'x2', face: '2', name: 'Warden’s Office', kind: 'ext' },
-  { id: 'x3', face: '3', name: 'Accounts Office', kind: 'ext' },
-  { id: 'x4', face: '4', name: 'Rolls Room', kind: 'ext' },
-  { id: 'x5', face: '5', name: 'Post Room', kind: 'ext' },
-  { id: 'x6', face: '6', name: 'Duplicating Room', kind: 'ext' },
-  { id: 'x7', face: '7', name: 'Lamp Room', kind: 'ext' },
-  { id: 'x8', face: '8', name: 'Gate lodge', kind: 'ext' },
-  { id: 'x9', face: '9', name: 'Switchboard, night porter', kind: 'ext' },
-  { id: 't1', face: 'T1', name: 'Trunk 1 — G.P.O. outward', kind: 'trunk' },
-  { id: 't2', face: 'T2', name: 'Trunk 2 — Rossport exchange', kind: 'trunk' },
-  { id: 't3', face: 'T3', name: 'Trunk 3 — Coastguard, direct wire', kind: 'trunk' },
+  { id: 'x1', face: '1', short: 'Registry', name: 'Extension 1, Registry counter', kind: 'ext' },
+  { id: 'x2', face: '2', short: 'Warden', name: 'Extension 2, the Warden’s Office', kind: 'ext' },
+  { id: 'x3', face: '3', short: 'Accounts', name: 'Extension 3, Accounts Office', kind: 'ext' },
+  { id: 'x4', face: '4', short: 'Rolls', name: 'Extension 4, Rolls Room', kind: 'ext' },
+  { id: 'x5', face: '5', short: 'Post', name: 'Extension 5, Post Room', kind: 'ext' },
+  { id: 'x6', face: '6', short: 'Duplicating', name: 'Extension 6, Duplicating Room', kind: 'ext' },
+  { id: 'x7', face: '7', short: 'Lamp Room', name: 'Extension 7, Lamp Room', kind: 'ext' },
+  { id: 'x8', face: '8', short: 'Gate', name: 'Extension 8, gate lodge', kind: 'ext' },
+  { id: 'x9', face: '9', short: 'Board', name: 'Extension 9, the switchboard itself', kind: 'ext' },
+  { id: 't1', face: 'T1', short: 'G.P.O.', name: 'Trunk 1, G.P.O. outward', kind: 'trunk' },
+  { id: 't2', face: 'T2', short: 'Rossport', name: 'Trunk 2, Rossport exchange', kind: 'trunk' },
+  { id: 't3', face: 'T3', short: 'Coastguard', name: 'Trunk 3, Coastguard direct wire', kind: 'trunk' },
 ];
 
 interface LoggedCall {
@@ -1590,7 +1593,10 @@ function switchboard(): PuzzleModule {
         const j = h('div', 'sb-jack');
         j.dataset.jack = jack.id;
         j.append(h('span', 'sb-jack-hole'), h('span', 'sb-jack-face', jack.face));
-        j.appendChild(h('span', 'sb-jack-name', jack.name));
+        const name = h('span', 'sb-jack-name', jack.short);
+        // The face plate is abbreviated; the accessibility tree is not.
+        name.setAttribute('aria-label', jack.name);
+        j.appendChild(name);
         jackEls.set(jack.id, j);
         (jack.kind === 'ext' ? extRow : trunkRow).appendChild(j);
       }
@@ -1817,8 +1823,8 @@ function switchboard(): PuzzleModule {
         const key = rig.keep(
           makeToggle({
             label: `Cord ${n} speaking key`,
-            onLabel: 'Key thrown',
-            offLabel: 'Key down',
+            onLabel: 'Listen',
+            offLabel: 'Off',
             feedback: ctx.feedback,
             onChange: () => testCord(cord),
           }),
@@ -2186,8 +2192,10 @@ function theOptic(): PuzzleModule {
       panel.setAttribute('aria-roledescription', 'Fresnel panel');
       panelHolder.appendChild(panel);
 
+      const collarWell = h('div', 'op-collar-well');
       const collar = h('div', 'op-collar');
-      collar.append(h('span', 'op-collar-bar'), caption('Turn'));
+      collar.appendChild(h('span', 'op-collar-bar'));
+      collarWell.append(collar, caption('Bring it upright'));
 
       let panelAngle = 0;
       const collarCtl = rig.keep(
@@ -2238,7 +2246,7 @@ function theOptic(): PuzzleModule {
         panel.classList.add('is-seated');
         panelCtl.destroy();
         collarCtl.destroy();
-        collar.remove();
+        collarWell.remove();
         bay.appendChild(panel);
         panel.style.removeProperty('--drag-x');
         panel.style.removeProperty('--drag-y');
@@ -2338,7 +2346,7 @@ function theOptic(): PuzzleModule {
       const seatCue = h('p', 'op-cue');
       seatCue.textContent =
         'Carry the panel into the bay and bring it upright with the collar. Then the clips, in opposed pairs.';
-      seatStage.append(panelHolder, collar, seatCue);
+      seatStage.append(panelHolder, collarWell, seatCue);
 
       // -- stage II: the character -------------------------------------------
       const charStage = h('div', 'op-char-stage');
@@ -2628,7 +2636,7 @@ function theOptic(): PuzzleModule {
         panel.classList.add('is-seated');
         panelCtl.destroy();
         collarCtl.destroy();
-        collar.remove();
+        collarWell.remove();
         bay.appendChild(panel);
         clipRing.hidden = false;
       }
