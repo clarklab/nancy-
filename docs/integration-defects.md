@@ -3,7 +3,14 @@
 Found by manual smoke testing against `smoke.html` while the subsystem agents
 were still in flight. Each needs fixing during the integration pass.
 
-## 1. `.overlay-root` blanket rule blocks all scene input — CRITICAL
+## 1. `.overlay-root` blanket rule blocks all scene input — CRITICAL — FIXED
+
+Fixed by the `hud` review agent, which removed the blanket rule and made the
+overlay layer inert by default. Re-verified: hover and click both reach the
+scene, and the interior-voice line renders correctly.
+
+<details><summary>Original report</summary>
+
 
 `src/styles/base.css:283`
 
@@ -30,6 +37,7 @@ specificity and each overlay module keeps authority over its own layer:
 Verified as the cause: injecting
 `.narration-root:not(.is-active){pointer-events:none !important}` restores
 hover and click.
+</details>
 
 ## 2. Hover affordance reads as a hard rectangle
 
