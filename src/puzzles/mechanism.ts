@@ -214,6 +214,8 @@ const readStrings = (bag: Record<string, unknown>, key: string): string[] => {
  */
 class Stages {
   readonly el = h('ol', 'mech-rail');
+  /** Fired after every stage change, so a root can carry a `data-stage`. */
+  onGo?: (index: number) => void;
   private steps: HTMLElement[] = [];
   private panels: HTMLElement[] = [];
   private at = -1;
@@ -252,6 +254,7 @@ class Stages {
       if (n === i) s.setAttribute('aria-current', 'step');
       else s.removeAttribute('aria-current');
     });
+    this.onGo?.(i);
     if (focus) this.panels[i]?.focus({ preventScroll: true });
   }
 }
@@ -441,9 +444,6 @@ function threeMovements(): PuzzleModule {
       right.appendChild(bank);
 
       const quarters = new Map<string, number>();
-      const needles = new Map<string, HTMLElement>();
-      const windows = new Map<string, HTMLElement>();
-      const keys = new Map<string, Control<number>>();
 
       const agreed = () => MOVEMENTS.every((m) => quarters.get(m.key) === m.answer);
 
@@ -487,8 +487,6 @@ function threeMovements(): PuzzleModule {
         const needle = h('span', 'tl-needle');
         const win = h('output', 'tl-window');
         face.append(ticks, needle, h('span', 'tl-hub'), win);
-        needles.set(spec.key, needle);
-        windows.set(spec.key, win);
         mv.appendChild(face);
         mv.appendChild(caption(spec.legend));
 
@@ -544,7 +542,6 @@ function threeMovements(): PuzzleModule {
             onCommit: (deg) => setQ(deg / QUARTER_DEG, true),
           }),
         );
-        keys.set(spec.key, rot);
 
         // Winding forty-four hours a quarter at a time with the arrow keys is
         // not accessibility, it is a sentence. Page keys wind by the hour.
@@ -738,6 +735,9 @@ function tideRoom(): PuzzleModule {
     mount(root: HTMLElement, ctx: PuzzleContext) {
       const el = bench(root, 'mech-tideroom');
       const stages = new Stages(['The wall', 'To set going', 'Drum 1974/44']);
+      stages.onGo = (i) => {
+        el.dataset.stage = String(i);
+      };
       el.appendChild(stages.el);
 
       const persist = (patch: Record<string, unknown>) => {
@@ -797,11 +797,9 @@ function tideRoom(): PuzzleModule {
         ]),
         gauge,
       );
-      wallStage.append(
-        h('div', 'tr-wall-holder').appendChild(wall).parentElement as HTMLElement,
-        wallPanel,
-      );
-      wallStage.append(readout, courses);
+      const wallHolder = h('div', 'tr-wall-holder');
+      wallHolder.append(wall, readout, courses);
+      wallStage.append(wallHolder, wallPanel);
 
       let seated = clamp(Math.round(readNum(ctx.state, 'seated', 0)), 0, JOINTS);
       let pulls = clamp(Math.round(readNum(ctx.state, 'pulls', 0)), 0, PULLS_NEEDED);
@@ -868,7 +866,6 @@ function tideRoom(): PuzzleModule {
         holding = false;
         grip.classList.remove('is-hauling');
         const inBand = power >= BAND[0] && power <= BAND[1];
-        const good = inBand && seated === SOFT_JOINT;
         if (!seated) {
           ctx.feedback('bad');
           ctx.note('Nothing to pull against. Seat the bar in a joint first.');
@@ -996,10 +993,11 @@ function tideRoom(): PuzzleModule {
       plateWrap.append(plateText, salt, scrubHint, cloth);
 
       let saltCleared = readBool(ctx.state, 'plateWiped');
+      let scrubbed = 0;
       const sctx = salt.getContext('2d');
 
       const paintSalt = () => {
-        if (!sctx) return;
+        if (!sctx || saltCleared) return;
         const r = plateWrap.getBoundingClientRect();
         if (r.width < 2) return;
         const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1024,7 +1022,9 @@ function tideRoom(): PuzzleModule {
           sctx.fillStyle = `rgba(255,255,255,${0.05 + Math.random() * 0.12})`;
           sctx.fill();
         }
+        // Everything drawn from here on cuts salt away instead of adding it.
         sctx.globalCompositeOperation = 'destination-out';
+        sctx.fillStyle = 'rgba(0, 0, 0, 1)';
       };
 
       const scrubAt = (cx: number, cy: number) => {
@@ -1037,7 +1037,6 @@ function tideRoom(): PuzzleModule {
         if (scrubbed > 34) clearSalt();
       };
 
-      let scrubbed = 0;
       const clearSalt = () => {
         if (saltCleared) return;
         saltCleared = true;
@@ -1151,27 +1150,27 @@ function tideRoom(): PuzzleModule {
         cards.set(op.id, card);
         rack.appendChild(card);
 
-        rig.keep(
+        const cardCtl = rig.keep(
           makeDraggable(card, {
             bounds: setStage,
             label: op.label,
             feedback: ctx.feedback,
-            onDrop: (p) => {
+            onDrop: () => {
               const r = card.getBoundingClientRect();
               const m = machine.getBoundingClientRect();
               const over =
                 r.left < m.right && r.right > m.left && r.top < m.bottom && r.bottom > m.top;
               if (over) perform(op.id);
-              if (!over || doneOps.has(op.id) === false) {
-                // Springs back whether it was wrong or merely dropped short.
-                if (card.isConnected && (p.x !== 0 || p.y !== 0)) {
-                  card.classList.add('is-returning');
-                  rig.after(240, () => card.classList.remove('is-returning'));
-                }
+              // Whether it was refused or simply dropped short of the machine,
+              // an operation always goes back on its rack.
+              if (card.isConnected) {
+                card.classList.add('is-returning');
+                cardCtl.set({ x: 0, y: 0 }, true);
+                rig.after(280, () => card.classList.remove('is-returning'));
               }
             },
           }),
-        ).set({ x: 0, y: 0 }, true);
+        );
 
         card.addEventListener(
           'keydown',
@@ -1591,9 +1590,7 @@ function switchboard(): PuzzleModule {
         const j = h('div', 'sb-jack');
         j.dataset.jack = jack.id;
         j.append(h('span', 'sb-jack-hole'), h('span', 'sb-jack-face', jack.face));
-        const label = h('span', 'sb-jack-name', jack.name);
-        j.appendChild(label);
-        j.setAttribute('aria-hidden', 'true');
+        j.appendChild(h('span', 'sb-jack-name', jack.name));
         jackEls.set(jack.id, j);
         (jack.kind === 'ext' ? extRow : trunkRow).appendChild(j);
       }
@@ -1922,7 +1919,10 @@ function switchboard(): PuzzleModule {
         tab.addEventListener(
           'click',
           () => {
-            for (const t of tabs.children) t.classList.remove('is-on');
+            for (const t of tabs.children) {
+              t.classList.remove('is-on');
+              t.setAttribute('aria-selected', 'false');
+            }
             for (const p of pages.children) (p as HTMLElement).hidden = true;
             tab.classList.add('is-on');
             tab.setAttribute('aria-selected', 'true');
@@ -2143,6 +2143,9 @@ function theOptic(): PuzzleModule {
     mount(root: HTMLElement, ctx: PuzzleContext) {
       const el = bench(root, 'mech-optic');
       const stages = new Stages(['Seat the panel', 'Set the character', 'Wind and set']);
+      stages.onGo = (i) => {
+        el.dataset.stage = String(i);
+      };
 
       const head = h('div', 'op-head');
       head.append(
@@ -2391,7 +2394,7 @@ function theOptic(): PuzzleModule {
             else return;
             ev.preventDefault();
             ev.stopPropagation();
-            ctl.set(sectorAngles[i] + d, false);
+            ctl.set(ctl.get() + d, false);
             ctx.feedback('tick');
           },
           { signal: rig.signal },
@@ -2456,9 +2459,6 @@ function theOptic(): PuzzleModule {
           named.textContent = 'No light on this coast shows that.';
           named.dataset.match = 'none';
         }
-        for (let i = 0; i < 3; i++) {
-          sectorLayer.children[i].setAttribute('style', `--a:${sectorAngles[i]}deg`);
-        }
         check();
       }
 
@@ -2489,7 +2489,7 @@ function theOptic(): PuzzleModule {
             : `${Math.round(frac * 100)} per cent of the fall. Keep cranking.`;
       };
 
-      const crankCtl = rig.keep(
+      rig.keep(
         makeRotatable(crank, {
           angle: wind,
           detent: 30,
@@ -2508,7 +2508,6 @@ function theOptic(): PuzzleModule {
           },
         }),
       );
-      void crankCtl;
 
       let hour = clamp(Math.round(readNum(ctx.state, 'hour', 12)), 0, 23);
       let minute = clamp(Math.round(readNum(ctx.state, 'minute', 0)), 0, 59);

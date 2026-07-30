@@ -59,14 +59,33 @@ check_all() {
   return 0
 }
 
+# The checks take ~30s, and an agent can write a file during that window — so
+# a tree that passed is not necessarily the tree that gets staged. Fingerprint
+# the sources before and after; if anything moved, the result is stale and the
+# whole cycle repeats. Without this, `git add -A` can commit a file that was
+# never checked, which is exactly how a mid-write puzzle module reached CI.
+fingerprint() {
+  find src tools docs public index.html package.json -type f \
+    -not -path '*/node_modules/*' -not -path '*/.git/*' \
+    -printf '%p %T@\n' 2>/dev/null | sort | md5sum
+}
+
 attempt=0
-until check_all; do
+while :; do
+  before="$(fingerprint)"
+  if check_all && [ "$before" = "$(fingerprint)" ]; then
+    break
+  fi
   attempt=$((attempt + 1))
   if [ "$((waited + attempt * 30))" -ge "$MAX_WAIT" ]; then
-    echo "safe-commit: REFUSING to commit — tree still does not build after ${MAX_WAIT}s" >&2
+    echo "safe-commit: REFUSING to commit — tree never reached a valid quiet state in ${MAX_WAIT}s" >&2
     exit 1
   fi
-  echo "safe-commit: tree does not build yet (attempt ${attempt}); an agent is probably mid-edit — waiting 30s"
+  if [ "$before" != "$(fingerprint)" ]; then
+    echo "safe-commit: tree changed during validation (attempt ${attempt}) — rechecking in 30s"
+  else
+    echo "safe-commit: tree does not build yet (attempt ${attempt}); an agent is mid-edit — waiting 30s"
+  fi
   sleep 30
 done
 
