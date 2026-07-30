@@ -2326,10 +2326,17 @@ const FINDINGS: { id: string; text: string }[] = [
   { id: 'adverse', text: 'Not genuine. This sheet cannot have existed on 4 March 1975.' },
 ];
 
-/** Where the nine chain lines fall inside the twenty-five millimetre window. */
+/**
+ * The laid sheet carries eighteen chain lines and the beta-radiograph window
+ * is half its width, so the window holds nine of them wherever it is laid
+ * down — which is the whole reason the reference range of eight to ten means
+ * anything, and the reason the window has to be draggable rather than printed.
+ */
 const CHAIN_LINES = 18;
-const CHAIN_WINDOW_FROM = 4;
-const CHAIN_WINDOW_TO = 12;
+/** The window's width as a fraction of the sheet. Matches the stylesheet. */
+const CHAIN_WINDOW_W = 0.5;
+/** Where it starts, before anybody moves it. */
+const CHAIN_WINDOW_HOME = 0.22;
 
 function deakinAuthentication(): PuzzleModule {
   const bin = new Bin();
@@ -2517,16 +2524,11 @@ function deakinAuthentication(): PuzzleModule {
       });
       const chainEls: HTMLButtonElement[] = [];
       for (let i = 0; i < CHAIN_LINES; i++) {
-        const inWindow = i >= CHAIN_WINDOW_FROM && i <= CHAIN_WINDOW_TO;
         const line = h('button', 'sx-dk-chain', '', {
           type: 'button',
           'data-chain': String(i),
         });
         line.style.setProperty('--n', String(i));
-        line.setAttribute(
-          'aria-label',
-          `Chain line ${i + 1} of ${CHAIN_LINES}${inWindow ? ', inside the window' : ', outside the window'}`,
-        );
         line.append(h('span', 'sx-dk-chain-tick', '', { 'aria-hidden': 'true' }));
         line.addEventListener('click', () => tallyChain(i), { signal: bin.signal });
         chainEls.push(line);
@@ -2539,6 +2541,14 @@ function deakinAuthentication(): PuzzleModule {
       );
       chainStage.append(chainSheet, beta);
 
+      /** The window's left edge as a fraction of the sheet's width. */
+      let betaFrac = CHAIN_WINDOW_HOME;
+
+      const readBeta = (px: number) => {
+        const w = chainStage.clientWidth || 1;
+        betaFrac = clamp(CHAIN_WINDOW_HOME + px / w, 0, 1 - CHAIN_WINDOW_W);
+      };
+
       bin.own(
         makeDraggable(beta, {
           axis: 'x',
@@ -2546,14 +2556,26 @@ function deakinAuthentication(): PuzzleModule {
           label: 'Beta-radiograph reference sheet, 25 mm window',
           feedback: ctx.feedback,
           position: { x: asNum(readings.betaX, 0), y: 0 },
+          onMove: (p) => {
+            readBeta(p.x);
+            paintChain();
+          },
           onDrop: (p) => {
+            readBeta(p.x);
+            // A tally is a count *against the window*. Move the window and the
+            // marks that fell outside it stop being part of the count, which
+            // is both the honest rule and the one that stops the player
+            // sweeping the whole sheet and calling it twenty-five millimetres.
+            for (const key of [...tallied]) if (!inWindow(Number(key))) tallied.delete(key);
             const bag = asBag(ctx.state.readings);
             bag.betaX = p.x;
             ctx.state.readings = bag;
             ctx.save();
+            paintChain();
           },
         }),
       );
+      readBeta(asNum(readings.betaX, 0));
 
       const chainReadout = h('p', 'sx-dk-tally', '');
       const chainPlate = h('p', 'sx-dk-plate-line',
@@ -2579,7 +2601,26 @@ function deakinAuthentication(): PuzzleModule {
       );
 
       function inWindow(i: number) {
-        return i >= CHAIN_WINDOW_FROM && i <= CHAIN_WINDOW_TO;
+        const f = (i + 0.5) / CHAIN_LINES;
+        return f >= betaFrac && f <= betaFrac + CHAIN_WINDOW_W;
+      }
+
+      /** Just the chain station, for the sixty frames a drag generates. */
+      function paintChain() {
+        chainEls.forEach((el, i) => {
+          const here = inWindow(i);
+          el.classList.toggle('is-tallied', tallied.has(String(i)));
+          el.classList.toggle('is-inwindow', here);
+          el.setAttribute(
+            'aria-label',
+            `Chain line ${i + 1} of ${CHAIN_LINES}, ${here ? 'inside' : 'outside'} the window` +
+              (tallied.has(String(i)) ? ', counted' : ''),
+          );
+        });
+        chainReadout.textContent = state.chainRecorded
+          ? `Recorded: ${wordFor(state.chain).toLowerCase()} chain lines to the twenty-five millimetres.`
+          : `Counted so far: ${wordFor(tallied.size).toLowerCase()}.`;
+        armLever(chainRecord, !state.chainRecorded && tallied.size >= 8);
       }
 
       function tallyChain(i: number) {
@@ -3000,14 +3041,7 @@ function deakinAuthentication(): PuzzleModule {
         }
 
         // Station-local painting
-        chainEls.forEach((el, i) => {
-          el.classList.toggle('is-tallied', tallied.has(String(i)));
-          el.classList.toggle('is-inwindow', inWindow(i));
-        });
-        chainReadout.textContent = state.chainRecorded
-          ? `Recorded: ${wordFor(state.chain).toLowerCase()} chain lines to the twenty-five millimetres.`
-          : `Counted so far: ${wordFor(tallied.size).toLowerCase()}.`;
-        armLever(chainRecord, !state.chainRecorded && tallied.size >= 8);
+        paintChain();
 
         fibrePlate.textContent = '';
         for (let i = 0; i < state.fibre; i++) {
@@ -3244,7 +3278,7 @@ function layerMarkup(id: LayerId): string {
         <text x="12" y="-10">Track as reconstructed, Inquiry 1975</text>
       </g>
       <g class="cl-inset" transform="translate(40 34)">
-        <rect x="0" y="0" width="272" height="196" />
+        <rect class="cl-inset-frame" x="0" y="0" width="272" height="196" />
         <text class="cl-inset-title" x="10" y="18">INSET · SHORE ESTABLISHMENT · 1:500</text>
         <rect class="cl-building" x="26" y="34" width="216" height="140" />
         <path class="cl-wall" d="M 26 82 H 242 M 128 82 V 174" />

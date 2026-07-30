@@ -855,32 +855,16 @@
   color: #d7e0e5;
 }
 
+/* The manifest of what is up. The boxes themselves are the visible record —
+   they physically move to the top shelf — so this exists for the screen
+   reader, which cannot see a box move. */
 .sx-bs .sx-bs-landed {
   position: absolute;
-  left: 1%;
-  right: 1%;
-  bottom: 4%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.16rem;
-  align-content: flex-end;
-}
-
-.sx-bs .sx-bs-landed-chip {
-  padding: 0.1rem 0.28rem;
-  border: 1px solid #55636d;
-  border-radius: 1px;
-  background: linear-gradient(168deg, #3a4149, #262c33);
-  font-family: var(--font-mono);
-  font-size: clamp(0.36rem, 1cqh, 0.48rem);
-  letter-spacing: 0.04em;
-  color: #cfd8de;
-}
-
-.sx-bs .sx-bs-landed-chip.is-japanned {
-  background: linear-gradient(168deg, #23282e, #0e1114);
-  border-color: var(--lamp-500);
-  color: var(--lamp-200);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* -- the boxes -------------------------------------------------------------- */
@@ -970,7 +954,7 @@
 .sx-bs .sx-bs-box.is-lifting { filter: brightness(1.25); }
 
 .sx-bs .sx-bs-box.is-saved {
-  bottom: calc(62% + var(--rank) * 5%);
+  bottom: calc(63% + var(--rank) * 4%);
   filter: brightness(0.72);
   cursor: default;
   z-index: 1;
@@ -1549,11 +1533,13 @@
 /* The beta-radiograph reference sheet: a clear film with a printed window. */
 .sx-dk .sx-dk-beta {
   position: absolute;
-  left: calc(CHAIN_LEFT, 22%);
   left: 22%;
   top: 0;
   bottom: 0;
-  width: 47%;
+  /* Half the sheet's width, and the sheet carries eighteen chain lines — so
+     the window holds nine of them wherever it is put down, which is what
+     makes the reference range of eight to ten mean anything. */
+  width: 50%;
   border-left: 2px solid rgb(40 60 74 / 0.85);
   border-right: 2px solid rgb(40 60 74 / 0.85);
   background: linear-gradient(90deg, rgb(126 157 178 / 0.16), rgb(126 157 178 / 0.06));
@@ -2625,15 +2611,16 @@
 .sx-cl .cl-buoy { stroke: #2f5d8a; stroke-width: 1.4; fill: rgb(47 93 138 / 0.25); }
 .sx-cl .cl-buoy text { font-family: var(--font-mono); font-size: 10px; fill: #2f5d8a; stroke: none; }
 
-.sx-cl .cl-inset rect { fill: rgb(255 255 255 / 0.55); stroke: #4a4a44; stroke-width: 1.2; }
+.sx-cl .cl-inset-frame { fill: rgb(255 255 255 / 0.55); stroke: #4a4a44; stroke-width: 1.2; }
 .sx-cl .cl-inset-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.8px; fill: #4a4a44; }
 .sx-cl .cl-inset-note { font-family: var(--font-mono); font-size: 10px; fill: #5a5a52; }
-.sx-cl .cl-building { fill: rgb(216 208 186 / 0.8) !important; }
+.sx-cl .cl-building { fill: rgb(216 208 186 / 0.8); stroke: #4a4a44; stroke-width: 1.2; }
 .sx-cl .cl-wall { stroke: #4a4a44; stroke-width: 1; fill: none; }
-.sx-cl .cl-chamber { fill: rgb(143 47 40 / 0.16) !important; stroke: #8f2f28 !important; stroke-dasharray: 4 3; }
+.sx-cl .cl-chamber { fill: rgb(143 47 40 / 0.16); stroke: #8f2f28; stroke-width: 1.4; stroke-dasharray: 4 3; }
 .sx-cl .cl-solid {
-  fill: rgb(74 74 68 / 0.55) !important;
-  stroke: #4a4a44 !important;
+  fill: rgb(74 74 68 / 0.55);
+  stroke: #4a4a44;
+  stroke-width: 1.2;
 }
 
 .sx-cl .cl-leg { stroke: #8a5f1d; stroke-width: 2; stroke-dasharray: 6 4; fill: none; }
