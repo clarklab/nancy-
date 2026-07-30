@@ -250,11 +250,31 @@ const BUILD_VERSION = '1.0.0';
 
 const KEY_ART = './art/ui/key-art.webp';
 
-/* Motion constants mirror the --dur-* tokens. They live here because these
-   sequences are driven from JS and cannot read a CSS duration reliably. */
-const MS_EXIT = 460;
-/** How long the wax seal waits before it comes down on the dossier. */
-const MS_SEAL = 900;
+/**
+ * Reads a duration token off the document root, in milliseconds.
+ *
+ * A screen's exit is choreographed in CSS but *timed* here, because the
+ * caller's promise must not settle until the layer has actually gone. Reading
+ * the token beats duplicating its value: the two can never drift, and the
+ * reduced-motion collapse in `tokens.css` is picked up for free — where a
+ * hardcoded 460 ms would leave a half-second of dead air on a screen the player
+ * has already dismissed.
+ */
+function tokenMs(name: string, fallback: number): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const n = raw.endsWith('ms')
+    ? Number.parseFloat(raw)
+    : raw.endsWith('s')
+      ? Number.parseFloat(raw) * 1000
+      : Number.NaN;
+  return Number.isFinite(n) ? n : fallback;
+}
+
+/** Mirrors `.menu-layer.is-out`, so a promise settles exactly as the layer goes. */
+const exitMs = () => tokenMs('--dur-med', 260);
+
+/** How long the dossier is allowed to settle before the seal comes down on it. */
+const sealDelayMs = () => tokenMs('--dur-scene', 620) * 1.5;
 
 /** Farthest the key art may drift under the pointer, in px. Any more reads as wobble. */
 const PARALLAX_MAX = 14;
@@ -268,10 +288,29 @@ const PARALLAX_MAX = 14;
  */
 const CULPRIT_FLAGS = ['culpritIdentified', 'accusedCorrectly', 'namedTheCulprit'] as const;
 
-const REDUCED = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** Queried once: a fresh MediaQueryList per call is garbage on every keypress. */
+const motionQuery =
+  typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
 
+/**
+ * True when travel should be suppressed.
+ *
+ * Reads the in-game override as well as the OS preference, because choosing
+ * "reduce motion" in settings has to be indistinguishable from asking the
+ * system for it — including for the sequences JS drives by hand.
+ */
+const REDUCED = () =>
+  document.documentElement.dataset.motion === 'reduced' || !!motionQuery?.matches;
+
+/**
+ * Tab stops inside a screen.
+ *
+ * Roving-tabindex members (`tabindex="-1"`) are excluded on purpose: they are
+ * reachable with the arrow keys, and letting focus restoration land on one
+ * would strand the player in the middle of a group with no way back out.
+ */
 const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
+  ':is(a[href], button, input, select, textarea, [tabindex]):not([disabled]):not([tabindex="-1"]):not([inert])';
 
 // ---------------------------------------------------------------------------
 // Formatting
@@ -370,6 +409,34 @@ interface PresentOptions<T> {
 }
 
 /**
+ * A settings control and the handle needed to correct it.
+ *
+ * `set` repaints without firing the change callback: it exists for the cases
+ * where the truth lives somewhere else — the mixer, the document's fullscreen
+ * state — and echoing that back as a player edit would be a feedback loop.
+ */
+interface Control<T> {
+  el: HTMLElement;
+  set(value: T): void;
+}
+
+/**
+ * Is this a real control that can take focus right now?
+ *
+ * `<body>` passes every naive test and is what `document.activeElement` reports
+ * when nothing is focused, so restoring to it would look like success and do
+ * nothing — the check is deliberately for an interactive, rendered, non-inert
+ * element and nothing else.
+ */
+const focusable = (node: Element | null | undefined): node is HTMLElement =>
+  !!node &&
+  node instanceof HTMLElement &&
+  node.isConnected &&
+  node.matches(FOCUSABLE) &&
+  !node.closest('[inert]') &&
+  node.getClientRects().length > 0;
+
+/**
  * All the game's non-diegetic screens.
  *
  * One instance lives for the whole session and is mounted once into the
@@ -388,7 +455,11 @@ export class Menus {
   private mounted = false;
   /** Weather rigs owned by the title screen, torn down when it leaves. */
   private weatherOnTitle: Weather[] = [];
-  private titlePointer: { layer: HTMLElement; onPointer: (ev: PointerEvent) => void } | null = null;
+  /**
+   * Everything outside the menu layer that we made `inert` while a screen is
+   * open, so it can be handed back exactly as it was found.
+   */
+  private silenced: HTMLElement[] = [];
 
   constructor(state: GameState) {
     this.state = state;
@@ -414,6 +485,38 @@ export class Menus {
   }
 
   /**
+   * Makes the rest of the document inert for as long as a screen is open.
+   *
+   * Trapping Tab is not modality — a screen reader's virtual cursor, a
+   * touch-explore gesture and a browser's find-in-page all walk straight past a
+   * key handler into the room behind. Marking every sibling on the path from
+   * the menu root up to `<body>` inert is what actually makes the menu the only
+   * thing in the document, and it is reversible: only the nodes we set are
+   * cleared again, so a subsystem that was already inert stays that way.
+   */
+  private silenceBackground() {
+    if (this.silenced.length) return;
+    for (let node: HTMLElement | null = this.el; node && node !== document.body; ) {
+      const parent: HTMLElement | null = node.parentElement;
+      if (!parent) break;
+      for (const sibling of parent.children) {
+        if (sibling === node || !(sibling instanceof HTMLElement) || sibling.inert) continue;
+        // Nothing to silence in a script or a stylesheet, and marking one
+        // leaves a confusing attribute in the inspector for no benefit.
+        if (sibling.matches('script, style, link, template, noscript')) continue;
+        sibling.inert = true;
+        this.silenced.push(sibling);
+      }
+      node = parent;
+    }
+  }
+
+  private restoreBackground() {
+    for (const node of this.silenced) node.inert = false;
+    this.silenced = [];
+  }
+
+  /**
    * Mounts a screen, traps the keyboard inside it, and resolves once it has
    * animated back out.
    *
@@ -433,38 +536,60 @@ export class Menus {
 
     const below = this.screens[this.screens.length - 1];
     if (below) below.layer.inert = true;
+    else this.silenceBackground();
 
-    const returnFocus = document.activeElement as HTMLElement | null;
+    const returnFocus = document.activeElement;
     let settled = false;
+    let torn = false;
+    let outcome!: T;
 
     let close!: (value: T, instant?: boolean) => void;
     const done = new Promise<T>((resolve) => {
+      const teardown = () => {
+        if (torn) return;
+        torn = true;
+
+        // Only chase focus if this layer actually had it. A screen that closed
+        // while the player was already working in the one that replaced it must
+        // not yank them back — that is what turns "restore defaults" into a
+        // half-second of focus ping-pong.
+        const hadFocus = layer.contains(document.activeElement);
+        layer.remove();
+        opts.cleanup?.();
+        this.screens = this.screens.filter((s) => s.layer !== layer);
+
+        const nowTop = this.screens[this.screens.length - 1];
+        if (nowTop) nowTop.layer.inert = false;
+        else this.restoreBackground();
+
+        if (hadFocus) {
+          // Best answer first: the exact control the player left. It is only
+          // usable if it survived and is not sitting under another screen.
+          const beneath = nowTop
+            ? nowTop.layer.querySelector<HTMLElement>('[data-menu-return]') ??
+              nowTop.layer.querySelector<HTMLElement>(FOCUSABLE)
+            : null;
+          const target = focusable(returnFocus) ? returnFocus : beneath;
+          target?.focus();
+        }
+        resolve(outcome);
+      };
+
       close = (value: T, instant = false) => {
-        if (settled) return;
+        if (settled) {
+          // A second, forcing close: settle the animation immediately rather
+          // than leaving a caller waiting on a timer that may be cleared.
+          if (instant) teardown();
+          return;
+        }
         settled = true;
+        outcome = value;
         layer.inert = true;
         layer.classList.remove('is-in');
         layer.classList.add('is-out');
 
-        const teardown = () => {
-          layer.remove();
-          opts.cleanup?.();
-          this.screens = this.screens.filter((s) => s.layer !== layer);
-          const nowTop = this.screens[this.screens.length - 1];
-          if (nowTop) {
-            nowTop.layer.inert = false;
-            // Focus has to come back to the screen underneath, or the player
-            // is left tabbing through an inert document.
-            const restore = nowTop.layer.querySelector<HTMLElement>('[data-menu-return]');
-            (restore ?? nowTop.layer.querySelector<HTMLElement>(FOCUSABLE))?.focus();
-          } else if (returnFocus?.isConnected) {
-            returnFocus.focus();
-          }
-          resolve(value);
-        };
-
         if (instant || REDUCED()) teardown();
-        else this.after(MS_EXIT, teardown);
+        else this.after(exitMs(), teardown);
       };
     });
 
@@ -473,12 +598,16 @@ export class Menus {
     layer.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' && opts.escape) {
         ev.preventDefault();
-        ev.stopPropagation();
         audio.playSound('click-soft');
         finish(opts.escape());
       } else if (ev.key === 'Tab') {
         trapTab(layer, ev);
       }
+      // A modal owns the keyboard outright. The shell listens on `window` for
+      // Escape and the single-letter shortcuts, and without this a J typed on
+      // the title screen opens the journal behind it. Audio unlock is
+      // unaffected: the mixer arms itself with capture-phase listeners.
+      ev.stopPropagation();
     });
 
     build(finish, layer);
@@ -492,6 +621,7 @@ export class Menus {
     // Two frames: one to land the initial styles, one to animate off them.
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
+        if (torn) return;
         layer.classList.add('is-in');
         const target = opts.autofocus?.(layer) ?? layer.querySelector<HTMLElement>(FOCUSABLE);
         target?.focus();
@@ -509,6 +639,9 @@ export class Menus {
    */
   title(): Promise<'new' | 'continue' | { load: SaveSlot }> {
     type Result = 'new' | 'continue' | { load: SaveSlot };
+
+    /** Set by the builder; unhooks the key-art probe and the parallax rig. */
+    let releaseArt = () => {};
 
     return this.present<Result>(
       'title',
@@ -539,24 +672,46 @@ export class Menus {
         probe.onerror = () => art.classList.add('is-fallback');
         probe.src = KEY_ART;
 
-        const fog = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__fog')!);
-        const rain = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__rain')!);
-        fog.set('fog');
-        rain.set('rain');
-        this.weatherOnTitle = [fog, rain];
+        // The rigs are only built when weather is on. Hiding the canvas in CSS
+        // would leave two requestAnimationFrame loops running against a
+        // zero-sized element, which is precisely the cost the low-power option
+        // exists to avoid.
+        if (this.settingsModel.weatherEffects) {
+          const fog = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__fog')!);
+          const rain = new Weather(art.querySelector<HTMLCanvasElement>('.title-art__rain')!);
+          fog.set('fog');
+          rain.set('rain');
+          this.weatherOnTitle = [fog, rain];
+        }
 
         // Parallax: the art drifts *against* the pointer, which reads as depth
-        // rather than as the cursor dragging the picture around.
+        // rather than as the cursor dragging the picture around. Coalesced into
+        // a frame because a pointermove burst would otherwise force one layout
+        // read per event, on the one screen that is already painting weather.
+        let pending = 0;
+        let px = 0;
+        let py = 0;
         const onPointer = (ev: PointerEvent) => {
           if (REDUCED()) return;
-          const r = layer.getBoundingClientRect();
-          const nx = (ev.clientX - r.left) / (r.width || 1) - 0.5;
-          const ny = (ev.clientY - r.top) / (r.height || 1) - 0.5;
-          art.style.setProperty('--par-x', `${(-nx * PARALLAX_MAX).toFixed(2)}px`);
-          art.style.setProperty('--par-y', `${(-ny * PARALLAX_MAX * 0.6).toFixed(2)}px`);
+          px = ev.clientX;
+          py = ev.clientY;
+          if (pending) return;
+          pending = requestAnimationFrame(() => {
+            pending = 0;
+            const r = layer.getBoundingClientRect();
+            const nx = (px - r.left) / (r.width || 1) - 0.5;
+            const ny = (py - r.top) / (r.height || 1) - 0.5;
+            art.style.setProperty('--par-x', `${(-nx * PARALLAX_MAX).toFixed(2)}px`);
+            art.style.setProperty('--par-y', `${(-ny * PARALLAX_MAX * 0.6).toFixed(2)}px`);
+          });
         };
         layer.addEventListener('pointermove', onPointer);
-        this.titlePointer = { layer, onPointer };
+        releaseArt = () => {
+          cancelAnimationFrame(pending);
+          probe.onload = null;
+          probe.onerror = null;
+          layer.removeEventListener('pointermove', onPointer);
+        };
 
         const content = el('div', 'title-content');
 
@@ -634,7 +789,7 @@ export class Menus {
 
         const buttons: HTMLButtonElement[] = [];
         const lightUp = (btn: HTMLElement | null) => {
-          if (!btn) {
+          if (!btn || !buttons.includes(btn as HTMLButtonElement)) {
             indicator.classList.remove('is-on');
             return;
           }
@@ -650,7 +805,6 @@ export class Menus {
           btn.innerHTML = `<span class="title-item__label"></span><span class="title-item__hint"></span>`;
           btn.querySelector('.title-item__label')!.textContent = item.label;
           btn.querySelector('.title-item__hint')!.textContent = item.hint;
-          if (!item.enabled) btn.setAttribute('aria-disabled', 'true');
 
           btn.addEventListener('pointerenter', () => {
             if (btn.disabled) return;
@@ -666,8 +820,15 @@ export class Menus {
           buttons.push(btn);
         });
 
+        // The tick follows the keyboard when the pointer leaves, and goes out
+        // entirely if focus is somewhere else — never parks on a stale row.
         nav.addEventListener('pointerleave', () => lightUp(document.activeElement as HTMLElement));
-        nav.addEventListener('keydown', (ev) => rove(ev, buttons.filter((b) => !b.disabled)));
+        nav.addEventListener('keydown', (ev) =>
+          rove(
+            ev,
+            buttons.filter((b) => !b.disabled),
+          ),
+        );
         content.appendChild(nav);
         layer.appendChild(content);
 
@@ -678,30 +839,20 @@ export class Menus {
         );
         layer.appendChild(colophon);
 
-        // The mixer only wakes on a gesture, so ask twice: once now in case the
-        // context is already live, and once after the first interaction, which
-        // is when the shell's unlock listener will have run.
+        // Asked for once, unconditionally: the mixer records the request even
+        // while it is still locked and starts the cue itself the moment the
+        // first gesture wakes the context, so there is nothing to chase here.
         audio.setMusic('main-theme');
-        const nudge = () => {
-          requestAnimationFrame(() => audio.setMusic('main-theme'));
-          layer.removeEventListener('pointerdown', nudge);
-          layer.removeEventListener('keydown', nudge);
-        };
-        layer.addEventListener('pointerdown', nudge);
-        layer.addEventListener('keydown', nudge);
       },
       {
-        label: 'The Lamplight Cipher — main menu',
+        label: `${this.state.content.title} — main menu`,
         // Escape must not dismiss the title: there is nothing behind it.
         forced: () => 'new' as const,
         autofocus: (layer) => layer.querySelector<HTMLElement>('.title-item:not([disabled])'),
         cleanup: () => {
           for (const w of this.weatherOnTitle) w.destroy();
           this.weatherOnTitle = [];
-          if (this.titlePointer) {
-            this.titlePointer.layer.removeEventListener('pointermove', this.titlePointer.onPointer);
-            this.titlePointer = null;
-          }
+          releaseArt();
           audio.setMusic(null);
         },
       },
@@ -785,6 +936,16 @@ export class Menus {
    * change while the slider is still under their thumb.
    */
   settings(): Promise<void> {
+    // Torn down with the screen: the mixer subscription and the fullscreen
+    // watcher both outlive any single control, and neither may survive it.
+    const disposers: (() => void)[] = [];
+
+    // The mixer is the source of truth for its own four faders and may have
+    // moved since this instance last looked (a duck, another surface, a
+    // restored session). Re-seeding on open stops the panel from writing a
+    // stale level back through the first unrelated change the player makes.
+    this.settingsModel = { ...this.settingsModel, ...audio.levels };
+
     return this.present<void>(
       'settings',
       (finish, layer) => {
@@ -807,6 +968,10 @@ export class Menus {
         panel.appendChild(head);
 
         const body = el('div', 'mset__body');
+        // The tablist owns only tabs; the travelling marker is a sibling inside
+        // the wrapper. A stray child of `role="tablist"` is not a nicety — it
+        // is a malformed group, and screen readers count the members.
+        const railWrap = el('div', 'mset__rail-wrap');
         const rail = el('div', 'mset__rail');
         rail.setAttribute('role', 'tablist');
         rail.setAttribute('aria-orientation', 'vertical');
@@ -814,14 +979,34 @@ export class Menus {
         const pages = el('div', 'mset__pages');
 
         const sections: { id: string; label: string; build(host: HTMLElement): void }[] = [
-          { id: 'audio', label: 'Audio', build: (h) => this.buildAudioSection(h) },
-          { id: 'display', label: 'Display', build: (h) => this.buildDisplaySection(h) },
+          { id: 'audio', label: 'Audio', build: (h) => this.buildAudioSection(h, disposers) },
+          { id: 'display', label: 'Display', build: (h) => this.buildDisplaySection(h, disposers) },
           { id: 'gameplay', label: 'Gameplay', build: (h) => this.buildGameplaySection(h) },
           { id: 'access', label: 'Accessibility', build: (h) => this.buildAccessSection(h) },
         ];
 
         const tabs: HTMLButtonElement[] = [];
         const panels: HTMLElement[] = [];
+
+        /**
+         * Moves the thumb-index to the live tab.
+         *
+         * Both axes are published because the rail turns into a horizontal
+         * strip below the narrow breakpoint, and the marker travels along
+         * whichever one the layout is currently using.
+         */
+        const placeMarker = () => {
+          const live = tabs.find((t) => t.getAttribute('aria-selected') === 'true') ?? tabs[0];
+          if (!live) return;
+          railWrap.style.setProperty('--tab-y', `${live.offsetTop + live.offsetHeight / 2}px`);
+          railWrap.style.setProperty('--tab-x', `${live.offsetLeft + live.offsetWidth / 2}px`);
+          // Announce the axis the layout actually chose, not the one it has at
+          // full width: below the breakpoint the rail is a horizontal strip.
+          rail.setAttribute(
+            'aria-orientation',
+            getComputedStyle(rail).flexDirection === 'column' ? 'vertical' : 'horizontal',
+          );
+        };
 
         sections.forEach((section, i) => {
           const tabId = nextId('mset-tab');
@@ -844,6 +1029,7 @@ export class Menus {
           section.build(page);
 
           const select = (focusTab: boolean) => {
+            if (tab.getAttribute('aria-selected') === 'true') return;
             tabs.forEach((t, ti) => {
               t.setAttribute('aria-selected', String(ti === i));
               t.tabIndex = ti === i ? 0 : -1;
@@ -851,7 +1037,7 @@ export class Menus {
             panels.forEach((p, pi) => {
               p.hidden = pi !== i;
             });
-            rail.style.setProperty('--tab-y', `${tab.offsetTop + tab.offsetHeight / 2}px`);
+            placeMarker();
             if (focusTab) tab.focus();
             audio.playSound('page-turn');
           };
@@ -886,9 +1072,10 @@ export class Menus {
 
         const marker = el('span', 'mset__rail-marker');
         marker.setAttribute('aria-hidden', 'true');
-        rail.appendChild(marker);
+        railWrap.appendChild(rail);
+        railWrap.appendChild(marker);
 
-        body.appendChild(rail);
+        body.appendChild(railWrap);
         body.appendChild(pages);
         panel.appendChild(body);
 
@@ -910,10 +1097,19 @@ export class Menus {
             this.settingsModel = loadSettings();
             applySettings(this.settingsModel);
             saveSettings(this.settingsModel);
-            // Cheapest correct redraw: close and reopen on the same frame the
-            // player confirmed, so every control re-reads the fresh model.
-            finish();
-            void this.settings();
+
+            // Rebuilt in place rather than reopened. Closing and reopening the
+            // whole screen crossed two transitions, threw the player's page
+            // away and left focus chasing a layer that was already leaving.
+            for (const dispose of disposers.splice(0)) dispose();
+            sections.forEach((section, i) => {
+              const page = panels[i];
+              if (!page) return;
+              page.textContent = '';
+              section.build(page);
+            });
+            reset.focus();
+            audio.playSound('drawer-open');
           });
         });
         foot.appendChild(reset);
@@ -930,15 +1126,22 @@ export class Menus {
         layer.appendChild(panel);
 
         // The rail marker needs real geometry, which only exists after layout.
-        requestAnimationFrame(() => {
-          const first = tabs[0];
-          if (first) rail.style.setProperty('--tab-y', `${first.offsetTop + first.offsetHeight / 2}px`);
-        });
+        requestAnimationFrame(placeMarker);
+
+        // Re-measured on resize, because the rail reflows into a horizontal
+        // strip below the narrow breakpoint and the marker would otherwise
+        // point at a row that no longer exists.
+        const ro = new ResizeObserver(placeMarker);
+        ro.observe(railWrap);
+        disposers.push(() => ro.disconnect());
       },
       {
         label: 'Settings',
         escape: () => undefined,
         autofocus: (layer) => layer.querySelector<HTMLElement>('.mset__tab'),
+        cleanup: () => {
+          for (const dispose of disposers.splice(0)) dispose();
+        },
       },
     );
   }
@@ -950,44 +1153,58 @@ export class Menus {
     saveSettings(this.settingsModel);
   }
 
-  private buildAudioSection(host: HTMLElement) {
+  private buildAudioSection(host: HTMLElement, disposers: (() => void)[]) {
     const s = () => this.settingsModel;
     host.appendChild(
-      groupNote('The score, the weather and every latch are synthesised live; these are faders on a mixing desk, not file volumes.'),
+      groupNote(
+        'The score, the weather and every latch are synthesised live; these are faders on a mixing desk, not file volumes.',
+      ),
     );
 
-    const channels: [('master' | 'music' | 'ambience' | 'sfx'), string][] = [
+    const channels: ['master' | 'music' | 'ambience' | 'sfx', string][] = [
       ['master', 'Master'],
       ['music', 'Music'],
       ['ambience', 'Ambience'],
       ['sfx', 'Effects'],
     ];
-    for (const [key, label] of channels) {
-      host.appendChild(
-        this.slider({
-          label,
-          min: 0,
-          max: 1,
-          step: 0.05,
-          value: s()[key],
-          format: pct,
-          onInput: (v) => this.commit(key, v),
-          onCommit: () => audio.playSound('click-soft'),
-        }),
-      );
-    }
 
-    host.appendChild(
-      this.toggle({
-        label: 'Mute everything',
-        hint: 'Silences the mixer without losing your levels',
-        value: s().muted,
-        onChange: (v) => this.commit('muted', v),
+    const faders = channels.map(([key, label]) => {
+      const fader = this.slider({
+        label,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        value: s()[key],
+        format: pct,
+        onInput: (v) => this.commit(key, v),
+        onCommit: () => audio.playSound('click-soft'),
+      });
+      host.appendChild(fader.el);
+      return [key, fader] as const;
+    });
+
+    const mute = this.toggle({
+      label: 'Mute everything',
+      hint: 'Silences the mixer without losing your levels',
+      value: s().muted,
+      onChange: (v) => this.commit('muted', v),
+    });
+    host.appendChild(mute.el);
+
+    // The mixer is shared, and it can move without this panel: a duck, a
+    // keyboard mute, a level restored on wake. Following it keeps the brass
+    // where the sound actually is instead of where the panel last left it.
+    disposers.push(
+      audio.subscribe(() => {
+        const levels = audio.levels;
+        this.settingsModel = { ...this.settingsModel, ...levels };
+        for (const [key, fader] of faders) fader.set(levels[key]);
+        mute.set(levels.muted);
       }),
     );
   }
 
-  private buildDisplaySection(host: HTMLElement) {
+  private buildDisplaySection(host: HTMLElement, disposers: (() => void)[]) {
     const s = () => this.settingsModel;
 
     host.appendChild(
@@ -997,9 +1214,9 @@ export class Menus {
         max: 1.25,
         step: 0.05,
         value: s().brightness,
-        format: (v) => `${Math.round(v * 100)}%`,
+        format: pct,
         onInput: (v) => this.commit('brightness', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.slider({
@@ -1008,9 +1225,9 @@ export class Menus {
         max: 1.2,
         step: 0.05,
         value: s().contrast,
-        format: (v) => `${Math.round(v * 100)}%`,
+        format: pct,
         onInput: (v) => this.commit('contrast', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1018,7 +1235,7 @@ export class Menus {
         hint: 'The emulsion pass that beds the interface into the artwork',
         value: s().filmGrain,
         onChange: (v) => this.commit('filmGrain', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1026,7 +1243,7 @@ export class Menus {
         hint: 'Rain, fog and embers over the scenes. Also the low-power option',
         value: s().weatherEffects,
         onChange: (v) => this.commit('weatherEffects', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1034,7 +1251,7 @@ export class Menus {
         hint: 'Per-scene grading. Off shows the paintings as they were made',
         value: s().colourGrade,
         onChange: (v) => this.commit('colourGrade', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1042,7 +1259,7 @@ export class Menus {
         hint: 'Shortens every transition, whatever your system says',
         value: s().reduceMotion,
         onChange: (v) => this.commit('reduceMotion', v),
-      }),
+      }).el,
     );
 
     const fs = this.toggle({
@@ -1051,16 +1268,25 @@ export class Menus {
       value: !!document.fullscreenElement,
       onChange: (v) => {
         // Requesting fullscreen is only legal inside a gesture, which is why
-        // this happens here and not in applySettings.
-        const p = v
-          ? document.documentElement.requestFullscreen?.()
-          : document.exitFullscreen?.();
+        // this happens here and not in applySettings. The rocker is corrected
+        // from the document afterwards either way: a refused request must not
+        // leave a switch claiming something the browser never did.
+        const p = v ? document.documentElement.requestFullscreen() : document.exitFullscreen();
         void Promise.resolve(p)
           .catch(() => undefined)
-          .then(() => this.commit('fullscreen', !!document.fullscreenElement));
+          .then(() => sync());
       },
     });
-    host.appendChild(fs);
+    host.appendChild(fs.el);
+
+    // F11 and the browser's own Escape both change fullscreen behind our back.
+    const sync = () => {
+      const on = !!document.fullscreenElement;
+      fs.set(on);
+      if (this.settingsModel.fullscreen !== on) this.commit('fullscreen', on);
+    };
+    document.addEventListener('fullscreenchange', sync);
+    disposers.push(() => document.removeEventListener('fullscreenchange', sync));
   }
 
   private buildGameplaySection(host: HTMLElement) {
@@ -1082,6 +1308,7 @@ export class Menus {
     host.appendChild(
       this.segmented<TextSpeed>({
         label: 'Text speed',
+        hint: 'How quickly narration and dialogue print',
         options: [
           { value: 'slow', label: 'Slow' },
           { value: 'normal', label: 'Normal' },
@@ -1097,18 +1324,19 @@ export class Menus {
         hint: 'Captions every spoken line and significant sound',
         value: s().subtitles,
         onChange: (v) => this.commit('subtitles', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.slider({
         label: 'Hint cooldown',
+        hint: 'How long the detective takes to think of the next nudge',
         min: 0,
         max: 180,
         step: 15,
         value: s().hintCooldown,
         format: (v) => (v === 0 ? 'None' : `${v}s`),
         onInput: (v) => this.commit('hintCooldown', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1116,7 +1344,7 @@ export class Menus {
         hint: 'A wrong answer costs a beat rather than the whole puzzle',
         value: s().secondChance,
         onChange: (v) => this.commit('secondChance', v),
-      }),
+      }).el,
     );
   }
 
@@ -1132,7 +1360,7 @@ export class Menus {
         value: s().uiScale,
         format: (v) => `${v}%`,
         onInput: (v) => this.commit('uiScale', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1140,7 +1368,7 @@ export class Menus {
         hint: 'Swaps the period serifs for a wide, evenly-weighted face',
         value: s().dyslexiaFont,
         onChange: (v) => this.commit('dyslexiaFont', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1148,7 +1376,7 @@ export class Menus {
         hint: 'Lifts prose off the artwork. Costs some atmosphere, deliberately',
         value: s().highContrast,
         onChange: (v) => this.commit('highContrast', v),
-      }),
+      }).el,
     );
     host.appendChild(
       this.toggle({
@@ -1156,7 +1384,7 @@ export class Menus {
         hint: 'Puzzles add shape and label wherever they would rely on hue',
         value: s().colourBlindSafe,
         onChange: (v) => this.commit('colourBlindSafe', v),
-      }),
+      }).el,
     );
   }
 
@@ -1168,6 +1396,10 @@ export class Menus {
    * Built from divs because the control has to look machined, but it carries
    * the full `role="slider"` contract — value, range, text, and the same key
    * bindings a native range input has — so nothing is lost in the trade.
+   *
+   * Returns a handle rather than a bare element because some of what these
+   * controls show is owned elsewhere — the mixer, the document's fullscreen
+   * state — and a control that cannot be told it is wrong will eventually lie.
    */
   private slider(spec: {
     label: string;
@@ -1179,7 +1411,7 @@ export class Menus {
     format(v: number): string;
     onInput(v: number): void;
     onCommit?(): void;
-  }): HTMLElement {
+  }): Control<number> {
     const row = el('div', 'mset-row mset-row--slider');
     const labelId = nextId('mset-label');
 
@@ -1263,8 +1495,15 @@ export class Menus {
     };
 
     slider.addEventListener('pointerdown', (ev) => {
+      // Primary button (or any touch/pen contact) only: a right-click on a
+      // fader should open the context menu, not slam the level to the pointer.
+      if (ev.button !== 0) return;
       ev.preventDefault();
-      slider.setPointerCapture(ev.pointerId);
+      try {
+        slider.setPointerCapture(ev.pointerId);
+      } catch {
+        // The pointer was already gone; dragging just will not track it.
+      }
       slider.classList.add('is-dragging');
       slider.focus();
       fromPointer(ev.clientX);
@@ -1281,10 +1520,20 @@ export class Menus {
     };
     slider.addEventListener('pointerup', release);
     slider.addEventListener('pointercancel', release);
+    // Losing capture without a pointerup — a browser gesture, a tab switch
+    // mid-drag — would otherwise leave the knob stuck in its enlarged state.
+    slider.addEventListener('lostpointercapture', () =>
+      slider.classList.remove('is-dragging'),
+    );
 
     row.appendChild(slider);
     row.appendChild(readout);
-    return row;
+    return {
+      el: row,
+      // Silent: an external correction is not a player edit and must not be
+      // echoed back to whatever just told us about it.
+      set: (v) => setValue(v, false),
+    };
   }
 
   /** A brass rocker switch. `role="switch"`, so it announces as on or off. */
@@ -1293,7 +1542,7 @@ export class Menus {
     hint?: string;
     value: boolean;
     onChange(v: boolean): void;
-  }): HTMLElement {
+  }): Control<boolean> {
     const row = el('div', 'mset-row mset-row--toggle');
     const labelId = nextId('mset-label');
 
@@ -1329,7 +1578,14 @@ export class Menus {
     });
 
     row.appendChild(btn);
-    return row;
+    return {
+      el: row,
+      set: (v) => {
+        if (v === value) return;
+        value = v;
+        paint();
+      },
+    };
   }
 
   /** A row of engraved plates, exactly one of which is pressed in. */
@@ -1385,11 +1641,17 @@ export class Menus {
     paint();
 
     group.addEventListener('keydown', (ev) => {
-      const dir = ev.key === 'ArrowRight' || ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowLeft' || ev.key === 'ArrowUp' ? -1 : 0;
-      if (!dir) return;
+      const dir =
+        ev.key === 'ArrowRight' || ev.key === 'ArrowDown'
+          ? 1
+          : ev.key === 'ArrowLeft' || ev.key === 'ArrowUp'
+            ? -1
+            : 0;
+      const jump = ev.key === 'Home' ? 0 : ev.key === 'End' ? buttons.length - 1 : -1;
+      if (!dir && jump < 0) return;
       ev.preventDefault();
       const current = buttons.findIndex((b) => b.dataset.value === value);
-      const next = (current + dir + buttons.length) % buttons.length;
+      const next = dir ? (current + dir + buttons.length) % buttons.length : jump;
       buttons[next]?.click();
       buttons[next]?.focus();
     });
@@ -1415,19 +1677,29 @@ export class Menus {
 
         const panel = el('div', 'slots');
         const head = el('header', 'slots__head');
-        head.appendChild(el('p', 'slots__eyebrow', mode === 'save' ? 'Commit to paper' : 'Return to the file'));
+        head.appendChild(
+          el('p', 'slots__eyebrow', mode === 'save' ? 'Commit to paper' : 'Return to the file'),
+        );
         head.appendChild(el('h2', 'slots__title', mode === 'save' ? 'Save Case' : 'Load Case'));
         panel.appendChild(head);
 
+        // The grid lives in its own scroll region: at one column on a short
+        // window four case files are taller than the plate, and a panel that
+        // simply overflows would drop the Back button off the bottom.
+        const scroller = el('div', 'slots__scroll scrollable');
         const grid = el('div', 'slots__grid');
-        panel.appendChild(grid);
+        scroller.appendChild(grid);
+        panel.appendChild(scroller);
 
         const render = () => {
           grid.textContent = '';
           const meta = new Map<SaveSlot, SaveMeta>(
             listSlots(this.state.content).map((m) => [m.slot, m]),
           );
+          /** Position of the card being built, so a discard can refocus in place. */
+          let cursor = 0;
           for (const slot of SAVE_SLOTS) {
+            const position = cursor++;
             const info = meta.get(slot) ?? null;
             // The engine owns the autosave; letting a player write over it by
             // hand would make "Continue" mean something different every time.
@@ -1502,7 +1774,15 @@ export class Menus {
                   clearSlot(slot);
                   audio.playSound('drawer-open');
                   render();
-                  grid.querySelector<HTMLElement>('.slot__face:not([disabled])')?.focus();
+                  // The card that had focus no longer exists. Land on the slot
+                  // that took its place, or on Back if the drawer is now empty.
+                  const landing =
+                    grid.children[position]?.querySelector<HTMLElement>(
+                      '.slot__face:not([disabled])',
+                    ) ??
+                    grid.querySelector<HTMLElement>('.slot__face:not([disabled])') ??
+                    back;
+                  landing.focus();
                 });
               });
               card.appendChild(del);
@@ -1510,13 +1790,19 @@ export class Menus {
 
             grid.appendChild(card);
           }
-
         };
 
         // Bound once: `render()` re-runs whenever a file is discarded, and a
-        // per-render listener would stack up duplicates.
+        // per-render listener would stack up duplicates. Arrows travel the grid
+        // as a grid — down moves a row, not one card — because a 2×2 sheet of
+        // case files that answers Down with "next" is a list wearing a costume.
         grid.addEventListener('keydown', (ev) =>
-          rove(ev, [...grid.querySelectorAll<HTMLElement>('.slot__face:not([disabled])')], 'both'),
+          rove(
+            ev,
+            [...grid.querySelectorAll<HTMLElement>('.slot__face:not([disabled])')],
+            'grid',
+            gridColumns(grid),
+          ),
         );
 
         render();
@@ -1565,7 +1851,13 @@ export class Menus {
         const card = el('div', 'confirm');
         if (spec.danger) card.classList.add('is-danger');
         card.appendChild(el('h3', 'confirm__title', spec.title));
-        card.appendChild(el('p', 'confirm__body', spec.body));
+
+        // The consequence is the whole point of a confirmation, so it is named
+        // as the dialog's description and read out with the question.
+        const bodyEl = el('p', 'confirm__body', spec.body);
+        bodyEl.id = nextId('confirm-body');
+        layer.setAttribute('aria-describedby', bodyEl.id);
+        card.appendChild(bodyEl);
 
         const actions = el('div', 'confirm__actions');
         const cancel = el('button', 'menu-btn menu-btn--ghost', spec.cancelLabel ?? 'Cancel');
@@ -1626,19 +1918,24 @@ export class Menus {
         const solved = CULPRIT_FLAGS.some((f) => state.flags[f] === true);
 
         const dossier = el('div', 'dossier');
+        // The sheet scrolls; the dossier does not. The seal is hung off the
+        // paper's edge and would be sliced off by a scroll container, and a
+        // long ending has to be readable at 1280×800 without one.
+        const sheet = el('div', 'dossier__sheet scrollable');
+        dossier.appendChild(sheet);
 
         const head = el('header', 'dossier__head');
         head.appendChild(el('p', 'dossier__eyebrow', 'Case file'));
         head.appendChild(el('h2', 'dossier__title', content.title));
         head.appendChild(el('div', 'dossier__rule'));
-        dossier.appendChild(head);
+        sheet.appendChild(head);
 
         const verdict = el('div', 'dossier__verdict');
         verdict.appendChild(el('p', 'dossier__verdict-label', 'Resolution'));
         // `ending` is authored by the story workflow; it is shown verbatim so
         // this screen never has to know the plot.
         verdict.appendChild(el('p', 'dossier__verdict-text', ending));
-        dossier.appendChild(verdict);
+        sheet.appendChild(verdict);
 
         const stats = el('dl', 'dossier__stats');
         const stat = (label: string, value: string, note?: string) => {
@@ -1650,23 +1947,29 @@ export class Menus {
           stats.appendChild(cell);
         };
 
+        // `total > 0 &&` guards the empty-content case: a build with no clues
+        // authored yet would otherwise congratulate the player on 0 / 0.
+        const allOf = (found: number, total: number) => total > 0 && found >= total;
+
         stat('Time on the case', formatPlaytime(state.playtime), 'hours : minutes');
         stat(
           'Evidence recovered',
           `${state.clues.size} / ${cluesTotal}`,
-          cluesTotal && state.clues.size === cluesTotal ? 'Nothing left in the dark' : 'Some of it is still out there',
+          allOf(state.clues.size, cluesTotal)
+            ? 'Nothing left in the dark'
+            : 'Some of it is still out there',
         );
         stat(
           'Puzzles solved',
           `${state.solvedPuzzles.size} / ${puzzlesTotal}`,
-          state.solvedPuzzles.size === puzzlesTotal ? 'Every lock opened' : 'A few held out',
+          allOf(state.solvedPuzzles.size, puzzlesTotal) ? 'Every lock opened' : 'A few held out',
         );
         stat(
           'Culprit named',
           solved ? 'Correctly' : 'Unresolved',
           solved ? 'The right person, on the record' : 'The file closes without a name',
         );
-        dossier.appendChild(stats);
+        sheet.appendChild(stats);
 
         const seal = el('div', 'dossier__seal');
         seal.setAttribute('role', 'img');
@@ -1684,6 +1987,8 @@ export class Menus {
           finish();
         });
         foot.appendChild(btn);
+        // Outside the scrolling sheet: the way out of the last screen in the
+        // game must never be something the player has to scroll to find.
         dossier.appendChild(foot);
 
         layer.appendChild(dossier);
@@ -1691,7 +1996,7 @@ export class Menus {
         // The stamp comes down after the dossier has settled, and lands with a
         // knock in the mix — the only place in the game a sound is timed to a
         // CSS animation rather than the other way round.
-        this.after(REDUCED() ? 0 : MS_SEAL, () => {
+        this.after(REDUCED() ? 0 : sealDelayMs(), () => {
           seal.classList.add('is-stamped');
           audio.playSound('door-heavy');
         });
@@ -1718,11 +2023,15 @@ export class Menus {
   }
 
   destroy() {
+    // `forceClose` settles every screen synchronously, which runs each one's
+    // cleanup and resolves its promise — so clearing the timers underneath it
+    // afterwards can no longer strand a caller mid-exit.
     this.forceClose();
     for (const id of this.timers) clearTimeout(id);
     this.timers.clear();
     for (const w of this.weatherOnTitle) w.destroy();
     this.weatherOnTitle = [];
+    this.restoreBackground();
     if (this.mounted) this.el.remove();
     this.mounted = false;
   }
@@ -1756,46 +2065,60 @@ function trapTab(layer: HTMLElement, ev: KeyboardEvent) {
   }
 }
 
+/** How many tracks a CSS grid is currently resolving to. */
+function gridColumns(grid: HTMLElement): number {
+  const tracks = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length;
+  return Math.max(1, tracks);
+}
+
 /**
- * Arrow-key travel along a list of controls.
+ * Arrow-key travel across a set of controls.
  *
- * Menus are lists, and a list should answer to arrows as well as Tab — a
- * player on a controller-style mental model should never have to discover
- * that Tab is the only way down.
+ * Menus are lists, and a list should answer to arrows as well as Tab — a player
+ * on a controller-style mental model should never have to discover that Tab is
+ * the only way down. `grid` is the two-dimensional case: Down moves a whole row
+ * so a sheet of case files behaves like the sheet it looks like, and the column
+ * count is measured rather than assumed because it collapses to one on narrow
+ * windows.
  */
 function rove(
   ev: KeyboardEvent,
   items: HTMLElement[],
-  orientation: 'vertical' | 'horizontal' | 'both' = 'vertical',
+  orientation: 'vertical' | 'horizontal' | 'both' | 'grid' = 'vertical',
+  columns = 1,
 ) {
-  const forwardKeys =
-    orientation === 'vertical'
-      ? ['ArrowDown']
-      : orientation === 'horizontal'
-        ? ['ArrowRight']
-        : ['ArrowDown', 'ArrowRight'];
-  const backKeys =
-    orientation === 'vertical'
-      ? ['ArrowUp']
-      : orientation === 'horizontal'
-        ? ['ArrowLeft']
-        : ['ArrowUp', 'ArrowLeft'];
-
-  const dir = forwardKeys.includes(ev.key) ? 1 : backKeys.includes(ev.key) ? -1 : 0;
-  if (!dir && ev.key !== 'Home' && ev.key !== 'End') return;
   if (!items.length) return;
+
+  const cols = orientation === 'grid' ? Math.max(1, columns) : 1;
+  const step = (key: string): number => {
+    switch (key) {
+      case 'ArrowDown':
+        return orientation === 'horizontal' ? 0 : cols;
+      case 'ArrowUp':
+        return orientation === 'horizontal' ? 0 : -cols;
+      case 'ArrowRight':
+        return orientation === 'vertical' ? 0 : 1;
+      case 'ArrowLeft':
+        return orientation === 'vertical' ? 0 : -1;
+      default:
+        return 0;
+    }
+  };
+
+  const dir = step(ev.key);
+  const jump = ev.key === 'Home' ? 0 : ev.key === 'End' ? items.length - 1 : -1;
+  if (!dir && jump < 0) return;
 
   ev.preventDefault();
   const current = items.indexOf(document.activeElement as HTMLElement);
   // Focus sitting outside the list (a discard button, say) enters it from the
   // end the player was travelling towards, not from wherever index -1 lands.
-  const from = current === -1 ? (dir > 0 ? -1 : 0) : current;
-  const next =
-    ev.key === 'Home'
-      ? 0
-      : ev.key === 'End'
-        ? items.length - 1
-        : (from + dir + items.length) % items.length;
+  const from = current === -1 ? (dir > 0 ? -dir : 0) : current;
+  let next = jump >= 0 ? jump : from + dir;
+  // A row move off the end of a ragged grid lands on the last card rather than
+  // wrapping to a column the player was not aiming at.
+  if (next < 0) next = Math.abs(dir) === 1 ? items.length - 1 : 0;
+  if (next >= items.length) next = Math.abs(dir) === 1 ? 0 : items.length - 1;
   items[next]?.focus();
 }
 

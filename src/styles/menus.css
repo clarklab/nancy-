@@ -198,6 +198,11 @@
 
 .menu-btn {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* A comfortable target on a touchscreen without inflating on a desktop. */
+  min-height: 2.5rem;
   padding: var(--sp-2) var(--sp-5);
   font-family: var(--font-ui);
   font-size: var(--step--1);
@@ -268,7 +273,7 @@
 }
 
 .menu-btn--danger:hover {
-  color: #fff;
+  color: var(--lamp-100);
   filter: brightness(1.1);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.18),
@@ -305,7 +310,9 @@
   inset: -3vmax;
   overflow: hidden;
   transform: translate3d(var(--par-x, 0), var(--par-y, 0), 0);
-  transition: transform var(--dur-scene) var(--ease-out);
+  /* Short enough to feel attached to the hand. A long ease here reads as lag,
+     because a moving pointer restarts the transition before it ever lands. */
+  transition: transform var(--dur-med) var(--ease-out);
   will-change: transform;
 }
 
@@ -315,7 +322,9 @@
   inset: 0;
   background-position: center;
   background-size: cover;
-  animation: title-breath 34s var(--ease-in-out) infinite;
+  /* One very slow breath — derived from the scene token so the whole game's
+     sense of time stays in one place, and so reduced motion collapses it. */
+  animation: title-breath calc(var(--dur-scene) * 55) var(--ease-in-out) infinite;
   will-change: transform;
 }
 
@@ -414,7 +423,7 @@
     transparent 70%
   );
   mix-blend-mode: screen;
-  animation: title-gutter 9.5s var(--ease-in-out) infinite;
+  animation: title-gutter calc(var(--dur-scene) * 15) var(--ease-in-out) infinite;
 }
 
 @keyframes title-gutter {
@@ -814,6 +823,8 @@
   border-bottom: var(--border-hairline);
 }
 
+/* A sunk brass escutcheon, not an X on a page: lit from above, recessed into
+   the plate, and turning under the hand like a real catch. */
 .mset__close {
   position: absolute;
   top: var(--sp-4);
@@ -825,19 +836,32 @@
   font-size: var(--step-2);
   line-height: 1;
   color: var(--text-muted);
-  background: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-600) 80%, transparent),
+    color-mix(in srgb, var(--ink-900) 88%, transparent)
+  );
   border: var(--border-hairline);
   border-radius: 50%;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--shadow-1);
   cursor: pointer;
   transition:
     color var(--dur-med) var(--ease-out),
     border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
     transform var(--dur-med) var(--ease-drama);
 }
 
 .mset__close:hover {
   color: var(--accent-strong);
   border-color: color-mix(in srgb, var(--lamp-400) 60%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 28%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--glow-lamp-soft);
   transform: rotate(90deg);
 }
 
@@ -849,12 +873,10 @@
 
 /* -- The index rail -------------------------------------------------------- */
 
-.mset__rail {
+/* The wrapper carries the recess and the marker; the tablist inside it carries
+   nothing but tabs, so the group stays well-formed for assistive tech. */
+.mset__rail-wrap {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-  padding: var(--sp-5) var(--sp-3);
   border-right: var(--border-hairline);
   background: linear-gradient(
     90deg,
@@ -863,8 +885,16 @@
   );
 }
 
+.mset__rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-5) var(--sp-3);
+}
+
 .mset__tab {
   position: relative;
+  min-height: 2.5rem;
   padding: var(--sp-3) var(--sp-3);
   text-align: left;
   font-family: var(--font-ui);
@@ -941,11 +971,17 @@
 
 /* -- Rows ------------------------------------------------------------------ */
 
+/**
+ * One grid for every row type, so the left edge of a fader, a rocker and a
+ * segmented plate all land on the same vertical. Rows that each sized their own
+ * control column made the page look like four unrelated forms stacked up.
+ */
 .mset-row {
   display: grid;
-  grid-template-columns: 1fr 12rem auto;
+  grid-template-columns: minmax(0, 1fr) 13rem 3.5rem;
   align-items: center;
   gap: var(--sp-4);
+  min-height: 3.25rem;
   padding: var(--sp-3) var(--sp-2);
   border-bottom: 1px solid color-mix(in srgb, var(--lamp-500) 9%, transparent);
 }
@@ -954,9 +990,20 @@
   border-bottom: 0;
 }
 
-.mset-row--toggle,
-.mset-row--segmented {
-  grid-template-columns: 1fr auto;
+.mset-row .mslider {
+  grid-column: 2;
+}
+
+.mset-row__value {
+  grid-column: 3;
+}
+
+/* A rocker and a picker are their own readout, so they take the last two
+   columns and align left with the faders above them. */
+.mset-row .mswitch,
+.mset-row .mseg {
+  grid-column: 2 / -1;
+  justify-self: start;
 }
 
 .mset-row__text {
@@ -982,7 +1029,6 @@
 }
 
 .mset-row__value {
-  min-width: 3.5rem;
   text-align: right;
   font-family: var(--font-mono);
   font-size: var(--step--2);
@@ -1170,6 +1216,7 @@
 }
 
 .mseg__opt {
+  min-height: 2.25rem;
   padding: var(--sp-2) var(--sp-4);
   font-family: var(--font-ui);
   font-size: var(--step--2);
@@ -1211,6 +1258,8 @@
    ========================================================================= */
 
 .slots {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(56rem, 92vw);
   max-height: 88vh;
   padding: var(--sp-5) var(--sp-6) var(--sp-4);
@@ -1220,6 +1269,16 @@
   margin-bottom: var(--sp-5);
   padding-bottom: var(--sp-4);
   border-bottom: var(--border-hairline);
+}
+
+/* The cards scroll, the head and the Back button do not — so a short window
+   can never push the way out of the panel off the bottom of the screen. */
+.slots__scroll {
+  min-height: 0;
+  /* Room for the lift-on-hover and the focus ring, which would otherwise be
+     clipped by the scroll container's own edge. */
+  margin: calc(var(--sp-2) * -1);
+  padding: var(--sp-2);
 }
 
 .slots__grid {
@@ -1288,6 +1347,25 @@
   opacity: 0.55;
 }
 
+/**
+ * A file the player may read but not write — the autosave, while saving.
+ * It reads as sealed rather than merely dimmed: the brass edge goes cold and a
+ * hairline rules the card off, so "the game keeps this one" is legible without
+ * a tooltip.
+ */
+.slot.is-locked .slot__face {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--moon-400) 30%, transparent);
+}
+
+.slot.is-locked .slot__name {
+  color: var(--text-muted);
+}
+
+.slot__stat {
+  font-variant-numeric: tabular-nums;
+}
+
 .slot__name {
   font-family: var(--font-ui);
   font-size: var(--step--2);
@@ -1342,12 +1420,21 @@
 }
 
 .slot:hover .slot__discard,
+.slot:focus-within .slot__discard,
 .slot__discard:focus-visible {
   opacity: 1;
 }
 
 .slot__discard:hover {
   color: var(--danger);
+}
+
+/* Nothing hovers on a touchscreen, and a destructive action the player cannot
+   find is as bad as one they cannot avoid. */
+@media (hover: none) {
+  .slot__discard {
+    opacity: 0.75;
+  }
 }
 
 .slots__foot {
@@ -1408,6 +1495,8 @@
 .dossier {
   position: relative;
   isolation: isolate;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   width: min(46rem, 92vw);
   max-height: 90vh;
   padding: var(--sp-6) var(--sp-7) var(--sp-6);
@@ -1443,6 +1532,19 @@
   opacity: 0.16;
   mix-blend-mode: multiply;
   pointer-events: none;
+}
+
+/* The written surface. Only this scrolls, so the seal can hang off the paper's
+   corner and a long resolution never overflows the desk. */
+.dossier__sheet {
+  min-height: 0;
+  padding-right: var(--sp-2);
+  scrollbar-color: color-mix(in srgb, var(--paper-400) 75%, transparent) transparent;
+}
+
+.dossier__sheet::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--paper-400) 75%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--paper-100) 60%, transparent);
 }
 
 .menu-layer.is-in .dossier {
@@ -1592,7 +1694,11 @@
       color-mix(in srgb, var(--blood-bright) 88%, var(--lamp-300)) 0%,
       transparent 58%
     ),
-    radial-gradient(85% 85% at 60% 70%, var(--blood) 0%, #4d1512 100%);
+    radial-gradient(
+      85% 85% at 60% 70%,
+      var(--blood) 0%,
+      color-mix(in srgb, var(--blood) 62%, var(--ink-abyss)) 100%
+    );
   box-shadow:
     inset 0 2px 3px rgb(255 255 255 / 0.18),
     inset 0 -6px 12px rgb(0 0 0 / 0.55),
@@ -1686,6 +1792,22 @@
   transform: none;
 }
 
+/* The staggered reveal is the one piece of choreography that survives the
+   token collapse, because its delays are multiples of a token that is now
+   ~1ms — it would still play, just faster. Collapse it explicitly, exactly as
+   the media query below does for the OS-level preference. */
+:root[data-motion='reduced'] .title-wordmark__ch,
+:root[data-motion='reduced'] .title-rule,
+:root[data-motion='reduced'] .title-subtitle,
+:root[data-motion='reduced'] .title-item,
+:root[data-motion='reduced'] .title-colophon {
+  animation-delay: 0ms;
+}
+
+:root[data-motion='reduced'] .dossier__seal.is-stamped {
+  animation-duration: var(--dur-med);
+}
+
 /* Hotspot highlight. `hover` is the authored default and needs no rule. */
 :root[data-hotspots='always'] .hotspot.is-huntable::before {
   opacity: 0.5;
@@ -1710,20 +1832,29 @@
 }
 
 /* High-contrast text: lift the type off the artwork, and drop the atmospheric
-   text shadows that soften it. */
+   text shadows that soften it. Every value is still mixed from the palette —
+   the point is to push each role to the light or dark end of its own family,
+   not to swap the game's colour for system black and white. */
 :root[data-contrast-boost='on'] {
-  --text-primary: #ffffff;
+  --text-primary: color-mix(in srgb, var(--moon-100) 45%, var(--lamp-100));
   --text-secondary: var(--moon-100);
   --text-muted: var(--moon-200);
-  --paper-ink: #14100b;
-  --paper-ink-faded: #3b3025;
+  --paper-ink: color-mix(in srgb, var(--paper-ink) 70%, var(--ink-abyss));
+  --paper-ink-faded: color-mix(in srgb, var(--paper-ink) 88%, var(--paper-400));
 }
 
 :root[data-contrast-boost='on'] .title-item__label,
 :root[data-contrast-boost='on'] .title-subtitle,
 :root[data-contrast-boost='on'] .title-version,
 :root[data-contrast-boost='on'] .title-credit {
-  text-shadow: 0 1px 3px #000;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.95);
+}
+
+/* The colophon is deliberately faint; at high contrast it has to be readable
+   rather than atmospheric. */
+:root[data-contrast-boost='on'] .title-version,
+:root[data-contrast-boost='on'] .title-credit {
+  color: var(--moon-200);
 }
 
 /* ===========================================================================
@@ -1759,18 +1890,63 @@
 @media (max-width: 60rem) {
   .mset__body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .mset__rail-wrap {
+    border-right: 0;
+    border-bottom: var(--border-hairline);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-abyss) 45%, transparent),
+      transparent
+    );
   }
 
   .mset__rail {
     flex-direction: row;
     overflow-x: auto;
-    border-right: 0;
-    border-bottom: var(--border-hairline);
+    padding: var(--sp-3);
   }
 
+  /* The thumb-index runs along the bottom of the strip instead of its side. */
   .mset__rail-marker {
-    display: none;
+    top: auto;
+    right: auto;
+    bottom: -1px;
+    left: 0;
+    width: 1.6rem;
+    height: 2px;
+    transform: translateX(calc(var(--tab-x, 0px) - 50%));
+  }
+
+  /* Stacked rows put the wider controls under their own label rather than
+     squeezing three columns into a narrow panel. The readout moves up beside
+     the label, where it still reads as belonging to it. */
+  .mset-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--sp-2);
+  }
+
+  .mset-row__value {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .mset-row .mslider,
+  .mset-row .mseg {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+
+  .mset-row .mseg {
+    justify-self: start;
+  }
+
+  .mset-row .mswitch {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
   }
 
   .slots__grid {

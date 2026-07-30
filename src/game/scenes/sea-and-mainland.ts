@@ -604,6 +604,9 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
         'Forty yards. That is the distance from that kiosk to the door of the man who should have been on the rock.',
       ),
     ],
+    // Backstop for the Act III turn: the reconciliation is solved up the hill,
+    // and the player has to come back down this street afterwards.
+    onEnter: [when(all(inAct(3), solved('puz-reconciliation')), [advanceTo(4)])],
     hotspots: [
       {
         id: 'call-box-4471',

@@ -46,22 +46,29 @@ if git diff --quiet && git diff --cached --quiet && [ -z "$(git status --porcela
   exit 0
 fi
 
-echo "safe-commit: typechecking…"
-if ! npx tsc --noEmit; then
-  echo "safe-commit: REFUSING to commit — typecheck failed" >&2
-  exit 1
-fi
+# A quiet tree is not necessarily a valid one: an agent can pause mid-edit
+# between writing a reference and writing its declaration. Keep re-checking
+# until the tree both settles AND compiles, rather than failing on the first
+# look at a half-written file.
+check_all() {
+  npx tsc --noEmit || return 1
+  npx vitest run --silent >/dev/null || return 1
+  # Typecheck alone does not catch a broken import graph or a missing
+  # stylesheet; only the bundler resolves everything.
+  npx vite build --logLevel error >/dev/null || return 1
+  return 0
+}
 
-echo "safe-commit: running tests…"
-npx vitest run --silent >/dev/null
-
-# Typecheck alone does not catch a broken import graph or a missing stylesheet,
-# both of which only surface when the bundler actually resolves everything.
-echo "safe-commit: building…"
-if ! npx vite build --logLevel error >/dev/null; then
-  echo "safe-commit: REFUSING to commit — build failed" >&2
-  exit 1
-fi
+attempt=0
+until check_all; do
+  attempt=$((attempt + 1))
+  if [ "$((waited + attempt * 30))" -ge "$MAX_WAIT" ]; then
+    echo "safe-commit: REFUSING to commit — tree still does not build after ${MAX_WAIT}s" >&2
+    exit 1
+  fi
+  echo "safe-commit: tree does not build yet (attempt ${attempt}); an agent is probably mid-edit — waiting 30s"
+  sleep 30
+done
 
 git add -A
 git commit -q -m "$MSG"

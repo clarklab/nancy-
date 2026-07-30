@@ -134,6 +134,10 @@
   z-index: 1;
   min-width: 0;
   display: grid;
+  /* Head, placard, bench, foot. Placed explicitly below rather than left to
+     auto-flow: a puzzle with no premise hides the placard, and auto-flow would
+     silently slide the bench into the `auto` row and the foot into the `1fr`
+     one — a frame with a hairline of leather and an enormous footer. */
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
   padding: clamp(var(--sp-3), 2vh, var(--sp-5)) clamp(var(--sp-4), 2vw, var(--sp-6));
@@ -266,6 +270,7 @@
 /* -- Head ------------------------------------------------------------------- */
 
 .puzzle-head {
+  grid-row: 1;
   position: relative;
   display: flex;
   align-items: baseline;
@@ -366,6 +371,7 @@
 /* -- Premise placard -------------------------------------------------------- */
 
 .puzzle-placard {
+  grid-row: 2;
   justify-self: center;
   max-width: min(62ch, 82%);
   padding: clamp(var(--sp-2), 1.2vh, var(--sp-3)) clamp(var(--sp-4), 2vw, var(--sp-5));
@@ -395,6 +401,7 @@
 /* -- The bench top the mechanism lives on ----------------------------------- */
 
 .puzzle-surface {
+  grid-row: 3;
   position: relative;
   min-height: 0;
   /* A one-row grid, and not for alignment: it is what gives `.puzzle-stage` a
@@ -406,20 +413,49 @@
   grid-template-rows: minmax(0, 1fr);
   border-radius: var(--radius-md);
   padding: clamp(var(--sp-3), 2vh, var(--sp-5));
-  /* Sunk leather: dark, warm, and lit from the same upper-left as the frame. */
+  /* The recess clips. A mechanism that overruns its bench should be cut off by
+     the frame the way a real one would be, not printed over the status line and
+     the hint lamp. */
+  overflow: hidden;
+  /* Sunk leather: dark, warm, and lit from the same upper-left as the frame.
+     Two scales of mottle over the grain — hide at this size is blotchy long
+     before it is grainy, and a single fine noise layer on a near-black fill is
+     indistinguishable from no texture at all. */
   background-image:
     var(--pz-grain-leather),
     radial-gradient(
+      42% 58% at 72% 78%,
+      color-mix(in srgb, var(--ink-600) 40%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      54% 62% at 24% 62%,
+      color-mix(in srgb, var(--ink-700) 34%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
       120% 100% at 18% 4%,
-      color-mix(in srgb, var(--lamp-600) 22%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 26%, transparent) 0%,
       transparent 62%
     ),
     linear-gradient(158deg, var(--ink-800) 0%, var(--ink-900) 58%, var(--ink-abyss) 100%);
-  background-blend-mode: overlay, screen, normal;
+  background-blend-mode: overlay, soft-light, soft-light, screen, normal;
   box-shadow:
     inset 0 2px 10px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent),
     inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+/* Saddle stitching set in from the edge of the recess — the one detail that
+   makes a dark rectangle read as hide rather than as a dark rectangle. */
+.puzzle-surface::before {
+  content: '';
+  position: absolute;
+  inset: clamp(var(--sp-2), 1vh, var(--sp-3));
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--lamp-600) 30%, transparent);
+  opacity: 0.5;
 }
 
 /* The surface the module owns. Positioned, so puzzles can lay parts out
@@ -466,6 +502,7 @@
 /* -- Foot: lamp, status line, bail-out -------------------------------------- */
 
 .puzzle-foot {
+  grid-row: 4;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -913,14 +950,18 @@
   border-radius: 50%;
   background:
     var(--pz-grain-brass),
+    /* First and last stop MUST be the same value. A conic gradient that ends on
+       a different colour than it starts leaves a hard radial seam down the
+       face — turned brass has no such line, and once you have seen it on a dial
+       you cannot unsee it. */
     conic-gradient(
       from 210deg,
       var(--pz-brass-lo) 0deg,
-      var(--pz-brass-mid) 60deg,
+      var(--pz-brass-mid) 62deg,
       var(--pz-brass-hi) 128deg,
-      var(--pz-brass-mid) 210deg,
-      var(--pz-brass-lo) 300deg,
-      var(--pz-brass-mid) 360deg
+      var(--pz-brass-mid) 208deg,
+      color-mix(in srgb, var(--pz-brass-lo) 70%, var(--pz-brass-mid)) 268deg,
+      var(--pz-brass-lo) 360deg
     );
   background-blend-mode: soft-light, normal;
   box-shadow:
@@ -1407,15 +1448,21 @@
 
   .puzzle-rail {
     flex-direction: row;
-    padding-top: var(--sp-3);
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(var(--sp-3), 2vw, var(--sp-5));
+    padding: var(--sp-3) clamp(var(--sp-4), 2.5vw, var(--sp-6)) 0;
     margin-left: 0;
     /* Reserved even when empty, so the first hint still shifts nothing. */
-    min-height: clamp(3.5rem, 9vh, 5.5rem);
+    min-height: clamp(4.4rem, 10vh, 6rem);
     overflow: hidden;
   }
 
+  /* Cards, not columns. `flex: 1 1 0` made a single hint stretch the width of
+     the bench, which turned a pinned note into a skewed banner with a metre of
+     torn edge — the tilt and the tear only read as paper at a paper's size. */
   .puzzle-hint-note {
-    flex: 1 1 0;
+    flex: 0 1 clamp(10rem, 24%, 15rem);
     min-width: 0;
   }
 }

@@ -283,13 +283,25 @@ export class PuzzleHost {
     this.el.classList.add('is-arming');
 
     const ctx = this.buildContext(def, state);
-    this.module = getPuzzle(def.id);
 
-    if (this.module) {
-      this.module.mount(this.stageEl, ctx);
-    } else {
-      // Content is ahead of code. Say so plainly and open the escape hatch,
-      // rather than trapping the player in an empty frame.
+    /* A mechanism that throws while building itself must not take the game
+       down with it. `open`'s promise is what `Effect.openPuzzle` is awaiting;
+       if we bail out of this function the player is left staring at a frame
+       that will never close, with the input lock still held. Degrading to the
+       placard costs them one puzzle instead of the run. */
+    try {
+      this.module = getPuzzle(def.id);
+      this.module?.mount(this.stageEl, ctx);
+    } catch (err) {
+      console.error(`[puzzle] "${def.id}" failed to mount`, err);
+      this.module = null;
+      this.stageEl.textContent = '';
+    }
+
+    if (!this.module) {
+      // Either content is ahead of code, or the mechanism just fell over. Say
+      // so plainly and open the escape hatch, rather than trapping the player
+      // in an empty frame.
       this.renderMissing(def.id);
     }
 
@@ -298,7 +310,11 @@ export class PuzzleHost {
 
     const solved = await outcome;
 
-    this.module?.unmount?.();
+    try {
+      this.module?.unmount?.();
+    } catch (err) {
+      console.error(`[puzzle] "${def.id}" failed to unmount`, err);
+    }
     this.module = null;
     this.def = null;
     await this.closePanel();
@@ -312,7 +328,11 @@ export class PuzzleHost {
     window.removeEventListener('keydown', this.onKey);
     this.clearTimers();
     cancelAnimationFrame(this.hintRaf);
-    this.module?.unmount?.();
+    try {
+      this.module?.unmount?.();
+    } catch (err) {
+      console.error('[puzzle] module threw during teardown', err);
+    }
     this.module = null;
     // Never leave a caller awaiting a host that no longer exists.
     this.finish(false, true);
