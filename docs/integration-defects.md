@@ -1,0 +1,57 @@
+# Integration defects
+
+Found by manual smoke testing against `smoke.html` while the subsystem agents
+were still in flight. Each needs fixing during the integration pass.
+
+## 1. `.overlay-root` blanket rule blocks all scene input — CRITICAL
+
+`src/styles/base.css:283`
+
+```css
+.overlay-root > *:not(.hud) {
+  pointer-events: auto;
+}
+```
+
+Specificity `(0,2,0)` beats `.narration-root { pointer-events: none }` in
+`narration.css` `(0,1,0)`, so the narration layer swallows every pointer event
+across the whole stage. No hotspot can be hovered or clicked — the game is
+unplayable.
+
+**Fix:** wrap the blanket default in `:where()` so it contributes zero
+specificity and each overlay module keeps authority over its own layer:
+
+```css
+:where(.overlay-root > *:not(.hud)) {
+  pointer-events: auto;
+}
+```
+
+Verified as the cause: injecting
+`.narration-root:not(.is-active){pointer-events:none !important}` restores
+hover and click.
+
+## 2. Hover affordance reads as a hard rectangle
+
+The hover state on a `rect` hotspot draws a visible axis-aligned box with sharp
+corners. Against a painted scene it looks like a debug overlay rather than an
+in-world highlight. It should be predominantly a soft radial bloom with the
+ring either dropped or feathered to near-invisibility at the corners.
+
+## 3. `Hud` API drift vs. `game.ts`
+
+`src/ui/hud.ts` landed with a different (better) callback shape than the
+orchestrator assumes:
+
+- has `onPanel(panel)`; `game.ts` passes `onOpenJournal` / `onOpenInventory` /
+  `onOpenMap` / `onHint` / `onMenu`
+- `toast(kind, id)` takes 2 args; `game.ts` calls it with 3
+- no `announceLocation(name, subtitle)` — `game.ts` calls it on every scene change
+- no `onSound` callback in `HudCallbacks`
+
+Reconcile in `game.ts` (adopt the HUD's API — it is the cleaner design) and add
+`announceLocation` to the HUD.
+
+## 4. `import.meta.env` needed `vite/client` types
+
+Fixed: added `"types": ["vite/client"]` to `tsconfig.json`.

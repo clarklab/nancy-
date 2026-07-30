@@ -1,0 +1,732 @@
+/**
+ * The heads-up display.
+ *
+ * Everything here is a machined brass fitting screwed onto the frame of the
+ * scene: a gradient body, a lit top edge, a dark undercut, brushed grain, and
+ * a long shadow into the room behind it. The HUD is sized in container units
+ * off the stage, so the same fitting reads identically on a 1280x800 laptop
+ * and a 2560x1440 display — it scales with the artwork instead of drifting
+ * away from it.
+ */
+
+/* ===========================================================================
+   Frame
+   ========================================================================= */
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-hud);
+  display: grid;
+  place-items: center;
+  /* The HUD is mostly air. Only the fittings themselves take the pointer. */
+  pointer-events: none;
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    filter var(--dur-slow) var(--ease-out);
+}
+
+.hud.is-hidden {
+  opacity: 0;
+  filter: blur(2px);
+}
+
+.hud__stage {
+  /* Definite 16:10 box (see `.stage-box` in base.css) — which makes it a
+     size container, and lets every fitting below be expressed in cqw. */
+  container-type: size;
+  container-name: stage;
+  /* Toasts start a full card-width off-stage; clip them so they never appear
+     out in the letterbox. The margin leaves room for edge glows to spill. */
+  overflow: clip;
+  overflow-clip-margin: 24px;
+
+  --plate-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23b)'/%3E%3C/svg%3E");
+  --plate-inset: clamp(0.75rem, 1.6cqw, 1.75rem);
+  --slot-size: clamp(2.9rem, 4.4cqw, 4.6rem);
+}
+
+/* ===========================================================================
+   Brass plate — the one physical recipe every fitting is cut from
+   ========================================================================= */
+
+.brass-btn,
+.hud-slot,
+.hud-toast,
+.hud__nameplate {
+  position: relative;
+  isolation: isolate;
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  background-image:
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--lamp-500) 20%, var(--ink-700)) 0%,
+      color-mix(in srgb, var(--ink-700) 88%, var(--lamp-600)) 34%,
+      color-mix(in srgb, var(--ink-800) 94%, var(--lamp-600)) 72%,
+      var(--ink-900) 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 22%,
+      color-mix(in srgb, var(--lamp-200) 10%, transparent) 44%,
+      transparent 62%
+    );
+  box-shadow:
+    /* lamp catches the top edge */
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 34%, transparent),
+    /* metal falls away at the bottom */ inset 0 -1px 0
+      color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    inset 0 -10px 16px -12px var(--ink-abyss),
+    var(--shadow-2);
+}
+
+/* Brushed grain, so the plate never reads as a CSS gradient. */
+.brass-btn::before,
+.hud-slot::before,
+.hud-toast::before,
+.hud__nameplate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: var(--plate-grain);
+  background-size: 120px 120px;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   Top left — where you are
+   ========================================================================= */
+
+.hud__place {
+  position: absolute;
+  top: var(--plate-inset);
+  left: var(--plate-inset);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  max-width: 42cqw;
+  pointer-events: none;
+  /* Resting state: legible if you look for it, invisible if you don't. */
+  opacity: 0.26;
+  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.85));
+  transition: opacity var(--dur-scene) var(--ease-out);
+}
+
+.hud__place.is-announcing {
+  opacity: 1;
+}
+
+.hud__act {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--accent);
+  /* A hairline of brass runs under the act line and out to the left edge,
+     tying the card to the frame of the stage. */
+  padding-bottom: 0.35em;
+  border-bottom: var(--border-hairline);
+}
+
+.hud__location {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--text-primary);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.6);
+}
+
+.hud__subtitle {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--step--1);
+  color: var(--text-secondary);
+}
+
+/* Arrival: the three lines rise and settle a beat apart, like a title card. */
+.hud__place.is-announcing .hud__act,
+.hud__place.is-announcing .hud__location,
+.hud__place.is-announcing .hud__subtitle {
+  animation: place-settle var(--dur-scene) var(--ease-out) both;
+}
+
+.hud__place.is-announcing .hud__location {
+  animation-delay: calc(var(--dur-fast) * 0.6);
+}
+
+.hud__place.is-announcing .hud__subtitle {
+  animation-delay: calc(var(--dur-fast) * 1.2);
+}
+
+@keyframes place-settle {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* ===========================================================================
+   Top right — the case tools
+   ========================================================================= */
+
+.hud__tools {
+  position: absolute;
+  top: var(--plate-inset);
+  right: var(--plate-inset);
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.3rem, 0.6cqw, 0.6rem);
+  pointer-events: auto;
+}
+
+.brass-btn {
+  --btn-size: clamp(2.35rem, 3.1cqw, 3.2rem);
+  width: var(--btn-size);
+  height: var(--btn-size);
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  transition:
+    transform var(--dur-med) var(--ease-drama),
+    box-shadow var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out);
+}
+
+.brass-btn__face {
+  display: grid;
+  place-items: center;
+  width: 58%;
+  height: 58%;
+  /* The engraved look: the stroke sits in a groove with light on its lower
+     lip, which is exactly one drop-shadow rather than a second SVG path. */
+  filter:
+    drop-shadow(0 1px 0 color-mix(in srgb, var(--lamp-100) 22%, transparent))
+    drop-shadow(0 -1px 0 rgb(0 0 0 / 0.55));
+  transition: filter var(--dur-med) var(--ease-out);
+}
+
+.brass-btn__face svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.brass-btn:hover,
+.brass-btn:focus-visible {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--lamp-400) 70%, transparent);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 46%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    var(--shadow-3),
+    var(--glow-lamp-soft);
+}
+
+.brass-btn:active {
+  transform: translateY(0);
+  transition-duration: var(--dur-fast);
+  box-shadow:
+    inset 0 2px 5px -1px var(--ink-abyss),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
+}
+
+/* The shortcut letter is stamped into the plate below the glyph. */
+.hud__tool-key {
+  position: absolute;
+  bottom: 0.12em;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: calc(var(--step--2) * 0.8);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--lamp-300) 55%, transparent);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  pointer-events: none;
+}
+
+.hud__tools:hover .hud__tool-key,
+.brass-btn:focus-visible .hud__tool-key {
+  opacity: 1;
+}
+
+/* -- Unread badge --------------------------------------------------------- */
+
+.hud__badge {
+  position: absolute;
+  top: -0.3em;
+  right: -0.3em;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.3em;
+  display: grid;
+  place-items: center;
+  border-radius: 99px;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--ink-900);
+  background:
+    radial-gradient(
+      80% 80% at 50% 22%,
+      var(--lamp-100) 0%,
+      var(--lamp-300) 48%,
+      var(--lamp-500) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    inset 0 -1px 2px color-mix(in srgb, var(--lamp-600) 80%, transparent),
+    0 2px 6px -1px rgb(0 0 0 / 0.7),
+    var(--glow-lamp);
+  pointer-events: none;
+}
+
+.hud__badge.is-bumped {
+  animation: badge-bump calc(var(--dur-slow) * 1.4) var(--ease-drama) both;
+}
+
+@keyframes badge-bump {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===========================================================================
+   Centre bottom — the hover nameplate
+   ========================================================================= */
+
+.hud__nameplate {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--plate-inset) * 2 + var(--slot-size));
+  transform: translate(-50%, 0.4rem);
+  padding: 0.34em 1.4em 0.4em;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  opacity: 0;
+  /* Fast in, slow out: the label should chase the pointer, then linger. */
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.hud__nameplate.is-shown {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-duration: var(--dur-fast);
+}
+
+/* Two engraved rules bracket the label — the nameplate on a museum case. */
+.hud__nameplate::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 0.2em;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--lamp-300) 70%, transparent) 22%,
+    color-mix(in srgb, var(--lamp-200) 85%, transparent) 50%,
+    color-mix(in srgb, var(--lamp-300) 70%, transparent) 78%,
+    transparent
+  );
+  opacity: 0.7;
+}
+
+.hud__nameplate-text {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--lamp-100);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.75);
+  white-space: nowrap;
+}
+
+/* ===========================================================================
+   Bottom — the inventory belt
+   ========================================================================= */
+
+.hud__belt {
+  position: absolute;
+  left: 50%;
+  bottom: var(--plate-inset);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(0.25rem, 0.5cqw, 0.55rem);
+  padding: clamp(0.3rem, 0.55cqw, 0.6rem);
+  border-radius: var(--radius-lg);
+  pointer-events: auto;
+  /* The rail the slots are screwed to: darker than the plates, so the plates
+     read as sitting proud of it. */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-abyss) 62%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 84%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-500) 20%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.7),
+    0 -18px 40px -22px var(--ink-abyss);
+  backdrop-filter: blur(6px) saturate(0.85);
+  -webkit-backdrop-filter: blur(6px) saturate(0.85);
+}
+
+.hud-slot {
+  width: var(--slot-size);
+  height: var(--slot-size);
+  display: grid;
+  place-items: center;
+  transition:
+    transform var(--dur-med) var(--ease-drama),
+    box-shadow var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out);
+}
+
+.hud-slot__well {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 78%;
+  height: 78%;
+}
+
+.hud-slot__art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 0.8));
+  pointer-events: none;
+}
+
+.hud-slot__mono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--lamp-300) 72%, transparent);
+  /* Stamped, not printed: light above, shadow below. */
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--lamp-100) 20%, transparent),
+    0 -1px 1px rgb(0 0 0 / 0.8);
+}
+
+/* Real art wins; the monogram is only ever the understudy. */
+.hud-slot__well:has(.hud-slot__art) .hud-slot__mono,
+.hud-toast__art:has(.hud-slot__art) .hud-slot__mono {
+  display: none;
+}
+
+/* An inner bevel so the item looks recessed into the plate. */
+.hud-slot__rim {
+  position: absolute;
+  inset: 8%;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 0.75),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent);
+}
+
+.hud-slot:hover,
+.hud-slot:focus-visible {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--lamp-400) 65%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 44%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    var(--shadow-3),
+    var(--glow-lamp-soft);
+}
+
+/* Selected = in hand. It lifts clear of the rail and holds a warm rim light. */
+.hud-slot.is-selected {
+  transform: translateY(-7px);
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 55%, transparent),
+    inset 0 0 12px -4px color-mix(in srgb, var(--lamp-300) 60%, transparent),
+    var(--shadow-3),
+    var(--glow-lamp);
+}
+
+.hud-slot.is-selected .hud-slot__art,
+.hud-slot.is-selected .hud-slot__mono {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--lamp-300) 70%, transparent));
+}
+
+.hud-slot.is-dragging {
+  opacity: 0.45;
+  transform: translateY(-2px) scale(0.96);
+}
+
+/* Never-examined items keep a single amber pip until the player opens them. */
+.hud-slot.is-unread::after {
+  content: '';
+  position: absolute;
+  top: 0.28em;
+  right: 0.28em;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 99px;
+  background: var(--lamp-200);
+  box-shadow: var(--glow-lamp);
+  animation: pip-breathe calc(var(--dur-scene) * 3) var(--ease-in-out) infinite alternate;
+}
+
+@keyframes pip-breathe {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Arrival: the slot drops onto the rail and rocks once before settling. */
+.hud-slot.is-arriving {
+  animation: slot-arrive calc(var(--dur-slow) * 1.6) var(--ease-drama) both;
+}
+
+@keyframes slot-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-1.6rem) scale(1.18) rotate(-4deg);
+    filter: brightness(1.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(1.2deg);
+    filter: brightness(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* -- Empty recesses -------------------------------------------------------
+   A hole in the rail rather than a plate: no top highlight, all inner
+   shadow, so the eye reads absence instead of a disabled button. */
+
+.hud-slot--empty {
+  border-color: color-mix(in srgb, var(--lamp-600) 14%, transparent);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-abyss) 88%, transparent) 0%,
+    color-mix(in srgb, var(--ink-900) 92%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 0.8),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-500) 12%, transparent);
+  cursor: default;
+}
+
+.hud-slot--empty::before {
+  opacity: 0.03;
+}
+
+.hud-slot--empty .hud-slot__rim {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+/* ===========================================================================
+   Toasts — acquisition cards
+   ========================================================================= */
+
+.hud__toasts {
+  position: absolute;
+  top: 22cqh;
+  right: var(--plate-inset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.hud-toast {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(0.5rem, 1cqw, 0.9rem);
+  width: clamp(15rem, 22cqw, 21rem);
+  padding: clamp(0.5rem, 0.9cqw, 0.85rem) clamp(0.7rem, 1.2cqw, 1.1rem);
+  border-radius: var(--radius-lg);
+  opacity: 0;
+  transform: translateX(115%);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-drama);
+}
+
+.hud-toast.is-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* A vertical brass reveal down the leading edge: the card catches the lamp as
+   it slides in from off-stage. */
+.hud-toast::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8%;
+  bottom: 8%;
+  width: 2px;
+  border-radius: 99px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--lamp-300) 25%,
+    var(--lamp-100) 50%,
+    var(--lamp-300) 75%,
+    transparent
+  );
+  box-shadow: var(--glow-lamp);
+}
+
+.hud-toast[data-kind='clue']::after {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--moon-300) 25%,
+    var(--moon-100) 50%,
+    var(--moon-300) 75%,
+    transparent
+  );
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--moon-200) 55%, transparent);
+}
+
+.hud-toast__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(2.4rem, 3.4cqw, 3.4rem);
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  background: radial-gradient(
+    70% 70% at 50% 34%,
+    color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
+    transparent 72%
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-500) 24%, transparent);
+}
+
+.hud-toast__art svg {
+  width: 64%;
+  height: 64%;
+  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.6));
+}
+
+.hud-toast[data-kind='clue'] .hud-toast__art {
+  color: var(--moon-100);
+  background: radial-gradient(
+    70% 70% at 50% 34%,
+    color-mix(in srgb, var(--moon-400) 30%, transparent) 0%,
+    transparent 72%
+  );
+}
+
+.hud-toast__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  min-width: 0;
+}
+
+.hud-toast__kicker {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+.hud-toast[data-kind='clue'] .hud-toast__kicker {
+  color: var(--moon-400);
+}
+
+.hud-toast__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+}
+
+.hud-toast__body {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  line-height: 1.4;
+  color: var(--text-secondary);
+  /* Two lines is a glance; more is a journal entry. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===========================================================================
+   Reduced motion
+   ---------------------------------------------------------------------------
+   The duration tokens already collapse. What remains to remove is the looping
+   idle motion, which no shortened duration can fix.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-slot.is-unread::after,
+  .hud__badge.is-bumped {
+    animation: none;
+  }
+
+  .hud-slot.is-arriving,
+  .hud__place.is-announcing .hud__act,
+  .hud__place.is-announcing .hud__location,
+  .hud__place.is-announcing .hud__subtitle {
+    animation-duration: var(--dur-med);
+  }
+}

@@ -13,20 +13,25 @@
 import type { GameState } from '@/engine/state';
 import type { Item } from '@/engine/types';
 
-/** The five panels the HUD can ask for. Mirrors the top-right button row. */
-export type HudPanel = 'journal' | 'inventory' | 'map' | 'hints' | 'menu';
+/** The five fittings in the top-right cluster, in reading order. */
+export type HudTool = 'journal' | 'inventory' | 'map' | 'hints' | 'menu';
 
 export interface HudCallbacks {
-  /** A chrome button (or its keyboard shortcut) was pressed. */
-  onPanel(panel: HudPanel): void;
+  onOpenJournal(): void;
+  onOpenInventory(): void;
+  onOpenMap(): void;
+  onHint(): void;
+  onMenu(): void;
   /**
-   * Inventory selection changed. `null` means the player put the item down.
-   * The integration layer forwards this to `SceneView.setCarrying` — the HUD
-   * never touches the scene itself.
+   * Selection *intent*, not a committed change: the HUD asks, and only reflects
+   * the answer when `setSelectedItem` comes back. That keeps the carried item
+   * single-sourced in `Game`, which also has to tell `SceneView` about it.
    */
   onSelectItem(itemId: string | null): void;
-  /** Double-click / Enter-on-selected: open the item close-up. */
+  /** Double-click, or Enter on an already-selected slot: open the close-up. */
   onExamineItem(itemId: string): void;
+  /** Named cue from the shared SFX table, e.g. `click-brass`. */
+  onSound?(name: string): void;
 }
 
 /** Minimum belt width. Empty recesses imply "there is more to find". */
@@ -47,7 +52,8 @@ const REDUCED = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 interface ToastRequest {
   kind: 'item' | 'clue';
-  id: string;
+  title: string;
+  icon?: string;
   resolve: () => void;
 }
 
@@ -168,13 +174,31 @@ export class Hud {
    * readable for a beat — not when it finally leaves — so a `giveItem` effect
    * paces the story without stalling it for three seconds. The queue
    * guarantees two cards never share the screen.
+   *
+   * Takes a resolved title and icon rather than an id: the caller already had
+   * to look the record up to play the right sound, and a toast for a missing
+   * item should still read as a toast.
    */
-  toast(kind: 'item' | 'clue', id: string): Promise<void> {
+  toast(kind: 'item' | 'clue', title: string, icon?: string): Promise<void> {
     if (this.destroyed) return Promise.resolve();
     return new Promise<void>((resolve) => {
-      this.toastQueue.push({ kind, id, resolve });
+      this.toastQueue.push({ kind, title, icon, resolve });
       void this.pumpToasts();
     });
+  }
+
+  /**
+   * Lights the location card. Driven explicitly by the scene transition rather
+   * than inferred from state, so the name lands with the artwork instead of a
+   * frame before it.
+   */
+  announceLocation(name: string, subtitle?: string) {
+    this.locationEl.textContent = name;
+    this.subtitleEl.textContent = subtitle ?? '';
+    this.subtitleEl.hidden = !subtitle;
+    // Claim the current key so the state-driven path does not re-announce.
+    this.announced = this.placeKey();
+    this.announce();
   }
 
   /** Dialogue, puzzles and cinematics own the screen; the HUD steps aside. */
@@ -201,28 +225,15 @@ export class Hud {
     }
   }
 
-  /**
-   * Optional delegate for the global key map. The HUD does not install a
-   * document listener of its own — the integration layer owns key routing and
-   * decides whether a panel or a puzzle should see the key first.
-   *
-   * @returns true if the key was consumed.
-   */
-  handleKey(ev: KeyboardEvent): boolean {
-    if (this.el.classList.contains('is-hidden')) return false;
-    if (ev.ctrlKey || ev.metaKey || ev.altKey) return false;
-    const panel = SHORTCUTS[ev.key.toLowerCase()];
-    if (!panel) return false;
-    ev.preventDefault();
-    this.cb.onPanel(panel);
-    return true;
-  }
-
   // -- location card -------------------------------------------------------
 
+  private placeKey() {
+    return `${this.state.act}/${this.state.scene}`;
+  }
+
   private renderPlace() {
-    const scene = this.state.content.scenes?.[this.state.scene];
-    const act = this.state.content.acts?.find((a) => a.number === this.state.act);
+    const scene = this.state.content.scenes[this.state.scene];
+    const act = this.state.content.acts.find((a) => a.number === this.state.act);
 
     this.actEl.textContent = act
       ? `Act ${roman(act.number)} · ${act.title}`
@@ -231,11 +242,16 @@ export class Hud {
     this.subtitleEl.textContent = scene?.subtitle ?? '';
     this.subtitleEl.hidden = !scene?.subtitle;
 
-    // Only a genuine change of place (or act) earns the player's attention.
-    const key = `${this.state.act}/${this.state.scene}`;
+    // Only a genuine change of place (or act) earns the player's attention;
+    // `announceLocation` normally gets there first on a scene change, leaving
+    // this path to catch act turns and loaded saves.
+    const key = this.placeKey();
     if (key === this.announced) return;
     this.announced = key;
+    this.announce();
+  }
 
+  private announce() {
     this.placeEl.classList.remove('is-announcing');
     // Restart the animation rather than let it continue from mid-fade.
     void this.placeEl.offsetWidth;
@@ -250,13 +266,13 @@ export class Hud {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'brass-btn hud__tool';
-      btn.dataset.panel = tool.panel;
+      btn.dataset.tool = tool.id;
       btn.setAttribute('aria-label', `${tool.label} (${tool.key})`);
-      btn.setAttribute('aria-keyshortcuts', tool.key);
+      btn.setAttribute('aria-keyshortcuts', tool.shortcut);
       btn.innerHTML =
         `<span class="brass-btn__face">${tool.icon}</span>` +
         `<span class="hud__tool-key" aria-hidden="true">${tool.key}</span>` +
-        `<span class="hud__badge" data-badge="${tool.panel}" hidden></span>`;
+        `<span class="hud__badge" data-badge="${tool.id}" hidden></span>`;
       this.toolsEl.appendChild(btn);
     }
   }
@@ -266,8 +282,8 @@ export class Hud {
     this.setBadge('inventory', this.state.unreadItems.size);
   }
 
-  private setBadge(panel: HudPanel, count: number) {
-    const el = this.toolsEl.querySelector<HTMLElement>(`[data-badge="${panel}"]`);
+  private setBadge(tool: HudTool, count: number) {
+    const el = this.toolsEl.querySelector<HTMLElement>(`[data-badge="${tool}"]`);
     if (!el) return;
     const shown = count > 0;
     if (shown && el.textContent !== String(count)) {
@@ -280,9 +296,26 @@ export class Hud {
   }
 
   private onToolClick = (ev: Event) => {
-    const btn = (ev.target as HTMLElement).closest<HTMLElement>('[data-panel]');
+    const btn = (ev.target as HTMLElement).closest<HTMLElement>('[data-tool]');
     if (!btn) return;
-    this.cb.onPanel(btn.dataset.panel as HudPanel);
+    this.cb.onSound?.('click-brass');
+    switch (btn.dataset.tool as HudTool) {
+      case 'journal':
+        this.cb.onOpenJournal();
+        break;
+      case 'inventory':
+        this.cb.onOpenInventory();
+        break;
+      case 'map':
+        this.cb.onOpenMap();
+        break;
+      case 'hints':
+        this.cb.onHint();
+        break;
+      case 'menu':
+        this.cb.onMenu();
+        break;
+    }
   };
 
   // -- inventory belt ------------------------------------------------------
@@ -315,7 +348,7 @@ export class Hud {
       // Only the newest slot should pop; the rest are already on the belt.
       if (arrived && i === ids.length - 1) slot.classList.add('is-arriving');
       slot.innerHTML =
-        `<span class="hud-slot__well">${artFor(item, id)}</span>` +
+        `<span class="hud-slot__well">${artFor(item?.icon, item?.name ?? id)}</span>` +
         `<span class="hud-slot__rim" aria-hidden="true"></span>`;
       wireArt(slot);
       this.beltEl.appendChild(slot);
@@ -399,8 +432,10 @@ export class Hud {
     ev.dataTransfer.setData('text/plain', this.lookupItem(id)?.name ?? id);
     ev.dataTransfer.effectAllowed = 'copy';
     slot.classList.add('is-dragging');
-    // Dragging *is* picking up: the scene should light valid targets at once.
-    this.select(id);
+    // Dragging *is* picking up, so the scene should light its valid targets at
+    // once — but only if the item is not already in hand, because `select` is
+    // a toggle and would otherwise put it straight back down.
+    if (id !== this.selectedItem) this.select(id);
   };
 
   private onBeltDragEnd = (ev: DragEvent) => {
@@ -431,19 +466,16 @@ export class Hud {
     card.className = 'hud-toast';
     card.dataset.kind = req.kind;
 
-    const item = req.kind === 'item' ? this.lookupItem(req.id) : undefined;
-    const clue = req.kind === 'clue' ? this.state.content?.clues?.[req.id] : undefined;
-    const title = item?.name ?? clue?.name ?? req.id;
-    const body = item?.description ?? clue?.summary ?? '';
+    // A clue has no art of its own — it is a note, so it gets the index card.
+    const art = req.kind === 'clue' ? CLUE_MARK : artFor(req.icon, req.title);
 
     card.innerHTML =
-      `<span class="hud-toast__art" aria-hidden="true">${
-        req.kind === 'item' ? artFor(item, req.id) : CLUE_MARK
-      }</span>` +
+      `<span class="hud-toast__art" aria-hidden="true">${art}</span>` +
       '<span class="hud-toast__text">' +
-      `<span class="hud-toast__kicker">${req.kind === 'item' ? 'Item acquired' : 'Clue recorded'}</span>` +
-      `<span class="hud-toast__title">${escapeHtml(title)}</span>` +
-      (body ? `<span class="hud-toast__body">${escapeHtml(body)}</span>` : '') +
+      `<span class="hud-toast__kicker">${
+        req.kind === 'item' ? 'Item acquired' : 'Clue recorded'
+      }</span>` +
+      `<span class="hud-toast__title">${escapeHtml(req.title)}</span>` +
       '</span>';
 
     wireArt(card);
@@ -452,6 +484,10 @@ export class Hud {
     card.classList.add('is-in');
 
     await this.sleep(enter);
+    // The card is up. Hold the effect chain only long enough for the player to
+    // register it, then release — the dwell and the exit play out behind
+    // whatever happens next, and the queue keeps cards from stacking.
+    await this.sleep(REDUCED() ? 0 : MS_ACK);
     req.resolve();
 
     await this.sleep(Math.max(0, MS_HOLD - MS_ACK));
@@ -471,22 +507,31 @@ export class Hud {
     this.timers.add(id);
   }
 
+  /**
+   * Cancellable delay. Teardown settles every outstanding sleep instead of
+   * dropping it, because the toast sequence awaits these — an abandoned timer
+   * would strand a `giveItem` effect and hang the whole chain.
+   */
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => this.after(ms, resolve));
+    if (this.destroyed) return Promise.resolve();
+    return new Promise((resolve) => {
+      const settle = () => {
+        this.pending.delete(settle);
+        resolve();
+      };
+      this.pending.add(settle);
+      const id = window.setTimeout(() => {
+        this.timers.delete(id);
+        settle();
+      }, ms);
+      this.timers.add(id);
+    });
   }
 }
 
 // ---------------------------------------------------------------------------
 // Static template & glyphs
 // ---------------------------------------------------------------------------
-
-const SHORTCUTS: Record<string, HudPanel> = {
-  j: 'journal',
-  i: 'inventory',
-  m: 'map',
-  h: 'hints',
-  escape: 'menu',
-};
 
 /**
  * Engraved brass glyphs. Stroked rather than filled and drawn on a 24-unit
@@ -529,12 +574,19 @@ const CLUE_MARK =
   '<path d="M4.5 5.5h15v13h-15Z"/><path d="M7.5 9.5h9M7.5 12.5h9M7.5 15.5h5"/>' +
   '<circle cx="12" cy="5.5" r="1.6"/></svg>';
 
-const TOOLS: { panel: HudPanel; label: string; key: string; icon: string }[] = [
-  { panel: 'journal', label: 'Journal', key: 'J', icon: ICON.journal },
-  { panel: 'inventory', label: 'Inventory', key: 'I', icon: ICON.inventory },
-  { panel: 'map', label: 'Map', key: 'M', icon: ICON.map },
-  { panel: 'hints', label: 'Hints', key: 'H', icon: ICON.hints },
-  { panel: 'menu', label: 'Menu', key: 'Esc', icon: ICON.menu },
+/** `key` is the stamped cap; `shortcut` is the `aria-keyshortcuts` token. */
+const TOOLS: {
+  id: HudTool;
+  label: string;
+  key: string;
+  shortcut: string;
+  icon: string;
+}[] = [
+  { id: 'journal', label: 'Journal', key: 'J', shortcut: 'J', icon: ICON.journal },
+  { id: 'inventory', label: 'Inventory', key: 'I', shortcut: 'I', icon: ICON.inventory },
+  { id: 'map', label: 'Map', key: 'M', shortcut: 'M', icon: ICON.map },
+  { id: 'hints', label: 'Hints', key: 'H', shortcut: 'H', icon: ICON.hints },
+  { id: 'menu', label: 'Menu', key: 'Esc', shortcut: 'Escape', icon: ICON.menu },
 ];
 
 const TEMPLATE = `
@@ -560,14 +612,12 @@ const TEMPLATE = `
  * workflow and may lag the code, so a missing item must look deliberate
  * rather than broken.
  */
-function artFor(item: Item | undefined, id: string): string {
-  const name = item?.name ?? id;
-  const mono = escapeHtml(monogram(name));
-  const fallback = `<span class="hud-slot__mono" aria-hidden="true">${mono}</span>`;
-  if (!item?.icon) return fallback;
+function artFor(icon: string | undefined, name: string): string {
+  const fallback = `<span class="hud-slot__mono" aria-hidden="true">${escapeHtml(monogram(name))}</span>`;
+  if (!icon) return fallback;
   // Both are rendered; CSS hides the monogram while real art is present, and
   // `wireArt` drops the image if it 404s, revealing the monogram again.
-  return `<img class="hud-slot__art" src="${escapeHtml(item.icon)}" alt="" draggable="false">${fallback}`;
+  return `<img class="hud-slot__art" src="${escapeHtml(icon)}" alt="" draggable="false">${fallback}`;
 }
 
 /** Removes item art that failed to load so the monogram can take over. */
