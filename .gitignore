@@ -23,3 +23,6 @@ dist-smoke/
 /*-probe.*
 /*probe*.mjs
 /shoot*.mjs
+
+# Screenshot output from tools/shoot.mjs — regenerable build artifacts.
+/shots/
