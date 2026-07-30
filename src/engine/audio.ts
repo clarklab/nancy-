@@ -144,6 +144,19 @@ const poisson = (meanSec: number) => -Math.log(1 - Math.random()) * meanSec;
 /** Equal-tempered frequency for a MIDI note number. */
 const noteHz = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
 
+/**
+ * Looks a content-supplied string up in one of the exhaustive tables.
+ *
+ * The tables are keyed by their literal name unions so they cannot drift from
+ * the exported name lists, which means a plain `TABLE[name]` will not typecheck
+ * against an arbitrary string. The own-property test is not ceremony either:
+ * `SFX['toString']` is truthy on a bare object literal, and a scene author's
+ * typo should never end up being *called*.
+ */
+function lookup<K extends string, T>(table: Record<K, T>, name: string): T | undefined {
+  return Object.prototype.hasOwnProperty.call(table, name) ? table[name as K] : undefined;
+}
+
 /** Chains nodes front-to-back; purely to keep the synth code readable. */
 function wire(...nodes: AudioNode[]): void {
   for (let i = 0; i < nodes.length - 1; i++) nodes[i]!.connect(nodes[i + 1]!);
@@ -2020,12 +2033,23 @@ export class AudioEngine {
   /** Notifies the settings UI whenever the mixer changes, GameState-style. */
   subscribe(fn: () => void): () => void {
     this.listeners.add(fn);
-    return () => this.listeners.delete(fn);
+    return () => {
+      this.listeners.delete(fn);
+    };
   }
 
   private persist(): void {
     writeLevels(this.levelState);
-    for (const fn of this.listeners) fn();
+    // A snapshot, because a settings panel closing in response to a change will
+    // unsubscribe mid-notify; and each listener is isolated, because this
+    // module's whole contract is that a mixer move cannot break the game.
+    for (const fn of [...this.listeners]) {
+      try {
+        fn();
+      } catch {
+        /* a broken observer is not the mixer's problem */
+      }
+    }
   }
 
   private applyLevels(): void {

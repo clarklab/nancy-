@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="A dark lighthouse with a lit lamp">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#fff3d6" stop-opacity="1" />
+      <stop offset="45%" stop-color="#e0a83f" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#e0a83f" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#33454f" />
+      <stop offset="55%" stop-color="#1a252e" />
+      <stop offset="100%" stop-color="#0c1116" />
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="12" fill="#070a0d" />
+
+  <!-- The lamp's halo, which is the whole point of the mark. -->
+  <circle cx="32" cy="19" r="17" fill="url(#glow)" />
+
+  <!-- Tower: a simple tapering trapezoid so it reads at 16px. -->
+  <path d="M25 54 L27.5 27 h9 L39 54 Z" fill="url(#stone)" />
+  <path d="M23 54 h18 v4 H23 Z" fill="#1a252e" />
+
+  <!-- Gallery and lantern room. -->
+  <path d="M25 27 h14 l-1.5 -3 h-11 Z" fill="#24323d" />
+  <rect x="28.5" y="15" width="7" height="9" rx="1" fill="#f5c96f" />
+  <path d="M32 9 l4 5 h-8 Z" fill="#24323d" />
+</svg>
