@@ -73,6 +73,8 @@ export class CinematicPlayer {
   private holdRaf = 0;
   private timers = new Set<number>();
   private restoreFocus: HTMLElement | null = null;
+  /** Latched by `destroy`, so a `play` still unwinding cannot re-arm anything. */
+  private dead = false;
 
   constructor(cb: CinematicCallbacks = {}) {
     this.cb = cb;
@@ -158,10 +160,15 @@ export class CinematicPlayer {
    * inside another cinematic's effects would deadlock the chain awaiting it.
    */
   async play(c: Cinematic): Promise<void> {
+    if (this.dead) return;
     if (this.active) {
       console.warn(`[cinematic] ignoring re-entrant play of "${c.id}"`);
       return;
     }
+
+    // Content is data: a cinematic declared with no beats must open, close and
+    // hand control back, not iterate `undefined`.
+    const beats = Array.isArray(c.beats) ? c.beats : [];
 
     this.active = true;
     this.abandoned = false;
@@ -170,18 +177,26 @@ export class CinematicPlayer {
 
     this.el.dataset.cinematic = c.id;
     this.el.classList.toggle('is-skippable', this.skippable);
+    this.el.classList.remove('is-holding', 'has-caption');
     this.skipEl.hidden = !this.skippable;
+    this.skipRing.style.setProperty('--hold', '0');
     if (c.music) this.cb.onMusic?.(c.music);
 
-    // Decode the opening still behind the bars so the first frame is painted
-    // the instant the letterbox finishes travelling.
-    const first = c.beats[0]?.image;
-    if (first) await preload(first);
+    // Decode the opening still behind the closed letterbox, then paint it there
+    // too. Opening onto an empty black frame and *then* dissolving the first
+    // image in costs a second of nothing, and reads as the game hanging.
+    const first = beats[0];
+    if (first?.image) {
+      await preload(first.image);
+      this.paint(first, beatDuration(first));
+    }
 
     await this.openBars();
 
-    for (let i = 0; i < c.beats.length && !this.abandoned; i++) {
-      await this.showBeat(c.beats[i], c.beats[i + 1]);
+    for (let i = 0; i < beats.length && !this.abandoned; i++) {
+      // The opening still is already up; re-painting it would dissolve the
+      // image into an identical copy of itself and restart its move.
+      await this.showBeat(beats[i], beats[i + 1], i === 0 && Boolean(first?.image));
     }
 
     await this.closeBars();
@@ -190,14 +205,17 @@ export class CinematicPlayer {
   }
 
   destroy() {
+    this.dead = true;
     window.removeEventListener('keydown', this.onKeyDown, true);
     window.removeEventListener('keyup', this.onKeyUp, true);
     this.clearTimers();
     cancelAnimationFrame(this.holdRaf);
+    this.holdFrom = 0;
     // Settle anything still awaiting us so a teardown can never hang a caller.
     this.abandoned = true;
     this.advanceBeat?.();
     this.active = false;
+    this.restoreFocus = null;
     this.el.remove();
   }
 
@@ -207,10 +225,14 @@ export class CinematicPlayer {
    * Runs one beat: dissolve the still in, rise the text, hold, and warm the
    * next image while the player is reading this one.
    */
-  private async showBeat(beat: CinematicBeat, next: CinematicBeat | undefined) {
+  private async showBeat(
+    beat: CinematicBeat,
+    next: CinematicBeat | undefined,
+    alreadyPainted = false,
+  ) {
     const hold = beatDuration(beat);
 
-    this.paint(beat, hold);
+    if (!alreadyPainted) this.paint(beat, hold);
     this.writeCaption(beat);
 
     // The dissolve into the *next* beat needs its art already decoded; doing it
@@ -361,7 +383,7 @@ export class CinematicPlayer {
   // -- keyboard --------------------------------------------------------------
 
   private onKeyDown(ev: KeyboardEvent) {
-    if (!this.active) return;
+    if (!this.active || this.el.hidden) return;
 
     if (ev.key === 'Escape') {
       ev.preventDefault();
@@ -376,15 +398,25 @@ export class CinematicPlayer {
     // Everything the game binds is meaningless during a cutscene, and a stray
     // J opening the journal behind one would be worse than meaningless.
     ev.stopPropagation();
-    if (ev.key === ' ' || ev.key === 'Enter' || ev.key === 'ArrowRight') {
-      ev.preventDefault();
-      this.advance();
+
+    if (ev.key !== ' ' && ev.key !== 'Enter' && ev.key !== 'ArrowRight') return;
+    ev.preventDefault();
+
+    /* The badge is a real button and has to answer the keyboard as one. Because
+       this listener captures at the window, the button's own activation
+       handling never runs, so "held on the badge" has to be honoured here or
+       the only focusable thing in the cutscene would do nothing at all. */
+    if (document.activeElement === this.skipEl) {
+      if (!ev.repeat) this.beginHold();
+      return;
     }
+
+    this.advance();
   }
 
   private onKeyUp(ev: KeyboardEvent) {
     if (!this.active) return;
-    if (ev.key === 'Escape') {
+    if (ev.key === 'Escape' || ev.key === ' ' || ev.key === 'Enter') {
       ev.stopPropagation();
       this.endHold();
     }

@@ -56,6 +56,26 @@
   inset: 0;
 }
 
+/**
+ * A whisper of emulsion grain over the stills.
+ *
+ * Painted backgrounds exported as clean bitmaps read as *files* on a modern
+ * display — perfectly smooth gradients with visible banding in the darks. The
+ * grain is what makes the same image read as photographed, and it hides the
+ * banding for free. It sits over both frames and under the scrim, so a
+ * cross-dissolve happens beneath a single unmoving layer of noise rather than
+ * two competing ones.
+ */
+.cine-frames::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.07;
+}
+
 .cine-frame {
   position: absolute;
   inset: 0;
@@ -67,6 +87,12 @@
   filter: brightness(0.94) saturate(0.96) contrast(1.02);
   opacity: 0;
   transition: opacity var(--dur-scene) var(--ease-in-out);
+}
+
+/* Promoted only while it is actually moving: two permanently-composited
+   full-bleed layers is a lot of texture memory to hold for a cutscene that
+   plays once. */
+.cine-frame.is-moving {
   will-change: transform, opacity;
 }
 
@@ -316,6 +342,13 @@
 
 /* -- Hold to skip ----------------------------------------------------------- */
 
+/* `display` is set below, which would beat the UA's `[hidden] { display: none }`
+   on specificity and leave the badge on screen through an unskippable
+   cinematic — the one scene where offering a skip is actively a lie. */
+.cine-skip[hidden] {
+  display: none;
+}
+
 .cine-skip {
   --hold: 0;
 
@@ -353,6 +386,12 @@
 .cine-root.is-holding .cine-skip {
   opacity: 1;
   color: var(--lamp-200);
+}
+
+/* Under the hand the badge presses in slightly, so the hold has weight rather
+   than just being a ring that fills on its own. */
+.cine-root.is-holding .cine-skip {
+  text-shadow: 0 0 14px color-mix(in srgb, var(--lamp-400) 55%, transparent);
 }
 
 .cine-skip-label kbd {

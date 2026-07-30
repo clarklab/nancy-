@@ -569,7 +569,9 @@
 /* Charge ring around the flame — a conic sweep, no animation of its own. */
 .puzzle-lamp-ring {
   position: absolute;
+  top: 50%;
   left: 0.4rem;
+  translate: 0 -50%;
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
@@ -610,10 +612,10 @@
     transform: translateX(0);
   }
   25% {
-    transform: translateX(-3px);
+    transform: translateX(calc(-1 * var(--sp-1)));
   }
   60% {
-    transform: translateX(2px);
+    transform: translateX(calc(0.7 * var(--sp-1)));
   }
 }
 
@@ -711,7 +713,7 @@
   /* Curls away from the pin at the top, the way paper actually hangs. */
   clip-path: polygon(0 0, 100% 0, 100% 97%, 62% 100%, 0 96%);
   opacity: 0;
-  transform: translateY(-10px) rotate(0deg) scale(0.96);
+  transform: translateY(calc(-1 * var(--sp-3))) rotate(0deg) scale(0.96);
   transform-origin: 50% 0;
   transition:
     opacity var(--dur-slow) var(--ease-out),
@@ -794,22 +796,25 @@
   animation: puzzle-shake var(--dur-slow) var(--ease-in-out);
 }
 
+/* Displacement in percentages of the frame, matching `stage-shake` in base.css:
+   a refusal has to feel the same size on a laptop and on a 27-inch panel, and
+   a fixed 8px reads as a violent lurch on one and a twitch on the other. */
 @keyframes puzzle-shake {
   0%,
   100% {
     transform: translateX(0);
   }
   15% {
-    transform: translateX(-8px);
+    transform: translateX(-0.85%);
   }
   32% {
-    transform: translateX(7px);
+    transform: translateX(0.72%);
   }
   52% {
-    transform: translateX(-5px);
+    transform: translateX(-0.48%);
   }
   74% {
-    transform: translateX(3px);
+    transform: translateX(0.28%);
   }
 }
 
@@ -879,15 +884,27 @@
 
 /* -- Dial ------------------------------------------------------------------- */
 
+/* Face plus engraved plate. The plate is a row of the grid, never a negatively
+   offset absolute child: four dials in a row must not overlap one another's
+   readouts, and the control's box has to be the truth about how much room it
+   takes. */
 .pz-dial {
   --dial-size: clamp(6rem, 14cqw, 9.5rem);
 
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  gap: var(--sp-2);
+  isolation: isolate;
+}
+
+.pz-dial-face {
   position: relative;
   width: var(--dial-size);
   height: var(--dial-size);
   display: grid;
   place-items: center;
-  isolation: isolate;
 }
 
 .pz-dial-bezel {
@@ -1015,36 +1032,54 @@
     inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 60%, transparent);
 }
 
+/* The value, lit behind a small pane of glass sunk into the bench. */
 .pz-dial-readout {
-  position: absolute;
-  bottom: -1.55rem;
+  min-width: 3.2ch;
+  padding: 0.1rem var(--sp-2);
+  border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: var(--step--1);
+  text-align: center;
   color: var(--lamp-200);
+  background: linear-gradient(180deg, var(--ink-abyss) 0%, var(--ink-900) 100%);
+  box-shadow:
+    inset 0 1px 4px color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
   text-shadow: 0 0 10px color-mix(in srgb, var(--lamp-400) 45%, transparent);
 }
 
 /* -- Slider ----------------------------------------------------------------- */
 
+/**
+ * A brass lever in a sunk channel.
+ *
+ * `--slider-half` is half the thumb, and every other number here is derived
+ * from it. The track is inset by exactly that much at both ends so the thumb's
+ * travel and the track's length are the same interval — which is what makes
+ * "click at the far end of the track" land on the maximum instead of a few
+ * pixels short of it, because the JS reads its fraction off this same rect.
+ */
 .pz-slider {
   --slider-length: clamp(9rem, 34cqw, 20rem);
   --slider-frac: 0;
+  --slider-thumb: 1.5rem;
+  --slider-half: calc(var(--slider-thumb) / 2);
+  /* Rail band + the row the readout sits in. */
+  --slider-rail: 2.1rem;
 
   position: relative;
-  display: grid;
-  place-items: center;
   touch-action: none;
   cursor: pointer;
 }
 
 .pz-slider[data-orient='horizontal'] {
   width: var(--slider-length);
-  height: 2.6rem;
+  height: calc(var(--slider-rail) + 1.2rem);
 }
 
 .pz-slider[data-orient='vertical'] {
-  width: 2.6rem;
-  height: var(--slider-length);
+  width: var(--slider-rail);
+  height: calc(var(--slider-length) + 1.2rem);
 }
 
 .pz-slider-track {
@@ -1064,15 +1099,17 @@
 }
 
 .pz-slider[data-orient='horizontal'] .pz-slider-track {
-  left: 0;
-  width: 100%;
+  left: var(--slider-half);
+  right: var(--slider-half);
+  top: calc(var(--slider-rail) / 2 - 0.275rem);
   height: 0.55rem;
 }
 
 .pz-slider[data-orient='vertical'] .pz-slider-track {
-  top: 0;
+  top: var(--slider-half);
+  bottom: calc(var(--slider-half) + 1.2rem);
+  left: calc(var(--slider-rail) / 2 - 0.275rem);
   width: 0.55rem;
-  height: 100%;
 }
 
 .pz-slider-fill {
@@ -1085,6 +1122,11 @@
   );
   transform-origin: 0 50%;
   scale: var(--slider-frac) 1;
+  transition: scale var(--dur-fast) var(--ease-out);
+}
+
+.pz-slider.is-sliding .pz-slider-fill {
+  transition: none;
 }
 
 .pz-slider[data-orient='vertical'] .pz-slider-fill {
@@ -1094,8 +1136,8 @@
 
 .pz-slider-thumb {
   position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: var(--slider-thumb);
+  height: var(--slider-thumb);
   border-radius: 50%;
   background:
     radial-gradient(
@@ -1108,37 +1150,50 @@
     inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 70%, transparent),
     inset 0 -2px 3px color-mix(in srgb, var(--ink-abyss) 62%, transparent),
     var(--shadow-2);
-  transition: transform var(--dur-fast) var(--ease-out);
-}
-
-.pz-slider[data-orient='horizontal'] .pz-slider-thumb {
-  left: calc(var(--slider-frac) * 100%);
-  translate: -50% 0;
-}
-
-.pz-slider[data-orient='vertical'] .pz-slider-thumb {
-  top: calc((1 - var(--slider-frac)) * 100%);
-  translate: 0 -50%;
+  /* Keyboard steps glide; a dragged thumb must not lag the finger, so the
+     travel transition is dropped for the duration of the gesture. */
+  transition:
+    left var(--dur-fast) var(--ease-out),
+    top var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .pz-slider.is-sliding .pz-slider-thumb {
+  transition: transform var(--dur-fast) var(--ease-out);
   transform: scale(1.06);
+}
+
+.pz-slider[data-orient='horizontal'] .pz-slider-thumb {
+  top: calc(var(--slider-rail) / 2);
+  left: calc(var(--slider-half) + var(--slider-frac) * (100% - var(--slider-thumb)));
+  translate: -50% -50%;
+}
+
+.pz-slider[data-orient='vertical'] .pz-slider-thumb {
+  left: calc(var(--slider-rail) / 2);
+  top: calc(
+    var(--slider-half) + (1 - var(--slider-frac)) * (100% - var(--slider-thumb) - 1.2rem)
+  );
+  translate: -50% -50%;
 }
 
 .pz-slider-readout {
   position: absolute;
+  bottom: 0;
   font-family: var(--font-mono);
   font-size: var(--step--2);
+  letter-spacing: 0.06em;
   color: var(--lamp-200);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--lamp-400) 35%, transparent);
 }
 
 .pz-slider[data-orient='horizontal'] .pz-slider-readout {
-  bottom: -1.15rem;
   right: 0;
 }
 
 .pz-slider[data-orient='vertical'] .pz-slider-readout {
-  bottom: -1.15rem;
+  left: 50%;
+  translate: -50% 0;
 }
 
 /* -- Toggle ----------------------------------------------------------------- */
