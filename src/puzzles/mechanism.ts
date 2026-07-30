@@ -1269,7 +1269,13 @@ function tideRoom(): PuzzleModule {
       vern.append(vLine, vSpan, vCapA, vCapB);
       base.appendChild(vern);
 
-      chart.appendChild(base);
+      /* The drum sheet is inset inside the light table rather than filling it,
+         and that inset is the whole reason the registration works: it is the
+         room the transparency has to be *out* of register in. A sheet the
+         exact size of its bounds cannot be dragged one pixel. */
+      const plate2 = h('div', 'tr-chart-plate');
+      plate2.appendChild(base);
+      chart.appendChild(plate2);
 
       // The prediction arrives on tracing paper and lands crooked.
       const sheet = h('div', 'tr-sheet');
@@ -2197,10 +2203,11 @@ function theOptic(): PuzzleModule {
       collar.appendChild(h('span', 'op-collar-bar'));
       collarWell.append(collar, caption('Bring it upright'));
 
-      let panelAngle = 0;
+      let panelAngle = -35;
+      panelSpin.style.setProperty('--panel-rot', '-35deg');
       const collarCtl = rig.keep(
         makeRotatable(collar, {
-          angle: 0,
+          angle: panelAngle,
           detent: 5,
           min: -90,
           max: 90,
@@ -2217,7 +2224,9 @@ function theOptic(): PuzzleModule {
 
       const panelCtl = rig.keep(
         makeDraggable(panel, {
-          bounds: seatStage,
+          // The bench, not the stage panel: the bronze frame the panel has to
+          // reach lives outside the stage's own box.
+          bounds: el,
           step: 4,
           label: 'Fresnel panel — carry it to the frame',
           feedback: ctx.feedback,
@@ -2497,7 +2506,7 @@ function theOptic(): PuzzleModule {
             : `${Math.round(frac * 100)} per cent of the fall. Keep cranking.`;
       };
 
-      rig.keep(
+      const crankCtl = rig.keep(
         makeRotatable(crank, {
           angle: wind,
           detent: 30,
@@ -2515,6 +2524,27 @@ function theOptic(): PuzzleModule {
             ctx.save();
           },
         }),
+      );
+
+      crank.setAttribute(
+        'aria-description',
+        'Arrow keys turn the crank a little. Page Up and Page Down turn it a whole revolution.',
+      );
+      crank.addEventListener(
+        'keydown',
+        (ev: KeyboardEvent) => {
+          let d = 0;
+          if (ev.key === 'PageUp') d = 360;
+          else if (ev.key === 'PageDown') d = -360;
+          else return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          crankCtl.set(clamp(wind + d, 0, FULL_WIND), false);
+          ctx.state.wind = wind;
+          ctx.save();
+          ctx.feedback('tick');
+        },
+        { signal: rig.signal },
       );
 
       let hour = clamp(Math.round(readNum(ctx.state, 'hour', 12)), 0, 23);

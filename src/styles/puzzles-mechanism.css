@@ -1265,11 +1265,27 @@
   aspect-ratio: 1000 / 430;
   max-height: 62cqh;
   border-radius: var(--radius-sm);
-  background-image: var(--pz-grain-paper),
-    linear-gradient(172deg, color-mix(in srgb, var(--paper-100) 92%, var(--lamp-200)) 0%, var(--paper-300) 100%);
-  background-blend-mode: multiply, normal;
-  box-shadow: var(--mech-lift), inset 0 0 0 1px color-mix(in srgb, var(--paper-400) 70%, transparent);
+  background-image: var(--pz-grain-hide),
+    radial-gradient(70% 90% at 40% 24%, color-mix(in srgb, var(--lamp-200) 26%, transparent), transparent 76%),
+    linear-gradient(168deg, var(--ink-700), var(--ink-abyss));
+  background-blend-mode: overlay, screen, normal;
+  box-shadow: var(--mech-edge), var(--mech-sunk);
   overflow: hidden;
+}
+
+.tr-chart-plate,
+.tr-sheet {
+  /* The two must share a box exactly, or the overlay's coordinate system
+     stops meaning the same thing as the drum's. */
+  position: absolute;
+  inset: 11% 7%;
+}
+
+.tr-chart-plate {
+  background-image: var(--pz-grain-paper),
+    linear-gradient(172deg, color-mix(in srgb, var(--paper-100) 96%, var(--lamp-200)) 0%, var(--paper-200) 100%);
+  background-blend-mode: multiply, normal;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35), inset 0 0 0 1px color-mix(in srgb, var(--paper-400) 80%, transparent);
 }
 
 .tr-chart-svg,
@@ -1314,8 +1330,6 @@
 }
 
 .tr-sheet {
-  position: absolute;
-  inset: 0;
   touch-action: none;
   cursor: grab;
   background: color-mix(in srgb, var(--moon-100) 10%, transparent);
