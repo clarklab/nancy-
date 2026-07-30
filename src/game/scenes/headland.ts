@@ -324,8 +324,13 @@ export const headlandScenes: Record<SceneId, Scene> = {
         cursor: 'take',
         huntable: true,
         onInteract: [
+          // Guarded on the tin, not the letter. Ottoline's Act IV tree can hand
+          // over the deferment letter in conversation, and keying this on the
+          // letter meant that doing so first closed the only route to the tin
+          // itself. `giveItem` already no-ops for anything held, so granting
+          // all three here is safe whichever way round the player gets there.
           when(
-            lacks('deferment-letter'),
+            lacks('biscuit-tin'),
             [
               say(
                 'Ottoline Verge',

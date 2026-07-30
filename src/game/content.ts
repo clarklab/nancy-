@@ -194,6 +194,60 @@ function* allHotspotEffects(scene: Scene): Generator<{ effects: Effect[]; where:
 }
 
 /**
+ * Collects the ids a condition requires you to be *without*, respecting
+ * polarity.
+ *
+ * Polarity matters because `walkGuarded` records an `else` branch as
+ * `not(cond)`, so a `lacksItem` nested under a negation actually means "you
+ * HAVE this". The very common progressive-reveal idiom
+ *
+ *     if (lacks(a)) { give a } else { if (lacks(b)) { give b } }
+ *
+ * reaches `give b` with guards `[not(lacks(a)), lacks(b)]`. Reading that
+ * naively makes `a` look like something that locks `b` out, when it is the
+ * precondition for reaching it — the second look in the box, after the first
+ * took the page off the top. An earlier draft did exactly that and reported
+ * every staged reveal in the game as a soft-lock.
+ *
+  * Returns only the ids that are genuinely required to be absent.
+ */
+function mustLack(cond: Condition | undefined, positive: boolean): Set<string> {
+  const empty = new Set<string>();
+  if (!cond) return empty;
+
+  switch (cond.kind) {
+    case 'lacksItem':
+      return positive ? new Set([cond.item]) : empty;
+    case 'lacksClue':
+      return positive ? new Set([cond.clue]) : empty;
+    case 'not':
+      return mustLack(cond.of, !positive);
+
+    // `all` requires every branch, so its constraints union. `any` is satisfied
+    // by one branch, so only what EVERY branch demands is actually required —
+    // an intersection. Negation swaps the two (De Morgan). Getting this wrong
+    // is not academic: the chart-loft drawer guards its two grants with
+    // `any(lacks(a), lacks(b))` so that either missing item re-opens it, and
+    // unioning that reports the deliberate fix as the bug it fixed.
+    case 'all':
+    case 'any': {
+      const union = (cond.kind === 'all') === positive;
+      const parts = cond.of.map((c) => mustLack(c, positive));
+      if (!parts.length) return empty;
+      if (union) {
+        const out = new Set<string>();
+        for (const p of parts) for (const id of p) out.add(id);
+        return out;
+      }
+      return parts.reduce((acc, p) => new Set([...acc].filter((id) => p.has(id))));
+    }
+
+    default:
+      return empty;
+  }
+}
+
+/**
  * Cross-references every id the content mentions against what it defines, and
  * reports structural problems that would strand a player.
  */
@@ -904,6 +958,123 @@ export function validateContent(c: GameContent): ValidationIssue[] {
       'no reachable act turn leads into this act — its reachability was analysed ' +
         'from an assumed starting room',
     );
+  }
+
+  // -- CHECK 5: grants that a different site can lock you out of -------------
+  //
+  // A hotspot that reads "give X, but only while the player still lacks Y" is a
+  // trap whenever some *other* site grants Y, because taking Y first closes the
+  // only door to X forever. The player has done nothing wrong and there is no
+  // feedback — the option simply is not there.
+  //
+  // Checks 1-4 cannot see this. They evaluate conditions against the act number
+  // alone and treat `lacksItem`/`lacksClue` as unprovable, which is the right
+  // call for reachability (not having a thing is not a demand for it) but blind
+  // here. A walk of the critical path found two live instances of this pattern
+  // that every other check passed over, so it gets its own pass.
+  //
+  // Only fires when the grant is *sole-source*: if X can also be obtained
+  // somewhere without that guard, the ordering is a shortcut, not a trap.
+  {
+    /** Every id a site can grant, with the `lacks` guards standing over it. */
+    interface GrantSite {
+      id: string;
+      where: string;
+      /** ids whose absence this grant depends on */
+      lacksGuards: string[];
+    }
+
+    const grantSites: GrantSite[] = [];
+
+    for (const site of sites) {
+      for (const { effect, where, guards } of walkGuarded(site.effects, site.where)) {
+        const granted =
+          effect.kind === 'giveItem' ? effect.item : effect.kind === 'giveClue' ? effect.clue : null;
+        if (!granted) continue;
+
+        // The whole guard stack must hold, so their requirements union.
+        const lacksGuards = [
+          ...new Set([...site.gate, ...guards].flatMap((g) => [...mustLack(g, true)])),
+        ];
+        grantSites.push({ id: granted, where, lacksGuards });
+      }
+    }
+
+    const sitesFor = new Map<string, GrantSite[]>();
+    for (const g of grantSites) {
+      const list = sitesFor.get(g.id) ?? [];
+      list.push(g);
+      sitesFor.set(g.id, list);
+    }
+
+    /**
+     * Everything a single interaction can hand over.
+     *
+     * The trap is not "another place grants the blocker" — it is "another place
+     * grants the blocker *without* also granting this". An alternate source that
+     * hands you the requisition book and its clue in the same breath cannot
+     * strand the clue, however many `lacks` guards stand over it.
+     */
+    const grantsByInteraction = new Map<string, Set<string>>();
+    for (const g of grantSites) {
+      const key = g.where.split('.')[0];
+      const set = grantsByInteraction.get(key) ?? new Set<string>();
+      set.add(g.id);
+      grantsByInteraction.set(key, set);
+    }
+
+    /**
+     * The interaction a grant belongs to — `scene:x/hotspot`, `puzzle:y`, etc.
+     *
+     * Comparison has to be at this granularity, not at the effect path. Within
+     * one interaction the guard is evaluated once and the whole block runs, so
+     * the extremely common idiom
+     *
+     *     if (lacks(item)) { giveItem(item); giveClue(clueForIt) }
+     *
+     * has the item and its clue as two sibling effects under one guard. They
+     * fire together and can never lock each other out. An earlier draft of this
+     * check compared effect paths and reported every one of those as a trap —
+     * ten false positives, no true ones. The trap only exists when a *different*
+     * interaction can hand you the blocker first.
+     */
+    const interactionOf = (where: string) => where.split('.')[0];
+
+    for (const [id, gs] of sitesFor) {
+      // Safe if any route to `id` is unconditional on someone else's grant.
+      if (gs.some((g) => g.lacksGuards.length === 0)) continue;
+
+      const reported = new Set<string>();
+      for (const g of gs) {
+        for (const blocker of g.lacksGuards) {
+          // Self-guards ("give X while lacking X") are just idempotence.
+          if (blocker === id) continue;
+          const here = interactionOf(g.where);
+          const elsewhere = (sitesFor.get(blocker) ?? []).filter((b) => {
+            const there = interactionOf(b.where);
+            if (there === here) return false;
+            // Harmless if that interaction also grants the thing being guarded.
+            return !grantsByInteraction.get(there)?.has(id);
+          });
+          if (!elsewhere.length) continue;
+          const key = `${id}<-${blocker}`;
+          if (reported.has(key)) continue;
+          reported.add(key);
+          // Severity tracks consequence. Stranding something a later condition
+          // demands is a soft-lock; stranding a flavour item the player merely
+          // never gets to hold is a wart. Reporting both as errors would make
+          // the gate reject builds that are perfectly finishable.
+          const report = requiredIds.has(id) ? err : warn;
+          report(
+            g.where,
+            `sole source of "${id}" is gated on lacking "${blocker}", which ` +
+              `${interactionOf(elsewhere[0].where)} also grants — acquiring ` +
+              `"${blocker}" there first makes "${id}" permanently unobtainable` +
+              (requiredIds.has(id) ? ' and it is required later' : ' (not required later)'),
+          );
+        }
+      }
+    }
   }
 
   return issues;
