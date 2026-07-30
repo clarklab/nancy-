@@ -28,6 +28,7 @@ import { PuzzleHost } from '@/ui/puzzle-host';
 import { CinematicPlayer } from '@/ui/cinematic';
 import { Menus, applySettings, loadSettings } from '@/ui/menus';
 import { Narration } from '@/ui/narration';
+import { registerAllPuzzles } from '@/puzzles';
 
 /** Autosave cadence. Frequent enough to be forgiving, rare enough to be quiet. */
 const AUTOSAVE_MS = 45_000;
@@ -64,6 +65,9 @@ export class Game implements Presenter {
   // -- lifecycle -----------------------------------------------------------
 
   async boot() {
+    // Must happen before any scene can open a puzzle, or the host falls back
+    // to its "not built yet" placeholder.
+    registerAllPuzzles();
     applySettings(loadSettings());
     // Only ids present in the generated index have audio; everything else
     // stays text-only and must not produce a 404 per line.

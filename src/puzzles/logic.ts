@@ -1288,7 +1288,13 @@ function trigGlyph(x: number, y: number, cls = ''): SVGGElement {
   return g;
 }
 
-function chartLoft(): PuzzleModule {
+/**
+ * Retained but not registered — the sensory batch owns `puz-chart-loft`,
+ * because the puzzle's primary verb is audio-rhythm timing rather than map
+ * registration. Exported so this alternate take stays compiled and reachable
+ * if the design ever swings back toward the navigation reading.
+ */
+export function chartLoftLogicVariant(): PuzzleModule {
   const rig = new Rig();
 
   return {
@@ -3648,7 +3654,9 @@ function boardOfDissolution(): PuzzleModule {
  */
 export function registerLogicPuzzles(): void {
   registerPuzzle('puz-forty-seven-cards', fortySevenCards);
-  registerPuzzle('puz-chart-loft', chartLoft);
+  // 'puz-chart-loft' is registered by the sensory batch: its primary verb is
+  // audio-rhythm timing, and registering it here too made the two modules
+  // race for the id.
   registerPuzzle('puz-reconciliation', reconciliation);
   registerPuzzle('puz-board-of-dissolution', boardOfDissolution);
 }

@@ -153,6 +153,26 @@ const SHOTS = [
       });
     },
   },
+  // One puzzle per interaction family, so the critic sees the range of the
+  // minigame chrome rather than the same dial four times.
+  ...[
+    ['puzzle-cipher', 'puz-september-spool'],
+    ['puzzle-mechanism', 'puz-three-movements'],
+    ['puzzle-logic', 'puz-forty-seven-cards'],
+    ['puzzle-sensory', 'puz-chart-loft'],
+  ].map(([name, id]) => ({
+    name,
+    settle: 2000,
+    drive: async (page) => {
+      await page.evaluate(async (puzzleId) => {
+        const g = window.game;
+        await g.__test.startNewGameSkippingIntro();
+        // Do not await: a puzzle resolves only when solved or closed.
+        void g.__test.openPuzzle(puzzleId);
+        await new Promise((r) => setTimeout(r, 1200));
+      }, id);
+    },
+  })),
 ];
 
 async function main() {

@@ -1534,7 +1534,7 @@ function buildShelf(): ShelfBox[] {
     series: 'A. FERRIER',
     number: 'WARDEN',
     rank: 1,
-    slot: 11.6,
+    slot: 11,
     x: 0.97,
     head: 0.95,
     drownAt: FLOOD_GRACE + FLOOD_SPAN * 0.95,
@@ -1774,7 +1774,6 @@ function bottomShelf(): PuzzleModule {
         el.addEventListener('pointerup', up, { signal: bin.signal });
         el.addEventListener('pointercancel', () => endLift(false), { signal: bin.signal });
         el.addEventListener('lostpointercapture', up, { signal: bin.signal });
-        el.addEventListener('pointerleave', () => endLift(false), { signal: bin.signal });
         el.addEventListener('focus', () => aimTorchAtBox(id), { signal: bin.signal });
         el.addEventListener('keydown', (ev: KeyboardEvent) => {
           if (ev.key !== 'Enter' && ev.key !== ' ') return;
@@ -2540,7 +2539,7 @@ function deakinAuthentication(): PuzzleModule {
       );
       chainStage.append(chainSheet, beta);
 
-      const betaCtl = bin.own(
+      bin.own(
         makeDraggable(beta, {
           axis: 'x',
           bounds: chainStage,
@@ -2555,7 +2554,6 @@ function deakinAuthentication(): PuzzleModule {
           },
         }),
       );
-      void betaCtl;
 
       const chainReadout = h('p', 'sx-dk-tally', '');
       const chainPlate = h('p', 'sx-dk-plate-line',
@@ -2773,7 +2771,7 @@ function deakinAuthentication(): PuzzleModule {
         strip.setAttribute('aria-label', `${name} specimen strip. Lay it over the typescript.`);
         const ctl = bin.own(
           makeDraggable(strip, {
-            bounds: ribbonStage.parentElement ?? ribbonPanel,
+            bounds: ribbonPanel,
             label: `${name} specimen strip`,
             feedback: ctx.feedback,
             onDrop: () => {
@@ -4151,6 +4149,17 @@ function chartLoft(): PuzzleModule {
           'The call box at Rossport, and a woman in Wolverhampton who has never once been wrong. Press the plunger on every flash she taps, and on the first of the next group.';
         said('‘Three flashes, love. Three. We all saw them.’ — and nobody, in twenty-four years, has asked her how long they took.');
         drawTape();
+        // A measurement already taken is a measurement she still holds; the
+        // player must not be made to sit through the call a second time.
+        const wasGroup = asNum(measured.group, 0);
+        const wasPeriod = asNum(measured.period, 0);
+        if (wasGroup === 3 && Math.abs(wasPeriod - PERIOD) <= 1.2) {
+          dialGroup.querySelector('.sx-cl-dial-val')!.textContent = String(wasGroup);
+          dialPeriod.querySelector('.sx-cl-dial-val')!.textContent = `${wasPeriod.toFixed(1)} s`;
+          chip.querySelector('.sx-cl-chip-val')!.textContent = `Fl(3) W ${Math.round(wasPeriod)}s`;
+          chip.hidden = false;
+          chip.classList.add('is-good');
+        }
       }
       tally();
 
