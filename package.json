@@ -9,7 +9,11 @@
     "preview": "vite preview --port 4173",
     "typecheck": "tsc --noEmit",
     "art": "node tools/generate-art.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:audio": "node tools/check-audio.mjs",
+    "shoot": "node tools/shoot.mjs",
+    "fonts": "node tools/fetch-fonts.mjs",
+    "manifest": "node tools/build-manifest.mjs"
   },
   "devDependencies": {
     "playwright": "^1.62.0",
