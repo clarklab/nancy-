@@ -369,10 +369,15 @@ const ORDER_BOOK: BookPage[] = [
 ];
 
 function threeMovements(): PuzzleModule {
-  const rig = new Rig();
+  /* Reassigned rather than captured once: the host builds a fresh module per
+     opening, but a module that is mounted twice must not quietly hand the
+     second mounting a rig that the first teardown already killed. */
+  let rig = new Rig();
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      rig.destroy();
+      rig = new Rig();
       const el = bench(root, 'mech-timelock');
 
       // -- left column: the cast plate and the book she carried down --------
@@ -510,15 +515,24 @@ function threeMovements(): PuzzleModule {
           mv.classList.toggle('is-wound', q > 0);
         };
 
+        /* `announced` is tracked separately from the value because the last
+           quarter of a wind arrives as an onChange (silent) immediately
+           followed by an onCommit for the *same* number — and a movement that
+           never speaks its final setting is a movement a screen-reader player
+           cannot read. */
+        let announced = -1;
+
         const setQ = (q: number, announce: boolean) => {
           const next = clamp(Math.round(q), 0, maxQ);
-          if (next === quarters.get(spec.key)) return;
-          quarters.set(spec.key, next);
-          paint();
-          if (announce) {
+          if (next !== quarters.get(spec.key)) {
+            quarters.set(spec.key, next);
+            paint();
+            persist();
+          }
+          if (announce && next !== announced) {
+            announced = next;
             ctx.note(`Movement ${spec.numeral} stands at ${quartersSpoken(next)}.`);
           }
-          persist();
         };
 
         keyEl.setAttribute('role', 'spinbutton');
@@ -729,10 +743,15 @@ const hhmm = (m: number) => {
 };
 
 function tideRoom(): PuzzleModule {
-  const rig = new Rig();
+  /* Reassigned rather than captured once: the host builds a fresh module per
+     opening, but a module that is mounted twice must not quietly hand the
+     second mounting a rig that the first teardown already killed. */
+  let rig = new Rig();
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      rig.destroy();
+      rig = new Rig();
       const el = bench(root, 'mech-tideroom');
       const stages = new Stages(['The wall', 'To set going', 'Drum 1974/44']);
       stages.onGo = (i) => {
@@ -1273,9 +1292,9 @@ function tideRoom(): PuzzleModule {
          and that inset is the whole reason the registration works: it is the
          room the transparency has to be *out* of register in. A sheet the
          exact size of its bounds cannot be dragged one pixel. */
-      const plate2 = h('div', 'tr-chart-plate');
-      plate2.appendChild(base);
-      chart.appendChild(plate2);
+      const drumPlate = h('div', 'tr-chart-plate');
+      drumPlate.appendChild(base);
+      chart.appendChild(drumPlate);
 
       // The prediction arrives on tracing paper and lands crooked.
       const sheet = h('div', 'tr-sheet');
@@ -1299,7 +1318,7 @@ function tideRoom(): PuzzleModule {
       chart.appendChild(sheet);
 
       let registered = readBool(ctx.state, 'registered');
-      const sheetStart = registered ? { x: 0, y: 0 } : { x: 44, y: -27 };
+      const sheetStart = registered ? { x: 0, y: 0 } : { x: 32, y: -19 };
       const sheetCtl = rig.keep(
         makeDraggable(sheet, {
           position: sheetStart,
@@ -1378,7 +1397,7 @@ function tideRoom(): PuzzleModule {
         rTrace.textContent = `Trace ${o.toFixed(2)} m`;
         rPred.textContent = `Prediction ${p.toFixed(2)} m`;
         const d = o - p;
-        rDiff.textContent = `Difference ${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(2)} m · ${(o + 0.0).toFixed(2)} m over the Sowens shoal`;
+        rDiff.textContent = `Difference ${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(2)} m · ${o.toFixed(2)} m over the Sowens shoal`;
       }
 
       const transfer = h('button', 'tr-transfer');
@@ -1582,10 +1601,15 @@ const GPO_LINES: { id: string; text: string }[] = [
 ];
 
 function switchboard(): PuzzleModule {
-  const rig = new Rig();
+  /* Reassigned rather than captured once: the host builds a fresh module per
+     opening, but a module that is mounted twice must not quietly hand the
+     second mounting a rig that the first teardown already killed. */
+  let rig = new Rig();
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      rig.destroy();
+      rig = new Rig();
       const el = bench(root, 'mech-switchboard');
 
       // -- the board ---------------------------------------------------------
@@ -1748,11 +1772,18 @@ function switchboard(): PuzzleModule {
         check();
       };
 
+      const plugName = (n: number, end: 0 | 1) =>
+        `Cord ${n}, ${end === 0 ? 'answering' : 'calling'} plug`;
+
       function unplug(cord: Cord, end: 0 | 1) {
         cord.seated[end] = null;
         const ctl = end === 0 ? cord.ctlA : cord.ctlB;
         ctl.set({ x: 0, y: 0 }, true);
-        (end === 0 ? cord.a : cord.b).classList.remove('is-seated');
+        const plug = end === 0 ? cord.a : cord.b;
+        plug.classList.remove('is-seated');
+        // The label has to come back down with the plug, or the board keeps
+        // telling a screen reader about a hole this cord left ten seconds ago.
+        plug.setAttribute('aria-label', `${plugName(cord.n, end)} — on the shelf`);
         paintJacks();
         redraw();
       }
@@ -1793,7 +1824,7 @@ function switchboard(): PuzzleModule {
         plug.classList.add('is-seated');
         plug.setAttribute(
           'aria-label',
-          `Cord ${cord.n}, ${end === 0 ? 'answering' : 'calling'} plug — in ${JACKS.find((x) => x.id === jackId)?.name}`,
+          `${plugName(cord.n, end)} — in ${JACKS.find((x) => x.id === jackId)?.name}`,
         );
         ctx.feedback('click');
         paintJacks();
@@ -1856,7 +1887,7 @@ function switchboard(): PuzzleModule {
           rig.keep(
             makeDraggable(plug, {
               bounds: board,
-              label: `Cord ${n}, ${end === 0 ? 'answering' : 'calling'} plug`,
+              label: plugName(n, end),
               feedback: ctx.feedback,
               onMove: redraw,
               onDrop: () => {
@@ -2150,10 +2181,15 @@ const CLIP_COUNT = 6;
 const FULL_WIND = 2880;
 
 function theOptic(): PuzzleModule {
-  const rig = new Rig();
+  /* Reassigned rather than captured once: the host builds a fresh module per
+     opening, but a module that is mounted twice must not quietly hand the
+     second mounting a rig that the first teardown already killed. */
+  let rig = new Rig();
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      rig.destroy();
+      rig = new Rig();
       const el = bench(root, 'mech-optic');
       const stages = new Stages(['Seat the panel', 'Set the character', 'Wind and set']);
       stages.onGo = (i) => {
@@ -2674,6 +2710,8 @@ function theOptic(): PuzzleModule {
       if (fastened.length === CLIP_COUNT) clipRing.classList.add('is-done');
       stages.go(resume);
       if (resume === 2) charDone = true;
+      // A bench reopened on an already-complete setting has to notice.
+      check();
 
       ctx.note(
         resume === 0

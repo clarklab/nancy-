@@ -243,9 +243,13 @@
 .mech-timelock {
   display: grid;
   grid-template-columns: minmax(11rem, 0.85fr) minmax(0, 1.9fr);
+  /* One explicit row that fills the bench. Left implicit, an `auto` track in a
+     definite-height grid gets stretched — or, worse, crushed below its own
+     content when its items carry `min-height: 0` — and the mechanism ends up
+     drawn on top of itself. */
+  grid-template-rows: minmax(0, 1fr);
   gap: clamp(0.5rem, 2cqw, 1.2rem);
   padding: 0.2rem;
-  align-content: start;
 }
 
 .tl-column {
@@ -378,7 +382,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(0.3rem, 1.4cqw, 1rem);
-  align-content: start;
+  align-content: center;
 }
 
 .tl-movement {
@@ -798,7 +802,7 @@
 
 .tr-joint {
   position: relative;
-  height: 4px;
+  height: 5px;
   margin: 1px 0;
   padding: 0;
   border: 0;
@@ -809,6 +813,14 @@
 
 /* The 1975 cement is pale *and* hatched, so the tell survives a colour-blind
    player and a badly calibrated screen alike. */
+/* A four-pixel mortar joint is a real bed joint and an unusable target, so
+   the hit area reaches into the brick either side of it. */
+.tr-joint::before {
+  content: '';
+  position: absolute;
+  inset: -3px 0;
+}
+
 .tr-joint.is-soft {
   background-color: color-mix(in srgb, var(--moon-200) 42%, var(--ink-600));
   background-image: repeating-linear-gradient(
@@ -1141,7 +1153,43 @@
   position: absolute;
   inset: 8% 6%;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 40%, transparent);
+  /* Mahogany case, brass corner posts, and a floor for the weight to hang
+     over — visible from the first frame, so the empty machine is an object
+     waiting to be worked on rather than a blank rectangle. */
+  background:
+    linear-gradient(180deg, transparent 0 86%, color-mix(in srgb, var(--lamp-600) 26%, transparent) 86% 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--lamp-600) 30%, transparent) 0 3px, transparent 3px),
+    linear-gradient(270deg, color-mix(in srgb, var(--lamp-600) 30%, transparent) 0 3px, transparent 3px),
+    repeating-linear-gradient(
+      96deg,
+      color-mix(in srgb, var(--blood) 12%, transparent) 0 7px,
+      transparent 7px 15px
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 45%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 12%, transparent);
+}
+
+/* The spindle the drum ships onto, and the pulley the weight hangs from. */
+.tr-mach-case::before {
+  content: '';
+  position: absolute;
+  left: 44%;
+  top: 22%;
+  width: 3px;
+  height: 56%;
+  background: linear-gradient(180deg, var(--ink-500), var(--ink-900));
+}
+
+.tr-mach-case::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  top: 6%;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--lamp-500) 60%, transparent);
 }
 
 .tr-machine > span {
@@ -1254,9 +1302,9 @@
 
 .tr-drum-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(11rem, 0.8fr);
+  grid-template-columns: minmax(0, 2fr) minmax(11rem, 0.72fr);
   gap: clamp(0.5rem, 2cqw, 1.2rem);
-  align-content: start;
+  align-content: center;
 }
 
 .tr-chart {
@@ -1278,7 +1326,7 @@
   /* The two must share a box exactly, or the overlay's coordinate system
      stops meaning the same thing as the drum's. */
   position: absolute;
-  inset: 11% 7%;
+  inset: 12% 8%;
 }
 
 .tr-chart-plate {
@@ -1376,7 +1424,7 @@
 
 .tr-sheet-label {
   position: absolute;
-  right: 0.5em;
+  left: 26%;
   top: 0.35em;
   font-family: var(--font-mono);
   font-size: 0.72em;
@@ -1472,8 +1520,11 @@
 .mech-switchboard {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(12rem, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: clamp(0.5rem, 2cqw, 1.2rem);
   padding: 0.2rem;
+  /* The G.P.O. coda arrives late and takes a second row of its own. */
+  grid-auto-rows: auto;
 }
 
 .sb-left,
@@ -2342,7 +2393,8 @@
 
 .op-sea {
   position: relative;
-  height: clamp(2.6rem, 12cqh, 4.4rem);
+  width: min(100%, 24rem);
+  height: clamp(3rem, 14cqh, 5rem);
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: linear-gradient(180deg, var(--ink-900) 0%, var(--ink-800) 52%, var(--ink-abyss) 100%);
@@ -2447,8 +2499,12 @@
   display: grid;
   grid-template-columns: auto auto;
   align-items: center;
-  gap: 0.5em;
+  gap: 0.35em 0.7em;
   justify-items: center;
+}
+
+.op-crank-well .mech-caption {
+  grid-column: 1 / -1;
 }
 
 .op-shaft {
@@ -2632,7 +2688,15 @@
   --mech-cb: 1;
 }
 
-:root[data-cb-safe='on'] .tr-joint.is-soft {
+:root[data-cb-safe='on'] /* A four-pixel mortar joint is a real bed joint and an unusable target, so
+   the hit area reaches into the brick either side of it. */
+.tr-joint::before {
+  content: '';
+  position: absolute;
+  inset: -3px 0;
+}
+
+.tr-joint.is-soft {
   background-image: repeating-linear-gradient(
     45deg,
     var(--moon-100) 0 2px,
@@ -2682,6 +2746,23 @@
   .op-seat-stage,
   .op-wind-row {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+    align-content: start;
+  }
+
+  /* Stacked, the columns must take their own height and let the bench scroll,
+     rather than compressing into one another. */
+  .sb-left,
+  .sb-right,
+  .tl-column,
+  .tr-set-left,
+  .tr-set-right {
+    min-height: auto;
+  }
+
+  .tl-column--work {
+    grid-template-rows: auto auto;
   }
 
   .op-ring {

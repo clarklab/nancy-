@@ -457,6 +457,16 @@ function fusedCommission(): PuzzleModule {
           'The sheet tells you when. You do not tell the sheet.',
         ]),
       );
+      // Halkett's covering note, tucked into the lid behind card 3. It is the
+      // third hint, given away for nothing, because the lamp should be for
+      // players who are stuck rather than for players who did not look.
+      kit.appendChild(
+        plate('Covering note — P. Halkett', [
+          'If you find you are pulling, you are early.',
+          'Put it down and count the clock.',
+          'The paper will let go on its own or it will not let go at all.',
+        ]),
+      );
 
       const rack = el('div', 'cx-rack', { role: 'group', 'aria-label': 'Field kit tools' });
       const toolBtns = new Map<string, HTMLButtonElement>();
@@ -1202,8 +1212,16 @@ function cutNotice(): Cell[] {
   return cells;
 }
 
-/** Where the assembled sheet sits inside the light box, in per-cent. */
-const FRAME = { left: 33, top: 6, width: 34, height: 88 };
+/**
+ * Where the assembled sheet sits inside the light box, in per-cent.
+ *
+ * Foolscap portrait, and narrow on purpose: a Notice to Mariners is a tall
+ * sheet with a lot of white below the text, and the fragments have to read as
+ * pieces of *that* rather than as tiles of an arbitrary rectangle. Everything
+ * else — fragment size, home position, scatter — is derived from it, so this
+ * is the only number to change if the proportion ever looks wrong.
+ */
+const FRAME = { left: 37.5, top: 5, width: 25, height: 90 };
 
 function ashGrate(): PuzzleModule {
   const bin = new Bin();
@@ -1269,6 +1287,22 @@ function ashGrate(): PuzzleModule {
       grateStage.append(grateHead, grate, tray, grateFoot);
       box.appendChild(grateStage);
 
+      // The hooded torch. It is not a mechanic — nothing is hidden by it — but
+      // raking a cone of light over a wet grate at twenty past one in the
+      // morning is most of what this stage is *for*.
+      grate.addEventListener(
+        'pointermove',
+        (ev: PointerEvent) => {
+          const r = grate.getBoundingClientRect();
+          grate.style.setProperty('--torch-x', `${((ev.clientX - r.left) / r.width) * 100}%`);
+          grate.style.setProperty('--torch-y', `${((ev.clientY - r.top) / r.height) * 100}%`);
+        },
+        { signal: bin.signal },
+      );
+      grate.addEventListener('pointerleave', () => grate.removeAttribute('style'), {
+        signal: bin.signal,
+      });
+
       const flakeEls = new Map<string, HTMLElement>();
 
       function grateNote() {
@@ -1291,10 +1325,13 @@ function ashGrate(): PuzzleModule {
           });
           flake.style.setProperty('--clip', cell.clip);
           flake.style.setProperty('--char', cell.char.toFixed(2));
-          flake.style.left = `${8 + rnd() * 74}%`;
-          flake.style.top = `${10 + rnd() * 66}%`;
-          flake.style.setProperty('--tilt', `${(rnd() - 0.5) * 40}deg`);
-          flake.style.width = `${9 + cell.bw * 26}%`;
+          flake.style.left = `${5 + rnd() * 84}%`;
+          flake.style.top = `${8 + rnd() * 72}%`;
+          flake.style.setProperty('--tilt', `${(rnd() - 0.5) * 60}deg`);
+          // Scraps, not sheets. A fourteen-piece heap of quarter-width flakes
+          // is a black rectangle; at this size each one is a separate thing the
+          // eye can pick out of the ash and the hand can get under.
+          flake.style.width = `${4.4 + cell.bw * 8}%`;
           flake.style.aspectRatio = `${cell.bw} / ${cell.bh}`;
           flake.appendChild(el('span', 'cx-flake-crack', { 'aria-hidden': 'true' }));
           grate.appendChild(flake);
@@ -2131,6 +2168,13 @@ function perProcurationem(): PuzzleModule {
         const { w, h } = cssSize(canvas);
         const doc = docs[cursor];
         const k = zoom / 100;
+        /* The glass is a circle, so everything is laid out against the largest
+           square that fits inside it, inset by the bezel. Drawing to the full
+           canvas box puts the left margin of the document behind the rim. */
+        const pad = w * 0.14;
+        const L = pad;
+        const R = w - pad;
+        const IW = R - L;
 
         c2d.clearRect(0, 0, w, h);
         // Paper.
@@ -2153,16 +2197,16 @@ function perProcurationem(): PuzzleModule {
 
         // The typed foot of the document, and the signature.
         c2d.fillStyle = '#3a2e20';
-        c2d.font = `${9 * k}px "IBM Plex Mono", ui-monospace, monospace`;
-        c2d.fillText(doc.title.toUpperCase(), 14 * k, h * 0.22);
-        c2d.fillText(doc.dateLabel, 14 * k, h * 0.34);
-        c2d.fillText(doc.custody, 14 * k, h * 0.46);
+        c2d.font = `${Math.min(IW * 0.052, 9 * k)}px "IBM Plex Mono", ui-monospace, monospace`;
+        c2d.fillText(doc.title.toUpperCase(), L, h * 0.26);
+        c2d.fillText(doc.dateLabel, L, h * 0.37);
+        c2d.fillText(doc.custody, L, h * 0.48);
 
         c2d.save();
-        c2d.translate(w * 0.42, h * 0.72);
+        c2d.translate(L + IW * 0.3, h * 0.7);
         c2d.rotate(-0.05);
         c2d.fillStyle = '#1d2a3a';
-        c2d.font = `italic ${20 * k}px "Cormorant Garamond", Georgia, serif`;
+        c2d.font = `italic ${Math.min(IW * 0.13, 20 * k)}px "Cormorant Garamond", Georgia, serif`;
         c2d.fillText('A. Ferrier', 0, 0);
         // A genuine hand is shaky; a clerk's forgery-free initialling is not,
         // but the signature itself is the same signature in both trays, which is
@@ -2172,12 +2216,12 @@ function perProcurationem(): PuzzleModule {
         c2d.strokeStyle = 'rgba(60,44,26,0.5)';
         c2d.lineWidth = 1;
         c2d.beginPath();
-        c2d.moveTo(w * 0.4, h * 0.78);
-        c2d.lineTo(w * 0.82, h * 0.78);
+        c2d.moveTo(L + IW * 0.28, h * 0.76);
+        c2d.lineTo(R, h * 0.76);
         c2d.stroke();
         c2d.fillStyle = '#4a3a26';
-        c2d.font = `${7 * k}px "IBM Plex Mono", ui-monospace, monospace`;
-        c2d.fillText('WARDEN', w * 0.4, h * 0.86);
+        c2d.font = `${Math.min(IW * 0.042, 7 * k)}px "IBM Plex Mono", ui-monospace, monospace`;
+        c2d.fillText('WARDEN', L + IW * 0.28, h * 0.83);
 
         // The two millimetres of 2H pencil. Alpha and stroke width both ramp
         // with magnification: below about 150 per cent it is a smudge in the
@@ -2188,9 +2232,9 @@ function perProcurationem(): PuzzleModule {
           c2d.globalAlpha = 0.16 + reveal * 0.62;
           c2d.strokeStyle = '#4b4a46';
           c2d.lineWidth = Math.max(0.5, 0.55 * k);
-          c2d.font = `${6.5 * k}px "IBM Plex Mono", ui-monospace, monospace`;
+          c2d.font = `${Math.min(IW * 0.04, 6.5 * k)}px "IBM Plex Mono", ui-monospace, monospace`;
           c2d.fillStyle = `rgba(63,62,58,${0.2 + reveal * 0.62})`;
-          c2d.fillText('p.p.', 14 * k, h * 0.9);
+          c2d.fillText('p.p.', L, h * 0.84);
           c2d.restore();
         }
 
@@ -3077,7 +3121,12 @@ function septemberSpool(): PuzzleModule {
         const pxPerMm = w / WINDOW_MM;
         const baseline = h * 0.62;
         const charPx = CHAR_MM * pxPerMm;
-        c2d.font = `${Math.max(7, h * 0.34)}px "IBM Plex Mono", ui-monospace, monospace`;
+        /* The type pitch is a property of the ribbon, not of the panel: a
+           monospace advance is 0.6em, so the only font size that puts one glyph
+           in one character's worth of fabric is this one. Sizing it off the
+           gate height instead is what makes ribbon text overlap itself. */
+        const glyphPx = Math.max(6, Math.min(h * 0.44, charPx / 0.6));
+        c2d.font = `${glyphPx}px "IBM Plex Mono", ui-monospace, monospace`;
         c2d.textBaseline = 'alphabetic';
 
         for (const run of RIBBON_RUNS) {
@@ -3095,10 +3144,12 @@ function septemberSpool(): PuzzleModule {
             c2d.fillStyle = 'rgba(226,214,186,0.86)';
             c2d.fillText(run.text[i], 0, 0);
             c2d.restore();
-            // A faint halo of ink displaced around each strike.
-            c2d.globalAlpha = 0.13;
+            // A faint halo of fabric bruised around each strike. Kept low: at
+            // any real strength these merge into one lit bar and the ribbon
+            // stops looking like cloth.
+            c2d.globalAlpha = 0.07;
             c2d.fillStyle = '#c9b48a';
-            c2d.fillRect(x - charPx * 0.1, baseline - h * 0.34, charPx * 1.1, h * 0.42);
+            c2d.fillRect(x, baseline - glyphPx * 0.78, charPx * 0.96, glyphPx * 1.02);
             c2d.globalAlpha = 1;
           }
         }

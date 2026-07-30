@@ -121,3 +121,29 @@ under a real screenshot.
 Every page load logs one 404. Not yet traced to a URL — the response handler
 did not fire for it, which suggests a CSS `url()` or a preload rather than a
 document subresource. Track it down during integration.
+
+## 12. Rain falls inside the cabin on `the-ardent`
+
+`src/game/scenes/sea-and-mainland.ts` sets `weather: 'rain'` on The Ardent,
+which is an interior. The particle layer covers the whole frame, so streaks
+fall through the cabin as well as past the window. The other five weather
+scenes (`beacon-landing`, `courtyard-and-site-hut`, `pilotage-roof`,
+`rossport-quay`, `cardew-village`) are all exteriors and are correct.
+
+Fix: set it to `none`. The painted spray on the window and the `sea-swell`
+ambience already carry the storm. (Deferred — content files are still being
+edited by the verify agents.)
+
+## 13. Empty inventory slots read as flat rectangles
+
+On the scene HUD the eight belt slots render as plain dark rounded rectangles
+in a hard row. They should read as recessed brass plates — `plate-slot.webp`
+exists in `public/art/ui/` and is unused. Without it the belt is the least
+convincing element on an otherwise strong screen.
+
+## 14. `startNewGameSkippingIntro` raced the opening cinematic — FIXED
+
+`forceClose()` resolves the title screen's promise, which lets the normal boot
+flow continue into `newGame()` and play the opening cinematic *over* whatever
+the harness had navigated to. Every `scene-*` capture was silently a picture of
+the cold open. Fixed with a `skipCinematics` flag the presenter honours.

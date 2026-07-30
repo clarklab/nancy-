@@ -185,9 +185,12 @@ async function main() {
     page.on('pageerror', (e) => errors.push(String(e)));
 
     try {
-      await page.goto(base, { waitUntil: 'networkidle', timeout: 45_000 });
+      await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 45_000 });
       // Wait for the test hooks rather than a fixed delay.
       await page.waitForFunction(() => window.game?.__test?.ready === true, { timeout: 30_000 });
+      // Narration blocks on a player click by design; without auto-advance the
+      // arrival beat of the first scene would hang every driver.
+      await page.evaluate(() => window.game.__test.setAutoAdvance(40));
       await shot.drive(page);
       await page.waitForTimeout(shot.settle);
 

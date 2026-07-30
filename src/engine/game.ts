@@ -51,6 +51,8 @@ export class Game implements Presenter {
   private playtimeTimer = 0;
   /** Set while a modal subsystem owns input, so the scene ignores clicks. */
   private busy = false;
+  /** Automation only: makes `cinematic` effects resolve without playing. */
+  private skipCinematics = false;
 
   constructor(root: HTMLElement, content: GameContent) {
     this.root = root;
@@ -420,6 +422,9 @@ export class Game implements Presenter {
   async playCinematic(id: string) {
     const c = this.content.cinematics[id];
     if (!c) return;
+    // The screenshot harness targets specific screens; a four-minute cold open
+    // playing over them is noise, and it races whatever the driver navigated to.
+    if (this.skipCinematics) return;
     this.hud.setVisible(false);
     await this.cinematics.play(c);
     this.hud.setVisible(true);
@@ -503,8 +508,17 @@ export class Game implements Presenter {
        */
       startNewGameSkippingIntro: async (dwellMs = 40) => {
         this.narration.setAutoAdvance(dwellMs);
+        // `forceClose` resolves the title screen, which lets the normal boot
+        // flow continue into the opening cinematic — so cutscenes have to be
+        // suppressed before it, or the intro plays over the captured scene.
+        this.skipCinematics = true;
         this.menus.forceClose();
         await this.goto(this.content.startScene, 'none');
+      },
+
+      /** Re-enables cutscenes, for a harness that wants to capture one. */
+      setSkipCinematics: (skip: boolean) => {
+        this.skipCinematics = skip;
       },
 
       /** Lets a harness re-enable normal click-to-advance pacing. */
