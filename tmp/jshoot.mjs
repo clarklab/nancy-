@@ -41,7 +41,7 @@ function findChromium() {
 }
 
 const SHOTS = [
-  { name: 'case', tab: 'case', clues: false },
+  { name: 'case', tab: 'case', clues: true },
   { name: 'clues', tab: 'clues', clues: true },
   { name: 'people', tab: 'people', clues: true },
   { name: 'deduction', tab: 'deduction', clues: true },
@@ -68,7 +68,45 @@ async function main() {
     await page.evaluate(async (s) => {
       const g = window.game;
       await g.__test.startNewGameSkippingIntro();
-      if (s.clues) g.__test.grantAllClues();
+      if (s.clues) {
+        // Neutral placeholder content: the story workflow has not landed yet
+        // and the dense states are the ones worth reviewing.
+        const cats = ['testimony', 'physical', 'document', 'observation'];
+        const st = g.__test ? window.game : null;
+        const state = g.state ?? g.__state;
+        const content = state.content;
+        const people = ['alpha', 'beta', 'gamma', 'delta'];
+        people.forEach((p, i) => {
+          content.characters[p] = {
+            id: p, name: `Subject ${p.toUpperCase()}`, role: ['Housekeeper', 'Solicitor', 'Lamplighter', 'Archivist'][i],
+            portrait: '', bio: 'A neutral placeholder biography, long enough to show how the dossier wraps across two or three lines of body text.',
+            color: ['#8f2f28', '#4a8577', '#6b5a8a', '#e0a83f'][i],
+          };
+          state.flags['met.' + p] = true;
+        });
+        for (let i = 0; i < 14; i++) {
+          const id = 'clue-' + i;
+          content.clues[id] = {
+            id, name: ['A torn receipt', 'The wrong key', 'Mud on the stair', 'An unsigned note', 'Second testimony', 'Missing ledger page', 'Broken sash cord', 'A borrowed coat', 'Ash in the grate', 'The stopped clock', 'Rope fibres', 'A locked drawer', 'Late footsteps', 'Rain on the sill'][i],
+            summary: 'A neutral placeholder summary that runs to roughly the length a real clue write-up would, so the card can be judged at its true density.',
+            act: 1 + (i % 3), bearsOn: [people[i % 4]], category: cats[i % 4],
+          };
+          state.clues.add(id);
+          if (i < 3) state.unreadClues.add(id);
+        }
+        state.accusations['alpha'] = ['clue-0', 'clue-4'];
+        state.accusations['beta'] = ['clue-1'];
+        state.flags['accuse.alpha.clue-4.motive'] = true;
+        state.flags['accuse.beta.clue-1.opportunity'] = true;
+        for (const id of Object.keys(content.scenes)) state.visitedScenes.add(id);
+        state.tasks = [
+          { id: 't1', text: 'Find the keeper and ask about the lamp.', done: true },
+          { id: 't2', text: 'Search the room for anything out of place.', done: false },
+          { id: 't3', text: 'Return the borrowed key before anyone notices.', done: false },
+        ];
+        state.notify();
+        void st;
+      }
     }, shot);
     await page.waitForTimeout(3500);
     await page.evaluate((s) => { window.game.__test.openJournal(s.tab); }, shot);
