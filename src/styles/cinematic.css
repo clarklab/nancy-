@@ -37,9 +37,12 @@
   opacity: 1;
 }
 
+/* The letterbox opening back up is the "you have control again" beat, so the
+   fade is held back until the bars have started travelling rather than
+   dissolving the gesture out from under them. */
 .cine-root.is-ending {
   opacity: 0;
-  transition-duration: var(--dur-slow);
+  transition: opacity var(--dur-slow) var(--ease-in-out) var(--dur-med);
 }
 
 .cine-root:focus {
@@ -368,6 +371,7 @@
     var(--lamp-300) calc(var(--hold) * 360deg),
     color-mix(in srgb, var(--moon-400) 40%, transparent) 0
   );
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
   mask: radial-gradient(circle, transparent 58%, #000 60%);
 }
 

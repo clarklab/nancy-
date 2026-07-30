@@ -478,6 +478,12 @@
   opacity: 0;
 }
 
+.puzzle-lamp-label {
+  /* Sits inside the button's own type; only the optical alignment differs. */
+  line-height: 1;
+  padding-top: 0.06em;
+}
+
 .puzzle-lamp-count {
   font-size: var(--step--2);
   letter-spacing: 0.3em;
@@ -1042,6 +1048,12 @@
 
 .pz-toggle.is-on {
   color: var(--lamp-200);
+}
+
+/* Reserved width, so flipping between "Open" and "Shut" never nudges the row. */
+.pz-toggle-legend {
+  min-width: 3.5ch;
+  text-align: left;
 }
 
 .pz-toggle-well {

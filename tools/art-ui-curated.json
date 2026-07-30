@@ -1,0 +1,50 @@
+{
+  "_comment": "Curated UI and key-art prompts, already generated and visually approved. build-manifest.mjs uses these verbatim instead of the art bible's UI prompts so a manifest rebuild never discards approved artwork.",
+  "assets": [
+    {
+      "id": "tex-parchment",
+      "kind": "ui",
+      "prompt": "A seamless flat scan of aged cream parchment paper, 1940s document stock, subtle horizontal laid lines, faint foxing spots, soft tea-coloured staining toward the edges, fine fibre texture. Evenly lit, completely flat, no shadows, no folds, no objects. Absolutely no text, no lettering, no words, no numbers, no watermarks, no logos, no borders."
+    },
+    {
+      "id": "tex-leather",
+      "kind": "ui",
+      "prompt": "A seamless flat scan of dark oxblood full-grain bookbinding leather, deep pebbled texture, subtle darkening and sheen variation, decades of hand-polish. Evenly lit, completely flat, no shadows, no stitching, no objects. Absolutely no text, no lettering, no words, no watermarks, no logos, no borders."
+    },
+    {
+      "id": "tex-corkboard",
+      "kind": "ui",
+      "prompt": "A seamless flat scan of dark aged cork board, dense granular texture, warm brown tones, scattered old pinholes. Evenly lit, completely flat, no shadows, no pins, no paper, no objects. Absolutely no text, no lettering, no words, no watermarks, no logos, no borders."
+    },
+    {
+      "id": "seal-wax",
+      "kind": "ui",
+      "prompt": "A single deep crimson wax seal, freshly pressed, isolated and centred on a pure flat neutral dark grey background. Thick irregular molten edge, glossy highlights, a plain smooth un-engraved face. Museum catalogue lighting from the upper left, soft realistic drop shadow. Painterly digital oil rendering, high detail. Absolutely no text, no lettering, no words, no initials, no monogram, no emblem, no watermarks, no borders."
+    },
+    {
+      "id": "frame-brass",
+      "kind": "ui",
+      "prompt": "A single ornate antique brass corner fitting for an instrument case, isolated and centred on a pure flat neutral dark grey background. Aged patinated brass, engraved beading and a fluted edge, tiny countersunk screws, warm reflections and verdigris in the recesses. Museum catalogue lighting from the upper left, soft realistic drop shadow. Painterly digital oil rendering, high detail. Absolutely no text, no lettering, no words, no watermarks, no borders."
+    },
+    {
+      "id": "plate-slot",
+      "kind": "ui",
+      "prompt": "A single empty rectangular brass inventory slot plate with a shallow recessed well, isolated and centred on a pure flat neutral dark grey background. Aged brass with a soft brushed finish, a thin raised bezel, four tiny corner rivets, dark shadow pooling inside the recess. Museum catalogue lighting from the upper left. Painterly digital oil rendering, high detail. Absolutely no text, no lettering, no words, no numbers, no watermarks, no borders."
+    },
+    {
+      "id": "key-art",
+      "kind": "keyart",
+      "prompt": "Cinematic key art for a AAA mystery adventure game. A lone granite lighthouse tower, one hundred and twelve feet, standing on a wave-broken reef nine miles offshore under a bruised late-October dusk. Its lantern is DARK \u2014 no beam. In the near foreground, out of focus, the slate roofline and chimney stacks of a Victorian records fortress on a headland, one small window lit warm amber. Cold Atlantic swell, spindrift, low ragged cloud, a last cold band of dying light on the horizon. Deep teal and slate blues against a single warm amber accent. Painterly digital oil painting, visible confident brushwork, dramatic chiaroscuro, atmospheric depth haze, cinematic wide composition with generous empty sky in the upper third for a title to sit. Moody, lonely, forensic. Absolutely no text, no lettering, no words, no numbers, no signatures, no watermarks, no logos, no UI elements, no borders or frames, no people, no boats."
+    },
+    {
+      "id": "vignette-overlay",
+      "kind": "ui",
+      "prompt": "A soft black radial vignette on a pure white background, heavy darkening at the four corners fading smoothly to clear white at the centre, very gradual falloff, no hard edge, no banding. Pure greyscale gradient only. Absolutely no text, no lettering, no objects, no watermarks, no borders."
+    },
+    {
+      "id": "tex-map-paper",
+      "kind": "ui",
+      "prompt": "A seamless flat scan of an aged nautical chart paper, pale bone-grey stock with a faint blue-grey cast, fine fibre grain, soft water staining and foxing toward one edge, subtle fold creases. Evenly lit, completely flat, no shadows, no printed content. Absolutely no text, no lettering, no words, no numbers, no lines, no compass rose, no coastlines, no watermarks, no borders."
+    }
+  ]
+}

@@ -1014,7 +1014,15 @@
   inset: 0 auto 0 0;
   width: calc(var(--v, 0) * 100%);
   border-radius: 99px;
-  background: var(--brass-face);
+  /* Brushed rather than polished: the horizontal grain is what stops a brass
+     fill reading as a flat progress bar. */
+  background:
+    var(--menu-grain-metal),
+    var(--brass-face);
+  background-size:
+    140px 140px,
+    auto;
+  background-blend-mode: soft-light, normal;
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 55%, transparent);
   transition: width var(--dur-fast) var(--ease-out);
 }
@@ -1178,7 +1186,13 @@
 
 .mseg__opt.is-on {
   color: var(--ink-900);
-  background: var(--brass-face);
+  background:
+    var(--menu-grain-metal),
+    var(--brass-face);
+  background-size:
+    140px 140px,
+    auto;
+  background-blend-mode: soft-light, normal;
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 60%, transparent),
     0 1px 3px rgb(0 0 0 / 0.55);

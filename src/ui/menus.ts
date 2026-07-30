@@ -1499,7 +1499,7 @@ export class Menus {
         // Bound once: `render()` re-runs whenever a file is discarded, and a
         // per-render listener would stack up duplicates.
         grid.addEventListener('keydown', (ev) =>
-          rove(ev, [...grid.querySelectorAll<HTMLElement>('.slot__face:not([disabled])')]),
+          rove(ev, [...grid.querySelectorAll<HTMLElement>('.slot__face:not([disabled])')], 'both'),
         );
 
         render();
@@ -1749,22 +1749,36 @@ function trapTab(layer: HTMLElement, ev: KeyboardEvent) {
 function rove(
   ev: KeyboardEvent,
   items: HTMLElement[],
-  orientation: 'vertical' | 'horizontal' = 'vertical',
+  orientation: 'vertical' | 'horizontal' | 'both' = 'vertical',
 ) {
-  const forward = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
-  const back = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
-  const dir = ev.key === forward ? 1 : ev.key === back ? -1 : 0;
+  const forwardKeys =
+    orientation === 'vertical'
+      ? ['ArrowDown']
+      : orientation === 'horizontal'
+        ? ['ArrowRight']
+        : ['ArrowDown', 'ArrowRight'];
+  const backKeys =
+    orientation === 'vertical'
+      ? ['ArrowUp']
+      : orientation === 'horizontal'
+        ? ['ArrowLeft']
+        : ['ArrowUp', 'ArrowLeft'];
+
+  const dir = forwardKeys.includes(ev.key) ? 1 : backKeys.includes(ev.key) ? -1 : 0;
   if (!dir && ev.key !== 'Home' && ev.key !== 'End') return;
   if (!items.length) return;
 
   ev.preventDefault();
   const current = items.indexOf(document.activeElement as HTMLElement);
+  // Focus sitting outside the list (a discard button, say) enters it from the
+  // end the player was travelling towards, not from wherever index -1 lands.
+  const from = current === -1 ? (dir > 0 ? -1 : 0) : current;
   const next =
     ev.key === 'Home'
       ? 0
       : ev.key === 'End'
         ? items.length - 1
-        : (current + dir + items.length) % items.length;
+        : (from + dir + items.length) % items.length;
   items[next]?.focus();
 }
 

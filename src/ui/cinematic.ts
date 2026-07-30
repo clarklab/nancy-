@@ -21,7 +21,8 @@ import type { Cinematic, CinematicBeat } from '@/engine/types';
    collapsed for reduced motion at the point of use. */
 const MS_BARS = 620;
 const MS_CROSSFADE = 620;
-const MS_OUT = 460;
+/** Bars travelling out (--dur-scene) plus the held-back fade (--dur-med). */
+const MS_OUT = 880;
 /** A beat must survive long enough to be looked at, whatever its text says. */
 const MS_BEAT_MIN = 2200;
 /** Reading pace, per character, when the content declares no duration. */
