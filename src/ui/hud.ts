@@ -251,7 +251,6 @@ export class Hud {
       btn.type = 'button';
       btn.className = 'brass-btn hud__tool';
       btn.dataset.panel = tool.panel;
-      btn.dataset.roving = 'off';
       btn.setAttribute('aria-label', `${tool.label} (${tool.key})`);
       btn.setAttribute('aria-keyshortcuts', tool.key);
       btn.innerHTML =
@@ -566,10 +565,15 @@ function artFor(item: Item | undefined, id: string): string {
   const mono = escapeHtml(monogram(name));
   const fallback = `<span class="hud-slot__mono" aria-hidden="true">${mono}</span>`;
   if (!item?.icon) return fallback;
-  return (
-    `<img class="hud-slot__art" src="${escapeHtml(item.icon)}" alt="" draggable="false" ` +
-    `onerror="this.remove()">${fallback}`
-  );
+  // Both are rendered; CSS hides the monogram while real art is present, and
+  // `wireArt` drops the image if it 404s, revealing the monogram again.
+  return `<img class="hud-slot__art" src="${escapeHtml(item.icon)}" alt="" draggable="false">${fallback}`;
+}
+
+/** Removes item art that failed to load so the monogram can take over. */
+function wireArt(root: HTMLElement) {
+  const img = root.querySelector<HTMLImageElement>('.hud-slot__art');
+  if (img) img.addEventListener('error', () => img.remove(), { once: true });
 }
 
 /** First letters of up to two words — enough to tell two keys apart. */
@@ -594,9 +598,9 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-/** Attribute-selector safety for content-authored ids. */
+/** Attribute-selector safety: item ids come from content, not from code. */
 function cssEscape(s: string): string {
-  return CSS.escape ? CSS.escape(s) : s.replace(/["\\]/g, '\\$&');
+  return CSS.escape(s);
 }
 
 function raf(): Promise<void> {
