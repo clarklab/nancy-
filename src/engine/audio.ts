@@ -145,6 +145,26 @@ const poisson = (meanSec: number) => -Math.log(1 - Math.random()) * meanSec;
 const noteHz = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
 
 /**
+ * A single-partial wave with an arbitrary starting phase.
+ *
+ * Every OscillatorNode starts at phase zero, so a dozen LFOs created in the
+ * same frame all peak together and the bed pumps in lockstep for the first
+ * minute. There is no phase argument in the Web Audio API; rotating the real
+ * and imaginary coefficients of a one-partial `PeriodicWave` is the only way to
+ * get one. Detuning is *not* a substitute — it changes the LFO's rate, which
+ * quietly undoes the mutually-prime periods the weather beds depend on to keep
+ * from ever repeating.
+ */
+function phasedSine(ctx: BaseAudioContext): PeriodicWave {
+  const phi = Math.random() * Math.PI * 2;
+  return ctx.createPeriodicWave(
+    new Float32Array([0, Math.cos(phi)]),
+    new Float32Array([0, Math.sin(phi)]),
+    { disableNormalization: true },
+  );
+}
+
+/**
  * Looks a content-supplied string up in one of the exhaustive tables.
  *
  * The tables are keyed by their literal name unions so they cannot drift from
@@ -1611,6 +1631,9 @@ const GESTURES = ['pointerdown', 'keydown', 'touchend'] as const;
  */
 const WAKE_XFADE = 1.2;
 
+/** How many one-shots may be committed against a not-yet-running clock. */
+const PREROLL_LIMIT = 3;
+
 interface ChannelStrip {
   dry: GainNode;
   wet: GainNode;
@@ -1620,13 +1643,17 @@ interface ChannelStrip {
 /**
  * The game's whole sound system.
  *
- * Construction is free and side-effect-free: no AudioContext exists until
- * {@link unlock} runs inside a user gesture, because a context created before
- * one starts suspended, and every bed built against a frozen clock would
- * detonate simultaneously the moment it resumed. Ambience and music requested
- * before unlocking are therefore remembered and applied at that moment, which
- * lets content code call `setAmbience` from a scene's `onEnter` without caring
- * whether the player has clicked yet.
+ * No AudioContext exists until {@link unlock} runs inside a user gesture,
+ * because a context created before one starts suspended, and every bed built
+ * against a frozen clock would detonate simultaneously the moment it resumed.
+ *
+ * Everything downstream of that follows from one rule: **requests are always
+ * accepted, playback is reconciled later**. `setAmbience` and `setMusic` record
+ * what the game wants whether or not the clock is running, and
+ * {@link reconcile} makes the world match on every wake-up — first unlock, tab
+ * return, explicit resume. Content code can therefore call `setAmbience` from a
+ * scene's `onEnter` without knowing anything about gesture policy, and a player
+ * who tabs out in one room and back in another hears the room they are in.
  */
 export class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -1667,6 +1694,8 @@ export class AudioEngine {
    * it, tabbing out and back would cheerfully undo an explicit {@link suspend}.
    */
   private autoSuspended = false;
+  /** One-shots already committed against a frozen clock; see {@link playSound}. */
+  private preroll = 0;
 
   constructor() {
     if (typeof document !== 'undefined') {
@@ -1975,21 +2004,41 @@ export class AudioEngine {
 
   // -- one-shots -----------------------------------------------------------
 
-  /** Fires a one-shot. Silently ignored for unknown names. */
+  /**
+   * Fires a one-shot. Unknown names are ignored.
+   *
+   * The awkward case is the very first sound of the session. Almost every SFX
+   * originates in a click, and a click is also a valid unlock gesture — but
+   * `resume()` is a promise, so by the strict reading the context is not
+   * running yet and the click that starts the game would be the one click in
+   * the whole session you cannot hear. Instead we spend the gesture on an
+   * unlock *and* commit the voice against the frozen clock, where it will fire
+   * a few milliseconds into the resumed timeline. The cap keeps that from
+   * turning into a queue: if the context never wakes, at most a handful of
+   * voices are waiting, and they arrive as a short flurry rather than a wall.
+   */
   playSound(name: string): void {
-    if (!this.ready || !this.strips) {
-      // Almost every SFX in the game originates in a click, so a dropped sound
-      // is very likely also a perfectly good gesture. Spend it: the sound
-      // itself is lost, but the *next* one will be heard.
+    const ctx = this.ctx;
+    if (this.dead || !ctx || !this.strips) {
       this.unlock();
       return;
     }
+
+    if (ctx.state !== 'running') {
+      this.unlock();
+      const hidden = typeof document !== 'undefined' && document.hidden;
+      if (hidden || this.preroll >= PREROLL_LIMIT) return;
+      this.preroll++;
+    } else {
+      this.preroll = 0;
+    }
+
     const factory = lookup(SFX, name);
     if (!factory) return;
     try {
       // A hair of lead time keeps the envelope's first ramp on the schedule
       // rather than in the past, which is what causes clicks on fast clicks.
-      factory(this.strips.sfx.studio, this.ctx!.currentTime + 0.008);
+      factory(this.strips.sfx.studio, ctx.currentTime + 0.008);
     } catch {
       /* a failed sound must never interrupt gameplay */
     }
