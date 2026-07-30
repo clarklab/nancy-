@@ -17,5 +17,9 @@ dist-smoke/
 # never ship — the committed harnesses live in tools/.
 /.*.mjs
 /.*.cjs
-/*-probe.mjs
+/_*.mjs
+/_*.cjs
+/_*.ts
+/*-probe.*
+/*probe*.mjs
 /shoot*.mjs
