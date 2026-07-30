@@ -57,6 +57,17 @@
   container-type: size;
 }
 
+/*
+ * `hidden` must win.
+ *
+ * Almost every part in this file sets `display` — grid, flex — and any of them
+ * silently defeats the UA's `[hidden] { display: none }`. That is not a
+ * cosmetic bug: a stage that is meant to be off would still be laid out, still
+ * be in the tab order, and still be clickable, so a player could answer the
+ * second half of Bottom Shelf while the strongroom was still filling up.
+ */
+.sx [hidden] { display: none !important; }
+
 /* -- the running instruction line ------------------------------------------ */
 
 .sx .sx-step {
@@ -108,6 +119,11 @@
   border: 1px solid color-mix(in srgb, var(--paper-400) 70%, var(--ink-900));
   overflow: hidden;
 }
+
+/* All three parts share row 1. Without the explicit row the auto-placement
+   cursor, having already passed column 2 to reach the tabs in column 3, drops
+   the page onto a second row and the book opens with a blank board at the top. */
+.sx .sx-book > * { grid-row: 1; }
 
 .sx .sx-book-spine {
   grid-column: 1;
@@ -298,10 +314,10 @@
 .sx .sx-lever-knob {
   position: absolute;
   left: 50%;
-  top: 0.12rem;
-  width: 0.86rem;
-  height: 0.86rem;
-  margin-left: -0.43rem;
+  top: 0.1rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-left: -0.45rem;
   border-radius: 50%;
   background-image: radial-gradient(circle at 34% 28%, var(--pz-brass-hi), var(--pz-brass-mid) 52%, var(--pz-brass-lo) 100%);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.7);
@@ -533,19 +549,65 @@
 
 .sx-tw .sx-tw-sheet {
   position: relative;
-  padding: clamp(0.5rem, 2.4cqh, 1.2rem) clamp(0.6rem, 2.2cqw, 1.4rem);
+  padding: clamp(0.7rem, 3.2cqh, 1.6rem) clamp(0.8rem, 3cqw, 2rem);
   background-image:
     var(--pz-grain-paper),
     linear-gradient(172deg, #fbf6e8 0%, #f2ead6 60%, #e6dbc2 100%);
   background-blend-mode: multiply, normal;
-  box-shadow: 0 6px 18px -6px rgb(0 0 0 / 0.45);
+  /* Lying on glass, not floating: a tight contact shadow and a long soft one. */
+  box-shadow:
+    0 1px 1px rgb(0 0 0 / 0.28),
+    0 14px 30px -10px rgb(0 0 0 / 0.5);
   max-width: 100%;
+}
+
+/* The curl of a sheet that has been in a folder since 1998. */
+.sx-tw .sx-tw-sheet::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1.4rem;
+  background: linear-gradient(180deg, transparent, rgb(120 100 66 / 0.12));
+  pointer-events: none;
+}
+
+.sx-tw .sx-tw-sheet-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: clamp(0.4rem, 1.8cqh, 0.9rem);
+  padding-bottom: 0.24rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-400) 70%, transparent);
+}
+
+.sx-tw .sx-tw-sheet-mark {
+  padding: 0 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--blood) 55%, transparent);
+  font-family: var(--font-mono);
+  font-size: clamp(0.4rem, 1.06cqh, 0.52rem);
+  letter-spacing: 0.16em;
+  color: var(--blood);
+}
+
+.sx-tw .sx-tw-sheet-what {
+  font-family: var(--font-mono);
+  font-size: clamp(0.44rem, 1.18cqh, 0.58rem);
+  letter-spacing: 0.06em;
+  color: var(--paper-ink-faded);
+}
+
+.sx-tw .sx-tw-sheet-foot {
+  margin: clamp(0.4rem, 1.8cqh, 0.9rem) 0 0;
+  font-family: var(--font-hand);
+  font-size: clamp(0.6rem, 1.7cqh, 0.86rem);
+  color: #2b3a56;
+  transform: rotate(-0.5deg);
 }
 
 .sx-tw .sx-tw-lines {
   font-family: var(--font-mono);
-  font-size: clamp(0.6rem, 2.05cqh, 1.02rem);
-  line-height: 1.9;
+  font-size: clamp(0.72rem, 2.6cqh, 1.32rem);
+  line-height: 1.85;
   color: var(--paper-ink);
   white-space: nowrap;
 }
@@ -792,7 +854,7 @@
 .sx-bs .sx-bs-vault {
   --tx: 50%;
   --ty: 60%;
-  --tr: 28cqmin;
+  --tr: 44cqmin;
   --tglow: 1;
   --flood: 0;
 
@@ -800,10 +862,15 @@
   min-height: 0;
   overflow: hidden;
   border-radius: var(--radius-sm);
+  /* Not pure black. The door is open a crack at the hinge end — which is how
+     the water is getting in — and there is a corridor bulb somewhere behind
+     it, so the room has just enough structure to be a room and not a bug. */
   background-image:
+    radial-gradient(90% 60% at 4% 96%, rgb(126 157 178 / 0.16) 0%, transparent 62%),
+    linear-gradient(184deg, rgb(126 157 178 / 0.05) 0%, transparent 34%),
     var(--pz-grain-hide),
     linear-gradient(178deg, #0a0d11 0%, #0d1218 46%, #10161d 100%);
-  background-blend-mode: overlay, normal;
+  background-blend-mode: screen, screen, overlay, normal;
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.8), inset 0 6px 26px rgb(0 0 0 / 0.7);
   cursor: none;
 }
@@ -817,15 +884,15 @@
 }
 
 .sx-bs .sx-bs-top {
-  top: 6%;
-  height: 34%;
+  top: 3%;
+  height: 39%;
   border-bottom: 3px solid #1b2229;
   box-shadow: 0 4px 10px rgb(0 0 0 / 0.8);
 }
 
 .sx-bs .sx-bs-shelf {
-  bottom: 6%;
-  height: 46%;
+  bottom: 5%;
+  height: 50%;
   border-bottom: 4px solid #1b2229;
 }
 
@@ -874,9 +941,9 @@
 
   position: absolute;
   left: calc((var(--slot) + 0.5) / 12 * 100%);
-  bottom: calc(6% + var(--rank) * 15%);
-  width: calc(100% / 13.4);
-  height: calc(19% - var(--rank) * 3%);
+  bottom: calc(6% + var(--rank) * 23%);
+  width: calc(100% / 13.2);
+  height: calc(26% - var(--rank) * 4%);
   transform: translateX(-50%);
   padding: 0;
   border: 0;
@@ -907,6 +974,26 @@
   box-shadow: inset 0 0 0 1px rgb(212 174 96 / 0.35), 2px 3px 8px rgb(0 0 0 / 0.8);
 }
 
+/* A gummed label panel, stencilled in the Rolls Room and darkened by
+   twenty-four years of shelf dust. The mark reads as printing on paper, not
+   as a caption on a rectangle. */
+.sx-bs .sx-bs-box-face::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 26%;
+  height: 48%;
+  border-radius: 1px;
+  background-image: linear-gradient(172deg, #cdc4ad, #a99e85);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25), 0 1px 1px rgb(0 0 0 / 0.4);
+}
+
+.sx-bs .sx-bs-box.is-japanned .sx-bs-box-face::after {
+  background-image: linear-gradient(172deg, #2a2f35, #171b1f);
+  box-shadow: inset 0 0 0 1px rgb(212 174 96 / 0.4);
+}
+
 .sx-bs .sx-bs-box-series,
 .sx-bs .sx-bs-box-number {
   position: absolute;
@@ -915,24 +1002,27 @@
   text-align: center;
   font-family: var(--font-mono);
   letter-spacing: 0.02em;
-  color: #e2e7ea;
-  text-shadow: 0 1px 1px rgb(0 0 0 / 0.9);
+  color: #241f18;
   pointer-events: none;
 }
 
 .sx-bs .sx-bs-box-series {
-  top: 30%;
+  top: 32%;
   font-size: clamp(0.32rem, 1.1cqh, 0.54rem);
+  opacity: 0.78;
 }
 
 .sx-bs .sx-bs-box-number {
-  top: 54%;
-  font-size: clamp(0.38rem, 1.35cqh, 0.66rem);
-  color: #fff;
+  top: 50%;
+  font-size: clamp(0.42rem, 1.5cqh, 0.74rem);
+  color: #14100b;
 }
 
 .sx-bs .sx-bs-box.is-japanned .sx-bs-box-series,
-.sx-bs .sx-bs-box.is-japanned .sx-bs-box-number { color: var(--lamp-200); }
+.sx-bs .sx-bs-box.is-japanned .sx-bs-box-number {
+  color: var(--lamp-200);
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.9);
+}
 
 /* The hold ring: two seconds of both arms, drawn as a filling arc. */
 .sx-bs .sx-bs-box-ring {
@@ -945,6 +1035,7 @@
   border-radius: 50%;
   opacity: 0;
   background: conic-gradient(var(--lamp-300) calc(var(--hold) * 360deg), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
   mask: radial-gradient(circle, transparent 58%, #000 60%);
   transition: opacity var(--dur-fast) var(--ease-out);
   pointer-events: none;
@@ -1022,14 +1113,17 @@
   inset: 0;
   z-index: 4;
   pointer-events: none;
+  /* The cone never closes all the way to black. A player who cannot make out
+     the shape of the shelving reads the screen as broken rather than as dark,
+     and the last four per cent of contrast is what stops that happening. */
   background:
     radial-gradient(
       circle var(--tr) at var(--tx) var(--ty),
       rgb(0 0 0 / 0) 0%,
-      rgb(0 0 0 / 0.08) 38%,
-      rgb(4 6 9 / 0.6) 64%,
-      rgb(3 4 6 / 0.94) 86%,
-      #04060a 100%
+      rgb(0 0 0 / 0.06) 42%,
+      rgb(4 6 9 / 0.52) 66%,
+      rgb(3 4 6 / 0.86) 86%,
+      rgb(4 6 10 / 0.95) 100%
     );
 }
 
@@ -1108,15 +1202,28 @@
 }
 
 .sx-bs .sx-bs-pad {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
   min-height: 0;
   overflow: auto;
 }
 
+/* The signature goes at the foot of the page, where a signature goes. */
+.sx-bs .sx-bs-duct .sx-lever { margin-top: auto; }
+
 .sx-bs .sx-bs-frag {
-  padding: 0.4rem 0.55rem;
+  /* Three strips of a pad, filling the page. A transcript that huddles at the
+     top of a black field looks like an unfinished screen; three sheets that
+     take up the room look like a night's work. */
+  flex: 1 1 auto;
+  max-height: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0.8rem;
   border-radius: 1px;
   border-left: 3px solid color-mix(in srgb, var(--ink-500) 80%, transparent);
   background-image:
@@ -1130,7 +1237,7 @@
 .sx-bs .sx-bs-frag[data-done='true'] { border-left-color: var(--verdigris); }
 
 .sx-bs .sx-bs-frag-line {
-  margin: 0 0 0.3rem;
+  margin: 0;
   font-family: var(--font-hand);
   font-size: clamp(0.72rem, 2cqh, 1.05rem);
   line-height: 1.5;
@@ -1433,14 +1540,18 @@
   transition: opacity 90ms linear;
 }
 
+/* The arm pivots at the bench edge, to the left of the sheet, and its angle is
+   literally the reading on the scale: flat is grazing, upright is overhead.
+   It must never cross the paper — a lamp arm lying across the document it is
+   lighting is the one thing a conservator would never allow. */
 .sx-dk .sx-dk-lamparm {
   position: absolute;
-  left: 4%;
-  bottom: 6%;
-  width: 46%;
+  left: 2.5%;
+  bottom: 34%;
+  width: 17%;
   height: 3px;
   transform-origin: 0 50%;
-  transform: rotate(calc(var(--rake-deg, 60) * -0.5deg));
+  transform: rotate(calc(var(--rake-deg, 60) * -1deg));
   background: linear-gradient(90deg, var(--pz-brass-lo), var(--pz-brass-mid) 70%, var(--pz-brass-hi));
   border-radius: 2px;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
@@ -1960,7 +2071,8 @@
 .sx-cl .sx-cl-boxleft {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  justify-content: center;
+  gap: 0.5rem;
   min-height: 0;
   padding: clamp(0.4rem, 1.6cqh, 0.9rem);
   border-radius: var(--radius-sm);
@@ -2094,7 +2206,7 @@
 .sx-cl .sx-cl-plunger {
   grid-area: plunger;
   position: relative;
-  width: clamp(2.6rem, 11cqh, 4.4rem);
+  width: clamp(2.4rem, 9cqh, 3.6rem);
   aspect-ratio: 1;
   border: 0;
   border-radius: 50%;
@@ -2115,6 +2227,22 @@
     inset 0 2px 3px rgb(255 255 255 / 0.28),
     0 5px 10px -2px rgb(0 0 0 / 0.7);
   transition: transform 70ms var(--ease-out), box-shadow 70ms var(--ease-out);
+}
+
+/* The knurled rim. Without it the cap is a brass sphere; with it, it is the
+   crown of a stopwatch and the hand knows what to do with it. */
+.sx-cl .sx-cl-plunger-cap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    rgb(0 0 0 / 0.28) 0deg 3deg,
+    transparent 3deg 7deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%);
+  mask: radial-gradient(circle, transparent 62%, #000 64%);
+  opacity: 0.85;
 }
 
 .sx-cl .sx-cl-plunger-stem {
@@ -2353,7 +2481,7 @@
   content: attr(data-off) ' yd out';
   position: absolute;
   right: 0.3rem;
-  top: 0.25rem;
+  top: calc(0.25rem + var(--badge, 0) * 1.25rem);
   padding: 0 0.28rem;
   font-family: var(--font-mono);
   font-size: 0.52rem;
@@ -2368,7 +2496,7 @@
   content: 'registered';
   position: absolute;
   right: 0.3rem;
-  top: 0.25rem;
+  top: calc(0.25rem + var(--badge, 0) * 1.25rem);
   padding: 0 0.28rem;
   font-family: var(--font-mono);
   font-size: 0.52rem;

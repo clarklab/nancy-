@@ -198,6 +198,23 @@ class Bin {
 }
 
 /**
+ * A progress note that only speaks when it has something new to say.
+ *
+ * Every mechanism here recomputes its progress line on each repaint, and a
+ * repaint happens on every frame of a drag. Pushing the identical sentence
+ * into a polite live region sixty times a second is not a status, it is a
+ * stutter, so the gate drops anything that has not changed.
+ */
+function noteGate(ctx: PuzzleContext): (text: string) => void {
+  let last: string | null = null;
+  return (text: string) => {
+    if (text === last) return;
+    last = text;
+    ctx.note(text);
+  };
+}
+
+/**
  * What is under the centre of a dragged chip.
  *
  * The chip is made transparent to hit-testing for exactly one call, because
@@ -649,9 +666,12 @@ function makeRefBook(opts: {
 /** A brass lever: the deliberate, signed, irreversible act. Never a button. */
 function makeLever(label: string, sub: string, onPull: () => void, feedback?: Feedback): HTMLButtonElement {
   const el = h('button', 'sx-lever', '', { type: 'button' });
+  // The knob lives *inside* the slot. As a sibling it would position itself
+  // against the whole button and end up sitting in the middle of the label.
+  const slot = h('span', 'sx-lever-slot', '', { 'aria-hidden': 'true' });
+  slot.appendChild(h('span', 'sx-lever-knob', '', { 'aria-hidden': 'true' }));
   el.append(
-    h('span', 'sx-lever-slot', '', { 'aria-hidden': 'true' }),
-    h('span', 'sx-lever-knob', '', { 'aria-hidden': 'true' }),
+    slot,
     h('span', 'sx-lever-label', label),
     h('span', 'sx-lever-sub', sub),
   );
@@ -878,6 +898,7 @@ function typewriterSurvey(): PuzzleModule {
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      const note = noteGate(ctx);
       const wrap = h('div', 'sx sx-tw');
       root.appendChild(wrap);
 
@@ -980,9 +1001,33 @@ function typewriterSurvey(): PuzzleModule {
       const setSheet = (glyphs: Glyph[]) => {
         sheetEl.textContent = '';
         loupeInner.textContent = '';
+        const spec = MACHINES.find((m) => m.id === active);
+        // A specimen sheet is a document before it is a puzzle: it carries the
+        // machine, the room, the date it was struck and the practice it was
+        // struck under, in Wren's own hand at the foot.
+        const head = h('div', 'sx-tw-sheet-head');
+        head.append(
+          h('span', 'sx-tw-sheet-mark', active === 'orphan' ? 'UNIDENTIFIED' : 'SPECIMEN'),
+          h(
+            'span',
+            'sx-tw-sheet-what',
+            active === 'orphan'
+              ? 'Accident report, 14 September 1998 — extract, coroner’s file'
+              : `${spec?.name} · ${spec?.room} · ${spec?.year}`,
+          ),
+        );
+        const foot = h(
+          'p',
+          'sx-tw-sheet-foot',
+          active === 'orphan'
+            ? 'No album. No machine. Somebody in this building typed this.'
+            : 'Standard line, Conservancy card 7. Struck once, fresh ribbon, even touch.',
+        );
+        sheetEl.append(head);
         const live = renderSheet(glyphs, true);
         const ghost = renderSheet(glyphs, false);
         sheetEl.appendChild(live.el);
+        sheetEl.appendChild(foot);
         loupeInner.appendChild(ghost.el);
         glyphEls = live.cells;
         ghostEls = ghost.cells;
@@ -1027,8 +1072,21 @@ function typewriterSurvey(): PuzzleModule {
         loupe.style.setProperty('--lx', `${x}px`);
         loupe.style.setProperty('--ly', `${y}px`);
         const size = loupe.offsetWidth || 148;
+        /* The magnified copy is a bare block of lines, but `x` and `y` are
+           measured against the light box — so the copy has to be shifted by
+           wherever the *live* block of lines happens to sit inside the box, or
+           the loupe shows a beautifully rendered piece of blank margin. */
+        const live = sheetEl.querySelector('.sx-tw-lines');
+        let ox = 0;
+        let oy = 0;
+        if (live) {
+          const b = lightbox.getBoundingClientRect();
+          const l = live.getBoundingClientRect();
+          ox = l.left - b.left;
+          oy = l.top - b.top;
+        }
         loupeInner.style.transform =
-          `translate(${size / 2 - x * ZOOM}px, ${size / 2 - y * ZOOM}px) scale(${ZOOM})`;
+          `translate(${size / 2 - (x - ox) * ZOOM}px, ${size / 2 - (y - oy) * ZOOM}px) scale(${ZOOM})`;
       };
 
       const aimLoupeAt = (cell: HTMLElement) => {
@@ -1330,9 +1388,13 @@ function typewriterSurvey(): PuzzleModule {
           if (on && pinned) {
             cell.setAttribute('aria-describedby', 'sx-tw-pinned');
             cell.dataset.tag = defectName(pinned.defect);
+            // The magnified copy carries the annotation too, so the loupe shows
+            // the pencil ring *and* what she wrote beside it.
+            if (ghost) ghost.dataset.tag = defectName(pinned.defect);
           } else {
             cell.removeAttribute('aria-describedby');
             delete cell.dataset.tag;
+            if (ghost) delete ghost.dataset.tag;
           }
         });
       }
@@ -1346,7 +1408,7 @@ function typewriterSurvey(): PuzzleModule {
           const faultEl = el.querySelector('.sx-tw-album-fault')!;
           const stateEl = el.querySelector('.sx-tw-album-state')!;
           if (!pinned) {
-            faultEl.textContent = '—';
+            faultEl.textContent = '— not yet characterised —';
             stateEl.textContent = 'PROVISIONAL';
             el.dataset.holds = 'no';
           } else {
@@ -1394,16 +1456,16 @@ function typewriterSurvey(): PuzzleModule {
         if (attribution === 'imperial-66' && n === MACHINES.length) {
           if (solvedOnce) return;
           solvedOnce = true;
-          ctx.note('Four albums, mounted and dated, and the orphan sheet has a room to live in.');
+          note('Four albums, mounted and dated, and the orphan sheet has a room to live in.');
           ctx.feedback('good');
           ctx.solve();
           return;
         }
         if (n === MACHINES.length) {
-          ctx.note('All four albums hold. The fifth sheet is not signed, dated or accessioned, and it was struck somewhere in this building.');
+          note('All four albums hold. The fifth sheet is not signed, dated or accessioned, and it was struck somewhere in this building.');
           return;
         }
-        ctx.note(
+        note(
           n === 0
             ? 'Four machines, four sheets. Characterise before you compare.'
             : `${wordFor(n)} of the four albums hold.`,
@@ -1589,6 +1651,7 @@ function bottomShelf(): PuzzleModule {
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      const note = noteGate(ctx);
       const wrap = h('div', 'sx sx-bs');
       root.appendChild(wrap);
 
@@ -2007,7 +2070,7 @@ function bottomShelf(): PuzzleModule {
             ? 'Three fragments, none attributed. A woman, and a woman. Which is all she can hold up to a window.'
             : `${wordFor(named.length)} attributed by name, on a recollection taken in the dark, in four inches of water. Somebody will ask her how she knows.`,
         );
-        ctx.note(
+        note(
           named.length === 0
             ? 'Signed, with the gaps left in it.'
             : 'Signed. A name in the speaker column that the paper does not carry.',
@@ -2053,9 +2116,11 @@ function bottomShelf(): PuzzleModule {
       const paintFlood = () => {
         const level = clamp((elapsed - FLOOD_GRACE) / FLOOD_SPAN, 0, 1);
         vault.style.setProperty('--flood', level.toFixed(4));
-        // Battery: the cone closes from a room to a shelf-mark over the run.
+        // Battery: the cone closes from most of a room to a single shelf-mark
+        // over the run, on a square curve — a dry cell does not fade evenly,
+        // it holds up and then gives out.
         const drain = clamp(elapsed / (FLOOD_GRACE + FLOOD_SPAN + 8), 0, 1);
-        const radius = lerp(31, 11.5, drain * drain);
+        const radius = lerp(44, 19, drain * drain);
         const flick = reduced() ? 1 : 0.94 + Math.sin(elapsed * 11.3) * 0.03 + Math.sin(elapsed * 3.1) * 0.03;
         vault.style.setProperty('--tr', `${(radius * flick).toFixed(2)}cqmin`);
         vault.style.setProperty('--tglow', flick.toFixed(3));
@@ -2096,7 +2161,7 @@ function bottomShelf(): PuzzleModule {
         if (!stageADone) {
           const kept = boxes.filter((b) => saved.has(b.id));
           const unique = kept.filter((b) => !b.filmed).length;
-          ctx.note(
+          note(
             kept.length === 0
               ? 'One: which of these exists anywhere else. Two: nothing else matters.'
               : `${wordFor(kept.length)} on the top shelf. ${wordFor(unique)} of them exist nowhere else.`,
@@ -2104,7 +2169,7 @@ function bottomShelf(): PuzzleModule {
           return;
         }
         const done = FRAGMENTS.filter((f) => played.has(f.id) && sureness[f.id] && speakers[f.id]).length;
-        ctx.note(
+        note(
           done === FRAGMENTS.length
             ? 'Three lines, flagged and attributed. Sign it or change it.'
             : `${wordFor(done)} of the three fragments committed.`,
@@ -2130,6 +2195,10 @@ function bottomShelf(): PuzzleModule {
         }
       }
       paintFlood();
+      // Always draw the pad, even while it is hidden behind the strongroom:
+      // the alternative is a stage that arrives blank for one frame, and worse,
+      // a saved game that resumes into an unpainted transcript.
+      drawPad();
 
       if (stageADone) {
         wrap.dataset.stage = 'b';
@@ -2137,7 +2206,6 @@ function bottomShelf(): PuzzleModule {
         duct.hidden = false;
         step.textContent =
           'Forty feet of galvanised duct up to the Wardens’ Hall landing, and two women who will not lower their voices.';
-        drawPad();
         if (signed) {
           // She has already signed it once; the bench is only being reopened.
           say('The transcript is written up. It reads the same as it did at midnight.');
@@ -2152,6 +2220,9 @@ function bottomShelf(): PuzzleModule {
 
       bin.loop((dt) => tickFlood(dt));
       bin.onCleanup(() => {
+        // The water does not stop for a closed bench. Bank the clock on the
+        // way out, or a player could drain the sump by pressing Escape.
+        persist();
         stopBed?.();
         tone.close();
       });
@@ -2343,6 +2414,7 @@ function deakinAuthentication(): PuzzleModule {
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      const note = noteGate(ctx);
       const wrap = h('div', 'sx sx-dk');
       root.appendChild(wrap);
 
@@ -2967,7 +3039,7 @@ function deakinAuthentication(): PuzzleModule {
         ctx.state.adlerFound = state.adler === 'match';
         persist();
         ctx.feedback('good');
-        ctx.note(
+        note(
           state.adler === 'match'
             ? 'Filed. Two failed steps on the form and a third tell nobody asked for.'
             : 'Filed, in the same words she would have used if it had passed.',
@@ -3073,10 +3145,12 @@ function deakinAuthentication(): PuzzleModule {
         const spec = STATIONS.find((s) => s.id === active)!;
         step.textContent = `Step ${spec.numeral} of five — ${spec.name}. Any order; all five.`;
 
-        ctx.note(
+        note(
           doneCount === STATIONS.length
             ? 'Five steps worked. Stamp them and write the finding line.'
-            : `${wordFor(doneCount)} of the five steps worked.`,
+            : doneCount === 0
+              ? 'Five steps. Not one of them done.'
+              : `${wordFor(doneCount)} of the five steps worked.`,
         );
       }
 
@@ -3356,6 +3430,7 @@ function chartLoft(): PuzzleModule {
 
   return {
     mount(root: HTMLElement, ctx: PuzzleContext) {
+      const note = noteGate(ctx);
       const wrap = h('div', 'sx sx-cl');
       root.appendChild(wrap);
 
@@ -3385,6 +3460,7 @@ function chartLoft(): PuzzleModule {
         ctx.state.poses = bag;
         ctx.state.readingOffset = readingOffset;
         ctx.state.readingChamber = readingChamber;
+        ctx.state.pins = pinUnits.map((p) => ({ x: p.x, y: p.y }));
         ctx.save();
       };
 
@@ -3700,11 +3776,13 @@ function chartLoft(): PuzzleModule {
       const rigs = new Map<LayerId, LayerRig>();
       let selected: LayerId = 'sheet-1948';
 
-      for (const spec of LAYERS) {
+      LAYERS.forEach((spec, layerIndex) => {
         const el = h('div', 'sx-cl-layer', '', {
           'data-layer': spec.id,
           'aria-label': `${spec.name} survey sheet: ${spec.sub}. Drag to move; bracket keys rotate; minus and equals scale.`,
         });
+        // Three sheets, three residual badges, one corner. Stack them.
+        el.style.setProperty('--badge', String(layerIndex));
         const spin = h('div', 'sx-cl-spin');
         const svg = sv('svg', {
           class: 'sx-cl-svg',
@@ -3772,16 +3850,23 @@ function chartLoft(): PuzzleModule {
         );
 
         rigs.set(spec.id, { spec, el, spin, drag, registered: false });
-      }
+      });
 
       // -- the dividers ------------------------------------------------------
       const dividers = h('div', 'sx-cl-dividers', '', { 'aria-hidden': 'false' });
       const pins: Control<{ x: number; y: number }>[] = [];
       const pinEls: HTMLElement[] = [];
+      // Parked in clear water, close enough to the fixes to be obviously *for*
+      // them and far enough that setting them is still the player's act — or
+      // wherever the save says they were left.
+      const savedPins = asList(ctx.state.pins);
       const pinStart: { x: number; y: number }[] = [
-        { x: 300, y: 566 },
-        { x: 400, y: 566 },
-      ];
+        { x: 512, y: 556 },
+        { x: 624, y: 556 },
+      ].map((home, i) => {
+        const rec = asBag(savedPins[i]);
+        return { x: asNum(rec.x, home.x), y: asNum(rec.y, home.y) };
+      });
       const legs = sv('svg', {
         class: 'sx-cl-legs',
         viewBox: `0 0 ${CHART_W} ${CHART_H}`,
@@ -4075,6 +4160,7 @@ function chartLoft(): PuzzleModule {
       // The chamber is a click target on the 1948 sheet, live once it registers.
       const chamberHit = h('button', 'sx-cl-chamberhit', '', {
         type: 'button',
+        hidden: 'hidden',
         'aria-label': 'The chamber on the 1948 inset, twenty feet by twelve',
       });
       chamberHit.addEventListener('click', () => enterChamber(), { signal: bin.signal });
@@ -4135,7 +4221,7 @@ function chartLoft(): PuzzleModule {
 
       function tally() {
         if (stage === 'a') {
-          ctx.note(
+          note(
             lightId
               ? 'The light is named. Upstairs to the loft.'
               : 'Three flashes is not a light. Three flashes and a period is a light.',
@@ -4145,14 +4231,22 @@ function chartLoft(): PuzzleModule {
         const n = [...rigs.values()].filter((r) => r.registered).length;
         const reads = (readingOffset ? 1 : 0) + (readingChamber ? 1 : 0);
         if (n < LAYERS.length) {
-          ctx.note(`${wordFor(n)} of the three sheets lie down on the marks.`);
+          note(
+            n === 1
+              ? 'One of the three sheets lies down on the marks.'
+              : `${wordFor(n)} of the three sheets lie down on the marks.`,
+          );
           return;
         }
         if (reads < 2) {
-          ctx.note(`Registered. ${wordFor(reads)} of the two readings entered.`);
+          note(
+            reads === 0
+              ? 'All three registered. Neither reading entered yet.'
+              : 'All three registered. One reading entered; one to go.',
+          );
           return;
         }
-        ctx.note('The light, the track and the room that was not there.');
+        note('The light, the track and the room that was not there.');
         ctx.feedback('good');
         ctx.solve();
       }
@@ -4215,6 +4309,7 @@ function chartLoft(): PuzzleModule {
       });
 
       bin.onCleanup(() => {
+        persist();
         stopHiss?.();
         tone.close();
       });

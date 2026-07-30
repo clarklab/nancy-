@@ -361,7 +361,7 @@ const ORDER_BOOK: BookPage[] = [
     lines: [
       ['09.10', 'Duplicating Room booked, Warden’s Office, 09.10 to 09.30.'],
       ['11.00', 'Scaffold licence, north elevation, renewed for one month.'],
-      ['16.20', 'Accident. Mr C. Sallow, Rolls Room stair. Ambulance called 16.31.'],
+      ['15.55', 'Accident. Mr C. Sallow, muniment gallery north bay. Ambulance called 16.06.'],
       ['17.00', 'Strongroom wound. Closed 17.00, to open 08.00.'],
       ['—', 'Building secured by the Warden. Night porter stood down at 18.00.'],
     ],

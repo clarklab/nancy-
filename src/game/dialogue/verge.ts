@@ -68,7 +68,7 @@ export const vergeTrees: DialogueTree[] = [
         id: 'ott-a1-06',
         playerLine: 'Who typed the index cards?',
         reply:
-          'I did, dear, near enough all of them, on the Underwood by the window because the light’s better and the Imperial jumps its e. Fifty years of my own handwriting in capitals. You’ll know it when you see it.',
+          'I did, dear, near enough all of them, on the Underwood by the window because the light’s better and the Imperial’s a has been filling up with muck since before you were born. Fifty years of my own hand, all in capitals. You’ll know it when you see it.',
         once: true,
       },
     ],

@@ -807,6 +807,52 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
         ],
       },
       {
+        id: 'deakin-bench',
+        label: 'The Deakin letter, laid out under glass',
+        shape: at(0.33, 0.42, 0.2, 0.16),
+        cursor: 'puzzle',
+        huntable: true,
+        visibleIf: inAct(3),
+        enabledIf: has('deakin-letter'),
+        blockedEffects: [
+          think(
+            'Clean glass, a weighted tape measure and five stamps in a row, and nothing on the bench to put under them.',
+            'The sheet is still in Rita’s campaign file in the lamp room, because she has not yet decided whether I am the sort of person you hand a thing like that to.',
+          ),
+        ],
+        onInteract: [
+          when(
+            unsolved('puz-deakin-authentication'),
+            [
+              // The kit normally comes off the casebook on the first Act III
+              // visit; grant it here too so arriving at the bench first can
+              // never leave her holding a document and no way to test it.
+              when(lacks('fibre-loupe'), [
+                take('fibre-loupe'),
+                take('paper-gazetteer'),
+                take('beta-radiograph-sheets'),
+              ]),
+              sound('paper-rustle'),
+              think(
+                'One sheet of white bond, creased in four, with a pasted envelope corner and a signature in blue biro that has pressed a groove into the back of the paper.',
+                'It says the beacon was dark. It says they were told to say nothing. It says, in four sentences, the exact thing I have spent four days assembling out of ledgers and dust, and it says it in a way no Board could strike.',
+                'Which is precisely why it goes under the lamp before it goes anywhere near a citation column. Raking light, chain lines, fibre at forty power, the frank, the ribbon. Five steps. Do all five.',
+                'Doing four is how you get the answer you came in with.',
+              ),
+              puzzle('puz-deakin-authentication'),
+            ],
+            [
+              clue('clue-deakin-letter'),
+              think(
+                'ARDWELL BOND, first manufactured June 1981. A Cardew frank on an office that struck its last item on the thirtieth of September 1972.',
+                'Two independent tells, either of which is fatal on its own, on a sheet dated the fourth of March 1975.',
+                'It sits under the glass where I left it, and it is still the most persuasive thing in this building, and it is still not true, and both of those go on being the case at the same time.',
+              ),
+            ],
+          ),
+        ],
+      },
+      {
         id: 'dust-jars',
         label: 'Dust reference jars',
         shape: at(0.78, 0.56, 0.16, 0.18),

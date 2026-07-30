@@ -211,9 +211,14 @@
   box-shadow: var(--lg-sunk);
 }
 
-.lg-key.is-done {
+/* A key that has been used is worn, not switched off: it still reads as
+   brass, and it still says what it did. */
+.lg-key.is-done,
+.lg-key.is-done:disabled {
   background-image: var(--pz-grain-brass), var(--lg-brass-worn);
   filter: none;
+  box-shadow: var(--lg-sunk);
+  color: color-mix(in srgb, var(--ink-abyss) 62%, var(--lamp-600));
 }
 
 .lg-key.is-page {
@@ -706,8 +711,10 @@
 /* -- the sorting frame ----------------------------------------------------- */
 
 .lg-cards .fc-frame {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  justify-content: space-evenly;
   gap: 0.5em;
   padding: 0.55em;
   border-radius: var(--radius-sm);
@@ -800,12 +807,13 @@
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: stretch;
+  align-items: center;
   gap: 0.5em;
 }
 
 .lg-cards .fc-colbox {
   min-width: 0;
+  align-self: center;
   display: flex;
   flex-direction: column;
   padding: 0.5em;
@@ -831,13 +839,15 @@
   color: var(--lg-ink-faded);
 }
 
+/* Seven lines, at a fixed pitch: a column of a collation is a ruled column,
+   not a stretched one, and the fourth line is always the one at the brass. */
 .lg-cards .fc-col {
-  flex: 1 1 auto;
+  flex: none;
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  grid-template-rows: repeat(7, minmax(0, 1fr));
+  grid-auto-rows: 1.9em;
   gap: 1px;
 }
 
@@ -899,17 +909,16 @@
 }
 
 .lg-cards .fc-gutter {
+  align-self: center;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4em;
-  padding: 0 0.2em;
+  align-items: stretch;
+  padding: 1.9em 0.25em;
 }
 
+/* The brass reading edge, with a nib at the height of the line in hand. */
 .lg-cards .fc-reading-line {
+  position: relative;
   width: 0.42em;
-  flex: 1 1 auto;
   border-radius: 99px;
   background: linear-gradient(
     to right,
@@ -918,6 +927,27 @@
     var(--pz-brass-mid)
   );
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.6);
+}
+
+.lg-cards .fc-reading-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1em;
+  height: 1em;
+  margin: -0.5em 0 0 -0.5em;
+  rotate: 45deg;
+  border-radius: 2px;
+  background-image: var(--lg-brass);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.6);
+}
+
+.lg-cards .fc-keys {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5em;
 }
 
 .lg-cards .fc-collate.is-refused .fc-columns {
@@ -1864,6 +1894,14 @@
   gap: 0.6em;
 }
 
+/* Grid children default to min-height:auto, and twenty-seven ruled rows will
+   happily push the cast off the bottom of the bench if you let them. */
+.lg-recon .rc-books,
+.lg-recon .rc-form,
+.lg-recon .rc-finding {
+  min-height: 0;
+}
+
 /* -- the three books -------------------------------------------------------- */
 
 .lg-recon .rc-books {
@@ -2543,6 +2581,12 @@
   box-shadow: var(--lg-lift), inset 0 0 0 1px color-mix(in srgb, var(--blood) 30%, transparent);
 }
 
+/* The link's own key sits under its citations at the width of a key, not of
+   the sheet: a full-bleed bar reads as a banner, not as a thing you press. */
+.lg-board .bd-link .lg-key.is-read {
+  justify-self: start;
+}
+
 .lg-board .bd-counters {
   display: grid;
   gap: 0.4em;
@@ -2840,6 +2884,570 @@
 }
 
 /* ===========================================================================
+   puz-postmasters-register — the Post Room
+   ========================================================================= */
+
+.lg-post .pm-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(13em, 0.9fr);
+  gap: 0.6em;
+}
+
+.lg-post .pm-stage {
+  gap: 0.55em;
+  justify-content: center;
+  min-height: 0;
+}
+
+.lg-post .pm-shelf,
+.lg-post .pm-book-side,
+.lg-post .pm-entries,
+.lg-post .pm-column {
+  min-height: 0;
+}
+
+/* -- the meter --------------------------------------------------------------- */
+
+/* Post Office red-brown crackle enamel over a cast frame, with the two
+   register windows set into the face like a pair of spectacles. */
+.lg-post .pm-meter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8em;
+  padding: 0.8em;
+  border-radius: var(--radius-sm);
+  background-image: var(--grain-fine),
+    linear-gradient(
+      158deg,
+      color-mix(in srgb, var(--blood) 30%, var(--ink-700)) 0%,
+      color-mix(in srgb, var(--blood) 14%, var(--ink-900)) 62%,
+      var(--ink-abyss) 100%
+    );
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--lg-edge), var(--lg-lift-hi);
+}
+
+.lg-post .pm-meter-face {
+  display: grid;
+  gap: 0.5em;
+}
+
+.lg-post .pm-window {
+  position: relative;
+  display: grid;
+  gap: 0.2em;
+  padding: 0.35em 0.5em 0.4em;
+  border-radius: 2px;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-800));
+  box-shadow: var(--lg-sunk), 0 0 0 2px color-mix(in srgb, var(--pz-brass-lo) 70%, transparent);
+}
+
+.lg-post .pm-window-digits {
+  display: flex;
+  gap: 1px;
+}
+
+.lg-post .pm-window-digit {
+  display: grid;
+  place-items: center;
+  min-width: 1.1em;
+  padding: 0.1em 0.12em;
+  font-family: var(--font-mono);
+  font-size: 1.5em;
+  color: var(--paper-ink);
+  background: linear-gradient(
+    92deg,
+    color-mix(in srgb, var(--paper-200) 66%, var(--ink-700)) 0%,
+    var(--paper-100) 34%,
+    var(--paper-200) 70%,
+    color-mix(in srgb, var(--paper-300) 76%, var(--ink-700)) 100%
+  );
+  box-shadow: inset 0 -3px 4px -3px rgb(0 0 0 / 0.6);
+}
+
+/* The shutter rolls up as the drum is cranked. Nothing is legible until it is
+   fully open, because a half-read register is how you invent a figure. */
+.lg-post .pm-shutter {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0%;
+  transform: scaleY(calc(1 - var(--open, 0)));
+  background: repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--ink-700) 90%, transparent) 0 3px,
+      color-mix(in srgb, var(--ink-900) 92%, transparent) 3px 6px
+    );
+  box-shadow: 0 3px 6px -2px rgb(0 0 0 / 0.7);
+}
+
+.lg-post .pm-window.is-open {
+  box-shadow: var(--lg-sunk), 0 0 0 2px var(--lamp-400), var(--glow-lamp-soft);
+}
+
+.lg-post .pm-meter-controls {
+  display: flex;
+  gap: 1.6em;
+  align-items: center;
+  padding: 0 0.6em;
+}
+
+.lg-post .pm-key-well,
+.lg-post .pm-crank-well {
+  display: grid;
+  justify-items: center;
+  gap: 0.25em;
+}
+
+/* The warrant key, in the escutcheon, quarter-turn. */
+.lg-post .pm-key {
+  position: relative;
+  width: 3.2em;
+  height: 4.6em;
+  display: grid;
+  place-items: start center;
+  rotate: var(--rot, 0deg);
+  transform-origin: 50% 34%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.lg-post .pm-key-bow {
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  background-image: var(--lg-brass);
+  box-shadow: var(--lg-lift), inset 0 0 0 0.32em color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+.lg-post .pm-key-bit {
+  position: absolute;
+  top: 1.9em;
+  width: 0.4em;
+  height: 2.5em;
+  background-image: linear-gradient(to right, var(--pz-brass-lo), var(--pz-brass-hi), var(--pz-brass-mid));
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
+}
+
+.lg-post .pm-key-bit::after {
+  content: '';
+  position: absolute;
+  right: -0.42em;
+  bottom: 0.2em;
+  width: 0.42em;
+  height: 0.5em;
+  background: inherit;
+}
+
+.lg-post .pm-key:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.lg-post .pm-stage.is-unlocked .pm-key-bow {
+  box-shadow: var(--lg-lift), var(--glow-lamp), inset 0 0 0 0.32em color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+.lg-post .pm-crank {
+  position: relative;
+  width: 4.6em;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  rotate: var(--rot, 0deg);
+  background: radial-gradient(
+    circle at 40% 34%,
+    color-mix(in srgb, var(--pz-specular) 30%, transparent) 0%,
+    transparent 46%
+  ),
+  conic-gradient(
+    from 200deg,
+    var(--pz-brass-lo) 0deg,
+    var(--pz-brass-mid) 80deg,
+    var(--pz-brass-hi) 150deg,
+    var(--pz-brass-mid) 240deg,
+    var(--pz-brass-lo) 360deg
+  );
+  box-shadow: var(--lg-lift), inset 0 0 0 1px rgb(0 0 0 / 0.4);
+  cursor: grab;
+  touch-action: none;
+}
+
+.lg-post .pm-crank-arm {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 0.3em;
+  height: 38%;
+  margin-left: -0.15em;
+  border-radius: 99px;
+  background: linear-gradient(to bottom, var(--pz-brass-hi), var(--pz-brass-lo));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+.lg-post .pm-crank-handle {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: -0.4em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, var(--ink-600), var(--ink-abyss));
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.6);
+}
+
+.lg-post .pm-crank:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* -- transcription ------------------------------------------------------------ */
+
+.lg-post .pm-entry {
+  display: grid;
+  gap: 0.35em;
+  justify-items: start;
+  padding: 0.6em 0.7em;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(162deg, var(--ink-700), var(--ink-900));
+  box-shadow: var(--lg-edge), var(--lg-lift);
+}
+
+.lg-post .pm-entry-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.lg-post .pm-entry-label {
+  min-width: 13em;
+  font-size: 0.82em;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* -- the post book and the column ---------------------------------------------- */
+
+.lg-post .pm-book {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 0.5em;
+}
+
+.lg-post .pm-book-side {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: 0.5em;
+  border-radius: 1px;
+  background-image: var(--pz-grain-paper), var(--lg-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--lg-lift);
+  color: var(--lg-ink);
+}
+
+.lg-post .pm-book-side .lg-cap {
+  color: var(--lg-ink-faded);
+  text-shadow: none;
+}
+
+.lg-post .pm-entries,
+.lg-post .pm-column {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lg-post .pm-entry-line {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 0.4em;
+  width: 100%;
+  padding: 0.16em 0.3em;
+  border: 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--paper-400) 70%, transparent);
+  background: transparent;
+  font: inherit;
+  font-size: 0.8em;
+  text-align: left;
+  color: var(--lg-ink);
+  cursor: pointer;
+}
+
+.lg-post .pm-entry-line:hover:not(:disabled),
+.lg-post .pm-entry-line:focus-visible {
+  outline: none;
+  background: color-mix(in srgb, var(--lamp-300) 28%, transparent);
+}
+
+.lg-post .pm-entry-n,
+.lg-post .pm-column-n {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--lg-ink-faded);
+}
+
+.lg-post .pm-entry-service {
+  font-size: 0.85em;
+  font-style: italic;
+  color: var(--lg-ink-faded);
+}
+
+.lg-post .pm-entry-p,
+.lg-post .pm-column-p {
+  font-family: var(--font-mono);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+/* Carried: ticked and ruled off, the way a post book is worked. */
+.lg-post .pm-entry-line.is-carried {
+  cursor: default;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.lg-post .pm-entry-line.is-carried .pm-entry-n::after {
+  content: '✓';
+  margin-left: 0.2em;
+  color: var(--lg-ink-red);
+}
+
+.lg-post .pm-book-side.is-column {
+  background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 1.45em,
+      color-mix(in srgb, var(--lg-ink-blue) 20%, transparent) 1.45em 1.5em
+    ),
+    var(--pz-grain-paper),
+    var(--lg-paper);
+  background-blend-mode: normal, multiply, normal;
+}
+
+.lg-post .pm-column-line {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr) auto;
+  gap: 0.4em;
+  height: 1.5em;
+  align-items: baseline;
+  font-family: var(--font-hand);
+  font-size: 0.9em;
+  color: var(--lg-ink-blue);
+}
+
+.lg-post .pm-column-to {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lg-post .pm-column-line.is-seventeenth {
+  color: var(--lg-ink-red);
+  font-weight: 600;
+  border-top: 1px solid color-mix(in srgb, var(--blood) 50%, transparent);
+}
+
+.lg-post .pm-column-total {
+  margin: 0.2em 0 0;
+  padding-top: 0.2em;
+  border-top: 2px solid var(--lg-ink-red);
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+  text-align: right;
+  color: var(--lg-ink);
+}
+
+/* Disagreement is a double rule and a mark, not a colour. */
+.lg-post .pm-column-total.is-adverse::after {
+  content: ' ≠';
+  color: var(--lg-ink-red);
+}
+
+.lg-post .pm-column-total.is-agreed::after {
+  content: ' ✓';
+}
+
+/* -- the gap ------------------------------------------------------------------- */
+
+.lg-post .pm-gap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+.lg-post .pm-gap-cell {
+  flex: 1 1 8em;
+  display: grid;
+  justify-items: center;
+  gap: 0.1em;
+  padding: 0.5em 0.7em;
+  border-radius: var(--radius-sm);
+  background-image: var(--pz-grain-paper), var(--lg-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--lg-lift);
+  color: var(--lg-ink);
+}
+
+.lg-post .pm-gap-cell .lg-cap {
+  color: var(--lg-ink-faded);
+  text-shadow: none;
+}
+
+.lg-post .pm-gap-val {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.5em;
+}
+
+.lg-post .pm-gap-sub {
+  margin: 0;
+  font-size: 0.78em;
+  font-style: italic;
+  color: var(--lg-ink-faded);
+}
+
+.lg-post .pm-gap-cell.is-gap {
+  color: var(--lg-ink-red);
+  box-shadow: var(--lg-lift), inset 0 0 0 2px color-mix(in srgb, var(--blood) 45%, transparent);
+}
+
+/* -- the shelf ------------------------------------------------------------------ */
+
+.lg-post .pm-shelf {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  padding: 0.5em;
+  border-radius: var(--radius-sm);
+  background-image: var(--grain-hide), var(--lg-wood);
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--lg-edge), var(--lg-lift);
+}
+
+.lg-post .pm-shelf-tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.lg-post .pm-shelf-tab {
+  flex: 1 1 0;
+  padding: 0.25em 0.2em;
+  border: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font: inherit;
+  font-size: 0.66em;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--ink-900) 74%, transparent);
+  box-shadow: var(--lg-sunk);
+}
+
+.lg-post .pm-shelf-tab.is-open {
+  color: var(--accent-strong);
+  background: color-mix(in srgb, var(--lamp-600) 24%, var(--ink-900));
+}
+
+.lg-post .pm-shelf-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  padding: 0.5em 0.6em 0.6em;
+  border-radius: 1px;
+  background-image: var(--pz-grain-paper), var(--lg-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--lg-lift);
+  color: var(--lg-ink);
+}
+
+.lg-post .pm-shelf-title {
+  margin: 0 0 0.35em;
+  font-family: var(--font-display);
+  font-size: 1.05em;
+  letter-spacing: 0.05em;
+}
+
+.lg-post .pm-rules {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.25em;
+}
+
+.lg-post .pm-rule {
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+  line-height: 1.45;
+  color: var(--lg-ink-faded);
+}
+
+/* Rule 6 is the one with the drawing-pin straight through it. */
+.lg-post .pm-rule.is-pinned {
+  position: relative;
+  padding: 0.2em 0.4em 0.2em 1.2em;
+  color: var(--lg-ink);
+  background: color-mix(in srgb, var(--lamp-300) 22%, transparent);
+  box-shadow: inset 2px 0 0 var(--lg-ink-red);
+}
+
+.lg-post .pm-rule.is-pinned::before {
+  content: '';
+  position: absolute;
+  left: 0.35em;
+  top: 0.5em;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, var(--blood-bright), var(--blood) 60%, var(--ink-900));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+
+.lg-post .pm-card-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4em;
+  padding: 0.22em 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--paper-400) 70%, transparent);
+}
+
+.lg-post .pm-card-text {
+  font-family: var(--font-mono);
+  font-size: 0.74em;
+  color: var(--lg-ink);
+}
+
+.lg-post .pm-card-line .lg-key.is-carry {
+  flex: none;
+  font-size: 0.66em;
+  padding: 0.25em 0.45em;
+}
+
+.lg-post .pm-shelf-note {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.92em;
+  line-height: var(--leading-body);
+  font-style: italic;
+  color: var(--lg-ink-faded);
+}
+
+/* ===========================================================================
    Narrow benches
    ========================================================================= */
 
@@ -2877,6 +3485,12 @@
 
   .lg-board .bd-slot {
     flex-basis: 100%;
+  }
+
+  .lg-post .pm-body,
+  .lg-post .pm-book,
+  .lg-post .pm-meter {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

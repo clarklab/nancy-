@@ -210,7 +210,12 @@ async function main() {
       await page.waitForFunction(() => window.game?.__test?.ready === true, { timeout: 30_000 });
       // Narration blocks on a player click by design; without auto-advance the
       // arrival beat of the first scene would hang every driver.
-      await page.evaluate(() => window.game.__test.setAutoAdvance(40));
+      await page.evaluate(() => {
+        window.game.__test.setAutoAdvance(40);
+        // Conversations are paced by the player, so without this a capture
+        // lands mid-typewriter and the shot shows a half-written line.
+        window.game.__test.setTextSpeed('instant');
+      });
       await shot.drive(page);
       await page.waitForTimeout(shot.settle);
 

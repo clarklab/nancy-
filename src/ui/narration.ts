@@ -249,6 +249,27 @@ export class Narration {
 }
 
 /**
+ * Milliseconds per revealed character, from the Text speed setting.
+ *
+ * `applySettings` publishes the choice on the root element alongside every
+ * other discrete mode, so it is read at the top of each line rather than
+ * captured once — changing the setting mid-scene takes effect on the next
+ * line instead of the next reload. `0` means print the line at once.
+ *
+ * `normal` is ~34ms: it reads as spoken without testing patience.
+ */
+export function msPerChar(normal = 34): number {
+  switch (document.documentElement.dataset.textSpeed) {
+    case 'instant':
+      return 0;
+    case 'slow':
+      return Math.round(normal * 1.85);
+    default:
+      return normal;
+  }
+}
+
+/**
  * Reveals text character by character. Returns a function that completes the
  * reveal immediately — the "click to finish the line" affordance every
  * adventure game needs.
@@ -259,7 +280,8 @@ function typewrite(
   reduced: boolean,
   onDone: () => void,
 ): () => void {
-  if (reduced) {
+  const perChar = msPerChar();
+  if (reduced || perChar === 0) {
     el.textContent = text;
     onDone();
     return () => {};
@@ -268,8 +290,6 @@ function typewrite(
   let i = 0;
   let raf = 0;
   let last = performance.now();
-  // ~34ms per character reads as "spoken" without testing patience.
-  const perChar = 34;
 
   const tick = (now: number) => {
     const due = Math.floor((now - last) / perChar);

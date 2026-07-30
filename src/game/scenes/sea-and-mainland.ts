@@ -16,6 +16,7 @@ import {
   at,
   clue,
   exit,
+  flagged,
   goto,
   has,
   inAct,
@@ -707,11 +708,39 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
           ),
         ],
       }),
+      // The Act III turn fires up the hill, at Pike's kitchen table, which puts
+      // Wren on the wrong side of the water at the exact moment the weather
+      // shuts it. The crossing therefore has to survive one act longer than the
+      // fiction's "causeway closes" — she gets the last of it, wading, and it
+      // closes behind her. The headland side (`causeway-head`) stays Act III
+      // only, so from Act IV on she is cut off in the direction that matters.
       exit('to-causeway', 'Back to the causeway', at(0.0, 0.56, 0.1, 0.34), 'slipway-and-ritas-shed', {
         cursor: 'walk-back',
-        enabledIf: untilAct(3),
+        enabledIf: untilAct(4),
         blockedEffects: [
           think('The causeway is six feet under and the road round is forty miles. Not tonight.'),
+        ],
+        before: [
+          when(inAct(4), [
+            // The pole stands at the Cardew turn, which is the corner the
+            // causeway road leaves the village on. She cannot walk out of here
+            // without passing it, so the Aldis lamp on the roof of Pilotage
+            // House can never become unreachable through simple inattention.
+            when(flagged('line-down', false), [
+              sound('thunder'),
+              shake(0.4),
+              set('line-down'),
+              think(
+                'The pole at the turn is down across the wall with the wires in the hedge, and it has been down about an hour.',
+                'No telephone to Rossport. No telephone to Halkett. No telephone to the police.',
+              ),
+            ]),
+            think(
+              'Water over the crown already, and the marker posts leaning east with it. Knee-deep at the third post and thigh-deep at the seventh, and the weed going over my boots like something alive.',
+              'Forty minutes, and behind me the whole of it goes under and stays under. Nobody is coming out to this headland and I am not going back off it.',
+              'Which is, I think, the point at which this stops being an appraisal.',
+            ),
+          ]),
         ],
       }),
     ],

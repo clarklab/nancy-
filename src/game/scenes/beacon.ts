@@ -108,7 +108,10 @@ export const beaconScenes: Record<SceneId, Scene> = {
             ],
             [
               sound('lock-refuse'),
-              think('Padlocked. Bronze, seized, and no amount of anything is opening it without its key.'),
+              think(
+                'A keeper’s padlock, bronze, with twenty-four winters of green grown into the shackle.',
+                'It has seized shut, not open. Without its key this is nine feet of granite and a door I could stand at until the tide takes me.',
+              ),
             ],
           ),
         ],

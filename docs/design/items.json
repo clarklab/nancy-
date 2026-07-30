@@ -1,0 +1,514 @@
+{
+ "items": [
+  {
+   "id": "commission-s41",
+   "name": "Commission under Section 41",
+   "description": "Four leaves of heavy laid foolscap in a buff Conservancy wrapper, tied with green tape. An embossed seal at the foot of the last page, a countersignature in violet ink, and a wavy grey tide-mark across leaves two and three where the sea got in.",
+   "category": "document"
+  },
+  {
+   "id": "conservation-kit",
+   "name": "Conservancy Field Kit",
+   "description": "A canvas tool roll, unrolled: bone folder, brass microspatula, a folded square of Gore-Tex membrane, a pad of white blotters, a small glass plate, a lead weight in a felt sleeve, and eight numbered instruction cards tucked into the lid.",
+   "category": "tool"
+  },
+  {
+   "id": "casebook",
+   "name": "The Casebook",
+   "description": "A wire-bound notebook with a marbled cover gone soft at the corners, a pencil through the spiral, and every page ruled by hand into three columns: ASSERTION, SOURCE, CITATION. A passport photograph of a silver-haired woman is clipped inside the front cover.",
+   "category": "personal"
+  },
+  {
+   "id": "fibre-loupe",
+   "name": "Fibre Loupe",
+   "description": "A blackened brass cylinder about the length of a thumb, with a knurled focusing collar, a ground-glass base ring and 40× cut into the barrel above a maker’s name half worn away.",
+   "category": "tool"
+  },
+  {
+   "id": "hooded-torch",
+   "name": "Hooded Torch",
+   "description": "A rubber-collared works torch with a black tin hood clipped over the lens to throw a narrow cone, the barrel scratched to bare metal and a strip of masking tape on it reading ILBERRY STORE — RETURN.",
+   "category": "tool"
+  },
+  {
+   "id": "paper-gazetteer",
+   "name": "Conservancy Paper-Stock Gazetteer",
+   "description": "A squat blue-cloth handbook, thumb-indexed, swollen at the fore-edge from damp and re-sewn along the spine with linen thread. Mounted specimen chips are tipped in along the margins.",
+   "category": "tool"
+  },
+  {
+   "id": "beta-radiograph-sheets",
+   "name": "Beta-Radiograph Reference Sheets",
+   "description": "A stiff card folder of transparent films, each a ghostly grey-white image of a sheet of paper with its chain lines and watermark standing out like a skeleton, numbered in the corner in white chinagraph.",
+   "category": "tool"
+  },
+  {
+   "id": "shaving-mirror",
+   "name": "Shaving Mirror",
+   "description": "A small round bevelled mirror on a folding chrome stand, the silvering going black in a crescent along one edge, taken off a washstand shelf and never returned.",
+   "category": "tool"
+  },
+  {
+   "id": "dividers",
+   "name": "Dividers and Parallel Rule",
+   "description": "A pair of brass-jointed steel dividers with worn needle points, and a mahogany-and-brass parallel rule, both lifted out of a felt-lined drawer in the Chart Loft with a chandler’s label still gummed inside the lid.",
+   "category": "tool"
+  },
+  {
+   "id": "treasury-tag",
+   "name": "Squared Treasury Tag",
+   "description": "A short length of green waxed string with a flat metal bar swaged at each end, tied off in a neat squared knot, tail under, loop left.",
+   "category": "personal"
+  },
+  {
+   "id": "ten-pence-pieces",
+   "name": "Pocketful of Tens",
+   "description": "A loose handful of ten-pence pieces, some of the big old ones, some of the small new ones, wrapped in a torn strip of paper bag with a total pencilled on it.",
+   "category": "personal"
+  },
+  {
+   "id": "dry-bag",
+   "name": "Rita’s Dry Bag",
+   "description": "A scuffed orange roll-top bag in heavy proofed fabric, the closure a stiff plastic clip, a shackle and a length of blue cord knotted through the eyelet, salt-bloomed white along the folds.",
+   "category": "tool"
+  },
+  {
+   "id": "crowbar",
+   "name": "Crowbar",
+   "description": "A four-foot forged steel wrecking bar, gooseneck at one end and a chisel blade at the other, mill-scale black with the working edges polished bright, a smear of yellow site paint at the balance point.",
+   "category": "tool"
+  },
+  {
+   "id": "strongroom-key",
+   "name": "Strongroom Key",
+   "description": "A long steel lever key, five inches, the bit deeply and irregularly cut, hanging from a brass fob stamped 3 and a slip of card in copperplate reading STRONGROOM ANTE.",
+   "category": "key"
+  },
+  {
+   "id": "beacon-padlock-key",
+   "name": "Nine Bells Padlock Key",
+   "description": "A stubby brass padlock key gone green in the wards, on a loop of tarred marline, with a boxwood tally tag burnt N. BELLS — ENTRANCE and a second, later tag in biro that says the same thing.",
+   "category": "key"
+  },
+  {
+   "id": "sallow-letter",
+   "name": "Cormac Sallow’s Letter, 11 September 1998",
+   "description": "A single sheet of cheap lined writing pad, folded in three, in a large upright hand in blue ballpoint that presses hard enough to emboss the back. Two forwarding stamps and a Conservancy date stamp in the top corner.",
+   "category": "document"
+  },
+  {
+   "id": "liabilities-schedule",
+   "name": "Schedule of Outstanding Liabilities",
+   "description": "Four foolscap sheets clipped at the head, ruled and typed in a column of numbered items with a money column at the right, several items ruled through in red with an initial and a date beside them.",
+   "category": "document"
+  },
+  {
+   "id": "specimen-sheets",
+   "name": "Four Typewriter Specimen Sheets",
+   "description": "Four half-sheets of clean bank paper, each with the same three lines struck on it and a pencilled note of the machine, the room and the date at the foot. The typescript on each is a slightly different colour of black.",
+   "category": "document"
+  },
+  {
+   "id": "specimen-album",
+   "name": "Typewriter Specimen Album",
+   "description": "A double casebook spread with the four specimens tipped in on paper hinges, each glyph of interest ringed in pencil and labelled in a small careful hand: CLOGGED COUNTER, RIDING HIGH, DOUBLING, DROPPING.",
+   "category": "document"
+  },
+  {
+   "id": "meter-card-book",
+   "name": "Meter Card Book",
+   "description": "A slim oblong book of perforated card counterfoils, each stamped by the Post Office with a date and two six-figure readings, the used ones torn out along the perforation and the stubs remaining in date order since 1961.",
+   "category": "document"
+  },
+  {
+   "id": "fourpenny-die",
+   "name": "The Superseded Fourpenny Die",
+   "description": "A small steel meter die on a knurled boss, the printing face a mirror-reversed crown and value with the figures 4d, the whole thing furred with dried red ink and wrapped in a twist of oiled paper.",
+   "category": "tool"
+  },
+  {
+   "id": "ash-fragments",
+   "name": "Fragments from the Ash Grate",
+   "description": "Fourteen irregular pieces of charred paper floating in an enamel tray of cold water, black and curling at the edges, the largest the size of a hand, one carrying two legible words in reversed carbon-purple.",
+   "category": "evidence"
+  },
+  {
+   "id": "notice-74-119-carbon",
+   "name": "Scorched Carbon of Notice 74/119",
+   "description": "A sheet of thin flimsy reassembled from fourteen fragments between two glass plates, brown-edged and holed, the carbon typescript purple-black and the char line running across it like a coastline.",
+   "category": "evidence"
+  },
+  {
+   "id": "pelagia-manifest",
+   "name": "Pelagia Passenger and Crew Manifest",
+   "description": "Three foolscap carbons stapled at the corner, a typed list of names with ages, embarkation port and berth, and a later hand adding a small pencil cross beside thirty-one of them.",
+   "category": "document"
+  },
+  {
+   "id": "quinquennial-review-notice",
+   "name": "Quinquennial Review Notice, 22 July 1974",
+   "description": "A single Ministry circular on thin blue-tinged paper with a printed crown at the head, three paragraphs, a reference number, and a rubber date stamp of receipt across the corner.",
+   "category": "document"
+  },
+  {
+   "id": "order-book-working-copy",
+   "name": "Order Book (Working Copy)",
+   "description": "A slim oblong duplicate book in limp black cloth, the pages ruled in narrow columns of dates and times in a dozen different hands, a rubber band round it and a strip of card marking 1974.",
+   "category": "document"
+  },
+  {
+   "id": "flimsy-page-two",
+   "name": "Page Two of Notice 74/119",
+   "description": "A single sheet of blue-black flimsy, pressed flat and slightly cockled, the typescript grey where the ribbon was tired, the top edge showing a rusty offset where a paperclip sat for twenty-four years.",
+   "category": "evidence"
+  },
+  {
+   "id": "notice-74-119",
+   "name": "Notice to Mariners 74/119, complete",
+   "description": "Two sheets under glass in a Melinex sleeve, side by side: a fire-eaten purple carbon and a clean blue-black flimsy, the type of both continuing across the join in the same measure and the same tired ribbon.",
+   "category": "evidence"
+  },
+  {
+   "id": "naismiths-bank-letter",
+   "name": "Naismith’s Bank Letter, 15 August 1974",
+   "description": "Engraved bank letterhead on heavy cream wove, six typed lines and a fountain-pen signature with a manager’s name typed beneath it, a rusty pin-hole through the top left corner.",
+   "category": "evidence"
+  },
+  {
+   "id": "want-list",
+   "name": "The Want-List",
+   "description": "A casebook page torn out along the perforation and folded once, seven accession numbers written down the left margin in pencil with a ruled column beside them, three of the lines already annotated.",
+   "category": "document"
+  },
+  {
+   "id": "dust-jar-6",
+   "name": "Dust Reference Jar 6",
+   "description": "A small screw-top glass specimen jar a third full of pale grey dust, with a gummed label in pencil: 6 — MUNIMENT GALLERY, N. BAY, FLOOR, BEHIND MAP PRESSES — 28.x.98 — W.A.",
+   "category": "evidence"
+  },
+  {
+   "id": "coroner-exhibit-4",
+   "name": "Coroner’s Exhibit 4",
+   "description": "A brown paper evidence envelope, string-and-washer closure, seals broken and re-signed twice, containing the folded turn-ups cut from a pair of grey worsted trousers with grey dust still lodged in the seam.",
+   "category": "evidence"
+  },
+  {
+   "id": "dust-comparison",
+   "name": "Dust Comparison Slides",
+   "description": "Two glass microscope slides taped side by side on a card mount, each with a smear of grey dust under a cover slip, labelled JAR 6 and EX. 4, with a pencilled note of magnification and date beneath.",
+   "category": "evidence"
+  },
+  {
+   "id": "deakin-letter",
+   "name": "The Deakin Letter",
+   "description": "A single typed sheet of white bond, creased in four as though carried in a pocket, with a smudged circular postmark on a pasted-on envelope corner and a signature in blue biro that presses through the paper.",
+   "category": "evidence"
+  },
+  {
+   "id": "memo-wo-89-2",
+   "name": "Memorandum W/O 89/2",
+   "description": "Two typed sheets with a schedule stapled behind, the Authority’s printed memorandum head, a firm upright signature in black ink and a policy-file punch through the top margin.",
+   "category": "document"
+  },
+  {
+   "id": "binocular-glasses",
+   "name": "The Ardent’s Glasses",
+   "description": "A heavy pair of brass-bound 7×50 marine binoculars in cracked black leather, the eyecups perished, a broad canvas strap, and a brass plate on the bridge engraved with a dealer’s name in Rossport.",
+   "category": "tool"
+  },
+  {
+   "id": "admiralty-list-1974",
+   "name": "Admiralty List of Lights, 1974",
+   "description": "A thick official volume in stiff blue paper covers with the year in white on the spine, foxed at the fore-edge, opened flat at a ruled table of columns: number, name, position, characteristic, elevation, range.",
+   "category": "document"
+  },
+  {
+   "id": "schedule-d-plates",
+   "name": "Schedule D and its Address Plates",
+   "description": "A typed distribution list of numbered addressees, and beside it a shallow wooden tray of embossed metal address plates in their runners, brass-edged, the first plate standing slightly proud of the rest.",
+   "category": "document"
+  },
+  {
+   "id": "mortar-sample",
+   "name": "Mortar Sample",
+   "description": "Two thumb-sized lumps of set mortar in a labelled polythene bag, one pale and gritty with visible lime lumps, the other grey, dense and smooth, with a scale card behind them.",
+   "category": "evidence"
+  },
+  {
+   "id": "approach-surveys",
+   "name": "Three Surveys of the Nine Bells Approach",
+   "description": "Three rolled sheets held with tape ties: two on brittle linen-backed cartridge, one on modern film, all three carrying the same three small triangulation crosses and a printed scale bar along the foot.",
+   "category": "document"
+  },
+  {
+   "id": "feaver-timing-note",
+   "name": "Norah Feaver’s Timing",
+   "description": "A casebook page in pencil, headed with a date and a telephone number, covered in short tally strokes in three rows with times written beside them and one figure circled twice.",
+   "category": "document"
+  },
+  {
+   "id": "light-characteristic-note",
+   "name": "Characteristic Comparison: Nine Bells / Cadran",
+   "description": "A ruled casebook spread with two timing diagrams drawn one above the other in pencil — three short marks and a long gap, twice, at different spacings — and the List of Lights entries copied out beneath each with their numbers.",
+   "category": "evidence"
+  },
+  {
+   "id": "marigraph-drum-44",
+   "name": "Marigraph Drum 1974/44",
+   "description": "A brass-ended cylinder wrapped in a sheet of smoked paper, the black lampblack surface scratched through by a fine continuous curve that rises and falls twice across the sheet, with dates inked on the trailing edge.",
+   "category": "evidence"
+  },
+  {
+   "id": "tide-tables-1974",
+   "name": "Admiralty Tide Tables, 1974",
+   "description": "A limp-bound volume of dense figure tables with a transparent overlay of predicted tidal curves tucked inside the back board, the cover ringed by a wet cup and the corner gnawed by something.",
+   "category": "document"
+  },
+  {
+   "id": "tide-surge-finding",
+   "name": "Tidal Finding, 3 November 1974",
+   "description": "A drum trace and a printed prediction curve pinned together over a light box, the two lines diverging visibly toward the right-hand edge, with the gap measured off in pencil and a figure written against it twice.",
+   "category": "evidence"
+  },
+  {
+   "id": "inquiry-working-papers",
+   "name": "Rossport Inquiry Working Papers",
+   "description": "A fat untidy bundle of foolscap tied crosswise with faded pink tape, edges cockled and spotted with mould bloom, no file cover, no accession label, a compliments slip from the assessor’s clerk on top.",
+   "category": "document"
+  },
+  {
+   "id": "rejects-list",
+   "name": "Persons Considered and Not Called",
+   "description": "Four foolscap sheets of numbered names and one-line reasons, typed with a lower-case e riding slightly high, several entries carrying a small neat tick in the left margin in soft pencil.",
+   "category": "evidence"
+  },
+  {
+   "id": "oil-requisition-book",
+   "name": "Oil Requisition Book, Nine Bells 1966–1980",
+   "description": "A wide quarter-bound counterfoil book with marbled boards, worn white at the corners, the stubs bearing carbon impressions and three of them struck across with a large rubber stamp in faded red.",
+   "category": "evidence"
+  },
+  {
+   "id": "despatch-book",
+   "name": "Despatch Book 1970–79",
+   "description": "A heavy oblong ledger in green buckram with a red leather spine label, the pages ruled into fortnightly dockets of contents, addressee counts and postage, and one line ruled through in fine pencil.",
+   "category": "evidence"
+  },
+  {
+   "id": "lamp-report-15aug",
+   "name": "Lamp Superintendent’s Report, 15 August 1974",
+   "description": "A single typed foolscap on the Authority’s printed report form, boxes filled in with figures, a large plain signature at the foot, and a red pencil ring round one line of the stores return.",
+   "category": "evidence"
+  },
+  {
+   "id": "reconciliation-form",
+   "name": "Conservancy Reconciliation Form",
+   "description": "A large ruled pro-forma sheet, twenty-seven week rows and four money columns headed DUES COLLECTED, WAGES PAID, OIL DRAWN and DIFFERENCE, the first rows filled in in pencil in a small upright hand.",
+   "category": "document"
+  },
+  {
+   "id": "cash-book-1974",
+   "name": "Cash Book, 1974",
+   "description": "A thick ledger in oxblood buckram, boards scorched black along one edge and the fore-edge swollen with water, the ruled pages inside dry and intact, a hand-ruled extra column pencilled in at the right of the December spread.",
+   "category": "evidence"
+  },
+  {
+   "id": "sallow-r755",
+   "name": "Sallow’s File Copy of R.755",
+   "description": "A yellow flimsy carbon counterfoil, softened and furred at the folds from being carried in a pocket, a red rubber stamp across the face and a signature in indelible pencil on the front.",
+   "category": "evidence"
+  },
+  {
+   "id": "postmark-gazetteer",
+   "name": "Post Office Gazetteer of Sorting Offices",
+   "description": "A fat red-cloth reference volume, thumb-indexed, dense with tiny facsimile postmark rings printed four to a line, each with an office code and two dates in brackets.",
+   "category": "tool"
+  },
+  {
+   "id": "adverse-report",
+   "name": "Adverse Report on the Deakin Letter",
+   "description": "A Conservancy pro-forma of five numbered test boxes, each ticked PASS or FAIL, with a finding line at the foot in a small hand and a signature and date beneath a carbon of the same sheet.",
+   "category": "document"
+  },
+  {
+   "id": "revocation-fax",
+   "name": "Ministry Fax, 16:20, 1 November",
+   "description": "A curling length of thermal fax roll, grey-black type already beginning to fade at the head, a machine header line of numbers and times printed across the top, torn off square at the foot.",
+   "category": "document"
+  },
+  {
+   "id": "works-order-75188",
+   "name": "Works Order 75/188",
+   "description": "A small buff works docket with printed boxes for trade, materials and hours, filled in in ink in a builder’s hand, a builder’s thumbprint in cement dust at the corner and pencil initials at the foot.",
+   "category": "document"
+  },
+  {
+   "id": "forty-eight-signatures",
+   "name": "Forty-Eight Documents Signed A. Ferrier",
+   "description": "A squared stack of paper of eight different stocks and four different sizes, interleaved with tissue and held under a glass plate, every sheet carrying the same name in ink at the foot in a hand that varies from firm to a bad tremor.",
+   "category": "evidence"
+  },
+  {
+   "id": "nurse-kilbride-ledger",
+   "name": "Nurse Kilbride’s Visit Ledger, 1974",
+   "description": "A district nurse’s pocket ledger in limp black oilcloth, ruled columns of date, patient, address and treatment in a small round hand, the pages cockled and the last third unused.",
+   "category": "evidence"
+  },
+  {
+   "id": "munn-mileage-claims",
+   "name": "Dr Munn’s Locum Mileage Claims",
+   "description": "A sheaf of small printed expenses claims on pink paper, dates and mileages in a doctor’s scrawl, each initialled by a cashier and stamped PAID with a date, spiked through the corner and rethreaded on tape.",
+   "category": "document"
+  },
+  {
+   "id": "order-book-1972-76",
+   "name": "Warden’s Order Book 1972–1976",
+   "description": "A large half-bound ledger in oxblood with brass corner pieces, opened flat to show a gap in the gutter where a block of leaves has been cut out close to the sewing, the stubs a clean bright razor line.",
+   "category": "evidence"
+  },
+  {
+   "id": "biscuit-tin",
+   "name": "The Biscuit Tin",
+   "description": "A dented oblong tin printed with a faded coronation scene, the lid held on with a perished rubber band, containing a folded letter, three buttons, a lock of hair in tissue and a bus ticket.",
+   "category": "personal"
+  },
+  {
+   "id": "deferment-letter",
+   "name": "Cass Verge’s Deferment Letter",
+   "description": "A single sheet on the Authority’s letterhead, folded in three to fit a tin, the folds worn through to a hole at the crossing, four typed lines and initials in soft pencil at the foot.",
+   "category": "evidence"
+  },
+  {
+   "id": "sundries-memo",
+   "name": "Memorandum to the Cashier, 6 November 1974",
+   "description": "A quarter-sheet memorandum slip, printed head, one typed sentence, folded twice and permanently creased into a shallow rectangle the size of a cash-book cover, initials in soft pencil below.",
+   "category": "evidence"
+  },
+  {
+   "id": "gpo-trunk-account",
+   "name": "GPO Itemised Trunk Account, Q4 1974",
+   "description": "A long concertina-folded computer printout on green-lined paper, columns of dates, exchange names, times, durations and amounts in shillings and pence, one line ticked in the margin in ballpoint.",
+   "category": "evidence"
+  },
+  {
+   "id": "petty-cash-voucher",
+   "name": "Petty Cash Travel Voucher, 4 November 1974",
+   "description": "A small printed voucher on flimsy pink paper, gummed into a stub book and torn along the perforation, the amount in a ruled money box and two signatures, one claiming and one authorising.",
+   "category": "evidence"
+  },
+  {
+   "id": "ribbon-spool-september",
+   "name": "Used Ribbon Spool, September 1998",
+   "description": "A black-inked fabric typewriter ribbon on a two-inch metal spool, tied off with cotton, a small buff docket wired to the flange in a cashier’s handwriting, the ribbon showing a faint continuous relief of struck characters.",
+   "category": "evidence"
+  },
+  {
+   "id": "site-diary",
+   "name": "Sandbach’s Site Diary",
+   "description": "A stout A4 hardback in a scuffed plastic wallet, ruled day by day, entries numbered and written in biro in a big fast hand, cement dust ground into the gutter and a rubber band round the used half.",
+   "category": "evidence"
+  },
+  {
+   "id": "ferry-booking-extract",
+   "name": "Certified Extract, Ferry Booking Book",
+   "description": "A photocopied ledger page with a handwritten certification in the margin, a ferry company rubber stamp across the join and a signature and date beneath, stapled to a covering slip.",
+   "category": "document"
+  },
+  {
+   "id": "slip-r982211",
+   "name": "Requisition Slip R98/2211 (pink carbon)",
+   "description": "A small pink carbon slip torn from a stub book, the printed boxes filled in in two different hands, the time in the corner, Standing Order 7 printed in six-point type across the reverse.",
+   "category": "evidence"
+  },
+  {
+   "id": "board-working-file",
+   "name": "The Warden’s Board Working File",
+   "description": "A stout manila folder with a treasury tag through the top corner, twenty-six foliated duplicator copies inside, an index sheet in front, and the endorsement written on the outside third, upside down to the tag.",
+   "category": "evidence"
+  },
+  {
+   "id": "keepers-log",
+   "name": "Nine Bells Keeper’s Log",
+   "description": "A slim salt-stained log book in limp grey board, swollen along the spine, ruled columns of date, hour, wind, visibility and remarks in pencil, the last written line halfway down a page and everything after it blank.",
+   "category": "evidence"
+  },
+  {
+   "id": "kestrel-mandate",
+   "name": "The Kestrel Bequest",
+   "description": "A solicitor’s deed in a stiff blue wrapper tied with tape, a bank mandate on a printed form, and a fanfold standing-order schedule of thirty-one lines: initials, surname, sort code, amount, index clause.",
+   "category": "evidence"
+  },
+  {
+   "id": "commission-minute",
+   "name": "Conservancy Commission Minute",
+   "description": "A single typed minute sheet with a printed Conservancy head, three numbered paragraphs, two initialled amendments in the margin and a nomination line with a date typed at the end of it.",
+   "category": "document"
+  },
+  {
+   "id": "aldis-lamp",
+   "name": "Aldis Signalling Lamp",
+   "description": "A heavy pistol-gripped signalling lamp with a wide plated reflector, a trigger for the shutter and a coiled rubber lead with bared copper at the end, dulled with salt and a tarpaulin’s worth of dust.",
+   "category": "tool"
+  },
+  {
+   "id": "signal-book",
+   "name": "The Signal Book",
+   "description": "A pocket-sized book in stiff waxed covers with a lanyard hole, the pages printed with code tables, flag plates in colour and a Morse alphabet inside the front board, swollen and rippled by rain.",
+   "category": "document"
+  },
+  {
+   "id": "spoil-sheet",
+   "name": "Misfed Duplicator Sheet",
+   "description": "A single sheet of duplicator bank creased hard across the middle where the drum caught it, one side a smeared half-impression running off the edge, the other side clean but for a faint offset image.",
+   "category": "evidence"
+  },
+  {
+   "id": "charter-1811",
+   "name": "Charter of the Brannock Pilotage Authority, 1811",
+   "description": "A large vellum membrane, gone honey-coloured and slightly cockled, engrossed in a heavy chancery hand with a great seal in a tin skippet hanging from a plaited cord at the foot.",
+   "category": "document"
+  },
+  {
+   "id": "sector-plates",
+   "name": "Brass Occulting Sector Plates",
+   "description": "Three curved brass plates in a fitted wooden box lined with green baize, each pierced with a slotted arc and a locking screw, the outer faces engraved with degree graduations and rubbed bright at the tangs.",
+   "category": "tool"
+  },
+  {
+   "id": "fresnel-panel",
+   "name": "The Returned Fresnel Panel",
+   "description": "A tall curved panel of stepped prismatic glass in a bronze frame, wrapped in a red fleece and half unwound, the concentric rings catching light along their edges, one bronze land freshly scratched by a crate nail.",
+   "category": "tool"
+  },
+  {
+   "id": "case-file",
+   "name": "The Case File",
+   "description": "A Conservancy file board tied with green tape, eight tabbed dividers standing proud of the top edge, every sheet foliated in the corner and a citation column ruled down the right of each page in pencil.",
+   "category": "document"
+  },
+  {
+   "id": "notice-74-119-retyped",
+   "name": "Notice to Mariners 74/119, retyped",
+   "description": "A crisp new foolscap typed on the Imperial 66, the lower-case a a solid black lozenge throughout, a manuscript note of the delay at the foot, and a second sheet behind it listing thirty-one names.",
+   "category": "document"
+  },
+  {
+   "id": "notice-74-119-issued",
+   "name": "Notice to Mariners 74/119, issued",
+   "description": "A sealed envelope on top of a stacked batch, addressed from a brass plate, carrying one bright vermilion franking impression reading 4d and a date twenty-four years after the one typed inside it.",
+   "category": "evidence"
+  },
+  {
+   "id": "s41-certificate",
+   "name": "Section 41 Certificate",
+   "description": "A single heavy sheet with a printed Conservancy head and an embossed blind stamp, a schedule of series references in a ruled table, and a wide empty box at the foot for a signature and a date.",
+   "category": "document"
+  },
+  {
+   "id": "referral-form",
+   "name": "Homicide Referral Form",
+   "description": "A police pro-forma on grey stock with a carbon behind it, blocked into sections for the deceased, the circumstances and the proposed offence, most of it still blank and a biro lying across the fold.",
+   "category": "document"
+  }
+ ]
+}

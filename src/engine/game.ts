@@ -528,6 +528,17 @@ export class Game implements Presenter {
       /** Lets a harness re-enable normal click-to-advance pacing. */
       setAutoAdvance: (ms: number | null) => this.narration.setAutoAdvance(ms),
 
+      /**
+       * Prints every line at once.
+       *
+       * Narration completes its own reveal under auto-advance, but a
+       * conversation is paced by the player, so a capture otherwise lands
+       * mid-typewriter and the shot shows a half-written line.
+       */
+      setTextSpeed: (speed: 'slow' | 'normal' | 'instant') => {
+        document.documentElement.dataset.textSpeed = speed;
+      },
+
       openJournal: (tab?: string) => {
         this.journal.open(tab as never);
       },

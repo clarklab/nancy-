@@ -42,6 +42,8 @@ import {
   registerPuzzle,
 } from '@/ui/puzzle-host';
 
+import '@/styles/puzzles-cipher.css';
+
 // ===========================================================================
 // Workshop stock — helpers shared by all four mechanisms
 // ===========================================================================

@@ -15,6 +15,7 @@
  */
 
 import { preload } from '@/engine/scene-view';
+import { msPerChar as msPerCharFor } from '@/ui/narration';
 import type { GameState } from '@/engine/state';
 import type { Character, Condition, DialogueNode, DialogueTree } from '@/engine/types';
 
@@ -54,6 +55,8 @@ const MS_PICK = 190;
 const MS_PLATE_STAGGER = 55;
 /** ~30ms/char reads as speech without testing patience. Matches narration. */
 const MS_PER_CHAR = 30;
+/** The Text speed setting applied to that rate. `0` prints the line at once. */
+const msPerChar = () => msPerCharFor(MS_PER_CHAR);
 /** Only every third glyph ticks, and never faster than this. */
 const TICK_EVERY = 3;
 const MS_TICK_MIN = 52;
@@ -429,7 +432,8 @@ export class DialogueView {
    * rather than being swallowed completing an already-complete line.
    */
   private typewrite(text: string, onDone: () => void): Reveal | null {
-    if (reduced()) {
+    const perChar = msPerChar();
+    if (reduced() || perChar === 0) {
       this.textEl.textContent = text;
       onDone();
       return null;
@@ -441,7 +445,7 @@ export class DialogueView {
     let lastTick = 0;
 
     const tick = (now: number) => {
-      const due = Math.floor((now - last) / MS_PER_CHAR);
+      const due = Math.floor((now - last) / perChar);
       if (due > 0) {
         const before = i;
         i = Math.min(text.length, i + due);

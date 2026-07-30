@@ -595,13 +595,13 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
         onInteract: [
           clue('clue-sallow-1975-transcript'),
           tell(
-            'DAY 9. Mr Pargeter: And the Nine Bells light was exhibited throughout the material period?',
-            'Mr Sallow: The light was on the establishment throughout, sir.',
-            'Mr Pargeter: Thank you. That is what I asked.',
+            'DAY 9. Sir Roderick Balgowan: Was the light exhibited on the night of the third of November?',
+            'Mr Sallow: The light was not discontinued.',
+            'Sir Roderick Balgowan: Thank you. We come to the buoyage.',
           ),
           think(
-            'On the establishment. That is an administrative answer to a question about a physical fact, and it is not a lie, and no barrister in that room noticed.',
-            'He was asked whether a lamp was burning and he answered about a schedule, and a dead pilot has been paying for the difference for twenty-four years.',
+            'Not discontinued. That is an administrative answer to a question about a physical fact, and it is not a lie, and nobody in that room turned a hair.',
+            'He was asked whether a lamp was burning and he answered about a schedule, and then they went on to the buoyage, and a dead pilot has been paying for the difference for twenty-four years.',
           ),
         ],
       },

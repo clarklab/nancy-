@@ -8,10 +8,13 @@
  * actually was, a ruled form that will not agree however many times you cast
  * it, and a Board that strikes anything you cannot hold up to a window.
  *
+ *   puz-postmasters-register   The Machine That Cannot Lie — two registers, one book
  *   puz-forty-seven-cards      The Forty-Seven Cards   — sorting frame, collation
- *   puz-chart-loft             Three Flashes           — stopwatch, registration
  *   puz-reconciliation         The Third Column        — three books, one form
  *   puz-board-of-dissolution   The Board of Dissolution — eight links, cited
+ *
+ * A fifth, `chartLoftLogicVariant`, is a complete take on the Chart Loft that
+ * the sensory batch ended up owning; it is kept compiled and unregistered.
  *
  * Four rules hold across all four.
  *
@@ -672,7 +675,7 @@ function fortySevenCards(): PuzzleModule {
       const rod = h('span', 'fc-drawer-rod');
       rod.setAttribute('aria-hidden', 'true');
       const grid = h('div', 'fc-grid');
-      attrs(grid, { role: 'grid', 'aria-label': 'Index cards, drawers 214 to 216' });
+      attrs(grid, { role: 'group', 'aria-label': 'Index cards, drawers 214 to 216' });
       drawerBox.append(rod, grid);
 
       const tiles: HTMLButtonElement[] = [];
@@ -730,10 +733,10 @@ function fortySevenCards(): PuzzleModule {
         tile.type = 'button';
         tile.tabIndex = i === 0 ? 0 : -1;
         tile.dataset.stock = card.stock;
-        attrs(tile, {
-          role: 'gridcell',
-          'aria-label': `${card.acc}. ${card.subject}`,
-        });
+        // `aria-pressed`, not `aria-selected`: "drawn off by the frame" is a
+        // state of the card, and a screen reader should say so on every one of
+        // the forty-seven without the player having to hunt for a tray.
+        attrs(tile, { 'aria-pressed': 'false', 'aria-label': `${card.acc}. ${card.subject}` });
         tile.append(h('span', 'fc-card-acc', card.acc), h('span', 'fc-card-tick'));
         tile.addEventListener('click', () => {
           focusTile(i);
@@ -801,7 +804,7 @@ function fortySevenCards(): PuzzleModule {
           if (hit) drawn++;
           if (hit !== TARGET.has(card.acc)) exact = false;
           tiles[n].classList.toggle('is-drawn', hit);
-          tiles[n].setAttribute('aria-selected', hit ? 'true' : 'false');
+          tiles[n].setAttribute('aria-pressed', hit ? 'true' : 'false');
         });
         trayCount.textContent = String(drawn);
         tray.classList.toggle('is-exact', exact);
@@ -925,7 +928,9 @@ function fortySevenCards(): PuzzleModule {
         struckBefore: boolean,
       ) => {
         list.textContent = '';
-        for (let n = at - 2; n <= at + 4; n++) {
+        // Three lines above, three below: the line under examination sits at
+        // the brass reading edge in the middle, where a finger would hold it.
+        for (let n = at - 3; n <= at + 3; n++) {
           const li = h('li', 'fc-line');
           if (n < 0 || n >= entries.length) {
             li.classList.add('is-void');
@@ -1037,7 +1042,7 @@ function fortySevenCards(): PuzzleModule {
       );
 
       const gutter = h('div', 'fc-gutter');
-      gutter.append(h('span', 'fc-reading-line'), agreed, noPaper);
+      gutter.append(h('span', 'fc-reading-line'));
 
       const cols = h('div', 'fc-columns');
       const colBox = (title: string, sub: string, list: HTMLElement) => {
@@ -1058,6 +1063,7 @@ function fortySevenCards(): PuzzleModule {
           'Only boxes 4 and 17 were released at the counter; the other seventeen cards keep.',
         ]),
         cols,
+        box('fc-keys', agreed, noPaper),
         h('p', 'fc-want-head', 'WANT-LIST'),
         wantRack,
       );
@@ -1579,7 +1585,9 @@ export function chartLoftLogicVariant(): PuzzleModule {
           label: 'Measured characteristic',
           bounds: stageA,
           feedback: ctx.feedback,
-          onDrop: () => {
+          onDrop: (p) => {
+            // A press that never travelled is not a drop.
+            if (Math.abs(p.x) < 5 && Math.abs(p.y) < 5) return;
             const r = chit.getBoundingClientRect();
             const cx = r.left + r.width / 2;
             const cy = r.top + r.height / 2;
@@ -2630,12 +2638,15 @@ function reconciliation(): PuzzleModule {
             r.row.style.setProperty('--ink-delay', `${(i - page.from) * 70}ms`);
             r.row.classList.add('is-inked');
           }
-          if (openBook === 'oil' && carried.oil === 3) {
+          // The page lever always turns the leaf for you: the discipline this
+          // exercise enforces is *order*, and a book that stalls on the page
+          // you have just finished is a fiddle, not a discipline.
+          const firstBlankOil = openBook === 'oil' && carried.oil === 3;
+          if (carried[openBook] < PAGES.length) openPage = carried[openBook];
+          paintBook();
+          if (firstBlankOil) {
             ctx.note('September, and the Oil Requisition Book is ruled, dated and empty. Strike the column nil and go on.');
-          } else if (carried[openBook] < PAGES.length) {
-            openPage = carried[openBook];
-            paintBook();
-          } else {
+          } else if (carried[openBook] >= PAGES.length) {
             ctx.note(`${BOOKS.find((b) => b.id === openBook)!.column} carried, all twenty-seven weeks.`);
           }
         },
@@ -3314,8 +3325,19 @@ function boardOfDissolution(): PuzzleModule {
 
       const standing = () => LINKS.filter((l) => verdictOf(l) !== 'open' && verdictOf(l) !== 'struck').length;
       const allRead = () => LINKS.every((l) => readLinks.has(l.id));
+      /**
+       * Every rebuttal that was actually *put* has been dealt with.
+       *
+       * A struck link is never rebutted — Pargeter does not trouble to answer
+       * an assertion that has already gone — so its counters stay unanswered
+       * for ever. Requiring them would lock the referral shut behind a door
+       * that cannot open, and a player who recovered nothing would reach the
+       * last five minutes of the game and find no way through it.
+       */
       const allAnswered = () =>
-        LINKS.every((l) => answers.get(l.id)!.every((a, i) => a !== null || l.counters[i] === undefined));
+        LINKS.every(
+          (l) => verdictOf(l) === 'struck' || answers.get(l.id)!.every((a) => a !== null),
+        );
 
       const paintTally = () => {
         const read = LINKS.filter((l) => readLinks.has(l.id)).length;
@@ -3483,6 +3505,8 @@ function boardOfDissolution(): PuzzleModule {
         const slots = link.slots.map((_, i) => {
           const s = h('button', 'bd-slot');
           s.type = 'button';
+          s.dataset.link = link.id;
+          s.dataset.slot = String(i);
           s.addEventListener('click', () => placeInSlot(link, i), { signal: rig.signal });
           slotRow.appendChild(s);
           return s;
@@ -3509,24 +3533,28 @@ function boardOfDissolution(): PuzzleModule {
           makeDraggable(chip, {
             label: `${ex.name}, exhibit ${ex.acc}`,
             feedback: ctx.feedback,
-            onDrop: () => {
+            onDrop: (p) => {
               const r = chip.getBoundingClientRect();
               const cx = r.left + r.width / 2;
               const cy = r.top + r.height / 2;
               ctl.set({ x: 0, y: 0 }, true);
-              for (const link of LINKS) {
-                if (readLinks.has(link.id)) continue;
-                const els = linkEls.get(link.id)!;
-                for (let i = 0; i < els.slots.length; i++) {
-                  const q = els.slots[i].getBoundingClientRect();
-                  if (cx >= q.left && cx <= q.right && cy >= q.top && cy <= q.bottom) {
-                    if (placed.get(link.id)![i]) return;
-                    inHand = ex.clue;
-                    placeInSlot(link, i);
-                    return;
-                  }
-                }
-              }
+              // A press that never travelled is a *click*, and the click
+              // handler owns it. Without this, tapping a chip would also
+              // "drop" it on whatever the drawer happens to be sitting over.
+              if (Math.abs(p.x) < 5 && Math.abs(p.y) < 5) return;
+              // elementFromPoint rather than rectangle arithmetic, so a slot
+              // scrolled under the sticky drawer cannot be hit through it.
+              chip.style.visibility = 'hidden';
+              const under = document.elementFromPoint(cx, cy);
+              chip.style.removeProperty('visibility');
+              const slot = under?.closest<HTMLElement>('.bd-slot');
+              const linkId = slot?.dataset.link;
+              const index = Number(slot?.dataset.slot ?? -1);
+              if (!linkId || !Number.isInteger(index) || index < 0) return;
+              const link = LINKS.find((l) => l.id === linkId);
+              if (!link || readLinks.has(link.id) || placed.get(link.id)![index]) return;
+              inHand = ex.clue;
+              placeInSlot(link, index);
             },
           }),
         );
@@ -3610,7 +3638,9 @@ function boardOfDissolution(): PuzzleModule {
           ctx.note(
             stands === LINKS.length
               ? 'Eight links, every rebuttal answered off the table, and a referral worded to the paper. ‘That,’ says Iveson, ‘is an object.’'
-              : `${stands} links standing, and the referral says exactly what the paper carries and not one word more.`,
+              : stands === 0
+                ? 'Nothing stands. The referral goes anyway, worded to what the paper carries, which today is very little.'
+                : `${stands} link${stands === 1 ? '' : 's'} standing, and the referral says exactly what the paper carries and not one word more.`,
           );
           rig.after(reduced() ? 160 : 2200, () => ctx.solve());
         },
@@ -3646,6 +3676,511 @@ function boardOfDissolution(): PuzzleModule {
 }
 
 // ===========================================================================
+// puz-postmasters-register — "The Machine That Cannot Lie"
+// The Post Room, Act I.
+//
+// A competence test Wren sets herself on her second morning, and five minutes'
+// training on a machine nobody in a hundred and eighty-seven years has thought
+// of as a witness. The lesson is the boring answer: a counter that disagrees
+// with a book almost always has one, and the player needs to have felt that
+// before 437 against 223, 213 against 214, and 41 against 12.
+// ===========================================================================
+
+/** Yesterday's close, entered on the meter card in Enid Charnock's hand. */
+const METER_PREV = { descending: 18771, ascending: 412338 };
+/** What the two registers read this morning, through the crank shutters. */
+const METER_NOW = { descending: 18347, ascending: 412355 };
+/** The die proof taken on a scrap every morning, and carried to the card. */
+const TEST_STRIKE = 13;
+
+interface PostEntry {
+  to: string;
+  service: string;
+  pence: number;
+}
+
+const POST_BOOK: PostEntry[] = [
+  { to: 'Ministry of Transport, Marine Directorate', service: 'first class', pence: 25 },
+  { to: 'Naismith’s Bank, Rossport', service: 'first class', pence: 25 },
+  { to: 'Mrs N. Feaver, Wolverhampton', service: 'second class', pence: 19 },
+  { to: 'Rossport Harbour Board', service: 'second class', pence: 19 },
+  { to: 'Corporation of Trinity House, London', service: 'second class', pence: 19 },
+  { to: 'Conservancy of Records, Ilberry', service: 'first class', pence: 25 },
+  { to: 'Messrs Mowbray & Slee, solicitors', service: 'recorded delivery', pence: 30 },
+  { to: 'Hydrographic Office, Taunton', service: 'first class, large', pence: 39 },
+  { to: 'St Bride’s Parochial Council', service: 'second class', pence: 19 },
+  { to: 'Sandbach & Co., consulting engineers', service: 'first class', pence: 25 },
+  { to: 'Postmaster, Cardew — redirections', service: 'second class', pence: 19 },
+  { to: 'Ministry of Transport — duplicate set', service: 'first class', pence: 25 },
+  { to: 'Rossport CID, DS Iveson', service: 'first class, large', pence: 26 },
+  { to: 'Kestrel trustees, c/o Mowbray & Slee', service: 'first class, large', pence: 26 },
+  { to: 'Lighthouse Keepers’ Benevolent Fund', service: 'first class', pence: 25 },
+  { to: 'Vandeputte Shipping Agents, Antwerp', service: 'overseas', pence: 45 },
+];
+
+/** Pence to "£4.24" — this room decimalised in 1971 and never looked back. */
+const dec = (p: number) => `£${(p / 100).toFixed(2)}`;
+
+const STANDING_RULES = [
+  '1. The meter shall be locked at all times and the key held by the Cashier.',
+  '2. No impression shall be taken except against an entry in the post book.',
+  '3. The post book shall be totalled and initialled at close of post.',
+  '4. Recharges shall be entered on the meter card and nowhere else.',
+  '5. The ascending register shall not be reset. It has run since 1961.',
+  '6. The die is to be tested upon a scrap each morning and the impression carried to the meter card.',
+  '7. Damaged impressions shall be struck through and reported.',
+  '8. The Cashier’s ruling upon any of the above is final. — E. CHARNOCK',
+];
+
+const METER_CARD = [
+  { line: '13.10.98 — recharge £250.00 — desc. £412.19 — asc. 411,904 — E.C.', carry: 0 },
+  { line: '19.10.98 — close — desc. £201.38 — asc. 412,201 — E.C.', carry: 0 },
+  { line: '20.10.98 — close — desc. £187.71 — asc. 412,338 — E.C.', carry: 0 },
+  { line: '21.10.98 — die proof, test strike on scrap — 13p — E.C.', carry: TEST_STRIKE },
+  { line: '21.10.98 — franking machine opened by warrant, s.41 — W.A.', carry: 0 },
+];
+
+function postmastersRegister(): PuzzleModule {
+  const rig = new Rig();
+
+  return {
+    mount(root: HTMLElement, ctx: PuzzleContext) {
+      const el = bench(root, 'lg-post');
+      const rail = new Rail(['The meter', 'The post book', 'The seventeenth']);
+
+      let unlocked = readBool(ctx.state, 'unlocked');
+      let crankProgress = readNum(ctx.state, 'crank', 0);
+      let registersRead = readBook(ctx.state);
+      const carried = new Set<number>(
+        readStrings(ctx.state, 'carried')
+          .map(Number)
+          .filter((n) => Number.isInteger(n) && n >= 0 && n < POST_BOOK.length),
+      );
+      let cast = readBool(ctx.state, 'cast');
+      let seventeenth = readBool(ctx.state, 'seventeenth');
+
+      function readBook(bag: Record<string, unknown>): boolean {
+        return bag.registersRead === true;
+      }
+
+      const persist = () => {
+        ctx.state.unlocked = unlocked;
+        ctx.state.crank = crankProgress;
+        ctx.state.registersRead = registersRead;
+        ctx.state.carried = [...carried].map(String);
+        ctx.state.cast = cast;
+        ctx.state.seventeenth = seventeenth;
+        ctx.save();
+      };
+
+      // -- Stage I: the meter ------------------------------------------------
+
+      const meterStage = h('div', 'pm-stage');
+      rail.add(meterStage);
+
+      const keyEl = h('div', 'pm-key');
+      keyEl.append(h('span', 'pm-key-bow'), h('span', 'pm-key-bit'));
+      const crankEl = h('div', 'pm-crank');
+      crankEl.append(h('span', 'pm-crank-arm'), h('span', 'pm-crank-handle'));
+
+      const windowFor = (name: string, digits: string, cls: string) => {
+        const w = h('div', `pm-window ${cls}`);
+        const strip = h('div', 'pm-window-digits');
+        for (const d of digits) strip.append(h('span', 'pm-window-digit', d));
+        w.append(cap(name), strip, h('span', 'pm-shutter'));
+        return w;
+      };
+
+      const descWindow = windowFor(
+        'DESCENDING · CREDIT REMAINING',
+        (METER_NOW.descending / 100).toFixed(2),
+        'is-desc',
+      );
+      const ascWindow = windowFor(
+        'ASCENDING · IMPRESSIONS SINCE 1961',
+        String(METER_NOW.ascending),
+        'is-asc',
+      );
+
+      const descWheels = rig.keep(
+        makeWheels({ label: 'Descending register, in pence', digits: 5, unit: 'p', feedback: ctx.feedback }),
+      );
+      const ascWheels = rig.keep(
+        makeWheels({ label: 'Ascending register', digits: 6, feedback: ctx.feedback }),
+      );
+      const carryKey = key('CARRY BOTH TO THE CASEBOOK', 'is-sign');
+
+      const paintMeter = () => {
+        meterStage.classList.toggle('is-unlocked', unlocked);
+        meterStage.classList.toggle('is-read', registersRead);
+        for (const w of [descWindow, ascWindow]) {
+          w.style.setProperty('--open', crankProgress.toFixed(3));
+          w.classList.toggle('is-open', crankProgress > 0.92);
+        }
+        carryKey.disabled = registersRead || crankProgress <= 0.92;
+        if (registersRead) {
+          carryKey.querySelector('.lg-key-face')!.textContent = 'CARRIED · FELL £4.24 · ADVANCED 17';
+        }
+      };
+
+      rig.keep(
+        makeRotatable(keyEl, {
+          angle: unlocked ? 90 : 0,
+          detent: 90,
+          min: 0,
+          max: 90,
+          step: 90,
+          label: 'Warrant key — turn to unlock the meter',
+          feedback: ctx.feedback,
+          onCommit: (deg) => {
+            const now = deg >= 90;
+            if (now === unlocked) return;
+            unlocked = now;
+            persist();
+            paintMeter();
+            if (unlocked) {
+              ctx.feedback('good');
+              ctx.note('Opened by warrant under section 41, which for anybody else in this building is a General Post Office offence.');
+            }
+          },
+        }),
+      );
+
+      let crankTotal = crankProgress * 720;
+      rig.keep(
+        makeRotatable(crankEl, {
+          detent: 15,
+          step: 30,
+          label: 'Register drum crank',
+          feedback: ctx.feedback,
+          onChange: (deg) => {
+            if (!unlocked) {
+              ctx.note('Locked. The key first.');
+              return;
+            }
+            crankTotal = Math.abs(deg);
+            crankProgress = clamp(crankTotal / 720, 0, 1);
+            paintMeter();
+          },
+          onCommit: () => {
+            if (!unlocked) return;
+            persist();
+            if (crankProgress > 0.92) {
+              ctx.note('Both windows standing open. Read them, and write down what they say and nothing else.');
+            }
+          },
+        }),
+      );
+
+      carryKey.addEventListener(
+        'click',
+        () => {
+          if (registersRead) return;
+          if (descWheels.get() !== METER_NOW.descending || ascWheels.get() !== METER_NOW.ascending) {
+            ctx.feedback('bad');
+            ctx.note('That is not what the windows say. A transcription error is the one mistake this exercise exists to catch.');
+            return;
+          }
+          registersRead = true;
+          persist();
+          ctx.feedback('good');
+          paintMeter();
+          ctx.note(
+            'One hundred and eighty-three pounds forty-seven against yesterday’s one eighty-seven seventy-one. Fell £4.24, advanced seventeen.',
+          );
+          rig.after(reduced() ? 100 : 1500, () => rail.go(1, true));
+        },
+        { signal: rig.signal },
+      );
+
+      meterStage.append(
+        plate('PITNEY POSTMASTER · MODEL 5000 · GPO LICENCE 4471', [
+          'Turn the warrant key, then crank the drum until both register windows stand open.',
+          'DESCENDING falls as credit is used. ASCENDING counts impressions and has never been reset.',
+          'Read both, and enter them exactly as they read.',
+        ]),
+        box(
+          'pm-meter',
+          box('pm-meter-face', descWindow, ascWindow),
+          box('pm-meter-controls', box('pm-key-well', cap('WARRANT KEY'), keyEl), box('pm-crank-well', cap('DRUM CRANK'), crankEl)),
+        ),
+        box(
+          'pm-entry',
+          box('pm-entry-row', h('span', 'pm-entry-label', 'Descending register, in pence'), descWheels.el),
+          box('pm-entry-row', h('span', 'pm-entry-label', 'Ascending register'), ascWheels.el),
+          carryKey,
+        ),
+      );
+
+      // -- Stage II: the post book -------------------------------------------
+
+      const bookStage = h('div', 'pm-stage');
+      rail.add(bookStage);
+
+      const entriesList = h('ol', 'pm-entries');
+      entriesList.setAttribute('aria-label', 'The day’s post book, sixteen entries');
+      const columnList = h('ol', 'pm-column');
+      columnList.setAttribute('aria-label', 'Reconciliation column');
+      const columnTotal = h('p', 'pm-column-total', '—');
+      columnTotal.setAttribute('role', 'status');
+      const castKey = key('CAST THE COLUMN', 'is-cast');
+      /* The column follows the player into stage three: the seventeenth line
+         has to be seen landing on the same sheet as the other sixteen. */
+      const columnSide = box(
+        'pm-book-side is-column',
+        cap('RECONCILIATION COLUMN'),
+        columnList,
+        columnTotal,
+        castKey,
+      );
+
+      const columnPence = () =>
+        [...carried].reduce((t, i) => t + POST_BOOK[i].pence, 0) + (seventeenth ? TEST_STRIKE : 0);
+      const columnCount = () => carried.size + (seventeenth ? 1 : 0);
+
+      const entryButtons: HTMLButtonElement[] = [];
+
+      const paintBook = () => {
+        entryButtons.forEach((b, i) => {
+          const done = carried.has(i);
+          b.classList.toggle('is-carried', done);
+          b.disabled = done;
+          b.setAttribute(
+            'aria-label',
+            `${done ? 'Carried: ' : 'Carry to the reconciliation column: '}${POST_BOOK[i].to}, ${POST_BOOK[i].service}, ${POST_BOOK[i].pence} pence`,
+          );
+        });
+        columnList.textContent = '';
+        [...carried]
+          .sort((a, b) => a - b)
+          .forEach((i) => {
+            const li = h('li', 'pm-column-line');
+            li.append(
+              h('span', 'pm-column-n', String(i + 1)),
+              h('span', 'pm-column-to', POST_BOOK[i].to),
+              h('span', 'pm-column-p', `${POST_BOOK[i].pence}p`),
+            );
+            columnList.appendChild(li);
+          });
+        if (seventeenth) {
+          const li = h('li', 'pm-column-line is-seventeenth');
+          li.append(
+            h('span', 'pm-column-n', '17'),
+            h('span', 'pm-column-to', 'Die proof, test strike on a scrap — meter card, rule 6'),
+            h('span', 'pm-column-p', `${TEST_STRIKE}p`),
+          );
+          columnList.appendChild(li);
+        }
+        castKey.disabled = carried.size < POST_BOOK.length || cast;
+        castKey.classList.toggle('is-done', cast);
+        castKey.querySelector('.lg-key-face')!.textContent = cast ? 'CAST ✓' : 'CAST THE COLUMN';
+        columnTotal.textContent = cast
+          ? `${columnCount()} impressions · ${dec(columnPence())}`
+          : `${carried.size} of sixteen carried`;
+        columnTotal.classList.toggle('is-adverse', cast && columnPence() !== METER_PREV.descending - METER_NOW.descending);
+        columnTotal.classList.toggle('is-agreed', cast && columnPence() === METER_PREV.descending - METER_NOW.descending);
+      };
+
+      POST_BOOK.forEach((entry, i) => {
+        const b = h('button', 'pm-entry-line');
+        b.type = 'button';
+        b.append(
+          h('span', 'pm-entry-n', String(i + 1)),
+          h('span', 'pm-entry-to', entry.to),
+          h('span', 'pm-entry-service', entry.service),
+          h('span', 'pm-entry-p', `${entry.pence}p`),
+        );
+        b.addEventListener(
+          'click',
+          () => {
+            if (carried.has(i)) return;
+            carried.add(i);
+            ctx.feedback('tick');
+            persist();
+            paintBook();
+            if (carried.size === POST_BOOK.length) {
+              ctx.note('Sixteen entries carried. Cast it, and see whether the machine agrees with the book.');
+            }
+          },
+          { signal: rig.signal },
+        );
+        entryButtons.push(b);
+        entriesList.appendChild(b);
+      });
+
+      castKey.addEventListener(
+        'click',
+        () => {
+          if (cast) return;
+          cast = true;
+          persist();
+          paintBook();
+          ctx.feedback('bad');
+          ctx.note(
+            'Four pounds eleven against four pounds twenty-four. Sixteen entries against seventeen impressions. Thirteen pence, and one strike of the die.',
+          );
+          rig.after(reduced() ? 110 : 1700, () => rail.go(2, true));
+        },
+        { signal: rig.signal },
+      );
+
+      bookStage.append(
+        plate('THE DAY’S POST BOOK · 21 OCTOBER 1998', [
+          'Carry every entry into the reconciliation column. The column casts itself, in pence.',
+          'Arithmetic is never the obstacle here. Transcription is.',
+        ]),
+        box('pm-book', box('pm-book-side', cap('POST BOOK'), entriesList), columnSide),
+      );
+
+      // -- Stage III: the seventeenth ----------------------------------------
+
+      const findStage = h('div', 'pm-stage');
+      rail.add(findStage);
+
+      const gap = box(
+        'pm-gap',
+        box('pm-gap-cell', cap('THE METER SAYS'), h('p', 'pm-gap-val', dec(METER_PREV.descending - METER_NOW.descending)), h('p', 'pm-gap-sub', '17 impressions')),
+        box('pm-gap-cell', cap('THE BOOK SAYS'), h('p', 'pm-gap-val', dec(411)), h('p', 'pm-gap-sub', '16 entries')),
+        box('pm-gap-cell is-gap', cap('UNACCOUNTED'), h('p', 'pm-gap-val', '13p'), h('p', 'pm-gap-sub', 'one impression')),
+      );
+
+      findStage.append(
+        plate('THE SEVENTEENTH IMPRESSION', [
+          'A meter counts impressions, not intentions. If it says seventeen, there were seventeen.',
+          'One of them was not thought worth writing in the post book. Find where it *was* written.',
+        ]),
+        gap,
+      );
+
+      // -- the shelf: three volumes, open in every stage ----------------------
+
+      let openVolume = 0;
+      const shelfBody = h('div', 'pm-shelf-body');
+      const shelfTabs = h('div', 'pm-shelf-tabs');
+      shelfTabs.setAttribute('role', 'tablist');
+      const VOLUMES = ['STANDING INSTRUCTIONS', 'METER CARD BOOK', 'DISTRIBUTION LIST'];
+      const shelfTabEls: HTMLButtonElement[] = [];
+
+      const paintShelf = () => {
+        shelfBody.textContent = '';
+        shelfTabEls.forEach((t, i) => {
+          t.setAttribute('aria-selected', String(i === openVolume));
+          t.classList.toggle('is-open', i === openVolume);
+        });
+        if (openVolume === 0) {
+          const list = h('ol', 'pm-rules');
+          STANDING_RULES.forEach((r, i) => {
+            const li = h('li', 'pm-rule', r);
+            if (i === 5) li.classList.add('is-pinned');
+            list.appendChild(li);
+          });
+          shelfBody.append(h('p', 'pm-shelf-title', 'POST ROOM STANDING INSTRUCTIONS'), list);
+        } else if (openVolume === 1) {
+          shelfBody.append(h('p', 'pm-shelf-title', 'METER CARD BOOK · GPO LICENCE 4471'));
+          for (const row of METER_CARD) {
+            const line = h('div', 'pm-card-line');
+            line.append(h('span', 'pm-card-text', row.line));
+            if (row.carry) {
+              const b = key('CARRY THIS TO THE COLUMN', 'is-carry');
+              b.disabled = rail.index < 2 || seventeenth;
+              if (seventeenth) b.querySelector('.lg-key-face')!.textContent = 'CARRIED ✓';
+              b.addEventListener(
+                'click',
+                () => {
+                  if (seventeenth) return;
+                  seventeenth = true;
+                  persist();
+                  ctx.feedback('good');
+                  paintShelf();
+                  paintBook();
+                  ctx.note(
+                    'Enid’s thirteen-penny test strike, taken every morning to prove the die, carried to the meter card and never to the post book. Rule 6, and a drawing-pin through it.',
+                  );
+                  rig.after(reduced() ? 130 : 1900, () => ctx.solve());
+                },
+                { signal: rig.signal },
+              );
+              line.appendChild(b);
+            } else if (rail.index >= 2) {
+              const b = key('CARRY THIS TO THE COLUMN', 'is-carry');
+              b.addEventListener(
+                'click',
+                () => {
+                  ctx.feedback('bad');
+                  ctx.note('That is a recharge, or a close, or my own name. It is not an impression taken this morning.');
+                },
+                { signal: rig.signal },
+              );
+              line.appendChild(b);
+            }
+            shelfBody.appendChild(line);
+          }
+        } else {
+          shelfBody.append(
+            h('p', 'pm-shelf-title', 'DISTRIBUTION LIST · SCHEDULE D'),
+            h(
+              'p',
+              'pm-shelf-note',
+              'Two hundred and fourteen addressees for a general Notice to Mariners, ruled up in 1962 and amended in pencil ever since. Nothing to do with today’s post, and I have read it twice anyway, because it is the only list in this building that says how many of anything there ought to be.',
+            ),
+          );
+        }
+      };
+
+      VOLUMES.forEach((name, i) => {
+        const t = h('button', 'pm-shelf-tab');
+        t.type = 'button';
+        t.setAttribute('role', 'tab');
+        t.append(h('span', 'pm-shelf-tab-name', name));
+        t.addEventListener(
+          'click',
+          () => {
+            openVolume = i;
+            ctx.feedback('click');
+            paintShelf();
+          },
+          { signal: rig.signal },
+        );
+        shelfTabEls.push(t);
+        shelfTabs.appendChild(t);
+      });
+
+      // -- assembly -----------------------------------------------------------
+
+      const stageHolder = h('div', 'lg-stages');
+      stageHolder.append(meterStage, bookStage, findStage);
+      el.append(rail.el, box('pm-body', stageHolder, box('pm-shelf', shelfTabs, shelfBody)));
+
+      rail.onGo = (i) => {
+        el.dataset.stage = String(i);
+        if (i === 2) {
+          findStage.appendChild(columnSide);
+          openVolume = 0;
+          paintShelf();
+        }
+      };
+
+      paintMeter();
+      paintBook();
+      paintShelf();
+      rail.go(cast ? 2 : registersRead ? 1 : 0);
+
+      ctx.note(
+        cast
+          ? 'Two registers and a book. One of the three is wrong, and it will not be the registers.'
+          : registersRead
+            ? 'Sixteen entries in the day’s post book. Carry every one of them.'
+            : 'A machine that has counted every impression taken in this building since 1961, and nobody has ever asked it anything.',
+      );
+    },
+
+    unmount() {
+      rig.destroy();
+    },
+  };
+}
+
+// ===========================================================================
 
 /**
  * Registers every deduction mechanism in this batch. The integration layer
@@ -3656,7 +4191,10 @@ export function registerLogicPuzzles(): void {
   registerPuzzle('puz-forty-seven-cards', fortySevenCards);
   // 'puz-chart-loft' is registered by the sensory batch: its primary verb is
   // audio-rhythm timing, and registering it here too made the two modules
-  // race for the id.
+  // race for the id. `puz-postmasters-register` came here in exchange — a
+  // serial-record audit is the same animal as the reconciliation, and it is
+  // the exercise that teaches the player to read the later ones.
+  registerPuzzle('puz-postmasters-register', postmastersRegister);
   registerPuzzle('puz-reconciliation', reconciliation);
   registerPuzzle('puz-board-of-dissolution', boardOfDissolution);
 }

@@ -111,7 +111,7 @@ export const ritaTrees: DialogueTree[] = [
         children: [
           {
             id: 'rit-a3-01-adler',
-            playerLine: 'There’s an Adler portable in your locker. Chipped lower-case e. Same as the letter.',
+            playerLine: 'There’s an Adler portable in your locker. Black nylon ribbon. Nylon wasn’t sold for that machine until 1979.',
             reply: [
               'There’s an Adler in my locker. You’ll have found it.',
               'I typed it. It says the truth and I typed it.',
