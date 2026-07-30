@@ -564,13 +564,30 @@ export class Menus {
         wordmark.setAttribute('aria-label', this.state.content.title);
         // Per-letter spans so the title can be lit from left to right on first
         // paint. Marked hidden from assistive tech; the h1 carries the label.
+        //
+        // Letters are grouped per WORD. An inline-block is a line-break
+        // opportunity, so a bare run of them lets the browser break mid-word
+        // ("The La / mplight"); a non-breaking space between them does not
+        // help, because the break is taken between two letter spans rather
+        // than at the space. A nowrap wrapper per word restores normal
+        // word-level wrapping while keeping the per-letter reveal.
         let index = 0;
-        for (const ch of this.state.content.title) {
-          const span = el('span', 'title-wordmark__ch', ch === ' ' ? ' ' : ch);
-          span.style.setProperty('--i', String(index++));
-          span.setAttribute('aria-hidden', 'true');
-          wordmark.appendChild(span);
-        }
+        const words = this.state.content.title.split(' ');
+        words.forEach((word, w) => {
+          const wordEl = el('span', 'title-wordmark__word');
+          wordEl.setAttribute('aria-hidden', 'true');
+          for (const ch of word) {
+            const span = el('span', 'title-wordmark__ch', ch);
+            span.style.setProperty('--i', String(index++));
+            wordEl.appendChild(span);
+          }
+          wordmark.appendChild(wordEl);
+          if (w < words.length - 1) {
+            // A real space between wrappers, so a line may break here.
+            wordmark.appendChild(document.createTextNode(' '));
+            index++;
+          }
+        });
         content.appendChild(wordmark);
 
         content.appendChild(el('div', 'title-rule'));

@@ -468,6 +468,13 @@
   letter-spacing: 0.015em;
 }
 
+.title-wordmark__word {
+  /* Keeps a word's letter spans on one line. Without this, every inline-block
+     letter is its own break opportunity and long titles break mid-word. */
+  display: inline-block;
+  white-space: nowrap;
+}
+
 .title-wordmark__ch {
   display: inline-block;
   /* Warm metal, brightest at the top of the letterform. */

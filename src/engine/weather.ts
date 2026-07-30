@@ -274,6 +274,12 @@ export class Weather {
   private loop = (t: number) => {
     if (!this.preset) return;
     const { width: w, height: h } = this.canvas.getBoundingClientRect();
+    // A canvas that has not been laid out yet reports 0x0, which turns every
+    // gradient coordinate into NaN. Skip the frame and try again next tick.
+    if (w < 1 || h < 1) {
+      this.raf = requestAnimationFrame(this.loop);
+      return;
+    }
     this.clear();
     const ctx = this.ctx;
     ctx.globalCompositeOperation = this.preset.composite ?? 'source-over';
