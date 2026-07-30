@@ -1,0 +1,673 @@
+/**
+ * The conversation view — mirrors src/ui/dialogue.ts exactly.
+ *
+ * Four surfaces, each a different material, so the eye never confuses them:
+ *   .dialogue-scrim     — the room, still there, out of focus and out of light
+ *   .dialogue-portrait  — a lit figure standing on the floor of the frame
+ *   .dialogue-nameplate — engraved brass, screwed to the frame under them
+ *   .dialogue-speech    — their words, on the same aged paper as all narration
+ *   .dialogue-plate     — the player's own lines, as objects you press
+ *
+ * The whole thing is laid out inside `.stage-box`, the shared 16:10 recipe from
+ * base.css, so the portrait stands on the artwork's floor line at every window
+ * size rather than drifting against it.
+ */
+
+.dialogue-root {
+  /* Local materials. Grain is generated rather than fetched so a conversation
+     can never wait on a texture, and so it survives an offline build. */
+  --dlg-grain-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  --dlg-grain-metal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.04' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23m)' opacity='0.3'/%3E%3C/svg%3E");
+  --dlg-clue-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.9 1.4a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 1.7a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6z'/%3E%3Cpath d='M10.6 11.8l1.2-1.2 3.7 3.7-1.2 1.2z'/%3E%3C/svg%3E");
+
+  /* Falls back to lamplight when the character declares no accent. */
+  --dlg-accent: var(--lamp-300);
+
+  /* Sign of the key light: +1 when the lamp is off to the player's right.
+     Drives the portrait's cast shadow and the warm spill behind it. */
+  --dlg-key: 1;
+
+  /* Two literal durations the token scale has no place for: a breath is a
+     breath, and a tremor is a tremor. Both are neutralised below for anyone
+     who has asked for less motion. */
+  --dlg-breath: 6.4s;
+  --dlg-tremor: 1.9s;
+
+  position: absolute;
+  inset: 0;
+  /* Below narration (--z-dialogue) on purpose: a node's effects may narrate,
+     toast a clue or cut to a cinematic mid-conversation, and all of those have
+     to land in front of the people talking. */
+  z-index: calc(var(--z-dialogue) - 2);
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.dialogue-root[hidden] {
+  display: none;
+}
+
+.dialogue-root.is-open {
+  opacity: 1;
+}
+
+.dialogue-root.is-closing {
+  opacity: 0;
+  transition-duration: var(--dur-med);
+}
+
+.dialogue-root:focus {
+  outline: none;
+}
+
+/* -- The room, pushed back ------------------------------------------------- */
+
+.dialogue-scrim {
+  position: absolute;
+  inset: 0;
+  /* Darkest at the edges, so the middle of the room stays faintly readable and
+     the player never loses their sense of where they are standing. */
+  background: radial-gradient(
+    118% 92% at 50% 58%,
+    color-mix(in srgb, var(--ink-900) 62%, transparent) 0%,
+    color-mix(in srgb, var(--ink-abyss) 88%, transparent) 72%,
+    color-mix(in srgb, var(--ink-abyss) 96%, transparent) 100%
+  );
+  backdrop-filter: blur(7px) saturate(0.62) brightness(0.46);
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-in-out);
+}
+
+.dialogue-root.is-open .dialogue-scrim {
+  opacity: 1;
+}
+
+/* -- Layout ---------------------------------------------------------------- */
+
+.dialogue-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: clamp(var(--sp-5), 3vw, var(--sp-7));
+  row-gap: clamp(var(--sp-3), 2vh, var(--sp-5));
+  padding: clamp(var(--sp-4), 3vh, var(--sp-6)) clamp(var(--sp-5), 3vw, var(--sp-7));
+  /* The stage is the artwork's exact footprint; nothing may spill past it. */
+  overflow: hidden;
+}
+
+.dialogue-bay {
+  grid-area: 1 / 1 / -1 / 2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 0;
+}
+
+.dialogue-speech {
+  grid-area: 1 / 2 / 2 / 3;
+  align-self: center;
+  justify-self: start;
+}
+
+.dialogue-tray {
+  grid-area: 2 / 2 / 3 / 3;
+  align-self: end;
+  min-width: 0;
+}
+
+/* Mirrored staging. Which side a character stands on is hashed from their id
+   in dialogue.ts, so the cast is distributed but each face is always found in
+   the same place. */
+.dialogue-root[data-side='right'] {
+  --dlg-key: -1;
+}
+
+.dialogue-root[data-side='right'] .dialogue-stage {
+  grid-template-columns: minmax(0, 66fr) minmax(0, 34fr);
+}
+
+.dialogue-root[data-side='right'] .dialogue-bay {
+  grid-area: 1 / 2 / -1 / 3;
+}
+
+.dialogue-root[data-side='right'] .dialogue-speech {
+  grid-area: 1 / 1 / 2 / 2;
+  justify-self: end;
+}
+
+.dialogue-root[data-side='right'] .dialogue-tray {
+  grid-area: 2 / 1 / 3 / 2;
+}
+
+/* -- Portrait -------------------------------------------------------------- */
+
+/* Warm spill from the scene's key side, thrown on the wall behind the figure
+   so they are standing in light rather than pasted over darkness. */
+.dialogue-keylight {
+  position: absolute;
+  inset: -12% -22% 0;
+  pointer-events: none;
+  background: radial-gradient(
+    62% 54% at calc(50% + var(--dlg-key) * 16%) 34%,
+    color-mix(in srgb, var(--lamp-500) 34%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-600) 14%, transparent) 42%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-out);
+}
+
+.dialogue-root.is-open .dialogue-keylight {
+  opacity: 1;
+}
+
+.dialogue-portrait {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  transform-origin: 50% 100%;
+  /* Barely perceptible, and entirely the point: a still portrait reads as a
+     photograph of a corpse within about four seconds. */
+  animation: dialogue-breathe var(--dlg-breath) var(--ease-in-out) infinite;
+}
+
+.dialogue-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  /* A long shadow thrown away from the key light does the standing-in-a-room
+     work that no amount of gradient behind the figure can. */
+  filter: drop-shadow(calc(var(--dlg-key) * -13px) 20px 26px rgb(0 0 0 / 0.72))
+    contrast(1.04) saturate(0.97);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-in-out);
+  user-select: none;
+}
+
+.dialogue-face.is-front {
+  opacity: 1;
+}
+
+.dialogue-root .dialogue-bay {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity var(--dur-scene) var(--ease-out),
+    transform var(--dur-scene) var(--ease-drama);
+}
+
+.dialogue-root.is-open .dialogue-bay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes dialogue-breathe {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.015) translateY(-0.35%);
+  }
+}
+
+/* -- Nameplate ------------------------------------------------------------- */
+
+.dialogue-nameplate {
+  position: relative;
+  flex: 0 0 auto;
+  margin-top: calc(var(--sp-2) * -1);
+  padding: var(--sp-2) clamp(var(--sp-5), 2.4vw, var(--sp-6));
+  text-align: center;
+  border: var(--border-brass);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--lamp-100) 26%, transparent) 0%, transparent 38%),
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--lamp-500) 86%, var(--ink-900)) 0%,
+      color-mix(in srgb, var(--lamp-600) 90%, var(--ink-900)) 54%,
+      color-mix(in srgb, var(--lamp-600) 62%, var(--ink-abyss)) 100%
+    );
+  box-shadow:
+    var(--shadow-3),
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 48%, transparent),
+    inset 0 -3px 6px -2px rgb(0 0 0 / 0.62);
+}
+
+/* Brushed metal, so the brass is never a flat swatch. */
+.dialogue-nameplate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: var(--dlg-grain-metal);
+  background-size: 120px 120px;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+/* Two countersunk screws — the plate is fixed to something. */
+.dialogue-nameplate::after {
+  content: '';
+  position: absolute;
+  inset: 0 var(--sp-2);
+  pointer-events: none;
+  background:
+    radial-gradient(circle at left 0.35rem top 50%, rgb(0 0 0 / 0.55) 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at right 0.35rem top 50%, rgb(0 0 0 / 0.55) 0 1.6px, transparent 2.2px);
+}
+
+.dialogue-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-tight);
+  color: var(--lamp-100);
+  /* Engraved: a lit top bevel and a dark cut below it. */
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 0.6),
+    0 -1px 0 color-mix(in srgb, var(--lamp-100) 30%, transparent);
+}
+
+.dialogue-role {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--dlg-accent) 74%, var(--ink-900));
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.45);
+}
+
+/* -- Speech panel ---------------------------------------------------------- */
+
+.dialogue-speech {
+  position: relative;
+  max-width: min(52ch, 100%);
+  padding: clamp(var(--sp-5), 2.6vh, var(--sp-6)) clamp(var(--sp-5), 2.4vw, var(--sp-6));
+  color: var(--paper-ink);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(178deg, rgb(0 0 0 / 0.07) 0%, transparent 16%),
+    radial-gradient(
+      124% 92% at 28% 0%,
+      var(--paper-100) 0%,
+      var(--paper-200) 56%,
+      var(--paper-300) 100%
+    );
+  box-shadow:
+    var(--shadow-3),
+    inset 0 -14px 22px -18px rgb(0 0 0 / 0.55);
+  /* Torn from a notebook, not cut by a div. */
+  clip-path: polygon(
+    0% 2.6%, 4% 0%, 12% 2.2%, 23% 0.4%, 37% 2.4%, 51% 0.3%, 66% 2.2%, 79% 0.5%, 91% 2%, 100% 0.7%,
+    100% 100%, 0% 100%
+  );
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.dialogue-speech.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dialogue-speech::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--dlg-grain-paper);
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+/* The player's own question, kept above the answer so the exchange reads as a
+   pair rather than a stream of disconnected replies. */
+.dialogue-echo {
+  display: none;
+  margin: 0 0 var(--sp-3);
+  padding-bottom: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper-ink-faded) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-400) 55%, transparent);
+}
+
+.dialogue-speech.has-echo .dialogue-echo {
+  display: block;
+}
+
+.dialogue-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  line-height: var(--leading-body);
+  /* Reserve two lines before a character arrives, so the panel never grows
+     under the reveal and the plates below never step down the screen. */
+  min-height: calc(var(--step-1) * var(--leading-body) * 2);
+}
+
+.dialogue-caret {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: var(--sp-3);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--lamp-500);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.dialogue-speech.is-ready .dialogue-caret {
+  opacity: 0.85;
+  animation: dialogue-caret 1.5s var(--ease-in-out) infinite;
+}
+
+@keyframes dialogue-caret {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(3px);
+    opacity: 0.95;
+  }
+}
+
+/* -- Choice plates --------------------------------------------------------- */
+
+.dialogue-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  /* Room for the hover slide, the focus ring and the plate shadows to breathe
+     without any of them being clipped by the scroll container. */
+  padding: var(--sp-2);
+  /* A very talkative topic list scrolls inside itself rather than pushing the
+     portrait off the floor of the stage. */
+  max-height: min(44vh, 24rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--lamp-600) 70%, transparent) transparent;
+}
+
+.dialogue-plate {
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.42;
+  color: var(--paper-200);
+  border: var(--border-hairline);
+  border-left: 2px solid color-mix(in srgb, var(--lamp-500) 42%, transparent);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.07) 0%, transparent 24%),
+    linear-gradient(172deg, var(--ink-600) 0%, var(--ink-800) 58%, var(--ink-900) 100%);
+  box-shadow:
+    var(--shadow-2),
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    inset 0 -8px 14px -10px rgb(0 0 0 / 0.75);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(9px);
+  transition:
+    opacity var(--dur-med) var(--ease-out) var(--plate-delay, 0ms),
+    transform var(--dur-slow) var(--ease-drama) var(--plate-delay, 0ms),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.dialogue-plate.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dialogue-plate:hover,
+.dialogue-plate.is-cursor {
+  color: var(--lamp-100);
+  border-color: color-mix(in srgb, var(--lamp-400) 40%, transparent);
+  border-left-color: var(--lamp-300);
+  transform: translateX(5px);
+  box-shadow:
+    var(--shadow-3),
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 -8px 14px -10px rgb(0 0 0 / 0.7),
+    inset 10px 0 24px -18px color-mix(in srgb, var(--lamp-300) 80%, transparent);
+}
+
+.dialogue-plate:focus-visible {
+  outline: 2px solid var(--lamp-300);
+  outline-offset: 2px;
+}
+
+/* Pressed: the plate goes down into its recess and loses its own light. */
+.dialogue-plate:active,
+.dialogue-plate.is-chosen {
+  transform: translateX(5px) translateY(1px);
+  box-shadow:
+    var(--shadow-1),
+    inset 0 2px 6px rgb(0 0 0 / 0.6);
+  animation: none;
+}
+
+.dialogue-plate[disabled] {
+  cursor: default;
+}
+
+/* Every plate that was not taken recedes the moment one is. */
+.dialogue-plate[disabled]:not(.is-chosen) {
+  opacity: 0.28;
+  transform: none;
+}
+
+.dialogue-key {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: center;
+  color: color-mix(in srgb, var(--lamp-400) 72%, transparent);
+}
+
+.dialogue-plate:hover .dialogue-key,
+.dialogue-plate.is-cursor .dialogue-key {
+  color: var(--lamp-200);
+}
+
+.dialogue-line {
+  min-width: 0;
+}
+
+/* The tell that a line spends evidence. */
+.dialogue-clue {
+  align-self: center;
+  width: 0.95rem;
+  height: 0.95rem;
+  background-color: var(--lamp-400);
+  -webkit-mask-image: var(--dlg-clue-glyph);
+  mask-image: var(--dlg-clue-glyph);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--lamp-300) 55%, transparent));
+}
+
+/* Confrontation: hotter metal, a heavier edge, and a tremor under the hand.
+   The player should feel the weight of the line before they commit to it. */
+.dialogue-plate.is-confront {
+  color: color-mix(in srgb, var(--paper-100) 78%, var(--blood-bright));
+  border: 2px solid color-mix(in srgb, var(--blood) 62%, transparent);
+  border-left: 3px solid var(--blood-bright);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.06) 0%, transparent 22%),
+    linear-gradient(
+      172deg,
+      color-mix(in srgb, var(--blood) 26%, var(--ink-700)) 0%,
+      color-mix(in srgb, var(--blood) 16%, var(--ink-900)) 62%,
+      var(--ink-900) 100%
+    );
+  box-shadow:
+    var(--shadow-2),
+    inset 0 1px 0 color-mix(in srgb, var(--blood-bright) 30%, transparent),
+    inset 0 -8px 16px -10px rgb(0 0 0 / 0.8);
+}
+
+.dialogue-plate.is-confront .dialogue-key {
+  color: color-mix(in srgb, var(--blood-bright) 80%, transparent);
+}
+
+.dialogue-plate.is-confront:hover,
+.dialogue-plate.is-confront.is-cursor {
+  color: var(--paper-100);
+  border-color: var(--blood-bright);
+  box-shadow:
+    var(--shadow-3),
+    0 0 26px -8px color-mix(in srgb, var(--blood-bright) 65%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--blood-bright) 42%, transparent),
+    inset 0 -8px 16px -10px rgb(0 0 0 / 0.8);
+  animation: dialogue-tremor var(--dlg-tremor) var(--ease-in-out) infinite;
+}
+
+.dialogue-plate.is-confront:hover .dialogue-key,
+.dialogue-plate.is-confront.is-cursor .dialogue-key {
+  color: var(--blood-bright);
+}
+
+/* Mostly still, with a short shiver at the top of each cycle. Keyframes carry
+   the hover offset themselves, or the animation would cancel the slide. */
+@keyframes dialogue-tremor {
+  0% {
+    transform: translateX(5px);
+  }
+  3% {
+    transform: translateX(5px) translateY(-1px) rotate(-0.22deg);
+  }
+  6% {
+    transform: translateX(6px) translateY(1px) rotate(0.2deg);
+  }
+  9% {
+    transform: translateX(4px) translateY(-1px) rotate(-0.14deg);
+  }
+  12% {
+    transform: translateX(5px) rotate(0.08deg);
+  }
+  15%,
+  100% {
+    transform: translateX(5px);
+  }
+}
+
+/* Leaving is always available and never competes with the topics. */
+.dialogue-plate.is-leave {
+  margin-top: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-left-color: color-mix(in srgb, var(--moon-400) 45%, transparent);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.04) 0%, transparent 26%),
+    linear-gradient(172deg, var(--ink-700) 0%, var(--ink-900) 100%);
+}
+
+.dialogue-plate.is-leave:hover,
+.dialogue-plate.is-leave.is-cursor {
+  color: var(--moon-100);
+  border-left-color: var(--moon-300);
+}
+
+/* -- Key hint -------------------------------------------------------------- */
+
+.dialogue-hint {
+  display: flex;
+  gap: var(--sp-4);
+  margin: var(--sp-2) 0 0;
+  padding-left: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.dialogue-root[data-mode='choosing'] .dialogue-hint {
+  opacity: 0.75;
+}
+
+/* -- Cramped windows ------------------------------------------------------- */
+
+/* Below roughly 1280 logical pixels the portrait would crowd the text, so it
+   gives up width rather than letting the reply wrap to five words a line. */
+@media (max-width: 1100px) {
+  .dialogue-stage {
+    grid-template-columns: minmax(0, 28fr) minmax(0, 72fr);
+  }
+
+  .dialogue-root[data-side='right'] .dialogue-stage {
+    grid-template-columns: minmax(0, 72fr) minmax(0, 28fr);
+  }
+
+  .dialogue-hint {
+    display: none;
+  }
+}
+
+/* -- Reduced motion -------------------------------------------------------- */
+
+/* The tokens already collapse every transition. What is left here is the
+   handful of looping animations, which must stop outright rather than run
+   fast: a 1ms breath is worse than no breath at all. */
+@media (prefers-reduced-motion: reduce) {
+  .dialogue-portrait,
+  .dialogue-speech.is-ready .dialogue-caret,
+  .dialogue-plate.is-confront:hover,
+  .dialogue-plate.is-confront.is-cursor {
+    animation: none;
+  }
+
+  .dialogue-speech.is-ready .dialogue-caret {
+    opacity: 0.85;
+  }
+}

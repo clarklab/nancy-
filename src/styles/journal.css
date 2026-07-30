@@ -1,0 +1,1627 @@
+/**
+ * The case journal.
+ *
+ * Mirrors `src/ui/journal.ts` exactly. The rule of the house applies harder
+ * here than anywhere else in the game: this is not a panel, it is a *book*,
+ * and the player will look at it for hours. Every surface therefore has a
+ * body gradient, a lit top edge, a dark undercut and a grain — leather for the
+ * covers and tabs, sized paper for the leaves, cork for the deduction board.
+ *
+ * The whole thing is sized in container units off the stage box, so the book
+ * scales with the artwork from a 1280x800 laptop to a 2560x1440 display and
+ * never drifts away from the frame it sits in.
+ */
+
+/* ===========================================================================
+   Overlay & book frame
+   ========================================================================= */
+
+.journal {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-panel);
+  display: grid;
+  place-items: center;
+  /* Closed, the book is out of the room entirely: no pointer, no paint. The
+     delayed visibility lets the swing finish before it disappears. */
+  visibility: hidden;
+  /* Held open until the swing has finished, so the book is never cut off
+     mid-close; on the way in the delay is zero and it appears at once. */
+  transition: visibility 0s linear calc(var(--dur-slow) * 1.1);
+
+  /* Declared on the root rather than on `.journal__frame` because the card a
+     player is dragging is re-parented up here, outside the book, and would
+     otherwise lose its paper stock mid-flight. Container units inside these
+     values still resolve against the frame, since that is where they are used. */
+  --spine-w: clamp(1.1rem, 3cqw, 2.6rem);
+  --page-pad: clamp(0.85rem, 2.1cqw, 2.1rem);
+  --leaf-radius: clamp(2px, 0.5cqw, 6px);
+
+  /* Leather: warm brown built from the lamp key, never a brown literal. */
+  --leather-hi: color-mix(in srgb, var(--lamp-600) 46%, var(--ink-700));
+  --leather-mid: color-mix(in srgb, var(--lamp-600) 26%, var(--ink-900));
+  --leather-lo: color-mix(in srgb, var(--lamp-600) 12%, var(--ink-abyss));
+  --thread: color-mix(in srgb, var(--paper-300) 40%, transparent);
+  --cork: color-mix(in srgb, var(--paper-400) 40%, var(--ink-800));
+
+  --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain-hide: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='h'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.045 .06' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23h)'/%3E%3C/svg%3E");
+}
+
+.journal.is-open {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.journal__scrim {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  opacity: 0;
+  background:
+    radial-gradient(
+      70% 60% at 50% 46%,
+      color-mix(in srgb, var(--ink-abyss) 62%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 88%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-900) 70%, transparent),
+      color-mix(in srgb, var(--ink-abyss) 92%, transparent)
+    );
+  backdrop-filter: blur(3px) saturate(0.72);
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.journal.is-open .journal__scrim {
+  opacity: 1;
+}
+
+.journal__frame {
+  /* `.stage-box` gives the definite 16:10 box; making it a size container is
+     what lets every measurement below be expressed in cqw/cqh. */
+  position: relative;
+  container-type: size;
+  container-name: journal;
+  display: grid;
+  place-items: center;
+  /* The book swings toward the reader; without depth it just skews. */
+  perspective: 2200px;
+  perspective-origin: 50% 46%;
+}
+
+.journal__book {
+  position: absolute;
+  inset: 5cqh 11cqw 5cqh 6cqw;
+  border-radius: calc(var(--leaf-radius) * 2);
+  padding: clamp(0.5rem, 1.3cqw, 1.4rem);
+  transform-style: preserve-3d;
+  /* Origin on the spine: the book opens like a door hinged at its centre. */
+  transform-origin: 50% 50%;
+  transform: rotateY(-74deg) rotateX(5deg) scale(0.92);
+  opacity: 0;
+  background-color: var(--leather-mid);
+  background-image:
+    linear-gradient(
+      100deg,
+      var(--leather-lo) 0%,
+      var(--leather-mid) 22%,
+      var(--leather-hi) 49%,
+      var(--leather-mid) 51%,
+      var(--leather-lo) 100%
+    ),
+    radial-gradient(
+      120% 90% at 50% -10%,
+      color-mix(in srgb, var(--lamp-300) 14%, transparent) 0%,
+      transparent 62%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    inset 0 -18px 26px -22px var(--ink-abyss),
+    var(--shadow-4);
+  transition:
+    transform calc(var(--dur-slow) * 1.08) var(--ease-drama),
+    opacity var(--dur-med) var(--ease-out);
+}
+
+.journal.is-open .journal__book {
+  transform: rotateY(0) rotateX(0) scale(1);
+  opacity: 1;
+}
+
+/* Pebbled hide, so the cover never reads as a CSS gradient. */
+.journal__book::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: var(--grain-hide);
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+}
+
+/** The saddle stitch running just inside the cover edge. */
+.journal__stitch {
+  position: absolute;
+  inset: clamp(0.28rem, 0.7cqw, 0.75rem);
+  border-radius: calc(var(--leaf-radius) * 1.6);
+  border: 1px dashed var(--thread);
+  opacity: 0.5;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 40%, transparent),
+    0 1px 0 color-mix(in srgb, var(--ink-abyss) 55%, transparent);
+}
+
+/* ===========================================================================
+   The spread — two leaves and the gutter between them
+   ========================================================================= */
+
+.journal__spread-frame {
+  position: relative;
+  height: 100%;
+  border-radius: var(--leaf-radius);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ink-abyss) 55%, transparent),
+    inset 0 0 30px -6px color-mix(in srgb, var(--ink-abyss) 60%, transparent);
+}
+
+.journal__leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(50% + 1px);
+  background-color: var(--paper-200);
+  /* Aged sizing: a bright quarter where the lamp falls, foxing in the
+     corners, and a warm shift toward the gutter where the page curves away. */
+  background-image:
+    radial-gradient(
+      70% 52% at 26% 16%,
+      color-mix(in srgb, var(--paper-100) 95%, transparent) 0%,
+      transparent 64%
+    ),
+    radial-gradient(
+      22% 16% at 74% 26%,
+      color-mix(in srgb, var(--paper-400) 26%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      16% 12% at 18% 78%,
+      color-mix(in srgb, var(--paper-400) 22%, transparent) 0%,
+      transparent 74%
+    ),
+    radial-gradient(
+      30% 22% at 88% 92%,
+      color-mix(in srgb, var(--paper-400) 30%, transparent) 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--paper-100) 86%, transparent) 0%,
+      color-mix(in srgb, var(--paper-200) 92%, transparent) 46%,
+      color-mix(in srgb, var(--paper-300) 72%, transparent) 100%
+    );
+}
+
+.journal__leaf--left {
+  left: 0;
+  box-shadow: inset -14px 0 24px -18px color-mix(in srgb, var(--paper-ink) 80%, transparent);
+}
+
+.journal__leaf--right {
+  right: 0;
+  box-shadow: inset 14px 0 24px -18px color-mix(in srgb, var(--paper-ink) 80%, transparent);
+}
+
+/* Fibre. Multiply, so it darkens the tooth of the paper instead of fogging it. */
+.journal__leaf::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain-fine);
+  background-size: 140px 140px;
+  mix-blend-mode: multiply;
+  opacity: 0.11;
+  pointer-events: none;
+}
+
+/** The spine shadow: where the two leaves fall into the binding. */
+.journal__gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--spine-w);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--paper-ink) 10%, transparent) 24%,
+      color-mix(in srgb, var(--paper-ink) 34%, transparent) 46%,
+      color-mix(in srgb, var(--paper-ink) 40%, transparent) 50%,
+      color-mix(in srgb, var(--paper-ink) 30%, transparent) 54%,
+      color-mix(in srgb, var(--paper-ink) 8%, transparent) 76%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-abyss) 22%, transparent) 0%,
+      transparent 12%,
+      transparent 88%,
+      color-mix(in srgb, var(--ink-abyss) 22%, transparent) 100%
+    );
+}
+
+/* ===========================================================================
+   Panel & page furniture
+   ========================================================================= */
+
+.journal__panel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: calc(var(--page-pad) * 1.15) var(--page-pad);
+  color: var(--paper-ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+}
+
+.journal__panel:focus {
+  outline: none;
+}
+
+/* Each tab change washes across the spread like a turned leaf. */
+.journal__panel.is-turning {
+  animation: journal-turn var(--dur-slow) var(--ease-out) both;
+}
+
+@keyframes journal-turn {
+  from {
+    opacity: 0;
+    transform: translate3d(1.2%, 0, 0) rotateY(2.4deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.journal-spread {
+  height: 100%;
+  min-height: 0;
+}
+
+.journal-spread--prose {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--spine-w);
+}
+
+.journal-scroll,
+.jp-col {
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: var(--sp-2);
+}
+
+.jp-kicker {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--paper-ink-faded) 88%, transparent);
+  margin-bottom: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 22%, transparent);
+}
+
+.jp-kicker--cork {
+  color: color-mix(in srgb, var(--paper-100) 76%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--ink-abyss) 34%, transparent);
+}
+
+.jp-title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 700;
+  color: var(--paper-ink);
+  margin-bottom: var(--sp-3);
+  text-wrap: balance;
+}
+
+.jp-epigraph {
+  font-style: italic;
+  color: var(--paper-ink-faded);
+  font-size: var(--step-0);
+  margin-bottom: var(--sp-3);
+  padding-left: var(--sp-4);
+  border-left: 2px solid color-mix(in srgb, var(--blood) 40%, transparent);
+}
+
+.jp-lede {
+  font-size: var(--step-1);
+  line-height: var(--leading-body);
+  color: color-mix(in srgb, var(--paper-ink) 92%, transparent);
+  margin-bottom: var(--sp-5);
+  text-wrap: pretty;
+}
+
+.case-stats {
+  display: grid;
+  gap: var(--sp-2);
+  padding-top: var(--sp-4);
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 18%, transparent);
+}
+
+.case-stat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.case-stat dt {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--paper-ink-faded);
+}
+
+/* A leader rule between label and figure, the way a ledger sets a column. */
+.case-stat dt::after {
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+}
+
+.case-stat dd {
+  margin-left: auto;
+  font-family: var(--font-hand);
+  font-size: var(--step-2);
+  line-height: 1;
+  color: color-mix(in srgb, var(--amethyst) 70%, var(--paper-ink));
+}
+
+/* -- empty states ---------------------------------------------------------- */
+
+.jp-empty {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--sp-3);
+  height: 100%;
+  min-height: 40cqh;
+  padding: var(--sp-6);
+  text-align: center;
+  color: var(--paper-ink-faded);
+}
+
+.jp-empty__flourish {
+  display: block;
+  width: clamp(7rem, 16cqw, 12rem);
+  color: color-mix(in srgb, var(--paper-ink) 42%, transparent);
+  opacity: 0.8;
+}
+
+.jp-empty__flourish svg {
+  width: 100%;
+  height: auto;
+}
+
+.jp-empty__title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  color: color-mix(in srgb, var(--paper-ink) 80%, transparent);
+}
+
+.jp-empty__line {
+  max-width: 34ch;
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--paper-ink-faded) 92%, transparent);
+}
+
+/* ===========================================================================
+   Index tabs — leather, stitched down the fore edge
+   ========================================================================= */
+
+.journal__tabs {
+  position: absolute;
+  left: calc(100% - 1px);
+  top: 7%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.2rem, 0.7cqh, 0.6rem);
+}
+
+.journal-tab {
+  position: relative;
+  display: block;
+  padding: clamp(0.6rem, 1.5cqh, 1.2rem) clamp(0.3rem, 0.7cqw, 0.6rem);
+  border: 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background-color: var(--leather-mid);
+  background-image:
+    linear-gradient(
+      180deg,
+      var(--leather-hi) 0%,
+      var(--leather-mid) 44%,
+      var(--leather-lo) 100%
+    ),
+    var(--grain-hide);
+  background-size:
+    100% 100%,
+    200px 200px;
+  background-blend-mode: normal, overlay;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-2);
+  transform: translateX(-0.35cqw);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    filter var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.journal-tab__face {
+  display: block;
+  writing-mode: vertical-rl;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--paper-200) 62%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+/** The brass pip that lights when a tab is the live one. */
+.journal-tab__pip {
+  position: absolute;
+  left: 0.35em;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lamp-600) 70%, transparent);
+  transition:
+    background var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.journal-tab:hover,
+.journal-tab:focus-visible {
+  transform: translateX(0.55cqw);
+  filter: brightness(1.14);
+}
+
+.journal-tab:hover .journal-tab__face,
+.journal-tab:focus-visible .journal-tab__face {
+  color: color-mix(in srgb, var(--paper-100) 88%, transparent);
+}
+
+.journal-tab.is-active {
+  transform: translateX(1.1cqw);
+  background-image:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--lamp-500) 34%, var(--leather-hi)) 0%,
+      var(--leather-mid) 52%,
+      var(--leather-lo) 100%
+    ),
+    var(--grain-hide);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-2),
+    var(--glow-lamp-soft);
+}
+
+.journal-tab.is-active .journal-tab__face {
+  color: var(--lamp-100);
+}
+
+.journal-tab.is-active .journal-tab__pip {
+  background: var(--lamp-200);
+  box-shadow: var(--glow-lamp);
+}
+
+/* ===========================================================================
+   Close catch
+   ========================================================================= */
+
+.journal__close {
+  position: absolute;
+  top: calc(var(--sp-3) * -1);
+  right: calc(var(--sp-3) * -1);
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(1.8rem, 3.2cqw, 2.8rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: var(--lamp-200);
+  background-image:
+    linear-gradient(
+      170deg,
+      color-mix(in srgb, var(--lamp-400) 46%, var(--ink-700)) 0%,
+      color-mix(in srgb, var(--ink-800) 92%, var(--lamp-600)) 72%,
+      var(--ink-900) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    var(--shadow-2);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+}
+
+.journal__close svg {
+  width: 62%;
+  height: 62%;
+}
+
+.journal__close:hover,
+.journal__close:focus-visible {
+  filter: brightness(1.2);
+  transform: rotate(90deg);
+}
+
+.journal__close:active {
+  transform: rotate(90deg) scale(0.94);
+}
+
+/* ===========================================================================
+   CASE — handwritten task list
+   ========================================================================= */
+
+.task-list {
+  display: grid;
+  gap: var(--sp-3);
+  list-style: none;
+  padding: 0;
+  /* Faint ruling, so the hand-written list sits on lines like a real page. */
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent calc(2.1em - 1px),
+    color-mix(in srgb, var(--moon-400) 16%, transparent) calc(2.1em - 1px),
+    color-mix(in srgb, var(--moon-400) 16%, transparent) 2.1em
+  );
+}
+
+.task {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--sp-3);
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--amethyst) 55%, var(--paper-ink));
+}
+
+.task__box {
+  display: block;
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: 0.12em;
+  color: color-mix(in srgb, var(--paper-ink) 62%, transparent);
+}
+
+.task__box svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The tick is drawn, not revealed: 34 units of stroke pay themselves out. */
+.task__tick {
+  stroke-dasharray: 34;
+  stroke-dashoffset: 34;
+  opacity: 0;
+  transition:
+    stroke-dashoffset calc(var(--dur-slow) * 1.2) var(--ease-out),
+    opacity var(--dur-fast) linear;
+}
+
+.task.is-done .task__tick {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+.task.is-done .task__box {
+  color: color-mix(in srgb, var(--verdigris) 72%, var(--paper-ink));
+}
+
+.task__text {
+  position: relative;
+  display: inline-block;
+  transition: color var(--dur-slow) var(--ease-out);
+}
+
+.task.is-done .task__text {
+  color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
+}
+
+/** The struck line is ink laid over the words, so it draws left to right. */
+.task__strike {
+  position: absolute;
+  left: -0.1em;
+  right: -0.1em;
+  top: 55%;
+  height: 0.09em;
+  min-height: 1px;
+  border-radius: 99px;
+  transform: scaleX(0) rotate(-0.5deg);
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--paper-ink) 55%, transparent) 0%,
+    color-mix(in srgb, var(--paper-ink) 88%, transparent) 18%,
+    color-mix(in srgb, var(--paper-ink) 70%, transparent) 62%,
+    color-mix(in srgb, var(--paper-ink) 92%, transparent) 100%
+  );
+  transition: transform calc(var(--dur-slow) * 1.3) var(--ease-out);
+}
+
+.task.is-done .task__strike {
+  transform: scaleX(1) rotate(-0.5deg);
+}
+
+/* ===========================================================================
+   CLUES — pinned index cards
+   ========================================================================= */
+
+.clue-group {
+  margin-bottom: var(--sp-6);
+}
+
+.clue-group__head {
+  position: relative;
+  display: grid;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 20%, transparent);
+}
+
+.clue-group__title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  color: var(--paper-ink);
+}
+
+.clue-group__blurb {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--step--1);
+  color: var(--paper-ink-faded);
+}
+
+.clue-group__count {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
+}
+
+.clue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(11rem, 19cqw, 16rem), 1fr));
+  gap: clamp(var(--sp-4), 2cqw, var(--sp-6));
+}
+
+.clue-card {
+  position: relative;
+  padding: calc(var(--sp-5) - var(--sp-1)) var(--sp-4) var(--sp-3);
+  border-radius: var(--radius-sm);
+  transform: rotate(var(--tilt, 0deg));
+  background-color: var(--paper-100);
+  background-image:
+    linear-gradient(
+      178deg,
+      color-mix(in srgb, var(--paper-100) 96%, transparent) 0%,
+      color-mix(in srgb, var(--paper-200) 88%, transparent) 74%,
+      color-mix(in srgb, var(--paper-300) 78%, transparent) 100%
+    ),
+    var(--grain-fine);
+  background-size:
+    100% 100%,
+    140px 140px;
+  background-blend-mode: normal, multiply;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 90%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 60%, transparent),
+    var(--shadow-2);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.clue-card:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 90%, transparent),
+    var(--shadow-3);
+}
+
+/** The pin head that holds the card to the page. */
+.clue-card__pin,
+.ded-card__pin,
+.ded-suspect__pin {
+  position: absolute;
+  top: calc(var(--sp-2) * -0.5);
+  left: 50%;
+  width: clamp(0.5rem, 1.1cqw, 0.85rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      60% 60% at 34% 30%,
+      var(--lamp-100) 0%,
+      var(--lamp-300) 34%,
+      var(--lamp-500) 68%,
+      var(--lamp-600) 100%
+    );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--lamp-100) 40%, transparent) inset,
+    0 2px 4px color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    0 0 8px -2px color-mix(in srgb, var(--lamp-300) 60%, transparent);
+}
+
+.clue-card__name {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--paper-ink);
+  margin-bottom: var(--sp-2);
+}
+
+.clue-card__summary {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--paper-ink) 84%, transparent);
+  text-wrap: pretty;
+}
+
+.clue-card__foot {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 14%, transparent);
+}
+
+.clue-card__act {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
+}
+
+/* -- the "new" wax seal ---------------------------------------------------- */
+
+.clue-card.is-fresh {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 90%, transparent),
+    var(--shadow-2),
+    0 0 0 1px color-mix(in srgb, var(--lamp-400) 40%, transparent),
+    var(--glow-lamp-soft);
+}
+
+.wax-seal {
+  position: absolute;
+  right: calc(var(--sp-3) * -0.6);
+  bottom: calc(var(--sp-3) * -0.6);
+  display: grid;
+  place-items: center;
+  width: clamp(1.6rem, 3cqw, 2.4rem);
+  aspect-ratio: 1;
+  transform: rotate(-8deg);
+  /* Wax is poured, not cut: an irregular blob with a pressed centre. */
+  border-radius: 46% 54% 52% 48% / 50% 46% 54% 50%;
+  background:
+    radial-gradient(
+      70% 70% at 32% 28%,
+      color-mix(in srgb, var(--blood-bright) 92%, var(--lamp-300)) 0%,
+      var(--blood-bright) 38%,
+      var(--blood) 72%,
+      color-mix(in srgb, var(--blood) 70%, var(--ink-abyss)) 100%
+    );
+  box-shadow:
+    inset 0 1px 2px color-mix(in srgb, var(--lamp-100) 26%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--ink-abyss) 60%, transparent),
+    var(--shadow-2);
+  animation: seal-breathe calc(var(--dur-scene) * 5) var(--ease-in-out) infinite;
+}
+
+.wax-seal__mark {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: color-mix(in srgb, var(--blood) 40%, var(--ink-abyss));
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--blood-bright) 60%, transparent);
+}
+
+@keyframes seal-breathe {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.16);
+  }
+}
+
+/* ===========================================================================
+   PEOPLE — dossier cards
+   ========================================================================= */
+
+.person-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(15rem, 28cqw, 24rem), 1fr));
+  gap: clamp(var(--sp-4), 2.4cqw, var(--sp-6));
+}
+
+.person-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border-radius: var(--radius-sm);
+  transform: rotate(calc(var(--tilt, 0deg) * 0.4));
+  background-image:
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--paper-100) 92%, transparent) 0%,
+      color-mix(in srgb, var(--paper-200) 80%, transparent) 100%
+    ),
+    var(--grain-fine);
+  background-size:
+    100% 100%,
+    140px 140px;
+  background-blend-mode: normal, multiply;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 88%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 55%, transparent),
+    var(--shadow-2);
+}
+
+.person-card__plate {
+  width: clamp(3.4rem, 7cqw, 5.6rem);
+}
+
+.person-card__portrait,
+.ded-suspect__portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(
+      170deg,
+      color-mix(in srgb, var(--ink-600) 90%, var(--lamp-600)) 0%,
+      var(--ink-900) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-500) 40%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 24%, transparent),
+    inset 0 -12px 18px -14px var(--ink-abyss),
+    0 2px 6px color-mix(in srgb, var(--ink-abyss) 55%, transparent);
+}
+
+.portrait-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portrait-mono {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  color: color-mix(in srgb, var(--lamp-300) 70%, transparent);
+  text-shadow: 0 1px 2px var(--ink-abyss);
+}
+
+/* Real art wins; the monogram is only ever the understudy. */
+.person-card__portrait:has(.portrait-art) .portrait-mono,
+.ded-suspect__portrait:has(.portrait-art) .portrait-mono {
+  display: none;
+}
+
+.person-card__name {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--paper-ink);
+}
+
+.person-card__name::after {
+  content: '';
+  display: block;
+  width: 2.4em;
+  height: 2px;
+  margin-top: var(--sp-1);
+  border-radius: 99px;
+  background: var(--accent-person, color-mix(in srgb, var(--paper-ink) 40%, transparent));
+  opacity: 0.7;
+}
+
+.person-card__role {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--paper-ink-faded);
+  margin: var(--sp-2) 0 var(--sp-3);
+}
+
+.person-card__bio {
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--paper-ink) 86%, transparent);
+  text-wrap: pretty;
+}
+
+.person-card__label {
+  margin: var(--sp-3) 0 var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--paper-ink-faded) 76%, transparent);
+}
+
+.person-card__none {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  color: color-mix(in srgb, var(--paper-ink-faded) 80%, transparent);
+}
+
+.person-card__clues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  list-style: none;
+  padding: 0;
+}
+
+.ink-chip {
+  padding: 0.15em 0.6em;
+  border-radius: 99px;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  color: color-mix(in srgb, var(--paper-ink) 88%, transparent);
+  background: color-mix(in srgb, var(--paper-400) 26%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 60%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--paper-ink) 14%, transparent);
+}
+
+/* ===========================================================================
+   DEDUCTION — the cork board
+   ========================================================================= */
+
+.ded {
+  height: 100%;
+  min-height: 0;
+}
+
+.ded__board {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  column-gap: var(--spine-w);
+  height: 100%;
+  min-height: 0;
+  padding: var(--sp-3);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--cork);
+  /* Cork: warm crumb, unevenly lit, darker where the frame shades it. */
+  background-image:
+    radial-gradient(
+      60% 50% at 22% 12%,
+      color-mix(in srgb, var(--lamp-500) 22%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 44% at 82% 84%,
+      color-mix(in srgb, var(--ink-abyss) 32%, transparent) 0%,
+      transparent 72%
+    ),
+    var(--grain-hide),
+    var(--grain-fine);
+  background-size:
+    100% 100%,
+    100% 100%,
+    200px 200px,
+    140px 140px;
+  background-blend-mode: normal, normal, overlay, multiply;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-200) 26%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    inset 0 0 44px -8px color-mix(in srgb, var(--ink-abyss) 70%, transparent);
+}
+
+/** Red string lives above the cork and below the cards. */
+.ded__strings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ded-string {
+  fill: none;
+  stroke: var(--blood-bright);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--blood) 60%, transparent));
+}
+
+.ded-string--shadow {
+  stroke: var(--ink-abyss);
+  stroke-width: 2.6;
+  opacity: 0.34;
+  filter: blur(1.4px);
+  transform: translate(1.5px, 3px);
+}
+
+.ded__tray,
+.ded__suspects {
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+}
+
+.ded__tray {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.ded__tray-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(7rem, 13cqw, 10rem), 1fr));
+  align-content: start;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-2) var(--sp-4);
+  overflow-y: auto;
+}
+
+.ded__hint {
+  padding-top: var(--sp-2);
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  color: color-mix(in srgb, var(--paper-100) 68%, transparent);
+}
+
+/* -- draggable clue cards -------------------------------------------------- */
+
+.ded-card {
+  position: relative;
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-3) var(--sp-2);
+  text-align: left;
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  touch-action: none;
+  transform: rotate(var(--tilt, 0deg));
+  background-image:
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--paper-100) 95%, transparent) 0%,
+      color-mix(in srgb, var(--paper-200) 86%, transparent) 100%
+    ),
+    var(--grain-fine);
+  background-size:
+    100% 100%,
+    140px 140px;
+  background-blend-mode: normal, multiply;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 88%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 60%, transparent),
+    var(--shadow-2);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    opacity var(--dur-fast) linear;
+}
+
+/* While a card is in flight the whole book adopts the closed-hand cursor,
+   so the drag reads as continuous even over the gutter and the cork. */
+.journal.is-dragging,
+.journal.is-dragging .ded-card {
+  cursor: grabbing;
+}
+
+.ded-card:active {
+  cursor: grabbing;
+}
+
+.ded-card:hover,
+.ded-card:focus-visible {
+  transform: rotate(0deg) translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-3);
+}
+
+.ded-card__name {
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--paper-ink);
+}
+
+.ded-card__cat {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--paper-ink-faded) 72%, transparent);
+}
+
+.ded-card.is-pinned::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blood-bright) 55%, transparent);
+}
+
+.ded-card.is-lifted {
+  opacity: 0.22;
+  box-shadow: inset 0 0 18px -6px var(--ink-abyss);
+}
+
+.ded-card.is-carried {
+  transform: rotate(0deg) translateY(-4px);
+  box-shadow:
+    var(--shadow-3),
+    0 0 0 2px var(--accent);
+}
+
+/** The floating copy that actually follows the pointer. */
+.ded-card--ghost {
+  position: fixed;
+  z-index: var(--z-toast);
+  margin: 0;
+  pointer-events: none;
+  cursor: grabbing;
+  /* Lifted cards straighten: a hand holding a card holds it square. */
+  transform-origin: 50% 50%;
+  rotate: 0deg;
+  scale: 1.06;
+  box-shadow: var(--shadow-4);
+  transition: none;
+}
+
+.ded-card--ghost.is-returning {
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    opacity var(--dur-med) var(--ease-out);
+  opacity: 0;
+}
+
+.ded-card--ghost.is-thunk {
+  animation: ded-thunk var(--dur-med) var(--ease-out) both;
+}
+
+@keyframes ded-thunk {
+  0% {
+    scale: 1.06;
+    opacity: 1;
+  }
+  55% {
+    scale: 0.9;
+    opacity: 0.9;
+  }
+  100% {
+    scale: 0.62;
+    opacity: 0;
+  }
+}
+
+/* -- suspect columns ------------------------------------------------------- */
+
+.ded__suspects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(9rem, 16cqw, 13rem), 1fr));
+  align-content: start;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-2);
+  overflow-y: auto;
+}
+
+.ded-suspect {
+  position: relative;
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-3) var(--sp-3);
+  border-radius: var(--radius-sm);
+  background-image: linear-gradient(
+    177deg,
+    color-mix(in srgb, var(--ink-800) 76%, transparent) 0%,
+    color-mix(in srgb, var(--ink-900) 82%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent),
+    var(--shadow-2);
+}
+
+.ded-suspect__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.ded-suspect__portrait {
+  width: clamp(1.9rem, 3.6cqw, 3rem);
+}
+
+/* Lets the name column shrink instead of forcing the tally off the card. */
+.ded-suspect__id {
+  min-width: 0;
+}
+
+.ded-suspect__name {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+}
+
+.ded-suspect__role {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--text-secondary);
+}
+
+.ded-suspect__tally {
+  display: grid;
+  place-items: center;
+  min-width: 1.7em;
+  height: 1.7em;
+  padding: 0 0.35em;
+  border-radius: 99px;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  color: var(--lamp-100);
+  background: color-mix(in srgb, var(--blood) 70%, var(--ink-900));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--blood-bright) 70%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
+}
+
+/* -- charge bands ---------------------------------------------------------- */
+
+.ded-band {
+  position: relative;
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-2);
+  border-radius: var(--radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--lamp-500) 26%, transparent);
+  background: color-mix(in srgb, var(--ink-abyss) 26%, transparent);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.ded-band.is-hot {
+  border-color: var(--accent);
+  border-style: solid;
+  background: color-mix(in srgb, var(--lamp-500) 22%, transparent);
+  box-shadow: var(--glow-lamp);
+}
+
+.ded-band__label {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--text-secondary) 90%, transparent);
+}
+
+.ded-band__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.ded-band__empty {
+  font-family: var(--font-body);
+  color: var(--text-muted);
+}
+
+.ded-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  max-width: 100%;
+  padding: 0.1em 0.2em 0.1em 0.5em;
+  border-radius: 99px;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  color: var(--paper-100);
+  background: linear-gradient(
+    177deg,
+    color-mix(in srgb, var(--blood) 82%, transparent),
+    color-mix(in srgb, var(--blood) 52%, var(--ink-900))
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--blood-bright) 70%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    var(--shadow-1);
+  animation: chip-thunk var(--dur-med) var(--ease-drama) both;
+}
+
+@keyframes chip-thunk {
+  from {
+    transform: scale(1.22) translateY(-3px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.ded-chip__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ded-chip__unpin {
+  display: grid;
+  place-items: center;
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 50%;
+  font-family: var(--font-ui);
+  line-height: 1;
+  color: color-mix(in srgb, var(--paper-100) 80%, transparent);
+  background: color-mix(in srgb, var(--ink-abyss) 40%, transparent);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.ded-chip__unpin:hover,
+.ded-chip__unpin:focus-visible {
+  background: var(--blood-bright);
+  color: var(--lamp-100);
+}
+
+/** The keyboard drop target. Invisible until a clue is actually in hand. */
+.ded-band__drop {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--lamp-100);
+  background: color-mix(in srgb, var(--ink-abyss) 66%, transparent);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.ded.is-carrying .ded-band__drop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ded.is-carrying .ded-band {
+  border-color: color-mix(in srgb, var(--lamp-400) 55%, transparent);
+}
+
+/* ===========================================================================
+   MAP — parchment nodes joined by ink routes
+   ========================================================================= */
+
+.map {
+  position: relative;
+  display: grid;
+  gap: var(--sp-5);
+  align-content: start;
+  padding: var(--sp-3) var(--sp-2) var(--sp-5);
+}
+
+.map__routes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.map-route {
+  fill: none;
+  stroke: color-mix(in srgb, var(--paper-ink) 55%, transparent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 7 5;
+  opacity: 0.7;
+}
+
+.map__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--map-cols, 3), minmax(0, 1fr));
+  gap: clamp(var(--sp-4), 3cqw, var(--sp-7));
+  list-style: none;
+  padding: 0;
+}
+
+.map-node-cell {
+  display: grid;
+}
+
+.map-node {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-3) var(--sp-2);
+  border-radius: var(--radius-sm);
+  transform: rotate(calc(var(--tilt, 0deg) * 0.5));
+  background-image:
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--paper-100) 88%, transparent) 0%,
+      color-mix(in srgb, var(--paper-300) 62%, transparent) 100%
+    ),
+    var(--grain-fine);
+  background-size:
+    100% 100%,
+    140px 140px;
+  background-blend-mode: normal, multiply;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 84%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 60%, transparent),
+    var(--shadow-1);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.map-node:hover,
+.map-node:focus-visible {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+.map-node__mark {
+  width: clamp(0.55rem, 1.1cqw, 0.9rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    60% 60% at 36% 32%,
+    color-mix(in srgb, var(--paper-ink-faded) 60%, transparent) 0%,
+    var(--paper-ink) 70%
+  );
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--paper-ink) 16%, transparent);
+}
+
+.map-node__name {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--paper-ink);
+}
+
+.map-node.is-here {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 84%, transparent),
+    var(--shadow-2),
+    var(--glow-lamp-soft);
+}
+
+.map-node.is-here .map-node__mark {
+  background: radial-gradient(60% 60% at 36% 32%, var(--lamp-100) 0%, var(--lamp-400) 72%);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--lamp-400) 30%, transparent),
+    var(--glow-lamp);
+}
+
+.map__legend {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  text-align: right;
+  color: color-mix(in srgb, var(--paper-ink-faded) 78%, transparent);
+}
+
+/* ===========================================================================
+   Focus, scrollbars & motion
+   ========================================================================= */
+
+/* On paper the amber ring needs a dark carrier or it disappears into the
+   page; on cork and leather it stands on its own. */
+.journal__panel :focus-visible {
+  outline: 2px solid var(--lamp-500);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--lamp-400) 26%, transparent);
+}
+
+.journal__panel .ded :focus-visible,
+.journal-tab:focus-visible,
+.journal__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.journal-scroll,
+.jp-col,
+.ded__tray-scroll,
+.ded__suspects {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--paper-400) 80%, transparent) transparent;
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Keep the atmosphere, drop the travel: the book still fades in, but it no
+     longer swings, and nothing loops. */
+  .journal__book {
+    transform: scale(0.99);
+  }
+
+  .wax-seal,
+  .ded-chip,
+  .journal__panel.is-turning {
+    animation: none;
+  }
+}

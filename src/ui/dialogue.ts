@@ -500,11 +500,23 @@ export class DialogueView {
   private onKey(ev: KeyboardEvent) {
     if (!this.active) return;
     const mode = this.el.dataset.mode;
+    // `busy` means a node's own effects are on screen — narration, a toast, a
+    // cinematic. Those own the keyboard until they are done with it.
+    if (mode !== 'speaking' && mode !== 'choosing') return;
 
     if (ev.key === 'Escape') {
       ev.preventDefault();
       ev.stopPropagation();
       this.requestEnd();
+      return;
+    }
+
+    // Tab is trapped rather than blocked: while a conversation is up, the
+    // plates are the only things in the document worth reaching.
+    if (ev.key === 'Tab') {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (this.plates.length) this.focusPlate(this.cursor + (ev.shiftKey ? -1 : 1));
       return;
     }
 
@@ -517,16 +529,7 @@ export class DialogueView {
       return;
     }
 
-    if (mode !== 'choosing' || !this.plates.length) return;
-
-    // Tab is trapped rather than blocked: the plates are the only things worth
-    // reaching while a conversation is up.
-    if (ev.key === 'Tab') {
-      ev.preventDefault();
-      ev.stopPropagation();
-      this.focusPlate(this.cursor + (ev.shiftKey ? -1 : 1));
-      return;
-    }
+    if (!this.plates.length) return;
 
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowRight') {
       ev.preventDefault();
@@ -597,11 +600,13 @@ export class DialogueView {
     await preload(character.portrait);
     this.face = 0;
     this.faces[0].src = character.portrait;
+    // The resolved `.src` is absolute, so remember the content path verbatim —
+    // it is the only reliable way to tell "already showing this mood".
+    this.faces[0].dataset.src = character.portrait;
     this.faces[0].classList.add('is-front');
     this.faces[1].classList.remove('is-front');
     this.faces[1].removeAttribute('src');
-    // The name is on the nameplate, so the portrait itself is decoration.
-    this.faces[0].alt = '';
+    delete this.faces[1].dataset.src;
   }
 
   /**
@@ -614,12 +619,13 @@ export class DialogueView {
     const src = name ? character.moods![name] : null;
     if (!src) return;
 
-    const next = this.faces[this.face === 0 ? 1 : 0];
     const current = this.faces[this.face];
-    if (next.src.endsWith(src)) return;
+    if (current.dataset.src === src) return;
 
+    const next = this.faces[this.face === 0 ? 1 : 0];
     void preload(src).then(() => {
       next.src = src;
+      next.dataset.src = src;
       next.classList.add('is-front');
       current.classList.remove('is-front');
       this.face = this.face === 0 ? 1 : 0;

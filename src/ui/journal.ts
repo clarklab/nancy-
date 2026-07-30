@@ -742,7 +742,10 @@ export class Journal {
     const rect = card.getBoundingClientRect();
     const ghost = card.cloneNode(true) as HTMLElement;
     ghost.classList.add('ded-card--ghost');
+    // The copy is scenery: it must not be findable by `[data-clue]` string
+    // layout, focusable, or announced a second time.
     ghost.removeAttribute('data-clue');
+    ghost.inert = true;
     ghost.style.left = `${rect.left}px`;
     ghost.style.top = `${rect.top}px`;
     ghost.style.width = `${rect.width}px`;
