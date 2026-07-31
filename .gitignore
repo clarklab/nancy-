@@ -1,0 +1,28 @@
+node_modules
+dist
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+tools/.artcache
+
+# Agent scratch: screenshot harnesses write here during review runs.
+tmp/
+shots/
+dist-smoke/
+
+# Agent scratch: subagents drop one-off probe scripts at the repo root while
+# they verify their own work. These carry hardcoded absolute paths and must
+# never ship — the committed harnesses live in tools/.
+/.*.mjs
+/.*.cjs
+/_*.mjs
+/_*.cjs
+/_*.ts
+/*-probe.*
+/*probe*.mjs
+/shoot*.mjs
+
+# Screenshot output from tools/shoot.mjs — regenerable build artifacts.
+/shots/

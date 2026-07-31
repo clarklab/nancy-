@@ -1,0 +1,390 @@
+{
+  "count": 64,
+  "characters": 9478,
+  "lines": [
+    {
+      "id": "greet-sabine-ferrier-kyne-a1",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "greeting",
+      "text": "Miss Adare. Nine days. You will want the strongroom key, a desk with north light, and somebody to stop apologising to you. I can manage two of the three."
+    },
+    {
+      "id": "greet-sabine-ferrier-kyne-a2",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "greeting",
+      "text": "You slept in the Binding Room. There is a kettle in the Rolls Room and Mrs Verge will pretend it is hers. Ask her anyway; she likes being asked."
+    },
+    {
+      "id": "line-sab-a2-02",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "lie-trap",
+      "text": "Series 14/B was reboxed in 1989 for mould. Nothing was withdrawn. — Six items on my own schedule are not on the shelf. I signed that schedule. I am not going to tell you the arithmetic is wrong."
+    },
+    {
+      "id": "greet-sabine-ferrier-kyne-a3",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "greeting",
+      "text": "Miss Adare. There is a fax on my desk I did not ask for and do not welcome. You will find the building unchanged. You will find me unchanged."
+    },
+    {
+      "id": "line-sab-a3-04",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "lie-trap",
+      "text": "I typed for my father. That is the whole of it. — No. I was thirty-four in that autumn, and I was not called, and I have never once said in my life that I should have been."
+    },
+    {
+      "id": "greet-sabine-ferrier-kyne-a4",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "greeting",
+      "text": "Miss Adare. You have stopped saying good morning to me. I notice such things, and I do not blame you for it, and I would rather you did not start again out of manners."
+    },
+    {
+      "id": "line-sab-a4-03",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "lie-trap",
+      "text": "I had no idea what Mr Sallow intended to send. — Rule 4. Mrs Charnock's rule. Thirty years of it and I never once thought of the spool. Yes. It was typed. It was not posted."
+    },
+    {
+      "id": "line-sab-a4-05",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "lie-trap",
+      "text": "Standing Order 7. Every reader's slip passes the Warden's pigeonhole. — You have kept your own stubs in your own hand for nine days, out of habit. I did wonder whether you would."
+    },
+    {
+      "id": "greet-sabine-ferrier-kyne-a5",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "greeting",
+      "text": "Wren. — There. I have used it once and I shall not use it again. Sit nearer the stove. This room takes an hour to warm and we have eleven."
+    },
+    {
+      "id": "line-sab-a5-04",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "lie-trap",
+      "text": "The rail was made good because a rail was dangerous. — I knew baluster 3 was loose from the second of September, and I stood in front of it with him for forty minutes. Write that down."
+    },
+    {
+      "id": "greet-halvard-pike-a1",
+      "speaker": "halvard-pike",
+      "kind": "greeting",
+      "text": "No. I don't shake hands. Ink. — You'll be the Conservancy, then. Nineteen. God help the shelving."
+    },
+    {
+      "id": "greet-halvard-pike-a2",
+      "speaker": "halvard-pike",
+      "kind": "greeting",
+      "text": "Trolley's coming up. Don't touch it. Sit down and put your hands somewhere I can see them."
+    },
+    {
+      "id": "greet-halvard-pike-a3",
+      "speaker": "halvard-pike",
+      "kind": "greeting",
+      "text": "Strongroom key's on the third hook and I'm going to my dinner. — Get in the van after. Bring a coat, there's no heater and there's no radio either."
+    },
+    {
+      "id": "line-pik-a3-01",
+      "speaker": "halvard-pike",
+      "kind": "lie-trap",
+      "text": "Nothing's ever left this building on my watch. — I took it. Four journeys, in the rain, in the van. The circular said burn them. I'm not a man who burns things."
+    },
+    {
+      "id": "line-pik-a3-02",
+      "speaker": "halvard-pike",
+      "kind": "lie-trap",
+      "text": "I told you I'd no notion where it went. — I knew exactly where it went. It went in a Bedford van with three thousand others, and I catalogued the lot on tide-table covers. Read the covers."
+    },
+    {
+      "id": "line-pik-a3-04",
+      "speaker": "halvard-pike",
+      "kind": "lie-trap",
+      "text": "Paper. — I don't know. Forty-four years, and I've said I know every document in this building, and I never once lifted that lid. Twenty-four years it sat there. That's what the boast cost."
+    },
+    {
+      "id": "greet-halvard-pike-a4",
+      "speaker": "halvard-pike",
+      "kind": "greeting",
+      "text": "You smell of smoke. So do I. Don't fuss and don't ask about my chest."
+    },
+    {
+      "id": "line-pik-a4-01",
+      "speaker": "halvard-pike",
+      "kind": "lie-trap",
+      "text": "I know. Eight fifteen out, seventeen forty back, four gallons at the Cardew garage at twenty past six. — I'd have let you hang me before I'd have said where I was."
+    },
+    {
+      "id": "greet-halvard-pike-a5",
+      "speaker": "halvard-pike",
+      "kind": "greeting",
+      "text": "Best coat. Don't say anything about the coat."
+    },
+    {
+      "id": "greet-rita-tain-a2",
+      "speaker": "rita-tain",
+      "kind": "greeting",
+      "text": "You're the paper girl. Boots. — No. Not those boots. The ones you've got on will have you over the side inside a mile."
+    },
+    {
+      "id": "greet-rita-tain-a3",
+      "speaker": "rita-tain",
+      "kind": "greeting",
+      "text": "Say it. Go on. You've got the face on. Say it in words, in front of me, and don't do it kindly."
+    },
+    {
+      "id": "line-rit-a3-01",
+      "speaker": "rita-tain",
+      "kind": "lie-trap",
+      "text": "It came anonymous. Brown envelope, ninety-six, no note, I've said this — There's an Adler in my locker. You'll have found it. I typed it. It says the truth and I typed it."
+    },
+    {
+      "id": "line-rit-a3-05",
+      "speaker": "rita-tain",
+      "kind": "lie-trap",
+      "text": "His things. I cleared them after the funeral and I never — R.755. His own copy, in my shed, the whole time she was arresting me for the other one. In my shed."
+    },
+    {
+      "id": "greet-rita-tain-a4",
+      "speaker": "rita-tain",
+      "kind": "greeting",
+      "text": "I'm on bail. Can't enter the building, can't touch the archive, can't do a single useful thing. — So. Boat."
+    },
+    {
+      "id": "greet-rita-tain-a5",
+      "speaker": "rita-tain",
+      "kind": "greeting",
+      "text": "Slipway. Half eleven. Don't be late, and don't say a word to me before it happens."
+    },
+    {
+      "id": "line-rit-a5-02",
+      "speaker": "rita-tain",
+      "kind": "lie-trap",
+      "text": "I haven't. Thirty-four pound a month since seventy-seven, Dad's union, it's in the post office book — Why are you looking like that. Is there something else. Straight out."
+    },
+    {
+      "id": "greet-ottoline-verge-a1",
+      "speaker": "ottoline-verge",
+      "kind": "greeting",
+      "text": "There you are! Oh, you're soaked through. Now — kettle's in 388, biscuits in 388, slippers in 388. Everything anybody needs is in drawer 388, dear. That's the whole system."
+    },
+    {
+      "id": "greet-ottoline-verge-a2",
+      "speaker": "ottoline-verge",
+      "kind": "greeting",
+      "text": "Kettle's just gone. Sit on the stool, not the chair — the chair's had a screw out of it since Michaelmas and Halvard won't have a man in."
+    },
+    {
+      "id": "line-ott-a2-01",
+      "speaker": "ottoline-verge",
+      "kind": "lie-trap",
+      "text": "The cards have never been retyped, dear, not in my time — oh, now. You've dated the stock. — I retyped them. In eighty-nine, during the reboxing. I'll not say why, and you'll not make me."
+    },
+    {
+      "id": "greet-ottoline-verge-a3",
+      "speaker": "ottoline-verge",
+      "kind": "greeting",
+      "text": "You've had a week of it and you've not eaten. I'm not asking you, dear, I'm telling you there's soup and you'll sit down to it."
+    },
+    {
+      "id": "line-ott-a3-01",
+      "speaker": "ottoline-verge",
+      "kind": "lie-trap",
+      "text": "Nobody ever asked me anything, dear. Nobody ever thought to. — I typed that list. I typed my own name onto it and I put the tick there myself. I have been very careful for a very long time."
+    },
+    {
+      "id": "greet-ottoline-verge-a4",
+      "speaker": "ottoline-verge",
+      "kind": "greeting",
+      "text": "Sit down, Miss Adare. No. No “oh, now.” I've had my tin on the dresser since 1975 and I would like to put it on the table."
+    },
+    {
+      "id": "greet-ottoline-verge-a5",
+      "speaker": "ottoline-verge",
+      "kind": "greeting",
+      "text": "Best coat and my mother's brooch. If it's all to be said out loud in a room with sun in it, I'm not going to be sat there in a cardigan."
+    },
+    {
+      "id": "greet-enid-charnock-a1",
+      "speaker": "enid-charnock",
+      "kind": "greeting",
+      "text": "Miss Adare. Nine o'clock. I do the cash books until eleven and I would rather not be interrupted between now and then, if that's — I'm sure that's all right."
+    },
+    {
+      "id": "greet-enid-charnock-a2",
+      "speaker": "enid-charnock",
+      "kind": "greeting",
+      "text": "Half nine. I've put the 1974 cash book back in the press and I would rather it stayed there while the men are on the scaffold. Dust gets into the gutter of a ledger and never comes out."
+    },
+    {
+      "id": "line-eni-a2-02",
+      "speaker": "enid-charnock",
+      "kind": "lie-trap",
+      "text": "It has always been there — I ruled it in. New Year's Eve, with a steel rule, in my own hand. It has not moved in ninety-six quarters and I have looked at it in every single one."
+    },
+    {
+      "id": "greet-enid-charnock-a3",
+      "speaker": "enid-charnock",
+      "kind": "greeting",
+      "text": "It won't take. I've been at it forty minutes and it won't take. The rain gets down the — it won't take."
+    },
+    {
+      "id": "line-eni-a3-02",
+      "speaker": "enid-charnock",
+      "kind": "lie-trap",
+      "text": "Nothing. I was airing the courtyard. — Ledger 74/1. Green spine, water damage to the fore-edge from a leak in 1983 which I reported. Take it. I'm not saying another word."
+    },
+    {
+      "id": "greet-enid-charnock-a4",
+      "speaker": "enid-charnock",
+      "kind": "greeting",
+      "text": "Don't sit down. — No. Sit down. It was Miss Tain who fetched me off the ferry and I can't be rude to you with her watching, she's had a worse life than mine and she knows it."
+    },
+    {
+      "id": "greet-enid-charnock-a5",
+      "speaker": "enid-charnock",
+      "kind": "greeting",
+      "text": "This is Enid Charnock speaking from my sister's house in Ilberry. I can hear you perfectly. I will not be coming to the building. Ask your questions and speak up."
+    },
+    {
+      "id": "greet-ivo-sandbach-a2",
+      "speaker": "ivo-sandbach",
+      "kind": "greeting",
+      "text": "Wendy! No — Wren. Wren, sorry, I'm terrible with — right. Hard hat, technically. Nobody wears it. Two minutes, I'm out of float on the Chart Loft."
+    },
+    {
+      "id": "greet-ivo-sandbach-a3",
+      "speaker": "ivo-sandbach",
+      "kind": "greeting",
+      "text": "Wren! God. You gave me — this is a salvage record. I am recording salvage. At two in the morning. In a crate. Addressed to Antwerp."
+    },
+    {
+      "id": "line-san-a3-01",
+      "speaker": "ivo-sandbach",
+      "kind": "lie-trap",
+      "text": "Absolutely nothing. Ministry-approved, for God's sake. — Two Fresnel panels, the binnacle, a hundred and forty kilos of brass. Thirty grand. Payroll's nine weeks. I've two girls at school."
+    },
+    {
+      "id": "greet-ivo-sandbach-a4",
+      "speaker": "ivo-sandbach",
+      "kind": "greeting",
+      "text": "You look like a fortnight of bad weather. — Sorry. I do that. Say what you want, quickly, I've a lorry coming at eight."
+    },
+    {
+      "id": "greet-ivo-sandbach-a5",
+      "speaker": "ivo-sandbach",
+      "kind": "greeting",
+      "text": "Fleece. It's wrapped in a fleece. Don't unwrap it out here, the wind'll have it off you. — Right. That's me."
+    },
+    {
+      "id": "greet-bram-aylward-a1",
+      "speaker": "bram-aylward",
+      "kind": "greeting",
+      "text": "Aylward. Ministry — dissolution liaison. You'll be the Conservancy. Sorry, that's rude. Do you drink coffee? There's a flask in the site hut and it's better than it deserves to be."
+    },
+    {
+      "id": "line-bra-a1-02",
+      "speaker": "bram-aylward",
+      "kind": "lie-trap",
+      "text": "Did I say Tuesday? I've been in and out. — Sixth of October. Twenty days. You read the book before you read the file, which is the right order, and almost nobody does it. Well done."
+    },
+    {
+      "id": "greet-bram-aylward-a2",
+      "speaker": "bram-aylward",
+      "kind": "greeting",
+      "text": "There she is. You look like somebody who's spent a day sorting index cards by ribbon colour. I'd have paid money to watch that. I mean it kindly."
+    },
+    {
+      "id": "greet-bram-aylward-a3",
+      "speaker": "bram-aylward",
+      "kind": "greeting",
+      "text": "Bad week. Your boatwoman's in a cell in Rossport, your warrant's a fax in somebody's bin, and you're stood in the rain talking to a man in the wrong shoes."
+    },
+    {
+      "id": "line-bra-a3-01",
+      "speaker": "bram-aylward",
+      "kind": "lie-trap",
+      "text": "I never said a word about that letter. — Kelbrooke and Hain. Marine adjusters. Recovery investigator. There is no Ministry, there never was, and I've put thirty-one rolls of HP5 through that building since the sixth."
+    },
+    {
+      "id": "greet-bram-aylward-a4",
+      "speaker": "bram-aylward",
+      "kind": "greeting",
+      "text": "You've been on a roof with an Aldis lamp. There's soot on your collar and you don't know it. — No, leave it. It suits the mood of the thing."
+    },
+    {
+      "id": "greet-bram-aylward-a5",
+      "speaker": "bram-aylward",
+      "kind": "greeting",
+      "text": "Back row, good suit, notebook on my knee. I've sat through four hundred of these. This is the only one I've ever wanted to watch."
+    },
+    {
+      "id": "greet-marren-iveson-a3",
+      "speaker": "marren-iveson",
+      "kind": "greeting",
+      "text": "DS Iveson. Rossport. I arrested Marguerite Tain at seventeen fifteen and I've read your report twice. Sit down. Don't stand in the doorway, it's the only warm bit."
+    },
+    {
+      "id": "line-ive-a3-02",
+      "speaker": "marren-iveson",
+      "kind": "lie-trap",
+      "text": "That file's closed and I've never laid eyes on it. — Right. Yes. I pulled it on my own time. Eleven minutes between the fall and the call. I was told there was nothing in it."
+    },
+    {
+      "id": "greet-marren-iveson-a4",
+      "speaker": "marren-iveson",
+      "kind": "greeting",
+      "text": "Half six in the morning and you're in my office with wet hair and a box file. Go on, then. Slowly, and in order."
+    },
+    {
+      "id": "greet-marren-iveson-a5",
+      "speaker": "marren-iveson",
+      "kind": "greeting",
+      "text": "Adare. Iveson. You're breaking up — say again. She told you what?"
+    },
+    {
+      "id": "greet-phyllida-halkett-a1",
+      "speaker": "phyllida-halkett",
+      "kind": "greeting",
+      "text": "Halkett. — Yes, I can hear the sea, so you'll be in the box on the quay. Ten-pence pieces, plural. Now. What is the procedural question?"
+    },
+    {
+      "id": "greet-phyllida-halkett-a2",
+      "speaker": "phyllida-halkett",
+      "kind": "greeting",
+      "text": "Halkett. Pips in about four minutes, so talk faster than that. And don't tell me the weather, I have a window and a barometer."
+    },
+    {
+      "id": "greet-phyllida-halkett-a3",
+      "speaker": "phyllida-halkett",
+      "kind": "greeting",
+      "text": "Halkett. I have had a telephone call from the Ministry, and I should like to hear the words from you, in order, with dates."
+    },
+    {
+      "id": "greet-phyllida-halkett-a4",
+      "speaker": "phyllida-halkett",
+      "kind": "greeting",
+      "text": "Halkett. You have ninety seconds before this line goes — they're telling me the pole's down at the Cardew turn. Talk."
+    },
+    {
+      "id": "line-hal-a4-02",
+      "speaker": "phyllida-halkett",
+      "kind": "lie-trap",
+      "text": "I sent you because I broke my hip and for no other reason on earth. — That is the third time I have said that sentence, and it has been untrue every time. We will discuss it on the steps."
+    },
+    {
+      "id": "greet-phyllida-halkett-a5",
+      "speaker": "phyllida-halkett",
+      "kind": "greeting",
+      "text": "Sit up. Pargeter reads the room before he reads the file, so give him a straight back and a foliated bundle and he'll waste his first two minutes on nothing at all."
+    },
+    {
+      "id": "line-sal-a2-01",
+      "speaker": "cormac-sallow",
+      "kind": "lie-trap",
+      "text": "“The light was not discontinued.” — Read it twice. He was asked an operational question and gave an administrative answer. It is true. It is the sentence the whole finding rests on."
+    },
+    {
+      "id": "line-sal-a3-02",
+      "speaker": "cormac-sallow",
+      "kind": "lie-trap",
+      "text": "“I have no knowledge of any requisition for oil being refused.” — His initials are on the front of R.741, thirteenth of August. He raised it himself. He was under anaesthetic when it came back stamped."
+    }
+  ]
+}

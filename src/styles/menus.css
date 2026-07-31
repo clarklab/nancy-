@@ -1,0 +1,2333 @@
+/**
+ * The front-of-house surfaces — mirrors src/ui/menus.ts exactly.
+ *
+ * Five screens, three materials, and one rule: nothing here may look like a
+ * web page. The title is a lit photograph with type sitting *in* it; the pause
+ * card, the settings panel and the slot browser are brass-framed plates hung
+ * in the dark; the results dossier is paper on a desk. Every plate is built
+ * the same way — a layered gradient body, a bright hairline along its top
+ * edge, a dark inset along its bottom edge, a woven grain, and a tall soft
+ * shadow — because that recipe is what makes a rectangle read as an object
+ * with a light source somewhere off to the left.
+ *
+ * Layout note: these screens are deliberately *not* pinned to the 16:10
+ * `.stage-box`. The scene is a window you look through; a menu is something
+ * held in front of it, so it fills the viewport and lets the artwork bleed to
+ * every edge behind it.
+ */
+
+.menu-root {
+  /* Local materials, generated rather than fetched so a menu can never wait
+     on a texture and so the build works offline. */
+  --menu-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.38'/%3E%3C/svg%3E");
+  --menu-grain-metal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6 0.05' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23m)' opacity='0.28'/%3E%3C/svg%3E");
+  --menu-grain-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)' opacity='0.45'/%3E%3C/svg%3E");
+
+  /* One brass recipe, used for every rail, rule and fader on every screen. */
+  --brass-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lamp-200) 78%, transparent) 0%,
+    var(--lamp-400) 34%,
+    var(--lamp-600) 78%,
+    color-mix(in srgb, var(--lamp-600) 70%, var(--ink-900)) 100%
+  );
+
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-menu);
+  /* Inert glass: only a mounted screen ever claims the pointer. */
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   1. Layers & the shared enter/exit transition
+   ---------------------------------------------------------------------------
+   Every screen fades its scrim and lifts its content. The content transform
+   lives on a child rather than the layer so a blurred backdrop never has to
+   be re-rasterised while it moves.
+   ========================================================================= */
+
+.menu-layer {
+  position: absolute;
+  inset: 0;
+  /* Each screen is its own stacking context. Without this a `z-index` used
+     *inside* one layer — the title's type sits above its own artwork at z 1 —
+     resolves against the menu root instead, and the wordmark floats over every
+     screen opened on top of it. Layers must stack strictly by DOM order. */
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.menu-layer.is-in {
+  opacity: 1;
+}
+
+.menu-layer.is-out {
+  opacity: 0;
+  transition-duration: var(--dur-med);
+}
+
+/* The room behind, pushed out of focus and out of light. */
+.menu-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 90% at 50% 40%,
+      color-mix(in srgb, var(--ink-900) 62%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 92%, transparent) 100%
+    );
+  backdrop-filter: blur(7px) saturate(0.8) brightness(0.62);
+  -webkit-backdrop-filter: blur(7px) saturate(0.8) brightness(0.62);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.menu-scrim--deep {
+  backdrop-filter: blur(14px) saturate(0.62) brightness(0.44);
+  -webkit-backdrop-filter: blur(14px) saturate(0.62) brightness(0.44);
+}
+
+.menu-layer.is-in .menu-scrim {
+  opacity: 1;
+}
+
+/* ===========================================================================
+   2. Shared plate & control primitives
+   ========================================================================= */
+
+/**
+ * The plate recipe. A dark machined body lit from above-left: a bright
+ * hairline on the top edge, a black one under the bottom edge, a warm bounce
+ * inside the left wall, and a tall shadow that says it stands off the wall.
+ */
+.pause-card,
+.mset,
+.slots,
+.confirm {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-700) 96%, transparent) 0%,
+      color-mix(in srgb, var(--ink-800) 97%, transparent) 42%,
+      color-mix(in srgb, var(--ink-900) 98%, transparent) 100%
+    ),
+    radial-gradient(
+      120% 80% at 12% 0%,
+      color-mix(in srgb, var(--lamp-600) 16%, transparent) 0%,
+      transparent 62%
+    );
+  border: var(--border-hairline);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    inset 1px 0 0 color-mix(in srgb, var(--lamp-400) 9%, transparent),
+    var(--shadow-4);
+  transform: translateY(1.25rem) scale(0.985);
+  opacity: 0;
+  transition:
+    transform var(--dur-scene) var(--ease-drama),
+    opacity var(--dur-slow) var(--ease-out);
+}
+
+/* The grain that beds a plate into the artwork behind it. */
+.pause-card::before,
+.mset::before,
+.slots::before,
+.confirm::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: var(--menu-grain);
+  background-size: 160px 160px;
+  opacity: 0.055;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.menu-layer.is-in .pause-card,
+.menu-layer.is-in .mset,
+.menu-layer.is-in .slots,
+.menu-layer.is-in .confirm {
+  transform: none;
+  opacity: 1;
+}
+
+.menu-layer.is-out .pause-card,
+.menu-layer.is-out .mset,
+.menu-layer.is-out .slots,
+.menu-layer.is-out .confirm {
+  transform: translateY(0.5rem) scale(0.995);
+  opacity: 0;
+  transition-duration: var(--dur-med);
+}
+
+/* -- Eyebrows, titles, rules ---------------------------------------------- */
+
+.pause-card__eyebrow,
+.mset__eyebrow,
+.slots__eyebrow,
+.dossier__eyebrow {
+  margin: 0 0 var(--sp-1);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+.pause-card__title,
+.mset__title,
+.slots__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--text-primary);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.65);
+}
+
+/* -- Buttons --------------------------------------------------------------- */
+
+.menu-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* A comfortable target on a touchscreen without inflating on a desktop. */
+  min-height: 2.5rem;
+  padding: var(--sp-2) var(--sp-5);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-600) 90%, transparent),
+      color-mix(in srgb, var(--ink-800) 94%, transparent)
+    );
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.55),
+    var(--shadow-1);
+  cursor: pointer;
+  transition:
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.menu-btn:hover {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--lamp-400) 58%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--glow-lamp-soft);
+}
+
+.menu-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 0.6),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent);
+}
+
+.menu-btn--primary {
+  color: var(--ink-900);
+  background: var(--brass-face);
+  border-color: color-mix(in srgb, var(--lamp-200) 55%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 45%, transparent);
+}
+
+.menu-btn--primary:hover {
+  color: var(--ink-abyss);
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 70%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.4),
+    var(--glow-lamp);
+}
+
+.menu-btn--danger {
+  color: var(--lamp-100);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blood-bright) 82%, transparent),
+    var(--blood)
+  );
+  border-color: color-mix(in srgb, var(--blood-bright) 70%, transparent);
+}
+
+.menu-btn--danger:hover {
+  color: var(--lamp-100);
+  filter: brightness(1.1);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 0 24px -6px color-mix(in srgb, var(--blood-bright) 70%, transparent);
+}
+
+.menu-btn--ghost {
+  background: none;
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--lamp-500) 18%, transparent);
+}
+
+.menu-btn--ghost:hover {
+  background: color-mix(in srgb, var(--ink-600) 55%, transparent);
+  box-shadow: none;
+}
+
+/* ===========================================================================
+   3. Title screen
+   ---------------------------------------------------------------------------
+   Full-bleed art, a slow breath on the plate, a parallax drift on its frame,
+   and the type sitting in the lit third of the picture.
+   ========================================================================= */
+
+.menu-layer--title {
+  place-items: stretch;
+  background: var(--ink-abyss);
+}
+
+.title-art {
+  position: absolute;
+  /* Overscan: the plate is larger than the frame so parallax can never expose
+     an edge, however far it drifts.
+     Kept as tight as the parallax throw allows (14px, see PARALLAX_MAX) plus
+     the breath. Every extra vmax here is resampling the painting further past
+     its native width, and the first thing that costs is the masonry and the
+     edge on the surf. */
+  inset: -1.6vmax;
+  overflow: hidden;
+  transform: translate3d(var(--par-x, 0), var(--par-y, 0), 0);
+  /* Short enough to feel attached to the hand. A long ease here reads as lag,
+     because a moving pointer restarts the transition before it ever lands. */
+  transition: transform var(--dur-med) var(--ease-out);
+  will-change: transform;
+}
+
+.title-art__plate,
+.title-art__fallback {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  /* One very slow breath — derived from the scene token so the whole game's
+     sense of time stays in one place, and so reduced motion collapses it. */
+  animation: title-breath calc(var(--dur-scene) * 55) var(--ease-in-out) infinite;
+  will-change: transform;
+}
+
+.title-art__plate {
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-out);
+}
+
+.title-art.has-art .title-art__plate {
+  opacity: 1;
+}
+
+/* A breath, not a zoom. The old 1.04–1.085 pushed a 2304px plate out to
+   ~2150 rendered pixels of a 1980px box; at that magnification the gallery
+   rail and the lantern glazing bars dissolve. 2.3% of travel is still
+   perfectly legible as movement and costs almost no resolution. */
+@keyframes title-breath {
+  0%,
+  100% {
+    transform: scale(1.012);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+/**
+ * The procedurally-drawn stand-in.
+ *
+ * Not an error state: it paints the same subject as the key art — a dark room,
+ * a rain-lit window, one lamp burning off to the right — out of gradients, so
+ * a missing file still looks like a decision someone made.
+ */
+.title-art__fallback {
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-out);
+  background-color: var(--ink-abyss);
+  background-image:
+    /* lamp bloom, right of centre */
+    radial-gradient(
+      36% 44% at 71% 58%,
+      color-mix(in srgb, var(--lamp-200) 46%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 22%, transparent) 34%,
+      transparent 72%
+    ),
+    /* the window's cold spill on the floor */
+      radial-gradient(
+        44% 30% at 26% 78%,
+        color-mix(in srgb, var(--moon-300) 22%, transparent) 0%,
+        transparent 70%
+      ),
+    /* mullions */
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 5.6%,
+        color-mix(in srgb, var(--ink-abyss) 78%, transparent) 5.6% 6.4%
+      ),
+    /* the window itself */
+      radial-gradient(
+        30% 46% at 24% 34%,
+        color-mix(in srgb, var(--moon-200) 34%, transparent) 0%,
+        color-mix(in srgb, var(--moon-400) 14%, transparent) 46%,
+        transparent 78%
+      ),
+    /* far wall, and the floor line */
+      linear-gradient(
+        180deg,
+        var(--ink-900) 0%,
+        var(--ink-800) 46%,
+        var(--ink-900) 62%,
+        var(--ink-abyss) 100%
+      );
+}
+
+.title-art.is-fallback .title-art__fallback {
+  opacity: 1;
+}
+
+.title-art__fog,
+.title-art__rain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.title-art__rain {
+  opacity: 0.9;
+}
+
+/* The near curtain: bigger, faster, and very slightly out of focus, so the
+   rain has a front and a back instead of one flat sheet of ticks. */
+.title-art__rain--near {
+  opacity: 0.75;
+  filter: blur(0.5px);
+}
+
+/**
+ * The gutter.
+ *
+ * The lamp itself is painted into the plate — a burning core, a halo, and warm
+ * speculars on the crests it actually reaches. This layer only *modulates* it,
+ * so it has to sit exactly on the lantern or the whole right half lifts like
+ * fog instead of pulsing like a flame. 75.8% / 37.4% is the lantern glazing at
+ * this frame's cover-crop; the falloff is deliberately tight for the same
+ * reason, with one much wider, much fainter ring for the air around it.
+ */
+.title-art__lamp {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      7% 8% at 75.8% 37.4%,
+      color-mix(in srgb, var(--lamp-100) 34%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-300) 16%, transparent) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      30% 26% at 75.8% 37.4%,
+      color-mix(in srgb, var(--lamp-400) 9%, transparent) 0%,
+      transparent 70%
+    );
+  mix-blend-mode: screen;
+  animation: title-gutter calc(var(--dur-scene) * 15) var(--ease-in-out) infinite;
+}
+
+@keyframes title-gutter {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  38% {
+    opacity: 1;
+  }
+  57% {
+    opacity: 0.62;
+  }
+}
+
+/**
+ * Shade, not a wall.
+ *
+ * The type needs a dark ground on the left, but a 90deg ramp of near-neutral
+ * black gives you a CSS panel laid over a photograph: it crushes the left
+ * third to R=G=B, kills the sunset band dead at its edge, and leaves a visible
+ * vertical seam where it lets go. So: an elliptical pool anchored under the
+ * type block, mixed from `--scrim-cool` so the darks keep the picture's teal,
+ * and capped well short of opaque so the ochre band survives to the frame
+ * edge and the house silhouette stays readable.
+ */
+.title-art__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      82% 116% at 6% 52%,
+      color-mix(in srgb, var(--scrim-cool) 88%, transparent) 0%,
+      color-mix(in srgb, var(--scrim-cool) 46%, transparent) 46%,
+      color-mix(in srgb, var(--scrim-cool) 16%, transparent) 70%,
+      transparent 86%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 52%,
+      color-mix(in srgb, var(--scrim-cool) 34%, transparent) 100%
+    ),
+    radial-gradient(
+      130% 110% at 50% 46%,
+      transparent 40%,
+      color-mix(in srgb, var(--scrim-cool) 70%, transparent) 100%
+    );
+}
+
+/**
+ * Emulsion, and a dither.
+ *
+ * The global film grain is 5% soft-light, which does almost nothing on a
+ * picture whose entire tonal range lives under 40% luma — and this frame is
+ * mostly smooth gradient, which is exactly what bands on an 8-bit panel. This
+ * pass sits over the plate *and* over the scrim above, so the shade gradient
+ * is dithered too.
+ */
+.title-art__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--menu-grain);
+  background-size: 160px 160px;
+  mix-blend-mode: overlay;
+  opacity: 0.05;
+}
+
+:root[data-grain='off'] .title-art__grain {
+  display: none;
+}
+
+/* -- Type ------------------------------------------------------------------ */
+
+.title-content {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  justify-self: start;
+  /* Wide enough that 'The Lamplight' holds one line at the display size — the
+     authored break is only an authored break if the box lets it happen. */
+  max-width: min(62rem, 64vw);
+  padding: 0 clamp(var(--sp-6), 7vw, 9rem);
+  /* Lifted off dead centre. Two things sit at the vertical middle of this
+     frame: the sea horizon, and the rule under the wordmark. Left level they
+     run parallel 20px apart and read as one mis-registered line. */
+  transform: translateY(-4vh);
+}
+
+/**
+ * One sheet of lit metal.
+ *
+ * The gilding lives here, on the block, not on the letters. Clipping a
+ * gradient to each glyph re-runs the whole cream→amber ramp inside every
+ * character box, so an x-height 'a' finishes the ramp in 40px while the 'L'
+ * beside it spreads it over 100 — the word comes out blotchy, like tarnish,
+ * and the tittle over the 'i' turns into a white bead. Clipped once at this
+ * level, a single rake of light crosses all of it.
+ *
+ * The ramp is not a fade. Real brass turns dark at the waist and comes back
+ * up: that dark band at 54% is what separates 'Cipher' from the ochre cloud
+ * behind it, and is why the type needs almost no cast shadow to read.
+ */
+.title-wordmark {
+  margin: 0 0 0 -0.03em; /* optical: hangs the flat T-stem onto the rule's axis */
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 6.2vw, 5.9rem);
+  line-height: 1.06;
+  letter-spacing: -0.012em;
+  background: linear-gradient(
+    176deg,
+    var(--lamp-100) 0%,
+    var(--lamp-200) 20%,
+    var(--lamp-400) 42%,
+    var(--lamp-600) 56%,
+    var(--lamp-300) 66%,
+    var(--lamp-500) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Contact shading, not a drop shadow. The key is the lantern up and to the
+     right, so the letters throw down and to the left, short and tight. A
+     22px-offset black blob under the type is a Photoshop layer effect. */
+  filter:
+    drop-shadow(0 0 20px color-mix(in srgb, var(--lamp-400) 30%, transparent))
+    drop-shadow(-3px 3px 5px rgb(6 12 16 / 0.85));
+  /* The reveal is a wipe of the whole block, not a stagger of its letters.
+     A per-letter animation gives every span its own compositing layer, and a
+     `background-clip: text` on the parent cannot clip into a layer it does not
+     paint — the gilding simply falls off and the title disappears. Masking the
+     block keeps one gradient and still lights the words left to right. */
+  -webkit-mask-image: linear-gradient(
+    100deg,
+    #000 0%,
+    #000 34%,
+    rgb(0 0 0 / 0) 62%,
+    rgb(0 0 0 / 0) 100%
+  );
+  mask-image: linear-gradient(
+    100deg,
+    #000 0%,
+    #000 34%,
+    rgb(0 0 0 / 0) 62%,
+    rgb(0 0 0 / 0) 100%
+  );
+  -webkit-mask-size: 320% 100%;
+  mask-size: 320% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: title-gild calc(var(--dur-scene) * 2.6) var(--ease-out) both;
+  animation-delay: var(--dur-med);
+}
+
+/* With `mask-size: 320%`, `mask-position: 100%` parks the mask's transparent
+   tail over the box and `0%` parks its opaque head there — so the light enters
+   from the left and runs the length of the words. Anything outside 0-100% with
+   `no-repeat` slides the mask clean off the element and hides it. */
+@keyframes title-gild {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+}
+
+/* Two lines, and the article is not one of them. 'The Lamplight' / 'Cipher':
+   a definite article given a 100px display line of its own is the first thing
+   the eye lands on, and it is the least important word in the title. */
+.title-wordmark__line {
+  display: block;
+}
+
+.title-wordmark__line + .title-wordmark__line {
+  /* Round caps overhang a flat stem. */
+  text-indent: -0.035em;
+}
+
+.title-wordmark__word {
+  /* Keeps a word's letter spans on one line. Without this, every inline-block
+     letter is its own break opportunity and long titles break mid-word. */
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/**
+ * The letter spans are now purely structural.
+ *
+ * They carry no paint and no animation of their own — anything that gives one
+ * of them a compositing layer (a transform, an opacity, a filter, a will-change)
+ * takes it out of the parent's `background-clip: text` and the gilding falls
+ * off that glyph. They are kept because the reveal is authored per letter
+ * upstream and because they are what lets a future build kern individually.
+ */
+.title-wordmark__ch {
+  display: inline-block;
+}
+
+/**
+ * An incised brass line, not an `<hr>`.
+ *
+ * Two things were wrong with a full-width hairline here. It ran to whatever
+ * width the box happened to be, overhanging the longest word and stopping in
+ * mid-air; and at 1px, 20px above the sea horizon and exactly parallel to it,
+ * it read as a mis-registered second horizon. So it is cut to the width of the
+ * payoff word — an underscore belonging to the wordmark — seated with a black
+ * line under it and a warm one over it, and terminated with a lozenge so the
+ * right end has a reason to stop.
+ */
+.title-rule {
+  position: relative;
+  width: min(19rem, 62%);
+  height: 2px;
+  margin: var(--sp-4) 0 var(--sp-4);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-300) 88%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-500) 52%, transparent) 62%,
+    color-mix(in srgb, var(--lamp-600) 30%, transparent) 100%
+  );
+  box-shadow:
+    0 -1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    0 1px 0 rgb(0 0 0 / 0.7);
+  transform-origin: left center;
+  animation: title-rule var(--dur-scene) var(--ease-out) both;
+  animation-delay: calc(var(--dur-slow) * 1.6);
+}
+
+/* The terminal lozenge. Small enough to read as a fitting, not an ornament. */
+.title-rule::after {
+  content: '';
+  position: absolute;
+  right: -0.32rem;
+  top: 50%;
+  width: 0.34rem;
+  height: 0.34rem;
+  margin-top: -0.17rem;
+  transform: rotate(45deg);
+  background: var(--brass-face);
+  box-shadow: var(--glow-lamp);
+}
+
+@keyframes title-rule {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.title-subtitle {
+  /* The gap under the subtitle does double duty: it separates the title
+     lockup from the menu, and it is what drops the menu clear of the sea
+     horizon so the primary action is never set on the frame's brightest band. */
+  margin: 0 0 calc(var(--sp-7) * 1.8);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--step-1);
+  letter-spacing: 0.04em;
+  /* Warmed toward the wordmark. Nothing in this frame casts a cool light on
+     the left third — the only sources are the lantern and the dying band on
+     the horizon — so a blue-white line 40px under gilt type had the two type
+     elements on opposite sides of the colour wheel with nothing between them. */
+  color: color-mix(in srgb, var(--moon-200) 52%, var(--lamp-200));
+  font-variant-numeric: oldstyle-num;
+  text-shadow: 0 1px 6px rgb(0 0 0 / 0.8);
+  animation: title-fade var(--dur-scene) var(--ease-out) both;
+  animation-delay: calc(var(--dur-slow) * 1.9);
+}
+
+@keyframes title-fade {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* -- The menu -------------------------------------------------------------- */
+
+.title-menu {
+  position: relative;
+  display: grid;
+  gap: var(--sp-2);
+  justify-items: start;
+  /* The bar hangs in the page margin, left of the label column, so the labels
+     themselves start on exactly the same axis as the rule and the wordmark.
+     The old build reserved that room with 24px of button padding, which put
+     four different left edges inside a 31px band. */
+  --title-gutter: 1.35rem;
+}
+
+/**
+ * The menu's own pool of shade.
+ *
+ * The vignette is anchored on the type block above and has largely let go by
+ * the time it reaches this far down the frame — which is where the labels
+ * cross the chimney stacks and the roof slope of the foreground house, the
+ * busiest silhouette edges in the picture. Text-shadow alone does not survive
+ * a background that steps value under every second letter.
+ */
+.title-menu::before {
+  content: '';
+  position: absolute;
+  /* The falloff must reach zero *inside* this box in both axes, or the pool
+     stops being a pool and becomes a rectangle with soft corners. */
+  inset: -5rem -9rem -5rem -8rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    color-mix(in srgb, var(--scrim-cool) 56%, transparent) 0%,
+    color-mix(in srgb, var(--scrim-cool) 24%, transparent) 52%,
+    transparent 100%
+  );
+}
+
+.title-item {
+  position: relative;
+  display: grid;
+  gap: 0.05rem;
+  padding: var(--sp-2) var(--sp-4) var(--sp-2) 0;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--moon-200);
+  animation: title-fade var(--dur-scene) var(--ease-out) both;
+  animation-delay: calc(var(--dur-slow) * 2.1 + var(--i) * var(--dur-fast) * 0.9);
+  transition:
+    color var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+/**
+ * The selected state: light, not a box.
+ *
+ * A warm pool bleeding off the left edge and dying out under the label, plus
+ * the travelling bar in the gutter and a glow on the letterforms themselves.
+ * Nothing here has an edge, which is the point — this screen has no brass,
+ * glass or leather in it, so a bordered plate hung on the painting would be
+ * the second thing that looked like chrome. The lamp in the picture is the
+ * only source; the selection is that source reaching the menu.
+ */
+.title-item::before {
+  content: '';
+  position: absolute;
+  /* Generous on every side, because the gradient has to die inside the box:
+     a warm pool with a visible edge is a highlight plate, which is the thing
+     this state exists to not be. */
+  inset: -2.2rem -9rem -2.2rem -5rem;
+  z-index: -1;
+  pointer-events: none;
+  /* Radii of exactly 50% at 50% put the ellipse's zero stop on all four edges,
+     so there is no edge anywhere. Anything off-centre or wider is still
+     carrying value when it reaches the box and draws the rectangle back. */
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    color-mix(in srgb, var(--lamp-500) 28%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-600) 15%, transparent) 42%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.title-item__label {
+  font-family: var(--font-front);
+  font-size: calc(var(--step-1) * 1.06);
+  font-weight: 600;
+  line-height: 1.1;
+  /* 0.22em on a 17px grotesque is 3.7px of gap — enough that 'LOAD CASE'
+     loses word cohesion and reads 'LOADCASE'. Tracked caps cut from the
+     display serif carry the period register at far less spacing, and the word
+     space is opened to roughly 1.5x the letter gap so the break registers. */
+  letter-spacing: 0.15em;
+  word-spacing: 0.28em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 0.85);
+  transition: text-shadow var(--dur-med) var(--ease-out);
+}
+
+/**
+ * Hints are permanent, at a low steady level.
+ *
+ * Previously they were hidden on every item *except* the disabled ones, so the
+ * two things the player could not do were the only rows carrying explanatory
+ * text, and the column had no rhythm at all. Every row now has two lines.
+ */
+.title-item__hint {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--moon-300) 72%, transparent);
+  opacity: 1;
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out);
+}
+
+.title-item:hover:not(:disabled),
+.title-item:focus-visible {
+  color: var(--accent-strong);
+  transform: translateX(0.2rem);
+}
+
+.title-item:hover:not(:disabled)::before,
+.title-item:focus-visible::before {
+  opacity: 1;
+}
+
+.title-item:hover:not(:disabled) .title-item__label,
+.title-item:focus-visible .title-item__label {
+  text-shadow:
+    0 0 22px color-mix(in srgb, var(--lamp-300) 70%, transparent),
+    0 0 6px color-mix(in srgb, var(--lamp-200) 45%, transparent),
+    0 1px 5px rgb(0 0 0 / 0.85);
+}
+
+.title-item:hover:not(:disabled) .title-item__hint,
+.title-item:focus-visible .title-item__hint {
+  color: color-mix(in srgb, var(--lamp-200) 46%, var(--moon-200));
+}
+
+/* The primary route in. It is the first row, it is warm, and it is a size up:
+   hierarchy carried by the type rather than by a highlight. */
+.title-item--primary .title-item__label {
+  font-size: calc(var(--step-2) * 1.02);
+  color: color-mix(in srgb, var(--lamp-200) 62%, var(--moon-100));
+}
+
+/* Settings is housekeeping, not a way into the story. It sits below a hairline
+   at a smaller size so the three case actions read as one group. */
+.title-item--minor {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+}
+
+.title-item--minor::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 7rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-500) 34%, transparent),
+    transparent
+  );
+}
+
+.title-item--minor .title-item__label {
+  font-size: var(--step-0);
+  letter-spacing: 0.17em;
+  color: var(--text-secondary);
+}
+
+/**
+ * Unavailable, not invisible.
+ *
+ * `--ink-400` is a dark-scale token; used as text on a dark ground it measured
+ * 2.4:1, under even the non-text threshold. A dimmed *moon* keeps the rows
+ * legible as rows — the player can see what the game offers and that it is not
+ * offering it yet, which is the whole job of a disabled state.
+ */
+.title-item:disabled {
+  /* Measured on the shipped frame: ~3.7:1 for the label and ~3:1 for its
+     hint against the vignetted water behind them. Unmistakably secondary,
+     still unmistakably readable. */
+  color: color-mix(in srgb, var(--moon-300) 74%, transparent);
+  cursor: default;
+}
+
+.title-item:disabled .title-item__label {
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.7);
+}
+
+.title-item:disabled .title-item__hint {
+  color: color-mix(in srgb, var(--moon-400) 82%, transparent);
+}
+
+/**
+ * The travelling indicator: a lit bar hung in the gutter.
+ *
+ * It used to be a 14px horizontal hairline at `left: 0` — which, with 24px of
+ * padding on the item, put it *inside* the button, centred on the two-line box
+ * rather than on the label, i.e. floating in the gap between the label and its
+ * hint like a rendering artefact. Now it is a vertical brass bar in the margin,
+ * driven off the label's own centre line, and it grows out of nothing.
+ */
+.title-menu__indicator {
+  position: absolute;
+  left: calc(var(--title-gutter) * -1);
+  top: 0;
+  width: 3px;
+  height: 1.5rem;
+  background: var(--brass-face);
+  box-shadow:
+    var(--glow-lamp),
+    0 0 6px color-mix(in srgb, var(--lamp-200) 60%, transparent);
+  opacity: 0;
+  transform: translateY(calc(var(--y, 0px) - 50%)) scaleY(0.2);
+  transform-origin: center;
+  transition:
+    transform var(--dur-slow) var(--ease-drama),
+    opacity var(--dur-med) var(--ease-out);
+  pointer-events: none;
+}
+
+.title-menu__indicator.is-on {
+  opacity: 1;
+  transform: translateY(calc(var(--y, 0px) - 50%)) scaleY(1);
+}
+
+/* -- Colophon -------------------------------------------------------------- */
+
+.title-colophon {
+  position: absolute;
+  /* Matched to `.title-content`'s left inset, so the frame's safe area is
+     symmetric instead of 134px one side and 75px the other. */
+  right: clamp(var(--sp-6), 7vw, 9rem);
+  bottom: clamp(var(--sp-5), 4vh, var(--sp-7));
+  z-index: 1;
+  text-align: right;
+  animation: title-fade var(--dur-scene) var(--ease-out) both;
+  animation-delay: calc(var(--dur-slow) * 3);
+}
+
+/**
+ * The colophon's own pool of shade.
+ *
+ * The vignette protects the left third of the frame, where the type lives; the
+ * bottom-right corner is wherever the painting happens to be brightest, and on
+ * the shipped key art that is breaking surf. Small tracked caps do not survive
+ * that on a text-shadow alone, so the corner gets its own soft falloff.
+ */
+.title-colophon::before {
+  content: '';
+  position: absolute;
+  inset: -2.5rem -3rem -2rem -4rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    130% 150% at 100% 100%,
+    color-mix(in srgb, var(--scrim-cool) 78%, transparent) 0%,
+    color-mix(in srgb, var(--scrim-cool) 34%, transparent) 55%,
+    transparent 78%
+  );
+}
+
+/* Engraved caps, like the menu — the one corner of the old build that said
+   "web page" out loud was a 12px grotesque explaining the audio pipeline. */
+.title-credit {
+  margin: 0;
+  font-family: var(--font-front);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--moon-300) 82%, transparent);
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
+}
+
+/* The least important string in the frame, set like it. */
+.title-version {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-front);
+  font-size: var(--step--2);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-variant-numeric: lining-nums;
+  color: color-mix(in srgb, var(--text-secondary) 62%, transparent);
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
+}
+
+/* ===========================================================================
+   4. Pause menu
+   ========================================================================= */
+
+.pause-card {
+  width: min(24rem, 88vw);
+  padding: var(--sp-6) var(--sp-6) var(--sp-5);
+  text-align: center;
+}
+
+.pause-card__head {
+  margin-bottom: var(--sp-2);
+}
+
+.pause-card__where {
+  margin: 0 0 var(--sp-5);
+  font-variant-numeric: lining-nums;
+  padding-bottom: var(--sp-4);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--text-secondary);
+  border-bottom: var(--border-hairline);
+}
+
+.pause-list {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.pause-item {
+  position: relative;
+  isolation: isolate;
+  padding: var(--sp-3) var(--sp-4);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    color var(--dur-med) var(--ease-out),
+    background-color var(--dur-med) var(--ease-out);
+}
+
+/* A wash of lamplight sweeps in from the left rather than a flat highlight.
+   Behind the label, inside the item's own stacking context. */
+.pause-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
+    transparent 78%
+  );
+  opacity: 0;
+  transform: translateX(-12%);
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.pause-item:hover,
+.pause-item:focus-visible {
+  color: var(--accent-strong);
+}
+
+.pause-item:hover::before,
+.pause-item:focus-visible::before {
+  opacity: 1;
+  transform: none;
+}
+
+.pause-item.is-danger:hover,
+.pause-item.is-danger:focus-visible {
+  color: color-mix(in srgb, var(--blood-bright) 85%, var(--lamp-100));
+}
+
+.pause-item.is-danger::before {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--blood) 34%, transparent) 0%,
+    transparent 78%
+  );
+}
+
+.pause-card__foot {
+  margin: var(--sp-5) 0 0;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ===========================================================================
+   5. Settings
+   ========================================================================= */
+
+.mset {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: min(58rem, 92vw);
+  height: min(42rem, 88vh);
+}
+
+.mset__head {
+  position: relative;
+  padding: var(--sp-5) var(--sp-6) var(--sp-4);
+  border-bottom: var(--border-hairline);
+}
+
+/* A sunk brass escutcheon, not an X on a page: lit from above, recessed into
+   the plate, and turning under the hand like a real catch. */
+.mset__close {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  font-size: var(--step-2);
+  line-height: 1;
+  color: var(--text-muted);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-600) 80%, transparent),
+    color-mix(in srgb, var(--ink-900) 88%, transparent)
+  );
+  border: var(--border-hairline);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--shadow-1);
+  cursor: pointer;
+  transition:
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-drama);
+}
+
+.mset__close:hover {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--lamp-400) 60%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 28%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--glow-lamp-soft);
+  transform: rotate(90deg);
+}
+
+.mset__body {
+  display: grid;
+  grid-template-columns: 12.5rem 1fr;
+  min-height: 0;
+}
+
+/* -- The index rail -------------------------------------------------------- */
+
+/* The wrapper carries the recess and the marker; the tablist inside it carries
+   nothing but tabs, so the group stays well-formed for assistive tech. */
+.mset__rail-wrap {
+  position: relative;
+  border-right: var(--border-hairline);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ink-abyss) 45%, transparent),
+    transparent
+  );
+}
+
+.mset__rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-5) var(--sp-3);
+}
+
+/* An unselected tab is still navigation, so it stays legible: --text-muted is
+   an annotation colour and reads as disabled on a control you have to find. */
+.mset__tab {
+  position: relative;
+  min-height: 2.5rem;
+  padding: var(--sp-3) var(--sp-3);
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.mset__tab:hover {
+  color: var(--text-primary);
+}
+
+.mset__tab[aria-selected='true'] {
+  color: var(--accent-strong);
+}
+
+/** One brass tab-marker that slides between sections, like a thumb index. */
+.mset__rail-marker {
+  position: absolute;
+  right: -1px;
+  top: 0;
+  width: 2px;
+  height: 1.6rem;
+  border-radius: 2px;
+  background: var(--brass-face);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--lamp-300) 65%, transparent);
+  transform: translateY(calc(var(--tab-y, 0px) - 50%));
+  transition: transform var(--dur-slow) var(--ease-drama);
+}
+
+/* -- Pages ----------------------------------------------------------------- */
+
+.mset__pages {
+  min-height: 0;
+}
+
+.mset__page {
+  height: 100%;
+  padding: var(--sp-5) var(--sp-6);
+  display: grid;
+  align-content: start;
+  gap: var(--sp-1);
+}
+
+.mset__note {
+  margin: 0 0 var(--sp-3);
+  max-width: 44ch;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  line-height: var(--leading-body);
+  color: var(--text-secondary);
+}
+
+.mset__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-6);
+  border-top: var(--border-hairline);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ink-abyss) 42%, transparent)
+  );
+}
+
+/* -- Rows ------------------------------------------------------------------ */
+
+/**
+ * One grid for every row type, so the left edge of a fader, a rocker and a
+ * segmented plate all land on the same vertical. Rows that each sized their own
+ * control column made the page look like four unrelated forms stacked up.
+ */
+.mset-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13rem 3.5rem;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: 3.25rem;
+  padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--lamp-500) 9%, transparent);
+}
+
+.mset-row:last-child {
+  border-bottom: 0;
+}
+
+.mset-row .mslider {
+  grid-column: 2;
+}
+
+.mset-row__value {
+  grid-column: 3;
+}
+
+/* A rocker and a picker are their own readout, so they take the last two
+   columns and align left with the faders above them. */
+.mset-row .mswitch,
+.mset-row .mseg {
+  grid-column: 2 / -1;
+  justify-self: start;
+}
+
+.mset-row__text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.mset-row__label {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+/* A hint explains the setting above it and is read while deciding, so it sits
+   one step under the label rather than down at annotation level. */
+.mset-row__hint {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--moon-300) 82%, transparent);
+}
+
+.mset-row__value {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* -- Brass fader ----------------------------------------------------------- */
+
+.mslider {
+  position: relative;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.mslider__track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  /* A channel milled into the plate: dark, with the far wall catching light. */
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-700));
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.85),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
+  overflow: hidden;
+}
+
+.mslider__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--v, 0) * 100%);
+  border-radius: 99px;
+  /* Brushed rather than polished: the horizontal grain is what stops a brass
+     fill reading as a flat progress bar. */
+  background:
+    var(--menu-grain-metal),
+    var(--brass-face);
+  background-size:
+    140px 140px,
+    auto;
+  background-blend-mode: soft-light, normal;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 55%, transparent);
+  transition: width var(--dur-fast) var(--ease-out);
+}
+
+.mslider__knob {
+  position: absolute;
+  left: calc(var(--v, 0) * 100%);
+  top: 50%;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      70% 70% at 34% 26%,
+      color-mix(in srgb, var(--lamp-100) 92%, transparent) 0%,
+      transparent 62%
+    ),
+    var(--brass-face);
+  box-shadow:
+    inset 0 -1px 1px rgb(0 0 0 / 0.5),
+    0 2px 5px rgb(0 0 0 / 0.7);
+  transform: translate(-50%, -50%);
+  transition:
+    left var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.mslider:hover .mslider__knob,
+.mslider:focus-visible .mslider__knob {
+  box-shadow:
+    inset 0 -1px 1px rgb(0 0 0 / 0.5),
+    0 2px 5px rgb(0 0 0 / 0.7),
+    var(--glow-lamp);
+}
+
+.mslider.is-dragging .mslider__knob {
+  transform: translate(-50%, -50%) scale(1.08);
+  transition-duration: var(--dur-fast);
+}
+
+.mslider.is-dragging .mslider__fill,
+.mslider.is-dragging .mslider__knob {
+  /* Dragging must track the thumb exactly; smoothing it feels like lag. */
+  transition-property: box-shadow;
+}
+
+/* -- Rocker switch --------------------------------------------------------- */
+
+.mswitch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.mswitch__track {
+  position: relative;
+  display: block;
+  width: 3.1rem;
+  height: 1.5rem;
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-700));
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 0.8),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent);
+  transition: background var(--dur-med) var(--ease-out);
+}
+
+.mswitch.is-on .mswitch__track {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lamp-600) 85%, var(--ink-abyss)),
+    color-mix(in srgb, var(--lamp-500) 70%, var(--ink-800))
+  );
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 0.55),
+    inset 0 0 12px color-mix(in srgb, var(--lamp-300) 30%, transparent);
+}
+
+.mswitch__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0.18rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      70% 70% at 34% 26%,
+      color-mix(in srgb, var(--lamp-100) 85%, transparent) 0%,
+      transparent 62%
+    ),
+    var(--brass-face);
+  box-shadow:
+    inset 0 -1px 1px rgb(0 0 0 / 0.45),
+    0 2px 4px rgb(0 0 0 / 0.7);
+  transform: translate(0, -50%);
+  transition: transform var(--dur-med) var(--ease-drama);
+}
+
+.mswitch.is-on .mswitch__thumb {
+  transform: translate(1.6rem, -50%);
+  box-shadow:
+    inset 0 -1px 1px rgb(0 0 0 / 0.45),
+    0 2px 4px rgb(0 0 0 / 0.7),
+    var(--glow-lamp);
+}
+
+.mswitch__state {
+  min-width: 2rem;
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.mswitch.is-on .mswitch__state {
+  color: var(--accent);
+}
+
+/* -- Segmented picker ------------------------------------------------------ */
+
+.mseg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-800));
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.7),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 8%, transparent);
+}
+
+.mseg__opt {
+  min-height: 2.25rem;
+  padding: var(--sp-2) var(--sp-4);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: none;
+  border: 0;
+  border-radius: calc(var(--radius-md) - 1px);
+  cursor: pointer;
+  transition:
+    color var(--dur-med) var(--ease-out),
+    background var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.mseg__opt:hover {
+  color: var(--text-primary);
+}
+
+.mseg__opt.is-on {
+  color: var(--ink-900);
+  background:
+    var(--menu-grain-metal),
+    var(--brass-face);
+  background-size:
+    140px 140px,
+    auto;
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 60%, transparent),
+    0 1px 3px rgb(0 0 0 / 0.55);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 40%, transparent);
+}
+
+/* ===========================================================================
+   6. Save / load
+   ========================================================================= */
+
+.slots {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(56rem, 92vw);
+  max-height: 88vh;
+  padding: var(--sp-5) var(--sp-6) var(--sp-4);
+}
+
+.slots__head {
+  margin-bottom: var(--sp-5);
+  padding-bottom: var(--sp-4);
+  border-bottom: var(--border-hairline);
+}
+
+/* The cards scroll, the head and the Back button do not — so a short window
+   can never push the way out of the panel off the bottom of the screen. */
+.slots__scroll {
+  min-height: 0;
+  /* Room for the lift-on-hover and the focus ring, which would otherwise be
+     clipped by the scroll container's own edge. */
+  margin: calc(var(--sp-2) * -1);
+  padding: var(--sp-2);
+}
+
+.slots__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+
+.slot {
+  position: relative;
+}
+
+/**
+ * A slot is a card sitting in a recess: the plate is lighter than the panel,
+ * so an occupied file reads as something lifted, and an empty one as a hole.
+ */
+.slot__face {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  padding: var(--sp-4) var(--sp-5);
+  text-align: left;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-600) 82%, transparent),
+      color-mix(in srgb, var(--ink-800) 92%, transparent)
+    );
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--shadow-2);
+  cursor: pointer;
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+
+.slot__face:hover:not(:disabled),
+.slot__face:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--lamp-400) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--shadow-3),
+    var(--glow-lamp-soft);
+}
+
+.slot.is-empty .slot__face {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    color-mix(in srgb, var(--ink-900) 78%, transparent)
+  );
+  box-shadow:
+    inset 0 2px 6px rgb(0 0 0 / 0.7),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 8%, transparent);
+}
+
+.slot__face:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+/**
+ * A file the player may read but not write — the autosave, while saving.
+ * It reads as sealed rather than merely dimmed: the brass edge goes cold and a
+ * hairline rules the card off, so "the game keeps this one" is legible without
+ * a tooltip.
+ */
+.slot.is-locked .slot__face {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--moon-400) 30%, transparent);
+}
+
+.slot.is-locked .slot__name {
+  color: var(--text-muted);
+}
+
+.slot__stat {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.slot__name {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+.slot__where {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+  font-variant-numeric: lining-nums;
+}
+
+.slot__where--empty {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.slot__stats {
+  display: flex;
+  gap: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  color: var(--text-secondary);
+}
+
+.slot__dot {
+  color: var(--text-muted);
+}
+
+.slot__discard {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  padding: 0.15rem var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out);
+}
+
+.slot:hover .slot__discard,
+.slot:focus-within .slot__discard,
+.slot__discard:focus-visible {
+  opacity: 1;
+}
+
+.slot__discard:hover {
+  color: var(--danger);
+}
+
+/* Nothing hovers on a touchscreen, and a destructive action the player cannot
+   find is as bad as one they cannot avoid. */
+@media (hover: none) {
+  .slot__discard {
+    opacity: 0.75;
+  }
+}
+
+.slots__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: var(--border-hairline);
+}
+
+/* ===========================================================================
+   7. Confirmation
+   ========================================================================= */
+
+.confirm {
+  width: min(28rem, 88vw);
+  padding: var(--sp-6);
+  text-align: center;
+}
+
+.confirm.is-danger {
+  border-color: color-mix(in srgb, var(--blood-bright) 32%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--blood-bright) 22%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    var(--shadow-4);
+}
+
+.confirm__title {
+  margin: 0 0 var(--sp-3);
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.confirm__body {
+  margin: 0 0 var(--sp-5);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  color: var(--text-secondary);
+}
+
+.confirm__actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-3);
+}
+
+/* ===========================================================================
+   8. Results dossier
+   ---------------------------------------------------------------------------
+   The only paper surface in the menus, because the closing beat should feel
+   like a file being set down rather than a screen being shown.
+   ========================================================================= */
+
+.dossier {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: min(46rem, 92vw);
+  max-height: 90vh;
+  padding: var(--sp-6) var(--sp-7) var(--sp-6);
+  overflow: visible;
+  color: var(--paper-ink);
+  background:
+    /* Toned edges. Paper ages from the outside in, and a sheet with a
+       perfectly even surface reads as card stock rather than a case file. */
+    radial-gradient(
+      124% 124% at 50% 42%,
+      transparent 52%,
+      color-mix(in srgb, var(--paper-400) 34%, transparent) 100%
+    ),
+    linear-gradient(
+      178deg,
+      var(--paper-100) 0%,
+      var(--paper-200) 62%,
+      var(--paper-300) 100%
+    ),
+    var(--paper-200);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 -2px 6px color-mix(in srgb, var(--paper-400) 55%, transparent),
+    var(--shadow-4);
+  transform: translateY(2rem) rotate(-0.5deg) scale(0.97);
+  opacity: 0;
+  transition:
+    transform var(--dur-scene) var(--ease-drama),
+    opacity var(--dur-slow) var(--ease-out);
+}
+
+.dossier::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--menu-grain-paper);
+  background-size: 200px 200px;
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* The written surface. Only this scrolls, so the seal can hang off the paper's
+   corner and a long resolution never overflows the desk. */
+.dossier__sheet {
+  min-height: 0;
+  padding-right: var(--sp-2);
+  scrollbar-color: color-mix(in srgb, var(--paper-400) 75%, transparent) transparent;
+}
+
+.dossier__sheet::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--paper-400) 75%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--paper-100) 60%, transparent);
+}
+
+.menu-layer.is-in .dossier {
+  transform: rotate(-0.4deg);
+  opacity: 1;
+}
+
+.menu-layer.is-out .dossier {
+  transform: translateY(0.75rem) rotate(-0.4deg) scale(0.99);
+  opacity: 0;
+  transition-duration: var(--dur-med);
+}
+
+.dossier__head {
+  text-align: center;
+}
+
+.dossier__eyebrow {
+  color: color-mix(in srgb, var(--paper-ink-faded) 90%, transparent);
+}
+
+.dossier__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--paper-ink);
+}
+
+.dossier__rule {
+  height: 2px;
+  margin: var(--sp-4) 0 var(--sp-5);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--paper-ink) 55%, transparent) 12%,
+    color-mix(in srgb, var(--paper-ink) 55%, transparent) 88%,
+    transparent
+  );
+}
+
+.dossier__verdict {
+  max-width: 52ch;
+  margin: 0 auto var(--sp-6);
+  text-align: center;
+}
+
+.dossier__verdict-label {
+  margin: 0 0 var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--paper-ink-faded);
+}
+
+.dossier__verdict-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  line-height: var(--leading-body);
+  color: var(--paper-ink);
+}
+
+.dossier__stats {
+  display: grid;
+  /* Four across on the design floor, so the file reads as one banded row of
+     findings rather than three and an orphan. */
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: var(--sp-4);
+  margin: 0 0 var(--sp-5);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink) 28%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 28%, transparent);
+}
+
+.dstat {
+  min-width: 0;
+}
+
+.dstat__label {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-ink-faded);
+}
+
+.dstat__value {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--paper-ink);
+  /* Cormorant defaults to oldstyle figures; in a tally they read as letters. */
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.dstat__note {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--paper-ink-faded);
+}
+
+/* -- The seal -------------------------------------------------------------- */
+
+/**
+ * Hung off the bottom corner rather than laid across the findings.
+ *
+ * A stamp lands where there is room on the page: level with the footer, where
+ * the only thing beside the centred button is margin. Sitting it higher put
+ * wax over the last column of the tally, which is the one thing on this screen
+ * the player is actually reading.
+ */
+.dossier__seal {
+  position: absolute;
+  right: calc(var(--sp-6) * -0.6);
+  bottom: calc(var(--sp-5) * -0.6);
+  width: 7.5rem;
+  height: 7.5rem;
+  display: grid;
+  place-items: center;
+  /* Held high, tilted and transparent until the stamp comes down. */
+  opacity: 0;
+  transform: rotate(-24deg) scale(2.4);
+  pointer-events: none;
+}
+
+.dossier__seal.is-stamped {
+  animation: seal-press var(--dur-scene) var(--ease-drama) both;
+}
+
+@keyframes seal-press {
+  from {
+    opacity: 0;
+    transform: rotate(-24deg) scale(2.4);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-9deg) scale(1);
+  }
+}
+
+.dossier__seal-wax {
+  position: absolute;
+  inset: 0;
+  border-radius: 48% 52% 51% 49% / 50% 48% 52% 50%;
+  background:
+    radial-gradient(
+      62% 62% at 34% 28%,
+      color-mix(in srgb, var(--blood-bright) 88%, var(--lamp-300)) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      85% 85% at 60% 70%,
+      var(--blood) 0%,
+      color-mix(in srgb, var(--blood) 62%, var(--ink-abyss)) 100%
+    );
+  box-shadow:
+    inset 0 2px 3px rgb(255 255 255 / 0.18),
+    inset 0 -6px 12px rgb(0 0 0 / 0.55),
+    0 6px 14px -4px rgb(0 0 0 / 0.6);
+}
+
+.dossier__seal-text {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: color-mix(in srgb, var(--lamp-100) 82%, var(--blood));
+  /* Pressed into the wax: light catches the upper lip of each stroke. */
+  text-shadow:
+    0 -1px 0 rgb(0 0 0 / 0.55),
+    0 1px 0 rgb(255 255 255 / 0.16);
+}
+
+.dossier__foot {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-2);
+}
+
+/* The dossier is paper, so its one button has to be ink and card, not brass. */
+.dossier .menu-btn--primary {
+  color: var(--paper-100);
+  background: linear-gradient(180deg, var(--ink-700), var(--ink-900));
+  border-color: color-mix(in srgb, var(--paper-ink) 45%, transparent);
+  text-shadow: none;
+}
+
+.dossier .menu-btn--primary:hover {
+  color: var(--lamp-100);
+  filter: none;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
+    var(--glow-lamp-soft);
+}
+
+/* ===========================================================================
+   9. Declarative settings reactions
+   ---------------------------------------------------------------------------
+   `applySettings()` writes these attributes onto <html>; everything below is
+   the whole of the game's response to them. Nothing subscribes, nothing polls,
+   and a setting can never drift out of step with what it controls.
+   ========================================================================= */
+
+/* Film grain: the global emulsion pass in base.css. */
+:root[data-grain='off'] #app::after,
+:root[data-grain='off'] .app-shell::after {
+  display: none;
+}
+
+/* Weather: hide the particle canvas rather than stopping the rig, so a scene
+   change while it is off does not have to know anything about the setting. */
+:root[data-weather='off'] .scene-weather,
+:root[data-weather='off'] .title-art__fog,
+:root[data-weather='off'] .title-art__rain {
+  display: none;
+}
+
+/* Colour grade: the backdrop pass over the stage. */
+:root[data-grade='off'] .scene-stage::after {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Motion override: mirrors the token collapse in tokens.css, so choosing it in
+   settings is indistinguishable from asking the OS for it. */
+:root[data-motion='reduced'] {
+  --dur-fast: 1ms;
+  --dur-med: 60ms;
+  --dur-slow: 90ms;
+  --dur-scene: 120ms;
+}
+
+:root[data-motion='reduced'] .title-art__plate,
+:root[data-motion='reduced'] .title-art__fallback,
+:root[data-motion='reduced'] .title-art__lamp,
+:root[data-motion='reduced'] #app::after,
+:root[data-motion='reduced'] .app-shell::after {
+  animation: none;
+}
+
+:root[data-motion='reduced'] .title-art {
+  transform: none;
+}
+
+/* The staggered reveal is the one piece of choreography that survives the
+   token collapse, because its delays are multiples of a token that is now
+   ~1ms — it would still play, just faster. Collapse it explicitly, exactly as
+   the media query below does for the OS-level preference. */
+:root[data-motion='reduced'] .title-wordmark__ch,
+:root[data-motion='reduced'] .title-rule,
+:root[data-motion='reduced'] .title-subtitle,
+:root[data-motion='reduced'] .title-item,
+:root[data-motion='reduced'] .title-colophon {
+  animation-delay: 0ms;
+}
+
+:root[data-motion='reduced'] .dossier__seal.is-stamped {
+  animation-duration: var(--dur-med);
+}
+
+/* Hotspot highlight. `hover` is the authored default and needs no rule. */
+:root[data-hotspots='always'] .hotspot.is-huntable::before {
+  opacity: 0.5;
+  transform: scale(1);
+}
+
+:root[data-hotspots='off'] .hotspot:hover::before,
+:root[data-hotspots='off'] .hotspot:hover::after {
+  /* Keyboard focus is never suppressed: it is the only cue a keyboard player
+     has, and turning it off would make the game unplayable rather than harder. */
+  opacity: 0;
+}
+
+/* Legible font: no webfont is bundled for this, so it falls through to the
+   widest, most evenly-weighted faces the platform is likely to have. */
+:root[data-dyslexia='on'] {
+  --font-display: 'Atkinson Hyperlegible', Verdana, 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible', Verdana, 'Trebuchet MS', system-ui, sans-serif;
+  --font-hand: 'Atkinson Hyperlegible', Verdana, system-ui, sans-serif;
+  --tracking-display: 0.03em;
+  --tracking-display-sm: 0.03em;
+  --leading-body: 1.75;
+}
+
+/* High-contrast text: lift the type off the artwork, and drop the atmospheric
+   text shadows that soften it. Every value is still mixed from the palette —
+   the point is to push each role to the light or dark end of its own family,
+   not to swap the game's colour for system black and white. */
+:root[data-contrast-boost='on'] {
+  --text-primary: color-mix(in srgb, var(--moon-100) 45%, var(--lamp-100));
+  --text-secondary: var(--moon-100);
+  --text-muted: var(--moon-200);
+  --paper-ink: color-mix(in srgb, var(--paper-ink) 70%, var(--ink-abyss));
+  --paper-ink-faded: color-mix(in srgb, var(--paper-ink) 88%, var(--paper-400));
+}
+
+:root[data-contrast-boost='on'] .title-item__label,
+:root[data-contrast-boost='on'] .title-subtitle,
+:root[data-contrast-boost='on'] .title-version,
+:root[data-contrast-boost='on'] .title-credit {
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.95);
+}
+
+/* The colophon is deliberately faint; at high contrast it has to be readable
+   rather than atmospheric. */
+:root[data-contrast-boost='on'] .title-version,
+:root[data-contrast-boost='on'] .title-credit {
+  color: var(--moon-200);
+}
+
+/* ===========================================================================
+   10. Reduced motion & narrow viewports
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .title-art__plate,
+  .title-art__fallback,
+  .title-art__lamp {
+    animation: none;
+  }
+
+  .title-art {
+    transform: none;
+  }
+
+  .title-wordmark__ch,
+  .title-rule,
+  .title-subtitle,
+  .title-item,
+  .title-colophon {
+    animation-delay: 0ms;
+  }
+
+  .dossier__seal.is-stamped {
+    animation-duration: var(--dur-med);
+  }
+}
+
+/* Below the design floor of 1280x800 the settings rail and the slot grid stop
+   earning their columns, so both collapse rather than compress. */
+@media (max-width: 60rem) {
+  .mset__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .mset__rail-wrap {
+    border-right: 0;
+    border-bottom: var(--border-hairline);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-abyss) 45%, transparent),
+      transparent
+    );
+  }
+
+  .mset__rail {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: var(--sp-3);
+  }
+
+  /* The thumb-index runs along the bottom of the strip instead of its side. */
+  .mset__rail-marker {
+    top: auto;
+    right: auto;
+    bottom: -1px;
+    left: 0;
+    width: 1.6rem;
+    height: 2px;
+    transform: translateX(calc(var(--tab-x, 0px) - 50%));
+  }
+
+  /* Stacked rows put the wider controls under their own label rather than
+     squeezing three columns into a narrow panel. The readout moves up beside
+     the label, where it still reads as belonging to it. */
+  .mset-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--sp-2);
+  }
+
+  .mset-row__value {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .mset-row .mslider,
+  .mset-row .mseg {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+
+  .mset-row .mseg {
+    justify-self: start;
+  }
+
+  .mset-row .mswitch {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .slots__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title-content {
+    max-width: none;
+  }
+}
+
+@media (max-height: 44rem) {
+  .mset {
+    height: 94vh;
+  }
+}

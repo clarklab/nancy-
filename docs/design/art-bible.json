@@ -1,0 +1,153 @@
+{
+ "masterStyleSuffix": "Painterly digital oil on fine linen: broken loaded brushwork in the flats, tight sable detail reserved for paper, brass, glass and edges. One dominant motivated source \u2014 low raking north daylight through a tall sash, or a single period practical \u2014 4:1 key-to-fill, deep falloff that never crushes to pure black. Muted North Atlantic grade: wet slate, lead granite, tobacco cream; global chroma held to 60\u201370%. Suspended dust in every daylight shaft. 35mm-equivalent, eye height 1.55m, level camera, deep focus, mild barrel. No people, no figures, no hands, no text, no legible lettering, no signature, no watermark, no logos, no modern UI, no lens flare, no HDR bloom.",
+ "portraitStyleSuffix": "Three-quarter bust in painterly digital oil, in the manner of a British institutional board-room commission hung in a dark hall: sitter turned 30\u00b0 to their left, eyes to camera, cropped mid-sternum, head in the upper third, hands included only if the character's hands tell a story. Single soft source 30\u00b0 left and 45\u00b0 high, 4:1 key-to-fill, faint #D89A4E bounce under the jaw, cool #6D8494 rim on the shadow shoulder. Flat unlit backdrop graded #1B2228 to #2E353B with visible brush drag. Restrained skin chroma, glazed shadows, impasto on collars, spectacles and knuckles. No props, no smile, no nameplate, no frame, no text, no watermark.",
+ "itemStyleSuffix": "Single object, a museum accession photograph reinterpreted as painterly digital oil. Isolated dead centre on a flat unlit ground of #14191D with a soft contact shadow only \u2014 no surface, no table, no props, no scale bar, no hands. Three-quarter view from 35\u00b0 elevation, long axis rotated 25\u00b0 off horizontal, object filling 78% of the frame. 85mm-equivalent, deep focus, museum-catalogue key: soft diffuse light upper-left at 45\u00b0, weak cool fill lower-right, exactly one crisp specular on metal or glass. Honest wear rendered honestly \u2014 foxing, rust bloom, thumb grease, split corners, tarnish. No people, no text, no readable labels, no watermark, no UI chrome.",
+ "palette": [
+  {
+   "name": "Brannock Slate",
+   "hex": "#12171B",
+   "role": "primary dark \u2014 global ground, letterbox bars, UI chrome, deepest painted shadow (never go below this value; pure #000000 is banned)"
+  },
+  {
+   "name": "Oxblood Buckram",
+   "hex": "#4A2327",
+   "role": "secondary dark \u2014 ledger spines, journal leather, dialogue plates, act-card fields, the warm half of the dark range"
+  },
+  {
+   "name": "Banker's Amber",
+   "hex": "#D89A4E",
+   "role": "warm key \u2014 green-shade lamps, bare bulbs, paraffin stove, microfilm ground glass, hover glow on hotspots"
+  },
+  {
+   "name": "Ivory Sound Grey",
+   "hex": "#6D8494",
+   "role": "cool fill \u2014 north daylight, sea, rain on glass, shadow fill, inactive UI states, atmospheric perspective"
+  },
+  {
+   "name": "Tarnished Brass",
+   "hex": "#B08B47",
+   "role": "accent / gold \u2014 frame corners, label holders, tube fittings, rules and hairlines, focused UI borders"
+  },
+  {
+   "name": "Issued Vermilion",
+   "hex": "#C0392B",
+   "role": "danger / event accent \u2014 the ISSUED stamp pad. Appears in exactly seven backgrounds in the entire game and in only two UI states (an uncited assertion, a struck assertion). Nowhere else, ever"
+  },
+  {
+   "name": "Foolscap Cream",
+   "hex": "#E7DCC2",
+   "role": "parchment \u2014 document surfaces, casebook pages, primary UI panel fill, primary type colour on dark"
+  },
+  {
+   "name": "Iron-Gall Black",
+   "hex": "#241B12",
+   "role": "ink \u2014 all body type on parchment, hand-ruled casebook lines, stencilled crate lettering, engraved plate incisions"
+  }
+ ],
+ "typography": {
+  "display": "Libre Caslon Display (Google Fonts)",
+  "body": "Spectral (Google Fonts)",
+  "reasoning": "Caslon is the house voice of British institutional print \u2014 Acts of Parliament, HMSO, Admiralty Notices to Mariners, charters and ships' registers have been set in it since 1725. Libre Caslon Display carries the high-contrast hairlines and the slightly irregular colour of metal type, which makes act cards, the Board Room, the Charter of 1811 and the final Notice read as printed artefacts rather than screen furniture. It is used ONLY at 25px and above, in small caps or title case, never for running text \u2014 its hairlines fill in and its rhythm fights the eye below that. Spectral carries everything else: a screen-first serif with low stroke contrast, tall x-height, sturdy 15\u201317px performance on backlit glass and a genuine Light-through-ExtraBold range, so the casebook can carry hierarchy without importing a third family. It sits in the same historical neighbourhood as Caslon (transitional, English), so the pairing never reads as decoration-plus-UI-font. Third, utility only: Courier Prime for every diegetic typewritten surface \u2014 requisition slips, the accident report, the p.p. bundle, ribbon readings. Typewriter forensics is a core mechanic, so typed text must be monospaced and mechanical, and Courier Prime's italic and bold are drawn rather than slanted, which matters when a document is reproduced at zoom. NEVER use Special Elite or any pre-distressed 'typewriter' face: the game's whole argument is that damage is evidence, and faked damage is the enemy. Distress belongs in the painted texture layer, not in the glyph outlines. No system sans anywhere in the interface, including buttons and tooltips.",
+  "scale": "Base 16px. UI ramp at 1.250 (major third): 10 / 12 / 13 / 16 / 20 / 25 / 31 / 39px. Display ramp at 1.333 (perfect fourth) from 25px, Caslon only: 25 / 33 / 44 / 59 / 79px. Line-height: 1.55 for Spectral below 20px, 1.35 from 20\u201331px, 1.08 for Caslon at 39px and above. Tracking: +0.16em on 10\u201312px all-caps registry labels, +0.08em on Caslon small-caps headers, 0 at body, \u22120.01em on display above 44px. Measure: 62 characters maximum for casebook prose, 44 for dialogue plates, 38 for the citation column. Courier Prime is fixed at 1.6 line-height, +0.02em, and never renders below 14px \u2014 if a document facsimile cannot show 14px Courier at the current zoom, the zoom control must be offered instead of shrinking the text."
+ },
+ "uiPhilosophy": "The interface is not an overlay on the game; it is the one object Wren carries. Everything the player touches is either her wire-bound casebook, a Conservancy form, or a fitting screwed to the building \u2014 nothing is a web widget wearing a texture.\n\nMATERIALS. Three, and only three. (1) Paper: Foolscap Cream #E7DCC2 with a faint laid line and fibre grain, printed in Iron-Gall Black #241B12, with the casebook's citation rule hand-drawn in 2H pencil \u2014 slightly off-parallel, redrawn per session, never a crisp 1px CSS border. (2) Buckram and leather: Oxblood #4A2327 for the casebook cover and the dialogue plate, blind-tooled with a double fillet 4px in from the edge, grain catching the amber key from upper-left. (3) Brass: #B08B47 for inventory slot plates, journal index tabs and every focus ring \u2014 aged in daily-use rooms, green in damp ones. No glass, no gradients-as-material, no drop shadows over 12px blur, no corner radius above 2px. Panels sit on the screen like objects on a desk: a hard 1px #12171B contact line at the bottom edge and a soft 2px occlusion, nothing more.\n\nCHROME. The HUD is almost absent. The top 12% of frame is kept empty by the compositor; date and time appear there as one small-caps Caslon line, 12px, +0.16em, #E7DCC2 at 72% \u2014 \"TUESDAY 27 OCTOBER 1998 \u00b7 14:20\" \u2014 and nothing else. No health, no objective marker, no minimap, no quest arrow, no hint button. The cursor is a period object: a plain arrow at rest, a fibre loupe over an examinable, a gloved fingertip over a movable, a treasury tag over an exit. Hotspots do NOT glow on idle; a #D89A4E inner warmth blooms only under the cursor, 18% opacity, in 240ms, and dies in 180ms.\n\nTHE CASEBOOK. Opening it is a page-turn, not a modal: 420ms ease-out, the cover swinging on the left spine with the paper edge visibly stacked. Left page is transcription; right page is the citation column the player fills in \u2014 a ruled grid with an accession-number field. An assertion with no citation shows a hollow vermilion box; a filled one shows the number in Courier Prime. At the Board, uncited lines are struck through by a single vermilion rule drawn left-to-right over 600ms while Pargeter reads them aloud, and the transcript prints with the gaps in it. That drawn line is the most expensive animation in the game and it must be the only place vermilion ever moves.\n\nINVENTORY. Not a grid of icons. A shallow drawer that slides up from the bottom edge in 300ms with a wooden judder at the end of travel, showing brass label-holder slots on a bottle-green baize bed. Every object is rendered at true relative scale to every other, so a spectacle case and a ledger are correctly sized against each other. Items are not \"used on\" the world by dragging; they are set down on it.\n\nDIALOGUE. A single oxblood plate across the lower 14% margin, 44-character measure, speaker in Caslon small-caps 13px, line in Spectral 17px, arriving at 42 characters per second with no per-character sound. Player options are numbered \u2014 Wren speaks in numbered points when she is nervous, and the UI should quietly do the same.\n\nMOTION LAW. Nothing bounces, nothing springs, nothing eases in-out symmetrically. Every transition is ease-out only, 180\u2013420ms, as though the object has weight and friction. Node-to-node navigation is a 320ms cross-dissolve with a 4% push in the direction of travel \u2014 never a camera fly-through. The only elements permitted to loop continuously are rain on glass and the polythene sheeting breathing on the scaffold.\n\nSOUND OF THE UI. Paper, pencil, brass, Bakelite. No clicks, no whooshes, no synthesised confirmations.",
+ "lightingRules": [
+  "ONE KEY PER NODE, NAMED IN THE PROMPT. Every background states its single dominant source before anything else. Two competing keys is an automatic reject and a regenerate.",
+  "DAY INTERIORS: north daylight at 5600\u20136200K entering through a twelve-foot six-over-six sash, key-to-fill 4:1, direction held to frame-left unless the floorplan forbids it (record the exception in the node sheet and keep it forever).",
+  "NIGHT INTERIORS: a single period practical at 2400\u20132700K \u2014 green-shade banker's lamp, bare carbon bulb, microfilm ground glass, paraffin stove, hooded torch. The lit pool never exceeds one-third of the frame width. Everything else is falloff.",
+  "BLACK FLOOR: the deepest shadow in any image is #12171B at 8\u201312% luminance. Never #000000. Paint texture must survive in the darkest corner of the frame.",
+  "DUST IS MANDATORY in every daylight archive node: a visible shaft with 3\u20136% atmospheric haze and suspended motes rendered as paint, not as a particle overlay.",
+  "WARM LIGHT MUST BE MOTIVATED. Sodium amber only ever comes from an object the player can see or reach. No unmotivated warm rim light, no cinematic backlight from nowhere.",
+  "SPECULAR POLICY: brass and glass carry the only hard speculars, one or two per frame maximum. Paper is matte with a soft sheen at grazing angle only. Painted joinery reads at 5% gloss. Slate is wet-dark and reflective only where rain has reached it.",
+  "STORM NODES (Acts III\u2013IV): key desaturated below 15% chroma, near-monochrome, with exactly one warm interior window or floodlight as the single colour event in the frame.",
+  "RAIN ON GLASS REFRACTS \u2014 the light behind it must break and smear, not sit beneath a transparent droplet layer.",
+  "THE BOARD ROOM, 3 NOVEMBER, is the only fully sunlit background in the game: 5:1 contrast, hard-edged window gobos lying across floor and table, +15% saturation over the global grade, and the only frame permitted a genuine highlight clip.",
+  "THE NINE BELLS LANTERN IS DEAD until the Act V asset. In every Act II\u2013IV render the lantern glass is unlit, reflective grey-green, and reads as an eye with a cataract. When it finally lights, it is the only light source in that frame.",
+  "EXTERIOR DAY is overcast-diffuse by default; direct sun exists on exactly two days in the whole game (26 October arrival, 3 November) and must be explicitly flagged in the prompt.",
+  "SITE FLOODLIGHTS on the scaffold are 4000K, harsh and unshaded, and always throw one long hard shadow up a granite face.",
+  "NO GOD RAYS, no volumetric fans from doorways, no lens flare, no bloom above 4%. Atmosphere comes from dust and damp, not from post."
+ ],
+ "compositionRules": [
+  "CAMERA: eye height 1.550m, dead level, zero dutch. The only permitted exceptions in the entire game are the Nine Bells exterior (low, from the boat, 1.1m) and the Great Stair looking up at the twenty-two Wardens (1.55m, 12\u00b0 up).",
+  "LENS: 35mm-equivalent for rooms, 50mm for desk/bench/machine nodes, 85mm for object-focus nodes. Never wider than 28mm. There is no fisheye archive.",
+  "THUMBNAIL LAW: every node must be identifiable at 160\u00d790px by one non-negotiable silhouette object, placed in the left or right third, occupying 18\u201335% of frame height. Locked list \u2014 tube head brass octopus; four hundred drawers as a wall of label-holders; strongroom three winding movements; switchboard twelve cords; Reprax drum; marigraph glass stilling well; incinerator iron mouth; thirty-one churchyard slates; signal mast; the optic; Olivetti on the counter; a row of green banker's lamps; the Chubb door; the franking meter; the light table's glow; the Ardent's binnacle. If two nodes read alike at thumbnail, one is redesigned, not relit.",
+  "TOP 12% OF FRAME IS QUIET \u2014 low detail, low contrast, no focal object. The date line lives there.",
+  "BOTTOM 14% OF FRAME IS RESERVED for the dialogue plate: no critical detail, no hotspot, no readable object below that line.",
+  "THREE PLANES MINIMUM. A dark near-plane framing element (door jamb, shelf end, scaffold pole, dust-sheeted press) at under 15% of frame area; the subject plane; a receding plane with visible atmospheric perspective. Flat single-wall compositions are rejected.",
+  "HOTSPOT ZONE is the band between 12% and 86% of frame height; interactive objects are composed into that band and separated by at least 8% of frame width so touch targets never collide.",
+  "TRUE HORIZONTALS. The building is a granite fortress and never leans. Vertical convergence capped at 1%. Slate floor courses and shelf runs must be dead straight.",
+  "SYMMETRY IS RESERVED for institutional authority: Wardens' Hall, the Board Room, the strongroom door, the Great Stair. Every other node is composed off-axis, weighted to one third.",
+  "NAVIGATION MUST BE LEGIBLE: every node shows at least one unambiguous exit \u2014 doorway, arch, stair head, corridor mouth \u2014 and its destination must be guessable from what is visible through it.",
+  "NO PEOPLE, no figures, no silhouettes of figures, no reflections of figures, no animals. Every interior node carries at least one nameable left-behind human object: a cup with the spoon still in it, folded spectacles on an open ledger, a cardigan over a chair back, sheepskin slippers in a drawer, a roll-up behind a lamp, a coat on a hook.",
+  "SCALE ANCHOR: every interior includes one object of known human size (chair, door, lamp, ledger) so the room's dimensions are readable without a person in it.",
+  "COLOUR EVENT DISCIPLINE: one saturated accent maximum per frame, and it is either the light source or the buckram, never both."
+ ],
+ "consistencyRules": [
+  "THREE-STATE RULE, ABSOLUTE. Every interior node is painted three times: (A) intact and dust-sheeted, Acts I\u2013II; (B) half-boxed, scaffold in, shelving stencilled LOT 4, polythene sheeting, Act III; (C) stripped to plaster, wires hanging, floor protection down, Acts IV\u2013V. Camera position, eye height and focal length are IDENTICAL across all three \u2014 only contents, light and weather change. Generate A first and pass it as the reference image for B and C; never write B or C from text alone.",
+  "ARCHITECTURAL LOCKSET, unchanged in every node: coursed grey granite ashlar, slate flag floors, twelve-foot six-over-six sashes with iron glazing bars, dark-stained pitch pine shelving, cast-iron four-column radiators, brown Bakelite switches with surface-run conduit, and a two-tone dado \u2014 bottle-green gloss to 1.2m, institutional cream above \u2014 painted in 1961 and touched up twice.",
+  "PALETTE COMPLIANCE: at least 70% of every frame's pixels fall inside the eight-colour palette. Verdigris (#5E7A6B) and dust-sheet bone (#C7C0AE) are the only sanctioned extensions and neither may exceed 10% of a frame.",
+  "VERMILION IS RATIONED. #C0392B appears in exactly seven backgrounds in the entire game \u2014 the seventh is Notice to Mariners 74/119 on the last afternoon. Any generated frame containing unplanned red is rejected outright.",
+  "BRASS AGE STATES ARE FIXED BY ROOM, not by mood: green verdigris in the undercroft, Tide Room, courtyard and beacon; dulled and thumb-worn in the Registry, Post Room and Rolls Room; polished only on the Act V optic and the Board Room charter case.",
+  "SIGNAGE IS TEXTURE, NEVER TEXT. Labels, spine titles, stencils and dockets are painted as the shape and rhythm of letterforms at illegible scale. All real text is supplied by the engine as an overlay in Caslon or Courier Prime. Any frame containing a readable generated word is rejected.",
+  "WEATHER CONTINUITY BY ACT: I\u2013II grey, still, papery, rain on glass; III streaming windows, sixty-mile southwesterly, causeway under water; IV horizontal rain, storm force, floodlit granite, black hill; V hard blue cold sunlight. Windows in every node must agree with the act's weather.",
+  "SALT BLOOM AND DAMP occur only below 1.2m and only in the undercroft, Tide Room, courtyard, landing stage and beacon. The upper building is dry, dusty and cold.",
+  "PINNED OBJECTS DO NOT MOVE. Cormac Sallow's folded spectacles occupy identical pixel coordinates on the reading slope in every Muniment Gallery render, states A through C. Same for the sheepskin slippers in drawer 388, the kettle, the cardigan on Ottoline's chair, and the twenty-two portraits on the Great Stair.",
+  "PORTRAITS ARE ONE SITTING. Identical key (30\u00b0 left, 45\u00b0 high), identical crop (mid-sternum), identical backdrop range, identical canvas texture and identical brush scale for all characters \u2014 living, dead, and painted-in-1979 alike. Cormac Sallow and Absalom Ferrier are rendered exactly like everyone else. The cast must read as already historical, already framed.",
+  "ASPECT AND RESOLUTION: backgrounds 16:9 at 2560\u00d71440 minimum; portraits 4:5 at 1600\u00d72000; items 1:1 at 1536\u00d71536; UI textures as specified per asset. All PNG, no baked vignette, no baked text, no baked UI.",
+  "PERIOD PURITY: nothing later than 1998 and nothing plastic-modern anywhere. No PVC windows, no LEDs, no printed vinyl signage, no barcodes, no computers, no mobile phones except Sandbach's brick Nokia in the site hut. The only permitted intrusion of the present is the construction work itself.",
+  "BRUSH SCALE IS CONSTANT: the largest visible brushstroke is approximately 1/90th of the frame's long edge in every image, background or portrait, so no asset reads as 'more painted' than its neighbour.",
+  "NO STOCK ARCHIVE CLICH\u00c9S: no floating dust made of white dots, no cobwebs, no skulls, no candles, no spilled ink pools, no scattered-papers-in-mid-air. This building is meticulously kept right up until the day the scaffolders arrive."
+ ],
+ "uiAssetPrompts": [
+  {
+   "id": "ui-parchment-sheet",
+   "prompt": "Seamless tileable texture of a single sheet of 1970s British government foolscap, painterly digital oil, viewed dead flat from directly above at 90\u00b0, filling the entire frame edge to edge with no sheet border visible. Base colour #E7DCC2 with faint laid lines running vertically every 24px, visible cotton-rag fibre, a soft even fox-mark bloom at 4% opacity, one barely perceptible horizontal fold shadow at 62% height, and a faint cool grey #6D8494 tone in the depressions. Absolutely flat lighting, no directional key, no vignette, no shadow, no curl, no torn edge. No text, no lettering, no watermark, no ruling, no logos, no people.",
+   "size": "2048x2048 seamless tileable PNG"
+  },
+  {
+   "id": "ui-journal-leather-cover",
+   "prompt": "Full-bleed texture of the front board of a wire-bound conservator's casebook bound in oxblood buckram over board, painterly digital oil, photographed flat from directly above. Base #4A2327, fine woven buckram grain with a diagonal weave catching a raking amber #D89A4E light from the upper left at 20\u00b0 elevation, a blind-tooled double fillet line impressed 5% in from all four edges, one thumb-darkened wear patch at the lower right, two scuffs to the board corners showing grey board beneath, and a faint cup ring at the upper right at 8% opacity. No spine, no wire binding visible, no text, no title, no gold lettering, no logo, no watermark, no people.",
+   "size": "2048x2048 PNG"
+  },
+  {
+   "id": "ui-brass-frame-corner",
+   "prompt": "A single ninety-degree corner fitting of a cast brass picture frame, painterly digital oil, isolated on a flat #12171B ground, oriented as the top-left corner with its two arms running right and downward to the frame edges. Cast brass #B08B47 gone dull and thumb-worn on the raised bead, verdigris #5E7A6B settled in the recesses and the mitre joint, one small countersunk screw at the mitre, restrained Victorian institutional moulding profile \u2014 an ogee and a plain bead, no acanthus, no rococo, no scrollwork. Soft key from the upper left at 45\u00b0, one crisp specular along the top bead only, soft occlusion in the mitre. No text, no engraving, no watermark, no background detail, no people.",
+   "size": "1024x1024 PNG with alpha"
+  },
+  {
+   "id": "ui-wax-seal",
+   "prompt": "A single blob of sealing wax pressed with a shipping-office seal, painterly digital oil, isolated dead centre on a flat #14191D ground with a soft contact shadow beneath. Deep oxblood wax #4A2327 with darker #2B1416 in the depressions and a warm translucent #7A3038 glow at the thinnest edge where light passes through; irregular squeezed-out perimeter with two runs and one air bubble; matrix impression showing an abstract fouled-anchor-and-rope device rendered soft and half-filled as wax always is, its details illegible. Key light upper left at 45\u00b0, one broad soft specular on the domed centre, weak cool fill lower right. No text, no letters, no initials, no date, no watermark, no paper, no ribbon, no people.",
+   "size": "1024x1024 PNG with alpha"
+  },
+  {
+   "id": "ui-aged-map-paper",
+   "prompt": "Seamless tileable texture of a blank Admiralty chart sheet from the 1940s, painterly digital oil, dead flat overhead view filling the frame with no sheet edge. Cool grey-cream #DCD6C4 base with a faint cyan-grey #6D8494 tint in the fibre, heavy laid lines, a very faint printed grid graticule at 6% opacity reading only as pale rhythm, three soft brown tide stains at the edges, a repaired tear running diagonally at 20% opacity with visible Japanese tissue repair, and pinholes at the corners. Flat even lighting, no key direction, no shadow, no curl. No text, no numerals, no depth soundings, no coastline, no compass rose, no lettering, no watermark, no people.",
+   "size": "2048x2048 seamless tileable PNG"
+  },
+  {
+   "id": "ui-inventory-slot-plate",
+   "prompt": "A single empty brass label-holder slot plate from an archive card-index drawer, painterly digital oil, isolated on a flat #12191D ground, viewed square on from directly in front. Rectangular pressed brass frame #B08B47, worn bright along the lower lip where forty years of thumbs have pulled it, dull and slightly green #5E7A6B in the pressed corners, two tiny brass pins top and bottom, and behind the glazing a blank card of #E7DCC2 foolscap with nothing written on it, sunk 3mm with a soft interior shadow. Beneath and around the plate, a shallow bed of bottle-green baize #22302B with visible nap. Soft key upper left 45\u00b0, one thin specular along the top edge of the brass. No text, no lettering, no numbers, no watermark, no people.",
+   "size": "1024x512 PNG with alpha"
+  },
+  {
+   "id": "ui-vignette-overlay",
+   "prompt": "A pure lighting-overlay plate for multiply blending, painterly digital oil texture only. Transparent-clear across the centre 45%, darkening outward to #12171B at the extreme corners, with an intentionally IRREGULAR falloff \u2014 heavier at the top-left and bottom-right, lighter along the right edge \u2014 so it reads as uneven varnish and dust on old glass rather than a symmetrical camera vignette. Overlaid across the whole plate at 3% opacity: fine suspended dust motes, two hair-thin scratches, and a barely visible bloom of foxing near the lower-left corner. No hard edges, no banding, no subject matter, no shapes, no text, no watermark, no people.",
+   "size": "2560x1440 PNG with alpha"
+  },
+  {
+   "id": "ui-title-key-art",
+   "prompt": "Title-screen key art, painterly digital oil on linen, 16:9. From four hundred yards off the reef, low on the water at 1.1m eye height in the trough of a swell, looking up at the Nine Bells Beacon: one hundred and twelve feet of coursed grey granite tapering to a black cast-iron gallery and a DEAD unlit lantern whose glass is reflective grey-green like a cataract. Storm-grey North Atlantic, spray blowing off the reef, near-monochrome under 15% chroma, sea and sky within a single value of each other, the tower a hard dark silhouette against a pale gap in cloud on the right. The beacon sits on the left third at 70% of frame height; the right two-thirds are empty weather reserved for the title. Deep shadow floor #12171B, cool fill #6D8494, one cold pale highlight on the wet granite. 35mm-equivalent, level camera, deep focus. No boat, no people, no birds, no lit lamp, no text, no lettering, no title, no logo, no watermark, no UI.",
+   "size": "2560x1440 PNG"
+  },
+  {
+   "id": "ui-casebook-ruled-page",
+   "prompt": "Full-bleed texture of the open right-hand page of a wire-bound conservator's casebook, painterly digital oil, dead flat overhead. Foolscap Cream #E7DCC2 stock, machine-ruled feint horizontal lines in pale #A9B4BA every 32px, and \u2014 crucially \u2014 a single vertical citation rule hand-drawn in 2H pencil #6E6A62 at 68% of the page width, very slightly off-parallel and redrawn over itself twice at the top where the hand wobbled. Left edge shows five punched wire-binding holes with slight tear-out on the second. A soft graphite smudge from the heel of a hand at the lower right, one eraser-rubbed grey patch mid-page, and a faint impression of writing pressed through from the previous leaf at 4% opacity. Flat even light, no shadow, no curl. No readable text, no words, no numerals, no watermark, no people.",
+   "size": "2048x2560 PNG"
+  },
+  {
+   "id": "ui-vermilion-issued-stamp",
+   "prompt": "A single rubber-stamp impression struck in vermilion #C0392B, isolated on a flat #E7DCC2 ground, painterly digital oil, viewed dead flat from above. An EMPTY rectangular double-ruled stamp frame with rounded worn corners at roughly 3:1 proportion, the outer rule broken in two places where the rubber has perished, the ink laid down unevenly \u2014 saturated and slightly bled at the top-left where the hand pressed hardest, starved and skipping to bare paper along the bottom-right edge, one thumbprint of offset ink outside the frame at the lower left. The interior of the frame is completely empty. No letters, no words, no date, no numerals, no text of any kind, no watermark, no paper edge, no shadow, no people.",
+   "size": "1536x512 PNG with alpha"
+  }
+ ]
+}

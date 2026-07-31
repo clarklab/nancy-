@@ -1,0 +1,934 @@
+{
+ "acts": [
+  {
+   "number": 1,
+   "title": "THE APPRAISAL",
+   "goal": "Land on the headland, take possession of an archive that does not want you, learn the four verbs of the building (the slip, the tube, the index, the press), and find out why a dead man asked for a stranger. By the end of Act I the player must hold in her hands a document that does not exist in any register in the building.",
+   "opens": [
+    "The Ardent (deck and cabin) \u2014 arrival crossing, calm water",
+    "Rossport Quay and the GPO Call Box (the diegetic hint line to Phyllida Halkett)",
+    "The Wicket and Entrance Hall (visitors' book, hook board, tube head)",
+    "The Great Stair and Wardens' Hall (twenty-two portraits; Absalom Ferrier, 1961\u20131976)",
+    "The Registry Counter (Pike, requisition slips, Olivetti Lettera 32, tube station)",
+    "The Long Registry (six hundred feet of shelving, the bound registers)",
+    "The Reading Room (green banker's lamps, delivery hatch, Wren's table)",
+    "The Rolls Room (four hundred drawers, Ottoline, drawer 388)",
+    "The Warden's Office (Imperial 66, the in-tray, Sabine)",
+    "The Accounts Office (Enid, cash books, the liabilities schedule)",
+    "The Post Room (franking meter, post book, address-plate cabinet)",
+    "The Duplicating Room (Reprax 12, microfilm reader)",
+    "The Binding Room (disused; Wren commandeers it as her bench)",
+    "The Courtyard and Incinerator",
+    "The Cliff Path and St Bride's Churchyard (thirty-one slate markers along the wall)"
+   ],
+   "beats": [
+    "COLD OPEN, TUTORIAL AS THESIS. Twenty minutes out of Rossport, spray has got into Wren's satchel and fused two leaves of her own commission \u2014 the legal instrument that is her only authority. In the Ardent's cabin she humidifies, separates and blots it with a spatula and a sheet of Gore-Tex, slowly, in four minutes of pure hand-work, and can damage it permanently by hurrying. No plot lands until she has done it. The game's entire grammar \u2014 patience, tools, paper as a physical body \u2014 is taught before a single character speaks.",
+    "09:40, 26 October. She signs the visitors' book at the wicket. Ottoline Verge, seventy-two and unpaid and delighted, shows her how a requisition slip works: white top copy to the strongroom by tube, pink carbon into the stub book, and the countersignature box. 'If the Warden's out, her clerk initials it p.p. \u2014 per procurationem, on behalf of. We've done it since the Ark.' Two millimetres of pencil, taught as an item of housekeeping, by a woman who has no idea what she has just handed the player.",
+    "PIKE'S GRIEVANCE (the plant). Halvard Pike refuses to shake her hand and delivers, unprompted, four minutes of contempt about the state of the registry \u2014 ending on docketing. 'One hand in this building endorses a folder the Ministry way: on the outside third, upside down to the tag, so you have to turn the whole file over to read your own file. Whitehall, 1958. Everybody else does it like a Christian.' He also squares a treasury tag for her, tail under, loop left, and calls it 'her people's knot.' No prompt, no highlight, no journal entry beyond what the player writes.",
+    "THE DULL LIEN. Wren's first statutory duty is to clear the Authority's schedule of outstanding liabilities. Item 14: 'Superannuation \u2014 FERRIER-KYNE, S. \u2014 reckonable service claim, \u00a32,140 4s arrears in dispute.' A pension squabble. The player crosses it off in the first hour, as the game intends, and will not look at it again until Act IV, when it becomes the only writing in existence in which Sabine asserts that she was working in this building in 1974.",
+    "THE SPECIMEN BUNDLE (the twist, in plain sight, at readable resolution, in the first thirty minutes). Sabine Ferrier-Kyne welcomes Wren with total, unhurried courtesy, gives her a key to every room, and hands her a demonstration bundle \u2014 nine documents from 1974 \u2014 'so you can see our house style before you start dating things at me.' Every one is signed A. FERRIER. Every one carries, in 2H pencil in the bottom left corner, the notation p.p. The player can zoom to full resolution. The player will pass these documents, or documents exactly like them, forty times.",
+    "THE CORONER'S FILE. In the reading room, the inquest papers on Cormac Sallow, seventy-nine, retired Lamp Superintendent, dead 14 September of a fall from the Muniment gallery. Inside: the Authority's own accident report, typed at 16:50 that day, docketed the Ministry way, upside down to the tag \u2014 and signed, in a firm upright hand, Sabine Ferrier-Kyne. And Sallow's letter of 11 September, forwarded twice, asking that 'series 14/B be read by a stranger before it leaves this building.'",
+    "THE TYPEWRITER SURVEY (skill 2, taught). Standard conservation practice: before appraisal, characterise the office machines. Wren types a specimen sheet on each of the four survivors and mounts them in her casebook. Imperial 66 (Warden's Office, 1961): lower-case a filling with a hard plug of ink and wax, comma printing 0.4mm high, broken descender on y. Underwood 5 (Rolls Room, 1928): lower-case e riding 0.3mm above the baseline, a wandering 3. Olivetti Lettera 32 (Registry, 1966): grey doubling from a slack ribbon vibrator, chipped l. Remington Noiseless (Accounts, 1938): a heavy g from a bent typebar, capitals dropping 0.2mm.",
+    "THE MACHINE THAT CANNOT LIE (skill 4, taught). In the Post Room Wren opens the Pitney Postmaster franking meter under her warrant \u2014 a GPO offence for anyone else \u2014 winds the register drum, reads the descending credit and the ascending total, and reconciles the day's post book against them. A five-minute lesson in serial records, on a machine nobody in 187 years has thought of as a witness.",
+    "01:20, 27 October. Rain on glass. Somebody is burning paper in the courtyard incinerator. The scaffolders removed the chimney damper on 2 September (Sandbach's site diary, item 41) so the flue will not draw; the rain comes in through the open head and puts the fire out badly. By the time Wren gets down in her coat over her nightdress the courtyard is empty and the ash grate is a sodden black brick. She rakes it, floats the fragments off in a tray of cold water, and carries them up to the Binding Room to dry between blotters.",
+    "She telephones Phyllida Halkett from the Rossport call box on the causeway at low water. Halkett explains, in exhausting detail, the procedure for certifying a series under section 41, and refuses \u2014 flatly, three times, and every time she is ever called \u2014 to have an opinion about anything that has happened in the building."
+   ],
+   "gate": "Certify three series (1/A Charter and Board Minutes, 2/C Pilotage Licences, 9/E Wreck Register) by completing three escalating appraisal exercises; then stabilise and read the incinerator fragments using the humidification technique taught in the cold open. Cross-check the recovered document against the Register of Notices Issued 1974 in the Long Registry.",
+   "cliffhanger": "The scorched carbon is a Notice to Mariners, numbered 74/119, drafted 15 August 1974: MARINERS ARE ADVISED THAT THE LIGHT EXHIBITED FROM THE NINE BELLS BEACON MAY NOT BE RELIED UPON UNTIL FURTHER NOTICE. The Register of Notices Issued for 1974 runs 74/118, 74/120. No cancellation, no minute, no gap explained. Somebody wrote the warning. Somebody stopped it. And somebody, in the rain, at twenty past one this morning, was still trying to burn it."
+  },
+  {
+   "number": 2,
+   "title": "SERIES 14/B",
+   "goal": "Prove that the 1974 Nine Bells file was gutted and retyped, derive exactly what is missing, and get inside the strongroom to look for it. Escalation: from 'a document is odd' to 'seven documents have been removed by name, and the index that betrays them was retyped by a specific machine in a specific year.'",
+   "opens": [
+    "The Muniment Room and Gallery (the rail, the north bay, the map presses, the spectacles)",
+    "The Strongroom (Chubb three-movement timelock, series 14/B, the bottom shelf)",
+    "The Undercroft (bare bulb, sump, the blind north wall)",
+    "The Switchboard Room (twelve-line plug board, call-log books 1946\u20131991)",
+    "The Chart Loft (light table, dividers, the survey drawer)",
+    "The Lamp Room (Rita's kingdom; dismounted optics, Sandbach's crate, the Lamp Superintendents' frame)",
+    "The Ardent at sea (aborted crossing, four hundred yards off the reef)",
+    "Rossport Quay ferry office (booking book, manifest)",
+    "The Site Hut and scaffold decks (Sandbach's programme, the strip-out schedule)"
+   ],
+   "beats": [
+    "THE CARD INDEX GAP. Sixty thousand cards in four hundred drawers, and an index more honest than the archive it describes: weeding a file is an afternoon, weeding an index is a fortnight, so nobody did it. Sorting drawers 214\u2013216 by card stock, ribbon colour and typeface, Wren isolates forty-seven cards retyped on a machine with a raised lower-case e \u2014 the Underwood 5 in the Rolls Room \u2014 on stock not manufactured before 1987. From the surviving accession numbers she derives seven documents that exist as cards and do not exist as paper. This is the shopping list that drives Acts III and IV.",
+    "THE REQUISITION SYSTEM BEGINS TO LIE (and the player writes the evidence herself). Slip 2271, series 14/B box 4, Oil and Stores, Nine Bells 1974 \u2014 comes back as 14/A box 4, Oil and Stores, Cadran Point. One character. Deniable. Slip 2283, Despatch Book 1970\u201379 \u2014 comes back NOT TRACED, see W/O 89/2. Wren logs both stubs in her casebook, in her own handwriting, out of professional habit, and thinks nothing of it. Standing Order 7, printed on the back of every slip and read by nobody, requires every reader's requisition to pass the Warden's pigeonhole for countersignature.",
+    "OTTOLINE STEERS. Over tea from the kettle in drawer 388, with immense gentleness, she mentions that Mr Pike holds keys to everything, that he has always been very close about the Lights series, and that he was here the evening poor Cormac died. Two of those three things are true.",
+    "RITA AND THE DEAKIN LETTER. Marguerite Tain, boatwoman, daughter of the pilot the Rossport Report destroyed, produces from the lamp-room file a letter dated 4 March 1975 from a crewman named Deakin: the beacon was dark, they all knew, they were told to say nothing. It appears to end the case in Act II. Wren, being what she is, says she will have to authenticate it before she can cite it, and Rita hates her for it.",
+    "THE ABORTED CROSSING (first sea beat; the silhouette arrives in hour two, not hour four). Rita takes her out on the Ardent to look at the rock. Two miles out the swell gets up over the Sowens and Wren, who is genuinely and unglamorously terrified of open water, is sick over the lee rail while the beacon comes and goes behind grey water \u2014 a hundred and twelve feet of granite with a black gallery and a dead lantern. Four hundred yards off, through the glasses, the gallery door is standing open. They turn back. The player has now seen the shape the whole game is pointed at, and felt what it will cost to reach it.",
+    "SANDBACH ACCELERATES. The strip-out programme moves forward: the Chart Loft is struck on the 30th, the Rolls Room card index is skipped on the 31st. The schedule is pinned in the site hut and the player can read it. Rooms will start becoming physically unavailable. The building's second state begins \u2014 dust sheets off, scaffold in, half the shelving boxed and stencilled LOT 4.",
+    "THE TIMELOCK (set-piece). The strongroom door has three winding movements and no keyhole: the movements must be set to the building's own historic closing hours, drawn from the Warden's Order Book, which has recorded the closing hour of every working day since 1946 \u2014 and 1974 kept different hours from 1998, and Saturdays different again. Wren winds the movements, spins the handle, and goes in.",
+    "LOCKED IN (set-piece, body not file). The door swings to behind her at 18:20 and the movements, now running backwards, will not release until 07:00. At 23:40 the undercroft sump backs up in the rain and water comes under the strongroom door to ankle depth in the dark. For forty minutes the player does nothing intellectual at all: she lifts 1974 boxes off the bottom shelf onto the top shelves by feel, choosing which to save first, with a failing torch. Then, through the ventilation trunk, forty feet of galvanised duct that runs up to the Wardens' Hall landing, she hears two women arguing.",
+    "THE ARGUMENT. Fragments, distorted, unattributable: '...forty-seven of them, and I did it with my own hands...' '...he was in the chair, he could not hold a pen, you know that better than anybody...' '...you were never even there, that is the whole of it, you were never there...' And then, for a long time, somebody crying. Wren, in the dark, in four inches of water, writes down every word she is sure of and marks the rest 'not certain' \u2014 because that is what she is.",
+    "AT THE BACK OF THE BOTTOM SHELF, above the waterline by two inches, a japanned deed box stencilled A. FERRIER, WARDEN. Empty, except for a quarter-century of paper dust, a dead moth, and \u2014 pressed flat against the bottom by its own weight \u2014 a single sheet of blue-black flimsy: page two of a document whose page one is ash in her Binding Room.",
+    "In the Muniment gallery, in the north bay behind the map presses, on the reading slope where nobody has any business working: a pair of folded spectacles on an open ledger, exactly where a man set them down when he stood up to talk to somebody. Nobody has touched them in six weeks. Wren does not touch them either. She photographs them and takes a dust sample from the floor, jar 6."
+   ],
+   "gate": "Sort the forty-seven retyped cards by machine and stock, derive the seven missing accession numbers, and enter them in the casebook as a want-list; then open the Chubb timelock by setting all three movements from the correct historical closing schedule.",
+   "cliffhanger": "Shut in a flooding strongroom until seven in the morning, listening to two women tear each other apart through a ventilation duct, and unable to say for certain which two. In the morning the door opens on Sabine Ferrier-Kyne with a towel, a cup of tea and a written apology for the state of the building, and Wren cannot tell \u2014 will not be able to tell for three more days \u2014 whether she is being helped or handled."
+  },
+  {
+   "number": 3,
+   "title": "THE FORGERY",
+   "goal": "Authenticate the one document that would end the case, watch it die under your own hands, lose your legal authority, and find the archive that a thief has been building for forty years. Escalation: the danger stops being institutional and becomes personal \u2014 Wren is disarmed, discredited, and made a trespasser in a building she has a warrant for.",
+   "opens": [
+    "The Tide Room (bricked up June 1975; opened with a crowbar in the rain)",
+    "Cardew village and the Cardew Post Office",
+    "Call Box, Cardew 4471 (forty yards from the door of a dead man)",
+    "Pike's Cottage, Cardew (three thousand documents; the kitchen table)",
+    "Rita's shed at the slipway (Cormac Sallow's effects, uncleared)",
+    "The Rossport police station (DS Marren Iveson)",
+    "Brannock House (the Warden's residence; Absalom Ferrier's sickroom, now a paint store)"
+   ],
+   "beats": [
+    "THE FIVE-STEP AUTHENTICATION (skill 1, tested; the red herring is the tutorial for the proof). Raking light for the watermark. A chain-line count against the beta-radiograph reference sheets. A fibre loupe at forty power. The postmark gazetteer. A ribbon-ink comparison against the four office specimens. The Deakin letter passes three tests and fails two: the sheet is Ardwell Bond, a stock not manufactured before June 1981, and the franking is Cardew sorting office, which stamped its last item on 30 September 1972. A third tell, which the player may or may not find: the ribbon is nylon, and nylon was not sold for an Adler Gabriele until 1979, and there is an Adler Gabriele in Rita's locker in the Lamp Room.",
+    "THE HONEST WITNESS (act turn, promoted from a puzzle to a reversal). Norah Feaver, a passenger, aged nineteen in 1974, told the Rossport Inquiry: 'We could see the light perfectly well. Three flashes. We all saw it.' She was telling the truth, and her truth is the single strongest evidence that the beacon was burning, and it has stood for twenty-four years. In the Chart Loft, with the Admiralty List of Lights for 1974 and a chart of Ivory Sound, Wren establishes that the Nine Bells shows Fl(3) W 20s and the Cadran Point light, nine miles south-south-east, shows Fl(3) W 15s. Three flashes either way. Nobody at the inquiry ever asked a frightened girl to count the seconds. Wren telephones her, in Wolverhampton, from the Rossport call box, and asks her to count them now, on a kitchen clock, from memory. She can.",
+    "THE CHART LOFT OVERLAYS, AND THE ROOM THAT WAS NOT THERE (the world doubles). Three transparent surveys of the headland and the approach \u2014 1948, the 1974 buoyage revision, 1998 \u2014 registered on the light table by their triangulation marks. Two things fall out. First: the Rossport Inquiry drew the Pelagia's reconstructed track on the 1948 sheet, and against 1974 buoyage she is not where the finding says she was; she is precisely on the line a competent pilot would steer. Second, and nobody was looking for it: the 1948 sheet shows a chamber under the north end of the undercroft that appears on no plan after 1975.",
+    "THE CROWBAR IN THE RAIN (set-piece). The undercroft's blind north wall is nine courses of brick in a Portland stone opening, laid in cement that is twenty-three years younger than the wall around it. Works Order 75/188, June 1975, 'seal chamber, damp' \u2014 initialled p.p. Wren takes a crowbar off Sandbach's scaffold deck and opens it herself, at night, in horizontal rain, with the site floodlights throwing her shadow forty feet up the granite.",
+    "THE TIDE ROOM (the dumb witness). A Kelvin and White stilling-well marigraph, installed 1908, a pen on a clockwork drum, scratching the height of the sea onto smoked paper for sixty-seven years without an opinion in its head. Wren re-inks it, re-hangs the driving weight, winds it, and it starts writing again in front of her. Stacked on the shelf behind it: every drum from 1908 to 1975, including 1974/44. And on a bench, in a bundle tied with tape and never accessioned: the Rossport Inquiry's own working papers, returned to the Authority in 1975 and walled in the same month.",
+    "THE LIST OF PERSONS CONSIDERED AND NOT CALLED. Forty-one names, typed on the Underwood 5. Number 29: 'Mrs O. Verge \u2014 wife of relief keeper \u2014 no direct knowledge \u2014 not called', with a small tick in the margin in a hand the player has watched make ticks for three acts. Number 33: 'Miss S. Ferrier \u2014 the Warden's private secretary \u2014 no official capacity \u2014 not called.' The erasure, in ink, in the assessor's own file. Wren does not yet know what it means. She copies it out anyway, because that is the job.",
+    "ENID AT THE INCINERATOR. 22:50, 30 October. Enid Charnock, sixty-three, in a coat over her nightdress, feeding the 1974 cash book into a fire that will not take. She surrenders it, weeping, and says one true sentence \u2014 'I only ever did what I was told, and I have the paper to prove it, and that is the worst part' \u2014 and then refuses to say another word for two days.",
+    "SANDBACH AT TWO IN THE MORNING. The Lamp Room, a hooded torch, a crowbar and a packing crate: two Fresnel panels, the Ardent's binnacle and a hundred and forty kilos of dismounted brass, addressed to a dealer in Antwerp. He gives a panicky, obviously false account of 'salvage recording' and the player is certain, for eighteen hours, that she has found her man in the right room on the right night. He is stealing brass. He is guilty of exactly what he appears guilty of, at about thirty thousand pounds, and of nothing else in this building whatsoever.",
+    "THE COLLAPSE. Wren files an honest adverse report on the Deakin letter, because the commission obliges her to, and because she is who she is. Sabine, who is also who she is, reports it to the police the same afternoon at four o'clock with genuine regret and a covering letter offering every assistance. DS Iveson arrests Rita Tain at 17:15 on 31 October. Because the letter was the only evidence that the light was dark, the police shut the whole proposition down with it; the Ministry, informed by fax of a forgery in a series under appraisal, revokes Wren's commission at 16:20 the following afternoon and the fax is timed and filed and the player can read it. Wren has thirty-one hours in which she is a nineteen-year-old girl with no authority standing in somebody else's building.",
+    "PIKE, OF ALL PEOPLE. He does not apologise and does not soften. He says: 'The strongroom key is on the third hook and I am going to my dinner,' and leaves. Then, at low water, he drives her over the causeway to Cardew in a Bedford van full of empty boxes, and shows her a rented cottage with three thousand documents in it, catalogued in his own hand on the backs of tide-table covers, removed over forty years to save them from a Ministry circular that ordered them destroyed. He will be prosecuted for it. He knows. He shows her anyway, because she is the only person who has ever asked him what was in them."
+   ],
+   "gate": "Complete all five authentication steps on the Deakin letter and file a truthful adverse report \u2014 the game requires the player to destroy her own case with her own hands, and quietly records whether she fudged a step. Then register the three chart overlays to reveal the sealed chamber, and open it.",
+   "cliffhanger": "On Pike's kitchen table, under a bare bulb, three books: the Light Dues Ledger, the Oil Requisition Book for the Nine Bells 1966\u20131980, and the Keeper's Wage Sheets. Week by week, from 1 July to 31 December 1974, the player fills in a Conservancy reconciliation form. Dues are collected every week. Wages are paid every week. Oil stops on Saturday 24 August 1974 and never resumes: seventy-one days, ten complete dues weeks, one thousand one hundred and eighty-two ships charged four thousand one hundred and eighty pounds four shillings for a light that was not burning. There is no hint, no highlight and no chime. The third column simply refuses to agree, and the music stops. Three requisitions \u2014 R.741, R.748, R.755 \u2014 are stamped REQUISITION NOT SANCTIONED \u2014 REFER WINTER REFIT, over the initials of a hand Wren cannot read, and the notation p.p."
+  },
+  {
+   "number": 4,
+   "title": "PER PROCURATIONEM",
+   "goal": "Give the hand a name, and get the last document off the rock. Escalation: from an institution's crime to a woman's; the archive begins to burn, the telephone line goes down, the causeway closes, and the sea is the only way left to the evidence.",
+   "opens": [
+    "The Nine Bells Beacon: Landing Stage and Doorway",
+    "The Nine Bells Beacon: Oil Store (cold paraffin, the keeper's log)",
+    "The Nine Bells Beacon: Service Room (the stove, the bunk, the long night)",
+    "The Nine Bells Beacon: Lantern Room and Gallery (the clockwork optic, the brass sector plates)",
+    "The Roof and Signal Mast, Pilotage House",
+    "Ottoline's cottage, 4 Coastguard Row",
+    "The Stationery Store (Enid's return-before-issue shelf)",
+    "Pike's Cottage, burning, and after"
+   ],
+   "beats": [
+    "PER PROCURATIONEM (the twist puzzle). A light table, a magnifier, and forty-eight documents from 1974, all signed A. FERRIER, all recovered from four separate sources so that no single custodian could have faked the set. The player is asked to sort them into two piles: signed, and signed per procurationem. Seven fall out clean \u2014 genuine, shaky, unmistakably a man's hand, dated 2\u201310 August and 18 November onwards. The other forty-one, every document from 11 August to 3 November 1974, are p.p. There is no second pile. The signature is not forged. It is scrupulously, legally honest. It is a woman signing on behalf of a man who could not hold a pen, exactly as Standing Order 4 permitted, and no law anywhere required anybody to write down who she was.",
+    "THE PROOF OF INCAPACITY (three independent sources, because one is a claim and three are a fact). Dr Munn's locum mileage claims: Brannock House, fourteen miles, twice weekly, from 12 August. Nurse Kilbride's visit ledger, found in a paint store that used to be a sickroom: 'pt. hemiplegic R side, no speech, cannot hold pen, wife present.' And the Warden's Order Book, whose leaves for 11 August to 3 November were taken out at the gutter with a razor in 1989 \u2014 and whose facing pages still carry the mirror-image offset of the ink that pressed against them for fifteen years. Wren reads a razored-out order backwards in a shaving mirror under raking light, and it is the deferment of the relief keeper.",
+    "OTTOLINE BREAKS. Wren does not accuse her. She lays out, in order and without comment: the forty-seven cards, the card stock date, the Underwood's raised e, the wage sheets with 'at station' struck through, and the Inquiry's rejected-witness list with a tick beside number 29 in Ottoline's own hand. Ottoline made very sure it stayed easy for them not to call her. She goes home and comes back with a biscuit tin: Cass Verge's letter of 18 August 1974 \u2014 residence deferred, wages to continue, you will not discuss this \u2014 initialled p.p. She has kept it for twenty-four years believing she was protecting Absalom Ferrier, and she says, without self-pity, 'I let a whole town blame a dead man to keep them from thinking about mine. I knew it every day. I made the tea and I knew it every day.'",
+    "THE MONDAY FERRY. Enid Charnock resigns and takes the 08:15 out with the 1974 cash book in her shopping bag. Rita \u2014 on police bail, forbidden to enter Pilotage House, and therefore the only person free to be useful \u2014 runs her down on Rossport quay and does not argue with her, just sits with her for an hour. Enid unfolds the back cover: a memorandum from the Warden's Office to the Cashier, dated 6 November 1974, three days after the wreck. 'The Nine Bells oil column is to be carried to Sundry Adjustments (Lights) pending refit.' Initialled p.p. She has looked at it perhaps four hundred times in ninety-six quarters and never once let it mean what it means.",
+    "THE SWITCHBOARD (machine, not paper). A twelve-line plug board, the night-duty roster and the call-log book for 3 November 1974. Re-patching the board reconstructs the hour: 23:06 the coastguard relay, 23:11 the harbourmaster, 23:19 Rossport. And, twenty-three minutes before impact, an outgoing at 22:41 from extension 2 \u2014 the Warden's Office, on a Sunday night \u2014 to Cardew 4471, four minutes, no answer recorded. The 1974 directory lists Cardew 4471 as the public call box outside Cardew Post Office: forty yards from the front door of the relief keeper who should have been on that rock. Somebody in an empty office rang a man who was in the Ship Inn, and let it ring for four minutes, twenty-three minutes too late.",
+    "THE OUTSIDE WITNESS. The plug-log is the Authority's own book and the Board will say so. The GPO's itemised trunk account for Q4 1974, in Enid's ledgers, is not: 3.11.74, Cardew, 22.41, 4 min, 1s 9d, initialled EC. A record kept by strangers, for money, about which nobody in this building had a vote.",
+    "THE FOUR REFUSALS (the forged tide board, paid off). Wren lays out her own nine days of requisition stubs \u2014 every one in her handwriting, logged out of habit since Act I. Four came back wrong. Every one passed the Warden's pigeonhole under Standing Order 7 and carries her countersignature. Sabine never refused Wren anything; she granted her everything, and steered four things, and the shape of what was steered is the shape of the crime. The evidence of the surveillance is in the victim's own hand, and has been since the first morning.",
+    "THE 'a' CURVE (skill 2, escalated). The Imperial 66's lower-case a has been filling with ink and wax since 1961 at a rate the player can now plot from dated specimens. The 1974 refusals sit on the curve at partial occlusion. The 1998 accident report sits at full. The relabelled box 17 sits at full. Same machine, same room, twenty-four years apart, and the machine will say so under oath.",
+    "THE RIBBON (institutional pettiness as the preserver of truth). Enid's stationery rule since 1968: no new ribbon issued until the used spool is returned. The Imperial 66's September 1998 spool is on the shelf in the Stationery Store with a docket on it. Read backwards under magnification, the last two hundred characters run, in unbroken sequence: 12.9.98 \u2014 'I know what you mean to send. Please do not send it. There is nothing in it that can help anybody now. S.' \u2014 a letter typed and never sent \u2014 and then, immediately after it on the same ribbon, with no ribbon change between, the accident report of 14 September. She knew what he intended, two days before he died, and she has said in writing three times that she did not.",
+    "THE OBJECTS THAT CANNOT BE EXPLAINED BY HER OFFICE. Sandbach's site diary, the one contemporaneous daily record in the building that Sabine does not control: 2 September, 'gallery rail nth bay, baluster 3 loose, made safe pending order.' 15 September, 'gallery rail nth bay made good at Warden's personal instruction, out of programme, no order no., not billed.' The morning after a man went over that rail, it was quietly repaired off the books. The Fuel and Light Book: the gallery time-switch, twenty minutes a winding, wound eleven times on 14 September \u2014 two hundred and twenty minutes of light for an eighty-eight-minute visit. The Duplicating Book: the Reprax counter jumped forty-one that day against twelve logged. And in the Warden's own Board of Dissolution working file, correctly foliated, correctly indexed, docketed the Ministry way: twenty-six Reprax copies of the contents of series 14/B box 17, four of which are copies of documents that are no longer in box 17. She copied the evidence, destroyed the originals, and filed the copies, because she is an archivist and destruction is the one thing she has never in her life been able to make herself do.",
+    "THE FIRE (set-piece, body not file). 22:40, 1 November. Pike's cottage at Cardew goes up \u2014 a paraffin heater, a sixty-six-year-old man asleep in a chair, and three thousand documents. Wren gets him out through the scullery window and then goes back in twice. The player chooses, in smoke, with a wet towel over her face, which four of nine bundles to carry out, and lives with it: the ones she leaves are gone from the game and gone from the Board.",
+    "CUT OFF. The gale takes the telephone pole at the Cardew turn. No line to Rossport, no ferry until the storm drops, the causeway under six feet of water. Wren climbs to the roof of Pilotage House in horizontal rain, finds the Aldis lamp under a tarpaulin, looks up the international code in the Signal Book because she does not know it, and signals across four miles of black water until Rossport signal station answers.",
+    "THE CROSSING (the big one). Dawn, 2 November, rising gale. The refused requisitions are worthless unless she can authenticate them against something the Authority never held \u2014 and the Nine Bells keeper's log has been sealed in the beacon's oil store since 1974. Rita, on bail, takes her out in the Ardent because nobody else can handle the boat. Wren is sick twice, hands white on the rail, and jumps for the landing on the rise. Inside: the oil store, and the smell of cold paraffin that has not moved in twenty-four years. The log, in the rack. Final entry, 24 August 1974, 22.10: 'No. 2 vapor. cracked. Oil out. Light down. Nothing more to be done here.' And on the back of the last page, in pencil, a shopping list \u2014 tea, boot polish, a birthday card for Nan.",
+    "SABINE IS ON THE STAIR. Not with a weapon. With a satchel, a thermos, and the Kestrel Bequest: a bank mandate and a shell trust deed, established 4 April 1977 out of her mother's legacy, thirty-one index-linked standing orders paid monthly for twenty-one years from an account no auditor ever queried because the amounts were too small to be interesting. The player matches beneficiary initials against the Pelagia manifest. Thirty of them are the dependants of the drowned. The thirty-first is M. TAIN \u2014 paid, every month since 1977, to the daughter of the man the Authority destroyed, who has spent twenty-four years and every penny of it trying to prove the Authority destroyed him."
+   ],
+   "gate": "Complete the p.p. sort (identify the boundary dates 11 August and 18 November 1974 unaided) and cite three independent proofs of Absalom Ferrier's incapacity; recover the Nine Bells keeper's log from the oil store; recover at least four of the nine bundles from the fire.",
+   "cliffhanger": "The sea gets up past the point where the Ardent can lie off the landing. Rita runs for Cardew with the log in a dry bag and the two women are left on the rock: a fifty-eight-year-old Warden and a nineteen-year-old apprentice, alone in a beacon for eleven hours with a paraffin stove and everything each of them knows. At about two in the morning Sabine says: 'Ask me. You have all of it now, or near enough. Ask me and I will tell you the truth, and then in the morning you will have to decide what to do with it, and I promise you that is the harder half.'"
+  },
+  {
+   "number": 5,
+   "title": "THE NINE BELLS",
+   "goal": "Turn twenty-four years of paper into a case that survives challenge, argue it in front of a Board that will strike anything you cannot cite, refer a homicide you can prove but not feel certain about, and put the light back on. Confrontation and resolution.",
+   "opens": [
+    "The Nine Bells Service Room, 02:00\u201307:00 (the confession that is worth nothing)",
+    "The Nine Bells Lantern Room by night (the optic, the sector plates, the falling weight)",
+    "The Board Room, Pilotage House (the only fully sunlit background in the game)",
+    "The Rossport police station, interview room 2 (DS Iveson and the referral form)",
+    "St Bride's churchyard, evening (thirty-one slate markers, and one more name read out)"
+   ],
+   "beats": [
+    "THE CONFESSION THAT IS WORTH NOTHING. In the service room, by the stove, Sabine tells her all of it, plainly, without excuse and without much emotion, over four hours. And the game then does the hardest and best thing it can do: at dawn, DS Iveson tells Wren over the radio that a confession made to one nineteen-year-old girl on a rock in a gale, unrecorded, uncautioned and uncorroborated, is worth precisely nothing, and that she should stop crying about it and go and do her job. Everything must still be cited. Nothing the player has been told may be used. Only what she can hold up to a window.",
+    "FIRST LIGHT, 3 NOVEMBER 1998, the anniversary. Before she goes down to the boat, Wren does the one thing in the game that is not evidence. The clockwork optic has been dead since 1974 and it is incomplete \u2014 two Fresnel panels went to Antwerp in Ivo Sandbach's crate. He gives one back. He drives to Rossport at four in the morning to buy it off a shipping agent with money he does not have, and hands it to her wrapped in a fleece, and says nothing about his daughters or his firm or the fourteen thousand pounds, and this is the only decent thing he does in the game and it is enough. Wren sets the brass occulting sector plates on the rotation drum, winds the weight, and sets the escapement release for 23:04. Three flashes. Twenty seconds. The true character of the Nine Bells, entered by hand, as a physical input, by a girl who worked it out from an Admiralty list and a frightened woman counting on a kitchen clock. The moral fact of the case, set into a machine.",
+    "ASSEMBLING THE FILE. A table, nine core exhibits, forty-one supporting documents, and a Conservancy case file with a citation column that cannot be left blank. The player builds eight links \u2014 presence, means, opportunity, signature, identity, motive, consciousness of guilt, historical predicate \u2014 and every assertion must be tied to a document by accession number. The casebook has been doing this since Act I; now it is scored.",
+    "THE BOARD OF DISSOLUTION, 14:00. Chairman Mrs Ellary Voss (Lord Chancellor's nominee), assessor Captain Dunnet, and Mr Pargeter for the Ministry, whose job is to strike. Named counter-evidence is fired at every weak link: the 1975 finding and its statutory presumption of correctness; the Deakin forgery, offered as proof that this whole line of enquiry is a fantasy already once faked; Pike's forty years of theft, offered as a chain-of-custody attack on half the exhibits; Rita Tain's arrest; and, at the last, Sabine's counsel asking on what evidence a Board proposes to name a person whom no record of this Authority has ever named. Wren answers that one with the Authority's own pension file, item 14 of the liabilities schedule, in which Sabine Ferrier-Kyne asserts under her own signature that she was employed here in 1974 \u2014 the only document in 187 years in which she asked to be counted.",
+    "THE STRIKING. Any assertion the player cannot cite is struck, aloud, in front of her, and the transcript prints with the gaps in it. This is not a fail state; it is a score, and the score is the ending. The player is watching, in real time, a mechanised proof of whether the game played fair and whether she did the work.",
+    "THE REFERRAL. Separately, in interview room 2 at Rossport, Wren makes a homicide referral on the death of Cormac Sallow, and the game requires her to word it herself from a menu of what she can actually prove. The physical evidence supports a grab and a fall from a rail known to be defective, not a push; the seventeen minutes before the 999 call, the off-programme repair, the twenty-nine Reprax impressions and the ribbon support everything after. Wren can write 'murder' and watch it fall apart, or write what the paper says and watch it stand. Iveson tells her, not unkindly, that the second one is the one that puts people in prison.",
+    "23:04. From the Board Room window, from the churchyard, from the quay at Rossport, from Cardew, from the ferry: nine miles out in the dark, the Nine Bells shows three flashes in twenty seconds for the first time since Saturday 24 August 1974. Nobody has to explain it to anybody on that coast. Rita Tain, on bail, standing at the slipway, sits down on the wet concrete.",
+    "NOTICE TO MARINERS 74/119. In every ending, without exception, the notice is issued: retyped from the scorched carbon on the Imperial 66, run off on the Reprax, franked with a single fourpenny impression struck from the old die under the meter's descending register, entered in the Register of Notices Issued in the correct place with the correct date and a note of the delay, and posted to all two hundred and fourteen addressees on Schedule D \u2014 beginning, as statutory precedence requires, with No. 1, the Keeper, Nine Bells Beacon. Twenty-four years, two months and eighteen days late. Appended to it, at Wren's own insistence and against Conservancy house style, are thirty-one names."
+   ],
+   "gate": "Survive the Board: every assertion in the case file must carry a citation to a document the player physically holds, and each of the eight links must survive its named counter-evidence. The finding, the exoneration and the referral are all direct functions of how many links stand.",
+   "cliffhanger": "There is no cliffhanger, only a last unscored choice, which the game does not grade and does not comment on. Wren knows where Rita Tain's thirty-four pounds a month has come from since 1977. Nobody else living knows, the trust deed does not name the settlor, and the Board does not need it. On the quay, with the ferry loading, Rita asks her straight out whether there is anything else. The player answers, and the game ends on Rita's face, and then on the light."
+  }
+ ],
+ "cast": [
+  {
+   "id": "sabine-ferrier-kyne",
+   "name": "Sabine Ferrier-Kyne",
+   "role": "Warden of the Brannock Pilotage Authority (appointed 1991), presiding over its dissolution. Daughter of Warden Absalom Ferrier (1911\u20131979). Unpaid private secretary to her father 1959\u20131976; Clerk Grade III from 1976; Deputy Warden 1984. A fortnight from appointment to the National Maritime Heritage Board \u2014 the first title she will ever have held in her own name. THE CULPRIT.",
+   "age": "58 (b. 12 January 1940)",
+   "appearance": "Tall and narrow and upright as a plumb line, five foot ten, no stoop at all at fifty-eight. Iron-grey hair cut short and set once a fortnight, combed straight back off a high bony forehead. A long face; deep vertical folds from nose to mouth; pale grey eyes with slightly slack lower lids; a wide thin mouth. Big-knuckled hands, nails cut square and short, no varnish, a thin gold wedding band worn on the right hand since she was widowed in 1991. Wears three things in rotation: a charcoal wool skirt suit with a faintly military shoulder, a cream blouse with a small round collar, and a cardigan the colour of wet slate kept over the shoulders indoors like a stole. A 2H pencil behind the right ear at all times, sharpened with a blade, never a sharpener. Reading glasses on a black cord. CHARACTERISTIC EXPRESSION: a small, entirely genuine, entirely attentive smile that arrives about half a second late, as though she had to finish a sentence in her head first.",
+   "personality": "The most competent person in any room she has ever been in, and the only one who has never once said so. Courteous to the point of being unanswerable. Answers questions completely, which is a kind of armour. Tidies as she talks \u2014 squares a stack of paper, moves a cup onto a coaster, closes a drawer with two fingers. Has an archivist's incapacity for destruction and a bureaucrat's incapacity for improvisation, and the whole catastrophe of her life is the one afternoon she had to improvise. Genuinely likes Wren, and says so, and means it, and it is the most dangerous thing in the building.",
+   "speechStyle": "Complete sentences with the subordinate clauses in the right places. Uses the passive voice for anything she did and the active for anything anyone else did, unconsciously and constantly \u2014 'the requisition was refused', 'Mr Pike removed the boxes' \u2014 and a player who notices this in Act I has the whole game. Gives dates without hesitating. Never says 'I think'; says 'the position is'. Calls Wren 'Miss Adare' for four days and 'Wren' exactly once, on the rock.",
+   "motive": "Two things she cannot survive losing: her father's name and, at last, her own. The Heritage Board appointment is a fortnight away after thirty-nine years of doing the work under somebody else's signature. Beneath that is the older and unspeakable one: she is the only person alive who knows that the Authority's crime was not committed by 'the Authority'.",
+   "secret": "Between 11 August and 18 November 1974 she was the Brannock Pilotage Authority. Her father had a cerebral haemorrhage on Sunday 11 August; she found him. The Authority was four months from insolvency, the bank had refused further facility on 15 August, and the Ministry's quinquennial review was sitting: an authority discovered to be rudderless would have been abolished, its sixty staff dismissed and its 163 years of records dispersed. So she ran it, and signed everything p.p. A. Ferrier, because Article 9 of the Charter of 1811 required the Warden to be 'a man of full age'. She deferred the relief keeper on 18 August with wages continuing, refused three oil requisitions to the winter refit, struck Notice to Mariners 74/119 from the despatch docket on 16 August, and went on collecting light dues because stopping them would have raised a question in Accounts. The beacon went dark at 21:10 on Saturday 24 August. At 22:34 on Sunday 3 November the Rossport coastguard telephoned to ask whether the Nine Bells was exhibiting; at 22:41 she rang the call box at Cardew and let it ring for four minutes at a man who was in the pub; at 23:04 the Pelagia struck. Because officially she had never been there, the Rossport Inquiry did not call her, question her, or list her among those present. Since 4 April 1977 she has paid thirty-one anonymous index-linked annuities out of her mother's legacy through a trust called the Kestrel Bequest. On Monday 14 September 1998 she went up to the Muniment gallery to persuade Cormac Sallow not to send his letter; he refused; she took the folder; he went over a rail she knew was loose. She stood there for eleven minutes, then went down, rang Rossport, photocopied twenty-six sheets, reshelved the box, typed the accident report at ten to five and signed it in her own name for the first time in her life.",
+   "alibi": "For 14 September 1998: 'I was in the Board Room the whole of that morning with the quantity surveyor; I did not know Mr Sallow was in the building until Mrs Verge came running.' For 1974: 'My father ran this Authority until his retirement in 1976. I typed for him.' Both are documents-deep and both fail to documents.",
+   "lies": [
+    "'I never saw Mr Sallow that morning \u2014 I was in the Board Room with the quantity surveyor.' CAUGHT IN ACT IV: requisition slip R98/2211 is initialled in the 'issued by' column by the Warden, because Pike was on the 08:15 ferry (Rossport ferry booking book); and Sandbach's site diary puts the quantity surveyor's meeting on the 15th, not the 14th.",
+    "'Series 14/B was reboxed in 1989 because of mould. Nothing was withdrawn.' CAUGHT IN ACT II: forty-seven index cards retyped on 1987 stock, seven accession numbers with cards and no documents, and the reboxing schedule attached to her own memorandum W/O 89/2 listing twenty-three items in box 17 against seventeen present.",
+    "'My father ran this Authority until 1976. I typed for him.' CAUGHT IN ACT IV: the p.p. sort, Dr Munn's mileage claims, Nurse Kilbride's ledger, and the mirror offsets of the razored Order Book leaves.",
+    "'I have no interest in the outcome. I am a fortnight from an appointment and I would frankly rather be finished with all of it.' CAUGHT IN ACT IV by something the player themselves dismissed in Act I: item 14 of the liabilities schedule, her superannuation claim, in which she asserts under her own signature that her reckonable service runs from 1959.",
+    "'You have had every box in this building that you have asked for.' CAUGHT IN ACT IV: her own countersignature, under Standing Order 7, on the four requisition slips of the nine that came back substituted or not traced. The player's own handwriting is the exhibit.",
+    "'I had no idea what Mr Sallow intended to send to your people.' CAUGHT IN ACT IV: the used ribbon spool from the Imperial 66, on which the sentence 'I know what you mean to send. Please do not send it.' sits two days above the accident report with no ribbon change between them.",
+    "'I did not push him.' NEVER DISPROVED, AND TRUE. The game gives the player no evidence of a push and considerable evidence of a grab and a defective rail, and requires her to word the referral accordingly. It is the only completely honest thing Sabine says in nine days and the player will not believe it."
+   ],
+   "arc": "From the most helpful person in the building to the only person in it, and the reframe is total and contradicts nothing. Her courtesy was never obstruction; she opened every door because she had already read every box, and the only series she could not control was the one Pike had stolen before she got to it. Her 1989 memorandum, signed openly in her own name, is not the cover-up \u2014 it is a woman with real authority at last, tidying up after the ghost she used to be. Her fight against Rita's campaign was never institutional loyalty: clearing Emrys Tain requires somebody to ask who else could have signed. On the rock she is neither monster nor martyr; she is a woman who was refused a name, used the refusal to escape, has paid thirty-one people every month for twenty-one years, and killed a man to keep a fortnight-old appointment. Depending on the player's file she is arrested on the Board Room steps, arrested at Rossport for the 1974 offences only, or walks out to the harbour with her satchel and is not seen again, and the last shot of that ending is the light coming on behind her."
+  },
+  {
+   "id": "halvard-pike",
+   "name": "Halvard Pike",
+   "role": "Chief Clerk. Copy boy 1954, aged twenty-two; forty-four years in the building. Runs the registry, the pneumatic tube system and the requisition slips, and regards the archive as his own body. The most obvious suspect in the game for three full acts.",
+   "age": "66 (b. 1932)",
+   "appearance": "Short and heavy through the chest, five foot six, stooped from forty years of hauling boxes off high shelves. Bald across the crown with grey hair combed flat across it and grey hair in the ears. A bulbous, broken-veined nose; small wet blue eyes; a permanent shaving cut on the left jaw. Brown cotton warehouse coat over a shirt and a knitted maroon tie, sleeve garters above the elbow, cuffs gone shiny. Thick-lensed National Health spectacles mended at the left hinge with copper wire. Ineradicable purple ink on the first two fingers of the right hand and a nail on the right thumb split by a box lid in 1979. CHARACTERISTIC EXPRESSION: chin tucked, looking at you over the top of the glasses with contemptuous patience, as though waiting for you to finish being young.",
+   "personality": "Rude on principle and correct on detail. Believes, accurately, that the Conservancy will microfilm the interesting ten per cent and pulp the rest, and cannot forgive Wren for being its instrument. Physically incapable of watching somebody mishandle a book. Grieving, though he would rather die than call it that: dissolution deletes him, and he has no wife, no hobby and no house that is not full of other people's paper.",
+   "speechStyle": "Short, flat, declarative, with the local vowels. Uses shelf-marks as nouns in ordinary conversation. Says 'that's not a document, that's a photocopy' as an insult. Never finishes a sentence about himself. In Act III, at his kitchen table, talks for eleven minutes without stopping and cannot look at her while he does it.",
+   "motive": "Not to protect a crime \u2014 to protect a filing system he believes is the only true record of a coast, from a dissolution he cannot stop. He is right about the pulping, which is what makes him unbearable.",
+   "secret": "He has removed roughly three thousand documents over forty years to a rented cottage at Cardew, catalogued in his own hand on the backs of tide-table covers. It is theft under the Coastal Services Act and he will be prosecuted for it. He did it because in 1985 Ministry Circular 12/85 ordered the Lights records destroyed on transfer of the beacon to Trinity House, so he carried them home in the van instead. He has never once read the Nine Bells material he rescued, because it was filed under Lights and he is a Pilotage man, and that distinction has cost twenty-four years. Everything Sabine weeded from 14/B in 1989, Pike had already quietly taken in 1985 \u2014 and neither of them knew.",
+   "alibi": "For 14 September 1998: 'I was here all evening.' He was not; he was at Cardew unloading a crate of stolen documents and would rather be a murder suspect than say so.",
+   "lies": [
+    "'Nothing has ever left this building on my watch.' CAUGHT IN ACT III when he shows her the cottage himself; the earlier tell is in Act II, where the discharge stamps in the accession registers for the Lights series are in his hand and go nowhere.",
+    "'I've no notion where the Despatch Books went. Ask the Warden, she reboxed everything.' CAUGHT IN ACT III: Despatch Book 1970\u201379 is on his kitchen dresser.",
+    "'I was here all evening on the fourteenth of September.' CAUGHT IN ACT IV: the ferry booking book has him back on the headland at 17:40 and the Cardew garage fuel book has him buying four gallons at 18:20 nine miles away.",
+    "'I know every document in this building.' The boast, not the fact, and it is the tragedy. CAUGHT IN ACT III when Wren asks him what is in the box marked LIGHTS: STORES 1966\u201380 and he cannot tell her, because he never opened it."
+   ],
+   "arc": "From the game's loudest suspect to its unlikeliest custodian. His theft is the single reason the evidence still exists. He hands Wren the strongroom key on the day she has no legal right to it, drives her to Cardew in a van full of empty boxes, and nearly dies in the fire because he went back for a bundle. In the strongest ending the Board records that the Nine Bells finding could not have been made without documents unlawfully removed by the Chief Clerk, and recommends that no penalty be imposed; he is convicted anyway, fined two hundred pounds, and dies in 2004 having spent his last five years as an unpaid volunteer at the Conservancy's Ilberry store, where they let him keep a warehouse coat on a hook with his name on it."
+  },
+  {
+   "id": "rita-tain",
+   "name": "Marguerite \"Rita\" Tain",
+   "role": "Lamp-room curator and boatwoman. Runs the pilot cutter Ardent and the crossing to the Nine Bells. Employed by the Authority she has been publicly accusing since 1976, because nobody else on the coast can handle the boat. Daughter of Emrys Tain, the pilot who went down with the Pelagia and was posthumously blamed for her.",
+   "age": "49 (b. 1949)",
+   "appearance": "Wiry and weathered, five foot four, forearms and hands like a boatwoman's, knuckles thickened. Dark hair going iron at the temples, cut short by herself with kitchen scissors and never quite level. Broad flat face, high colour across the cheekbones, a white scar through the left eyebrow from a davit in 1988. Navy fisherman's smock over a fleece, black oilskin trousers, sea boots turned down at the top, a brass whistle on a green lanyard. Nicotine on the first two fingers, a roll-up behind the ear in the dry. CHARACTERISTIC EXPRESSION: jaw set, chin slightly up, eyes going past your shoulder to look at the weather.",
+   "personality": "Twenty-four years of being right and being disbelieved have burned everything soft out of her except a completely unguarded tenderness toward old people and boats. Refused legal aid four times. Currently being sued for defamation by a retired inquiry assessor she named in a pamphlet. Cannot take help without insulting the person offering it. Superb at sea and impossible ashore.",
+   "speechStyle": "Fast, clipped, profane, full of half-finished sentences she assumes you can complete. Recites the 1975 findings verbatim, with the paragraph numbers, the way other people recite prayers. Goes completely silent when she is frightened, which is how you know.",
+   "motive": "Her father's name. That is the entire content of her life since she was twenty-five, and she has spent every penny she has ever had on it \u2014 including, without knowing it, thirty-four pounds a month from the woman who caused it.",
+   "secret": "In 1996, out of money and out of options, she wrote the Deakin letter herself and slipped it into the lamp-room file: a fabricated 1975 confession from a crewman stating the beacon was dark. She is ashamed of it in a way she cannot say out loud, and the shame is the reason she is so vicious about everybody else's honesty. She also has, in the shed at the slipway, three cardboard boxes of Cormac Sallow's effects, which she cleared after the funeral and has never opened, because he tried to tell her something in August and she was too angry to listen.",
+   "alibi": "For 14 September 1998: out at the Nine Bells servicing the fog signal, alone, from 07:30 to 15:00 \u2014 true, and confirmed by the fog-signal service book she has just told Wren she does not keep.",
+   "lies": [
+    "'The Deakin letter came to me anonymously in 1996, in a brown envelope, no covering note.' CAUGHT IN ACT III by paper forensics: Ardwell Bond, unissued before June 1981; the Cardew sorting-office frank, last struck 30 September 1972; and, for the thorough, a nylon ribbon on an Adler Gabriele that stands in her own locker in the Lamp Room.",
+    "'I've never had a penny off anybody in my life.' CAUGHT IN ACT V, and she is not lying \u2014 she genuinely believes the standing order is a legacy from her father's union. The post office book she shows Wren for an entirely different reason has twenty-one years of it in the paying-in column.",
+    "'I cleared Cormac's rooms and there was nothing in them worth keeping.' CAUGHT IN ACT III/IV: three boxes in her shed, unopened, one of them containing his file copy of oil requisition R.755.",
+    "'I don't go out to the rock in the off season. Nobody does.' CAUGHT IN ACT II when the beacon's gallery door is standing open at four hundred yards, and in Act III by the fog-signal service book with her initials against every month since 1991."
+   ],
+   "arc": "The most honest red herring in the game: she is right about absolutely everything except the evidence. She forged a document that says exactly what the truth turns out to be, and in doing so nearly destroyed the truth, and the game lets her feel that all the way down. Arrested at 17:15 on 31 October; on bail by 2 November and therefore the only person in the story free to move; takes the boat out into a gale for the girl who broke her; and in the best ending stands on the slipway at 23:04 and watches three flashes in twenty seconds and sits down on the wet concrete. Whether she is ever told where the thirty-four pounds came from is the last, unscored choice the player makes."
+  },
+  {
+   "id": "ottoline-verge",
+   "name": "Ottoline Verge",
+   "role": "Registrar of the Rolls, retired 1991. Still comes in six days a week, unpaid, to maintain the card index, because nobody else alive understands it. Keeps a kettle, a tin of biscuits and a pair of sheepskin slippers in drawer 388. Widow of Cass Verge, relief keeper of the Nine Bells.",
+   "age": "72 (b. 1926)",
+   "appearance": "Small and round-shouldered, five foot nothing in her slippers. Soft white hair in a low bun held with a tortoiseshell comb, wisps escaping at the nape. A face made almost entirely of kind creases; pale blue eyes behind gold half-moon spectacles on a beaded chain; a slight tremor in the left hand she has had since 1989. Lilac twinset, pleated tweed skirt, thick brown tights, a wedding ring worn to a wire. A cardigan permanently over the back of her chair with a folded handkerchief in the pocket and a rubber thimble on the second finger. CHARACTERISTIC EXPRESSION: delighted to see you. Always. Without exception. Including on the morning she is caught.",
+   "personality": "The warmest person in the building and the most frightening, and the game asks the player to notice that those are not opposites. Immaculate professional memory for accession numbers going back to 1949 and a vagueness about the autumn of 1974 that is not how memory fails. Makes tea for people she is steering. Genuinely loves the index, which is the only thing in her life she has never lied about.",
+   "speechStyle": "Soft, unhurried, digressive on purpose \u2014 she buries the load-bearing sentence in the middle of an anecdote about somebody's wedding. Says 'oh, now' before every evasion, which the player can learn to hear. When she finally tells the truth in Act IV she does it in short flat sentences with no digressions at all, and the change in rhythm is the emotional event.",
+   "motive": "Her husband's name, and now her grandson's. Cass Verge was on the wage sheet as relief keeper for the autumn of 1974 and never went out to the rock; he took eleven weeks of money for a light he did not tend, drank steadily for seven years and died in 1981 without ever saying why. If the reconciliation is published, the last name in the ledger is his \u2014 and Emlyn Verge is in his second year at the naval college at Ilberry.",
+   "secret": "She has known since 1975 that the beacon was dark; Cass told her once, drunk, and never again. She was not called to the Rossport Inquiry \u2014 and she typed the assessor's list of persons considered and not called, and put a small tick beside her own name. Twenty-four years of arranging not to be asked. In 1989, when the reboxing of 14/B gave her the excuse, she retyped forty-seven index cards on the Underwood 5 to break the cross-references that led from the Nine Bells stores file to the relief keeper's wage sheet. She did not know the refusals came from Sabine. She thought she was covering for Absalom Ferrier, and she thought that was loyalty.",
+   "alibi": "For 14 September 1998: on the wicket all morning, in full view, which is true, and which is exactly why she is the one who saw who went up.",
+   "lies": [
+    "'Oh, now \u2014 I can't recall the autumn of '74 at all, dear. I was in Accounts in those days.' CAUGHT IN ACT II: the staff register puts her in the Registrar's office from 1968 and her initials are on the Rolls returns for every quarter of 1974.",
+    "'The cards have never been retyped. Not in my time, and I've been here since the Ark.' CAUGHT IN ACT II: forty-seven cards on stock not manufactured before 1987, typed on a machine with a raised lower-case e that stands four feet from her chair.",
+    "'Mr Pike has keys to everything, you know. Everything. And he was here the evening poor Cormac died.' The steer. Two of the three clauses are true and the third is a guess she lets Wren treat as a fact. CAUGHT IN ACT IV by the ferry book and the Cardew fuel book.",
+    "'Cass was out on the rock the whole of that autumn. I hardly saw him.' CAUGHT IN ACT IV by the letter in her own biscuit tin, and by the wage sheets on which somebody has struck through 'at station' in eleven consecutive weeks.",
+    "'Nobody ever asked me anything, dear. Nobody ever thought to.' CAUGHT IN ACT III: the Rossport Inquiry's list of persons considered and not called, number 29, Mrs O. Verge, typed on her own machine, with a tick beside it in her own hand."
+   ],
+   "arc": "The culprit's crime at reduced scale, which is the whole point of her, and the game makes the mirroring explicit in Act IV. Sabine spent twenty-four years not being named because the institution refused to name her; Ottoline spent twenty-four years not being called because she typed the list herself. Both let a dead man be blamed to protect a name. One of them killed somebody about it and one of them made tea about it, and Wren has to decide whether that is a difference in kind or only in nerve. Ottoline hands over the biscuit tin unprompted, gives a full statement to DS Iveson, is charged with nothing, and is at the Board on 3 November in her best coat. In the strongest ending she asks to be allowed to read the thirty-one names aloud, and the Chairman lets her, and she gets to number fourteen before Wren has to take over."
+  },
+  {
+   "id": "enid-charnock",
+   "name": "Enid Charnock",
+   "role": "Cashier and Accountant to the Authority since 1962. Light dues, wage sheets, petty cash, the stationery ledger and the postage register. Signed the quarterly light-dues returns in 1974 as junior cashier, aged thirty-nine.",
+   "age": "63 (b. 1935)",
+   "appearance": "Angular and flat-chested, five foot six, always slightly braced. Hair dyed a determined chestnut and set in tight fortnightly curls; a long nose; a lipstick line drawn a little outside the natural lip; bifocals with a gold upper rim; a small gold crucifix. Bottle-green pussy-bow blouse, A-line skirt, low court shoes, a cardigan buttoned to the throat in all weathers. A bunch of eleven small keys on a retractable chain clipped at the waist, and a rubber finger-stall. CHARACTERISTIC EXPRESSION: watchful, apologising in advance, eyes going to the door of the Warden's Office roughly every ninety seconds.",
+   "personality": "Meticulous, devout, frightened, and possessed of the most valuable habit in the building: she has never thrown anything away that a rule said to keep. Describes her terror of Sabine as respect and has done for thirty-six years. Runs the stationery ledger like a customs post \u2014 no new typewriter ribbon issued until the used spool is returned \u2014 and that petty economy, more than any act of courage by anyone, is what hangs the case.",
+   "speechStyle": "Precise about figures and vague about everything else. Answers a question about a person with an answer about a ledger. Prefaces bad news with 'I'm sure there's an explanation.' Under pressure her sentences get shorter and her arithmetic gets faster.",
+   "motive": "She has been quietly falsifying a reconciliation for ninety-six quarters. In November 1974 she noticed the Nine Bells oil column was empty, raised it once in writing, and was told by the Warden's Office to carry it to sundries pending refit. She did \u2014 every quarter, for twenty-four years, in a column she invented for the purpose. Confessing means admitting she was told, in writing, three days after the wreck.",
+   "secret": "She kept the instruction. The memorandum of 6 November 1974 is folded inside the back cover of the 1974 cash book, where she has looked at it perhaps four hundred times, and it is initialled p.p. \u2014 which she has always taken to mean the Warden was too ill to sign, and never once taken to mean the Warden did not write it. She is the only person in the story who has been staring at the answer since before the answer existed.",
+   "alibi": "For 14 September 1998: in the Accounts Office with the door open, which is where she has been between 08:45 and 17:15 on every working day for thirty-six years, and which the whole building will confirm without being asked.",
+   "lies": [
+    "'Sundry Adjustments (Lights) is a rounding account. It's always been there.' CAUGHT IN ACTS I\u2013III: it was opened on 31 December 1974 in her own hand, on a ruled-in column, and the balance of \u00a34,180 4s 0d has not moved in ninety-six quarters.",
+    "'Nobody ever told me anything about the Nine Bells. I only do the figures.' CAUGHT IN ACT IV when she unfolds the back cover of the cash book on Rossport quay.",
+    "'I don't keep used ribbons, whatever would I want with used ribbons.' CAUGHT IN ACT IV: her own stationery ledger, rule 4, and a shelf of two hundred and forty docketed spools going back to 1968.",
+    "'I burned nothing. I was airing the courtyard.' CAUGHT IN ACT III, at 22:50, in her nightdress and coat, with the 1974 cash book in her hands and the fire not taking."
+   ],
+   "arc": "A whole character delivered in one accounting habit. The single most damning artefact in the accounts is in her handwriting, and the police spend a full day on her for embezzlement, and the memorandum that clears her is one of the seven weeded documents \u2014 so for four acts the only person the money points at is the woman holding the cashbox. She resigns on 2 November, hands over the memorandum on Rossport quay to the woman she has spent twenty-four years campaigning against, gives evidence to the Board by telephone from her sister's house in Ilberry because she cannot make herself come back into the building, and in the epilogue is granted immunity, keeps her pension, and never sets foot on the headland again. Her last line in the game: 'I want it minuted that I raised it. Once. In writing. It's in the file. It has always been in the file.'"
+  },
+  {
+   "id": "ivo-sandbach",
+   "name": "Dr Ivo Sandbach",
+   "role": "Conservation architect and project manager, Sandbach & Roule, for the conversion of Pilotage House into a heritage hotel. An outsider. Briskly charming, obsessed with the completion date, contemptuous of 'the paper people'.",
+   "age": "44 (b. 1954)",
+   "appearance": "Big and soft-handed, six foot two, going heavy round the middle. Sandy hair receding, cut expensively in a town nobody here has been to. Ruddy and handsome in a bruised way; blue eyes; three days of stubble by Act III. Quilted olive gilet over a checked shirt, cord trousers, brand-new steel-toed boots that are not dirty until the night of the crowbar. Carries a hard hat and never wears it, a Nokia the size of a brick, and an A3 drawings tube with a photograph of two girls aged nine and twelve rolled inside it. CHARACTERISTIC EXPRESSION: cheerful, and about fifteen per cent too fast.",
+   "personality": "A man doing sums in his head while he talks to you. Genuinely knowledgeable about lime mortar and genuinely uninterested in anything that is not on the programme. Bullies with jokes. Sleeps in the site hut four nights a week and tells his wife it is the ferry.",
+   "speechStyle": "Programme language: 'we're out of float on that', 'that's a Tuesday problem'. Uses first names immediately and wrongly. Talks over people, apologises charmingly, does it again.",
+   "motive": "Sandbach & Roule is nine weeks from administration. Brannock is the only contract holding it up and the funding tranche releases on practical completion, 1 December. A reopened marine inquiry freezes the site as a place of interest and kills the firm, the house, and two sets of school fees.",
+   "secret": "He has been selling the Authority's dismounted brasswork \u2014 two Fresnel lens panels, the Ardent's binnacle, a hundred and forty kilos of fittings \u2014 to a dealer in Antwerp to cover a payroll gap, and falsifying the schedule of condition to hide it. About thirty thousand pounds. He is guilty of exactly the thing he appears guilty of and of nothing else whatsoever. What he does not know is that he keeps the only contemporaneous daily record in the building that the Warden does not control, and that it will convict her.",
+   "alibi": "For 14 September 1998: in Rossport with the structural engineer, in his own site diary, in his own handwriting, corroborated by an invoice \u2014 the cleanest alibi in the story, and it belongs to the man the player most wants to be guilty.",
+   "lies": [
+    "'Nothing leaves this site without a schedule entry. I'm Ministry-approved, for God's sake.' CAUGHT IN ACT III at two in the morning in the Lamp Room, and confirmed by the Antwerp dealer's shipping docket in the glovebox of his Discovery.",
+    "'I've never been up in that gallery. It's not in my scope.' CAUGHT IN ACT IV by his own site diary, items 41 and 63.",
+    "'The rail was made good under the programme.' CAUGHT IN ACT IV: item 63 reads 'at Warden's personal instruction, out of programme, no order no., not billed' \u2014 the sentence that puts a repair in a room the morning after a death.",
+    "'I've no idea what's in that crate. It's Rita's.' CAUGHT IN ACT III in the first four seconds."
+   ],
+   "arc": "Plot machinery in a coat until Act IV, when the machinery turns out to be load-bearing three separate times: his site diary is the hard outside witness to the gallery rail, his scaffolders removed the incinerator damper so the fire would not draw on the night of 26 October, and one of the two Fresnel panels he sold is the panel Wren needs to make the optic work. At four in the morning on 3 November he drives to Rossport and buys it back off the shipping agent with money he does not have, and hands it over wrapped in a fleece, and says nothing about it. He is charged with theft and false accounting, Sandbach & Roule goes into administration on 19 January 1999, and the conversion is completed by another firm. The one decent thing he does in nine days is enough to make him a person and not enough to save him, which is the correct outcome."
+  },
+  {
+   "id": "bram-aylward",
+   "name": "Bram Aylward",
+   "role": "Introduces himself as a Ministry 'dissolution liaison'. Is in fact a recovery investigator for Kelbrooke & Hain, marine adjusters, acting for the successors to the 1974 reinsurers of the Pelagia.",
+   "age": "35 (b. 1963)",
+   "appearance": "Lean and quick, five foot ten, dark hair cut short and neat, a young face with old eyes and a small chip out of the left front tooth. Clean-shaven, faintly nicked at the jaw. A charcoal single-breasted suit one grade better than anything else in the building, a navy raincoat, brown brogues entirely wrong for the weather and always wet. A hard-sided document case with a three-wheel combination lock, containing an Olympus OM-2, a folding copy-stand, and a letter from a widow in Grimsby dated 1994. CHARACTERISTIC EXPRESSION: friendly, alert, never quite still \u2014 the eyes taking an inventory of the room while the mouth is being pleasant.",
+   "personality": "Excellent company and structurally untrustworthy, and he knows it and has stopped minding. He is very good at this and it is the only thing he is good at. Buys the drinks. Remembers your supervisor's name. Never lies about a fact and never tells the truth about himself, and once Wren works out that rule he becomes the most useful person in the story and she still cannot use him.",
+   "speechStyle": "Light, quick, disarmingly frank about everything except his employer. Deflects with a question. Quotes figures to the penny from memory. When he finally tells the truth in Act III he does it in the flattest voice he has.",
+   "motive": "The 1975 reinsurance settlement was paid on a finding of pilot error. If that finding was procured by an authority that knew its own light was out, the syndicate's successors can reopen for fraudulent non-disclosure: \u00a314.2 million at 1998 values, and a personal recovery fee for him of three point nine per cent, which he has already spent. He needs the truth to come out, which does not make him honest.",
+   "secret": "No Ministry ever heard of him. He has been in the building under a false name since 6 October and has already photographed one thousand one hundred documents \u2014 including two of the seven that Sabine weeded and Pike stole, meaning that in a briefcase in a Rossport guest house he has copies of documents Wren spends three acts hunting. In 1994 he closed a claim wrongly and a widow in Grimsby got nothing, and he carries her letter, and he does this now because he cannot stop.",
+   "alibi": "For 14 September 1998: at the Kelbrooke & Hain office in Liverpool, provable in ten seconds by a firm he will not name for two and a half acts \u2014 so for two and a half acts he has no alibi at all, by choice.",
+   "lies": [
+    "'Aylward, Ministry \u2014 dissolution liaison.' CAUGHT IN ACT I if the player is sharp: the Ministry staff circular in the Long Registry lists all four liaison officers by name, and his identification card is laser-printed on 90gsm, in 1998, in a building where every other card in the game was letterpressed in 1988.",
+    "'I only got here on Tuesday.' CAUGHT IN ACT I: the visitors' book, 6 October.",
+    "'I haven't photographed a thing. I wouldn't dare.' CAUGHT IN ACT III: thirty-one rolls of HP5, contact-printed, two frames of documents that no longer exist anywhere on earth.",
+    "He never once lies about a fact of the case. Everything he tells Wren is true, she is right not to trust him, and being right costs her a full day in Act II \u2014 which the game states plainly and does not apologise for."
+   ],
+   "arc": "Fixed from plot device to pressure: in Act III, with Rita arrested and the commission revoked, Bram's photographs are the only surviving images of two weeded documents, and he will trade them \u2014 for Wren's signed statement, which Kelbrooke & Hain will use to reopen the claim, which will freeze the archive as evidence and mean the Board sits without her and the pulper runs on 4 November. A genuine dilemma with a real ending consequence, resolvable three ways. Whatever she chooses, he is at the Board, at the back, in the good suit, taking notes; and in the epilogue Kelbrooke & Hain recover \u00a39.1 million in 2003, of which the thirty-one families receive nothing, because they were never parties. Bram sends Wren a Christmas card every year for the rest of the series and she has never once opened one."
+  },
+  {
+   "id": "marren-iveson",
+   "name": "DS Marren Iveson",
+   "role": "Detective Sergeant, Rossport. Two officers, one car, a district of four hundred square miles and a coroner's officer who does three days a week. The nearest thing to a police investigation this story is going to get.",
+   "age": "41 (b. 1957)",
+   "appearance": "Broad and capable, five foot seven, dark hair scraped back into a short tail. Freckled across the nose and cheekbones; a broken nose set badly in 1983; grey eyes. Padded navy jacket over an off-the-peg suit, sensible boots, a wedding ring and a hair elastic on the same wrist. Notebook with a rubber band round it, kept in the left inside pocket, and a habit of writing while you are still talking. CHARACTERISTIC EXPRESSION: flat, unhurried, faintly sympathetic and entirely unmoved.",
+   "personality": "Neither obstructive nor stupid, which the genre rarely allows. Believes what she can put in front of a magistrate and nothing else. Treats Wren as a nineteen-year-old for three acts and as a competent professional witness from the moment she is handed a properly cited schedule of exhibits, and the switch is one of the most satisfying rewards in the game.",
+   "speechStyle": "Procedural, economical, occasionally very dry. 'That's an inference, that is. Bring me an object.' Reads documents aloud slowly while she thinks.",
+   "motive": "None; she is not a suspect. Her function is to be the wall the player's case has to be strong enough to stand against, and to say the sentence the whole game is built to earn.",
+   "secret": "She read the coroner's file on Cormac Sallow in early October, on her own time, because the fall bothered her \u2014 eleven minutes between the fall and the call, according to the pathologist's estimate of lividity, and a witness who typed a report about it four hours later. She raised it with her inspector and was told there was nothing in it. Her request slip is in the file, and Wren can find it in Act I and think nothing of it.",
+   "alibi": "Not applicable; on the mainland throughout.",
+   "lies": [
+    "'The coroner's file's closed and I've never laid eyes on it.' CAUGHT IN ACT I, if the player reads the whole file: her own request slip, dated 2 October, is stapled inside the back cover. She lies because she was told to drop it and does not want a nineteen-year-old repeating it in a corridor.",
+    "'This is a paper matter. There's no crime here.' CAUGHT IN ACT V, by the player, with a schedule of exhibits."
+   ],
+   "arc": "From the officer who arrests the wrong woman on 31 October to the officer who, on the morning of 3 November, tells Wren over the radio that an uncautioned confession heard on a rock in a gale is worth precisely nothing and that she should stop crying and go and do her job \u2014 the single most important line in the game, because it is the game's fair-play contract spoken aloud by someone with the power to enforce it. She takes the referral, wording and all, in interview room 2, and it is her name on the file that goes to the Crown Prosecution Service."
+  },
+  {
+   "id": "phyllida-halkett",
+   "name": "Phyllida Halkett",
+   "role": "Senior Appraiser, National Records Conservancy. Wren's supervisor. Should have taken this commission herself and did not, because on 12 October she broke her hip in a stairwell at the Ilberry store. Reachable only from the GPO call box on Rossport quay, at low water, with a pocketful of ten-pence pieces. THE DIEGETIC HINT LINE.",
+   "age": "61 (b. 1937)",
+   "appearance": "For four acts, a voice on a bakelite handset and a passport photograph clipped inside the cover of Wren's casebook: silver hair in a severe bob, reading glasses pushed up into it, a hawk's face, a mustard scarf. At the Board on 3 November she is present in person: tweed, a plaster cast to the hip, a stick in each hand, and a walking frame parked six feet away which she has refused to touch since Tuesday. CHARACTERISTIC EXPRESSION: eyebrows up, waiting for you to finish.",
+   "personality": "Twenty-nine years of appraisal has left her with total recall of procedure and a professional's horror of opinion. Will explain, at any length, at any hour, exactly what section 41 permits, how to certify a series, how to word an adverse report, what a warrant does and does not authorise, and what happens on 4 November if the certificate is not signed. Will not say one word about who did it. Says 'that's not a question for me' the way other people say 'no'.",
+   "speechStyle": "Dry, exact, patient, with pauses for the pips. Ends every call with 'have you eaten?' and rings off before the answer.",
+   "motive": "None. She is the game's conscience and its manual, and the reason the player is never stuck without being told anything a detective ought to work out.",
+   "secret": "She nominated Wren for this commission on 3 October \u2014 nine days before she fell. She has told Wren, and the Conservancy, and herself, that the hip is why an apprentice was sent alone to a dissolving archive with a dead man's letter in the file. It is not. She read Sallow's letter, disliked it intensely, believed the building would close ranks against anybody it recognised, and sent a stranger, exactly as he asked. She has not decided whether that was professional courage or the worst thing she has ever done, and she does not tell Wren until the Board Room steps.",
+   "alibi": "In traction in Ilberry Cottage Hospital from 12 October; before that, four hundred miles away.",
+   "lies": [
+    "'I sent you because I broke my hip, and for no other reason on earth.' CAUGHT IN ACT IV: the Conservancy's own commission minute, which Wren requisitions for a completely different purpose, shows the nomination dated 3 October and the fall dated 12 October.",
+    "'I have no view on it. That's not a question for me.' Repeated verbatim, forty or fifty times across nine days, in the face of increasingly desperate questions, and it is not a lie \u2014 it is the discipline the whole game is about, and the one time she breaks it, in Act V, the player will remember it for the rest of the series."
+   ],
+   "arc": "The voice in the call box that tells you how the machinery works and never once tells you what to think \u2014 the reason the player's deductions are the player's. On 3 November she gets herself onto the ferry on two sticks in a gale, sits at the back of the Board Room, and says nothing at all until it is over. On the steps, in the sun, she tells Wren why she really sent her, and asks whether she should have. The game does not give the player a way to answer."
+  },
+  {
+   "id": "cormac-sallow",
+   "name": "Cormac Sallow",
+   "role": "Lamp Superintendent of the Brannock Pilotage Authority 1958\u20131984. Dead before page one: fell from the Muniment gallery onto flagstones at approximately 10:24 on Monday 14 September 1998. The man whose last request is the entire plot.",
+   "age": "79 at death (b. 1919, d. 14 September 1998)",
+   "appearance": "Present only as a three-quarter oil in the Lamp Superintendents' frame in the Lamp Room, painted 1979 against a dark ground exactly like the Wardens on the Great Stair, and as one police photograph in the coroner's file that the game lets you look at once. Big-boned and heavy-shouldered, six foot one and stooped by the end; white hair in a brush cut; a face like a weathered cliff, deep-set brown eyes, a jaw that has been broken; enormous scarred hands with two fingers missing the top joints from a lantern gear in 1962. A knitted waistcoat over a collarless shirt, a hearing aid in the right ear with the cord tucked into the waistcoat. Painted expression: patient, faintly amused, waiting for you to catch up.",
+   "personality": "Reconstructed entirely from paper and from other people's grief: methodical, literal, kind in an undemonstrative way, incapable of exaggeration, and \u2014 the fatal quality \u2014 trusting of documents. He believed a wage sheet over the evidence of his own eyes because a wage sheet is a document and Cass Verge was a colleague.",
+   "speechStyle": "Heard only in his own writing: the 1975 inquiry transcript, thirty years of lamp reports, and one letter. Short sentences. No adjectives. Numbers wherever a number will do. The letter of 11 September 1998 is nine lines long, gives no explanation whatsoever, and ends 'I would be obliged if series 14/B were read by a stranger before it leaves this building.'",
+   "motive": "In early September 1998, sorting his retirement papers at 3 Coastguard Row, he found his own file copy of oil requisition R.755 \u2014 refused, stamped REFER WINTER REFIT, initialled p.p. \u2014 and recognised the hand that had made the initials, because he had watched it write for twenty-six years. He was in hospital for a hernia from 20 August to 10 October 1974 and had no idea until that morning what had been done while he was away.",
+   "secret": "He gave evidence for the Authority at the Rossport Inquiry in 1975 in good faith and helped to hang a dead man, and he found out about it at seventy-nine years of age, alone, at a kitchen table. He wrote to the Conservancy rather than the police or the newspapers because he was an institutional man to the bone and believed the right way to fix a record was to have somebody read it properly. He did not tell his daughter-in-law, or Rita, or anybody. He tried to tell Rita in August and she was too angry to listen, and she will carry that.",
+   "alibi": "Not applicable; the victim.",
+   "lies": [
+    "ROSSPORT INQUIRY, 1975, Day 9, in answer to Sir Roderick Balgowan: 'Was the light exhibited on the night of 3 November?' \u2014 'The light was not discontinued.' True, precise, and catastrophically misleading, and it is the sentence on which the finding rests. CAUGHT IN ACT II when Wren reads the transcript in the Long Registry and notices that a Lamp Superintendent answered a question about exhibition with an answer about administration.",
+    "ROSSPORT INQUIRY, 1975, Day 9: 'I have no knowledge of any requisition for oil being refused.' False, and honestly so \u2014 he had signed R.741 himself on 13 August and was under anaesthetic when it came back. CAUGHT IN ACTS III\u2013IV when his own initials turn up on the front of a requisition he swore he had never seen. The most sympathetic lie in the game: a good man's memory failing, and a dead pilot paying for it for twenty-four years."
+   ],
+   "arc": "The absent protagonist. The entire game is one old man's requisition slip being filled, forty-three days late, by a stranger. His spectacles stay folded on the reading slope in the Muniment gallery north bay from Act II to the end and the player is never permitted to move them. In the epilogue his file copy of R.755 is exhibit 4 in the Board's schedule, his letter is bound at the front of the case file, and Notice to Mariners 74/119 is issued over the Conservancy's certificate with a footnote recording that the series was read at the request of Cormac Sallow, Lamp Superintendent, deceased. It is the only thanks anyone in the story ever gets."
+  }
+ ],
+ "clues": [
+  {
+   "id": "clue-fused-commission",
+   "name": "Wren's Water-Damaged Commission under s.41, Coastal Services Act 1997",
+   "foundIn": "The Ardent, cabin (arrival crossing)",
+   "act": 1,
+   "whatItProves": "Teaches humidification, separation and blotting \u2014 skill 1, step zero \u2014 and establishes that Wren's entire authority in this building is a sheet of paper she can destroy by hurrying. Also fixes the clock: certification by 3 November or the archive is deemed valueless and pulped on the 4th.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-visitors-book",
+   "name": "Visitors' Book, entry for Monday 14 September 1998",
+   "foundIn": "The Wicket and Entrance Hall",
+   "act": 1,
+   "whatItProves": "C. SALLOW signed in at 08:56 and never signed out. The 'admitted by' column is initialled S.F-K., not H.P. and not O.V.",
+   "misleadsToward": "Ottoline Verge, who was on the wicket that morning and says so"
+  },
+  {
+   "id": "clue-pp-specimen-bundle",
+   "name": "The Warden's Specimen Bundle: nine documents of 1974 'house style'",
+   "foundIn": "The Warden's Office",
+   "act": 1,
+   "whatItProves": "Every document of the fatal period is signed A. FERRIER and carries, in 2H pencil in the lower left corner, the two-millimetre notation p.p. Shown voluntarily, at full readable resolution, inside the first thirty minutes, by the person it convicts.",
+   "misleadsToward": "none \u2014 it is the answer, offered as hospitality"
+  },
+  {
+   "id": "clue-pp-taught",
+   "name": "Ottoline's Requisition-Slip Lesson",
+   "foundIn": "The Registry Counter",
+   "act": 1,
+   "whatItProves": "Teaches the p.p. notation as a boring clerical courtesy \u2014 'if the Warden's out, her clerk initials it per procurationem, on behalf of' \u2014 from a woman who has no idea what she has just handed the player.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-docket-fold",
+   "name": "Pike's Complaint about Docketing (the Ministry fold and the squared treasury tag)",
+   "foundIn": "The Registry Counter",
+   "act": 1,
+   "whatItProves": "Establishes, as an old man's grievance and nothing else, that exactly one hand in the building endorses a folder on the outside third, upside down to the tag, and squares the tag tail-under, loop-left. Never repeated, never journalled, never prompted again.",
+   "misleadsToward": "Pike, as a crank with a grudge"
+  },
+  {
+   "id": "clue-accident-report",
+   "name": "Accident Report on the death of C. Sallow, typed 16:50, 14 September 1998",
+   "foundIn": "The Reading Room, coroner's file",
+   "act": 1,
+   "whatItProves": "The only document in 187 years of the Authority's records signed by Sabine Ferrier-Kyne in her own name. Typed on the Imperial 66. Docketed the Ministry way, upside down to the tag. The player reads it in the first hour and reads the signature as an administrator doing her duty.",
+   "misleadsToward": "routine institutional competence"
+  },
+  {
+   "id": "clue-iveson-request-slip",
+   "name": "DS Iveson's File Request Slip, 2 October 1998",
+   "foundIn": "The Reading Room, stapled inside the back cover of the coroner's file",
+   "act": 1,
+   "whatItProves": "A serving detective sergeant pulled the Sallow file on her own initiative three weeks before Wren arrived, and was told there was nothing in it. Catches Iveson's only lie and tells the player, early, that somebody with a warrant card was already uneasy.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-liabilities-item14",
+   "name": "Schedule of Outstanding Liabilities, Item 14: Superannuation Arrears, FERRIER-KYNE, S.",
+   "foundIn": "The Accounts Office",
+   "act": 1,
+   "whatItProves": "A \u00a32,140 4s pension arrears claim, filed March 1998, in which Sabine asserts under her own signature that her reckonable service runs from 1959. It is the only document in existence in which she claims to have been working in this building in 1974. The player is meant to cross it off in the first hour, and does.",
+   "misleadsToward": "administrative trivia (deliberately, structurally dismissible)"
+  },
+  {
+   "id": "clue-typewriter-specimens",
+   "name": "Four Typewriter Specimen Sheets and the 'a'-Clogging Curve",
+   "foundIn": "The Binding Room bench (typed on machines in the Warden's Office, Rolls Room, Registry and Accounts)",
+   "act": 1,
+   "whatItProves": "Skill 2, taught: Imperial 66 (clogged a, comma 0.4mm high, broken y descender); Underwood 5 (e riding 0.3mm high, wandering 3); Olivetti Lettera 32 (grey doubling, chipped l); Remington Noiseless (heavy g, capitals dropping 0.2mm). The Imperial's a has been filling since 1961 at a plottable rate, which turns the machine into a clock.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-franking-meter",
+   "name": "The Pitney Postmaster Franking Meter and its Descending Register",
+   "foundIn": "The Post Room",
+   "act": 1,
+   "whatItProves": "Skill 4, taught, on a physical object the player winds, opens and reads under warrant: a machine that has recorded, without opinion or ambition, every penny of postage the Authority has spent since 1961, and which nobody has ever conceived of as a witness.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-scorched-carbon",
+   "name": "Scorched Carbon of Notice to Mariners 74/119, drafted 15 August 1974",
+   "foundIn": "The Courtyard Incinerator, ash grate, after rain",
+   "act": 1,
+   "whatItProves": "MARINERS ARE ADVISED THAT THE LIGHT EXHIBITED FROM THE NINE BELLS BEACON MAY NOT BE RELIED UPON UNTIL FURTHER NOTICE. A warning was written on 15 August 1974. It also proves somebody was still trying to destroy it at 01:20 on 27 October 1998.",
+   "misleadsToward": "Halvard Pike, who has courtyard keys and no alibi"
+  },
+  {
+   "id": "clue-incinerator-damper",
+   "name": "Site Diary item 41: incinerator chimney damper removed, 2 September 1998",
+   "foundIn": "The Site Hut",
+   "act": 1,
+   "whatItProves": "The flue would not draw, which is why the burning failed and the carbon survived. The building's own dissolution saved the document \u2014 and Sandbach's diary, the one daily record the Warden does not control, enters the game as a witness in Act I so that its Act IV use is not a convenience.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-issued-register",
+   "name": "Register of Notices Issued, 1974",
+   "foundIn": "The Long Registry",
+   "act": 1,
+   "whatItProves": "The sequence runs 74/117, 74/118, 74/120. No cancellation minute, no reallocation, no note. A number was used and then unused.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-reprax-1974",
+   "name": "Duplicating Book, 15 August 1974 (Reprax 12 impression counter)",
+   "foundIn": "The Duplicating Room",
+   "act": 2,
+   "whatItProves": "Counter 41,882 to 42,319 \u2014 an advance of 437 against 223 impressions logged. Two hundred and fourteen copies of a document that officially does not exist were physically produced on 15 August 1974. Distribution list Schedule D has 214 addressees.",
+   "misleadsToward": "clerical error in the log"
+  },
+  {
+   "id": "clue-schedule-d",
+   "name": "Notices to Mariners Distribution List, Schedule D",
+   "foundIn": "The Post Room, address-plate cabinet",
+   "act": 2,
+   "whatItProves": "Two hundred and fourteen addressees in statutory precedence. No. 1 is 'The Keeper, Nine Bells Beacon \u2014 per relief boatman, Cardew Post Office, tel. Cardew 4471.' The light is told about itself first.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-index-gap",
+   "name": "Forty-Seven Retyped Index Cards (raised lower-case 'e')",
+   "foundIn": "The Rolls Room, drawers 214\u2013216",
+   "act": 2,
+   "whatItProves": "Cards retyped on the Underwood 5 on card stock not manufactured before 1987. Sorting by stock, ribbon and typeface yields seven accession numbers in series 14/B that exist as cards and no longer exist as paper \u2014 the want-list for Acts III and IV. Weeding a file takes an afternoon; weeding an index takes a fortnight; nobody did it.",
+   "misleadsToward": "Sabine's 1989 reboxing memorandum, which looks like the whole answer"
+  },
+  {
+   "id": "clue-w-o-89-2",
+   "name": "Memorandum W/O 89/2, 'Rationalisation and Reboxing of Series 14/B'",
+   "foundIn": "The Warden's Office, policy file",
+   "act": 2,
+   "whatItProves": "Sabine ordered the reboxing openly, in daylight, in her own name, in 1989, and its attached schedule lists twenty-three items in box 17 against seventeen now present. It is a cover-up of a cover-up, done clumsily and legibly, which is exactly why it reads as the entire crime.",
+   "misleadsToward": "Sabine \u2014 correctly, for entirely the wrong crime, three acts early"
+  },
+  {
+   "id": "clue-substituted-slips",
+   "name": "Wren's Own Requisition Stubs 2271, 2283, 2291 and 2302",
+   "foundIn": "Wren's casebook, Binding Room (stubs in the Registry stub book)",
+   "act": 2,
+   "whatItProves": "Of thirty-one requisitions across nine days, four came back substituted, not traced, or razored. Standing Order 7, printed on the back of every slip, routes every reader's slip through the Warden's pigeonhole for countersignature. The kindness was the gate, and the evidence of the steering is in the victim's own handwriting from the first morning. Read as a set in Act IV, the negative space draws the shape of the crime.",
+   "misleadsToward": "Halvard Pike, who runs the tubes and the trolley"
+  },
+  {
+   "id": "clue-sallow-1975-transcript",
+   "name": "Cormac Sallow's Evidence, Rossport Inquiry 1975, Day 9",
+   "foundIn": "The Long Registry, bound inquiry transcripts",
+   "act": 2,
+   "whatItProves": "Asked whether the light was exhibited on 3 November, the Lamp Superintendent answered 'the light was not discontinued' \u2014 an administrative answer to an operational question, true and catastrophic. Also: 'I have no knowledge of any requisition being refused', which his own initials will contradict in Act III.",
+   "misleadsToward": "Sallow as an Authority man who lied for his employer"
+  },
+  {
+   "id": "clue-order-book-closings",
+   "name": "Warden's Order Book: closing hours of every working day since 1946",
+   "foundIn": "The Registry (working copy) and the strongroom door",
+   "act": 2,
+   "whatItProves": "Supplies the three settings for the Chubb timelock movements \u2014 different hours for 1974, 1998 and Saturdays. Opens the strongroom, and locks Wren inside it.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-deed-box-flimsy",
+   "name": "Page Two of Notice 74/119, on blue-black flimsy",
+   "foundIn": "The Strongroom, japanned deed box stencilled A. FERRIER, WARDEN, bottom shelf",
+   "act": 2,
+   "whatItProves": "The second sheet of the notice whose first sheet is ash \u2014 including the phrase 'until oil supply is restored and the No. 2 vaporiser renewed', which names the mechanical fault and therefore ties the notice to Sallow's report and to the refused requisitions.",
+   "misleadsToward": "Absalom Ferrier, whose name is on the box"
+  },
+  {
+   "id": "clue-spectacles",
+   "name": "Cormac Sallow's Spectacles, folded on the reading slope",
+   "foundIn": "The Muniment Gallery, north bay, behind the map presses",
+   "act": 2,
+   "whatItProves": "He took them off. A man reading does not fold his spectacles; a man standing up to talk to somebody does. Untouched for six weeks in a room the police walked through twice. The player may never move them.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-dust-jar-6",
+   "name": "Dust Reference Jar 6 (gallery north bay) against Coroner's Exhibit 4 (turn-ups)",
+   "foundIn": "The Binding Room bench; sample taken in the Muniment Gallery, exhibit released by the coroner's officer",
+   "act": 2,
+   "whatItProves": "WHERE, two acts before WHO. French chalk, beeswax and a particular salt bloom occur in exactly one room in the building. Sallow was not at the 14/B shelving where his box came from; he was in the dead corner behind the map presses, where two people go to have a conversation nobody hears. The same chalk-wax is later found in the ribbon well and platen knob of the Imperial 66 in the Warden's Office.",
+   "misleadsToward": "none \u2014 it names a room, and the room names nobody yet"
+  },
+  {
+   "id": "clue-deakin-letter",
+   "name": "The Deakin Letter, dated 4 March 1975",
+   "foundIn": "The Lamp Room, Rita's campaign file",
+   "act": 2,
+   "whatItProves": "Appears to be a crewman's confession that the beacon was dark and the crew were told to say nothing \u2014 and appears, for one act, to end the case. Fails authentication on two of five steps: Ardwell Bond paper, unissued before June 1981, and a Cardew sorting-office frank, last struck 30 September 1972. Third tell for the thorough: a nylon ribbon on an Adler Gabriele, and an Adler Gabriele in Rita's locker.",
+   "misleadsToward": "first the Authority, then \u2014 devastatingly \u2014 Rita Tain, and through her the entire true proposition that the light was out"
+  },
+  {
+   "id": "clue-light-characteristic",
+   "name": "Deposition of Norah Feaver (1975) against the Admiralty List of Lights, 1974",
+   "foundIn": "The Chart Loft",
+   "act": 3,
+   "whatItProves": "Nine Bells: Fl(3) W 20s. Cadran Point, nine miles SSE: Fl(3) W 15s. The honest surviving witness genuinely saw three flashes and was telling the exact truth; she saw Cadran. For twenty-four years the strongest evidence that the beacon was burning was a frightened nineteen-year-old whom nobody ever asked to count the seconds.",
+   "misleadsToward": "'the light was clearly exhibited' \u2014 the single load-bearing error of the 1975 finding"
+  },
+  {
+   "id": "clue-chart-overlays",
+   "name": "Three Registered Surveys of the Nine Bells Approach (1948, 1974 buoyage, 1998)",
+   "foundIn": "The Chart Loft, light table",
+   "act": 3,
+   "whatItProves": "The Rossport Inquiry drew the Pelagia's reconstructed track on the 1948 sheet. Registered on triangulation marks against the 1974 buoyage, she is not where the finding says she was: she is precisely on the line a competent pilot would steer. Emrys Tain is exonerated by tracing paper and a pair of dividers. The same registration reveals a chamber under the north undercroft absent from every plan after 1975.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-works-order-75188",
+   "name": "Works Order 75/188, June 1975: 'seal chamber, damp'",
+   "foundIn": "The Undercroft, north wall (order in the Long Registry works file)",
+   "act": 3,
+   "whatItProves": "The Tide Room was bricked up nine months after the wreck, in cement twenty-three years younger than the wall around it, on an order initialled p.p. \u2014 the last p.p. anyone ever wrote in this building.",
+   "misleadsToward": "Absalom Ferrier"
+  },
+  {
+   "id": "clue-marigraph-drum",
+   "name": "Marigraph Drum 1974/44, Kelvin & White stilling-well tide gauge",
+   "foundIn": "The Tide Room",
+   "act": 3,
+   "whatItProves": "A pen on a clockwork drum that has scratched the height of the sea onto smoked paper since 1908 without an opinion in its head, unread since 1975, which the player must re-ink, re-hang, wind and start before it will testify. Drum 44 shows a surge of 1.4m above prediction on the night of 3 November 1974: Tain had 4.2m over the Sowens shoal. The Inquiry's central assumption about the tide is simply wrong, and was wrong in a machine's handwriting the whole time.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-inquiry-rejects",
+   "name": "Rossport Inquiry: List of Persons Considered and Not Called, 1975",
+   "foundIn": "The Tide Room, bundle of the Inquiry's returned working papers, never accessioned",
+   "act": 3,
+   "whatItProves": "No. 29: 'Mrs O. Verge \u2014 wife of relief keeper \u2014 no direct knowledge \u2014 not called', with a tick in the margin in Ottoline's own hand. No. 33: 'Miss S. Ferrier \u2014 the Warden's private secretary \u2014 no official capacity \u2014 not called.' The erasure exists in ink, in the assessor's own file, and the document is not in the index because it was never accessioned \u2014 which is why it is the only thing in the building nobody could have weeded.",
+   "misleadsToward": "none \u2014 this is the thematic keystone"
+  },
+  {
+   "id": "clue-oil-requisition-book",
+   "name": "Oil Requisition Book, Nine Bells, 1966\u20131980",
+   "foundIn": "Pike's Cottage, Cardew",
+   "act": 3,
+   "whatItProves": "R.741 (13 Aug), R.748 (9 Sep) and R.755 (7 Oct) 1974, each stamped REQUISITION NOT SANCTIONED \u2014 REFER WINTER REFIT, each initialled p.p. Removed by Pike in 1985 under Ministry Circular 12/85, four years before Sabine came looking for it.",
+   "misleadsToward": "Absalom Ferrier, whose initials the stamp bears"
+  },
+  {
+   "id": "clue-lamp-report-15aug",
+   "name": "Lamp Superintendent's Report, 15 August 1974",
+   "foundIn": "Pike's Cottage, Cardew",
+   "act": 3,
+   "whatItProves": "Sallow's own report: No. 2 vaporiser cracked, reserve oil ninety gallons, 'light cannot be maintained beyond the end of the month'. Signed C. SALLOW. It is the document that caused Notice 74/119 to be drafted on the same day, and it is the document that hangs his 1975 evidence.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-despatch-docket",
+   "name": "Despatch Docket, Notices to Mariners, 16 August 1974",
+   "foundIn": "Pike's Cottage, Cardew (Despatch Book 1970\u201379)",
+   "act": 3,
+   "whatItProves": "The contents docket for the fortnightly batch lists 74/117, 74/118 and 74/119. 74/119 is struck through \u2014 not erased, not typed over, ruled out in 2H pencil \u2014 and initialled p.p. The moment of decision, in graphite, with a date on it. Foot of the docket, in the clerk's hand: '214 @ 4d \u2014 \u00a33 11s 4d.'",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-franking-shortfall",
+   "name": "Franking Meter Descending Register against the Post Book, 16 August 1974",
+   "foundIn": "The Post Room (meter and post book); recharge readings in the Meter Card Book",
+   "act": 3,
+   "whatItProves": "Cross-totalled between the recharges of 2 August and 4 September, the 16 August despatch cost \u00a33 11s 0d \u2014 852 pence, 213 impressions at fourpence \u2014 against a docket, a post book and a distribution list that all say 214. One envelope in that batch was never franked and never posted, and Schedule D No. 1 is the Keeper of the Nine Bells, care of the call box at Cardew. Fourpence, and thirty-one lives.",
+   "misleadsToward": "Enid Charnock's arithmetic"
+  },
+  {
+   "id": "clue-reconciliation",
+   "name": "The Reconciliation: Light Dues Ledger + Oil Requisition Book + Keeper's Wage Sheets, 1 July\u201331 December 1974",
+   "foundIn": "Pike's Cottage, kitchen table",
+   "act": 3,
+   "whatItProves": "Filled column by column, week by week, on a Conservancy reconciliation form. Dues collected every week. Wages paid every week. Oil drawn 24 August and never again. Seventy-one days; ten complete dues weeks; 1,182 vessels charged \u00a34,180 4s 0d for a light that was not burning; \u00a3200 4s 0d paid over eleven weeks to a keeper who was not there. No hint, no highlight, no chime. The third column simply refuses to agree.",
+   "misleadsToward": "none \u2014 this is the game's thesis executed as a mechanic"
+  },
+  {
+   "id": "clue-sundries-column",
+   "name": "'Sundry Adjustments (Lights)', opened 31 December 1974",
+   "foundIn": "The Accounts Office, 1974 cash book (recovered from the incinerator, 30 October)",
+   "act": 3,
+   "whatItProves": "A column ruled in by hand into which \u00a34,180 4s 0d disappeared and has been carried forward, untouched and unqueried, for ninety-six quarters. The sum is exactly the dues collected on a dark light.",
+   "misleadsToward": "Enid Charnock, embezzlement \u2014 the police spend a full day on it"
+  },
+  {
+   "id": "clue-sallow-r755",
+   "name": "Sallow's File Copy of Oil Requisition R.755",
+   "foundIn": "Rita's shed at the slipway, in three unopened boxes of Cormac Sallow's effects",
+   "act": 3,
+   "whatItProves": "The object that made a seventy-nine-year-old man write to a stranger: his own copy of a refused requisition, initialled p.p. in a hand he had watched write for twenty-six years. Also bears his own signature on the front, which destroys his 1975 evidence and breaks Rita, who was too angry to listen to him in August.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-pp-sort",
+   "name": "Forty-Eight Documents Signed 'A. Ferrier', 2 August\u201330 November 1974",
+   "foundIn": "The Chart Loft light table (drawn from four independent custodies: the strongroom, Pike's cottage, Enid's ledgers and Ottoline's tin)",
+   "act": 4,
+   "whatItProves": "Sorted signed against p.p., the answer is 41 and 0: every document from 11 August to 3 November 1974 is per procurationem. Seven decoys, dated 2\u201310 August and 18 November onward, are a genuine and shaky man's hand and fix the boundary dates unaided. The signature is not forged; it is scrupulously legal, and no rule anywhere required anybody to write down who made it.",
+   "misleadsToward": "none \u2014 this is the twist, and the player performs it rather than being told it"
+  },
+  {
+   "id": "clue-locum-mileage",
+   "name": "Dr Munn's Locum Mileage Claims, August\u2013November 1974",
+   "foundIn": "The Accounts Office, medical attendance file",
+   "act": 4,
+   "whatItProves": "Brannock House, fourteen miles, twice weekly, from 12 August 1974 \u2014 an expense claim, kept for tax, that incidentally documents a man's collapse.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-nurse-ledger",
+   "name": "Nurse Kilbride's Visit Ledger, 1974",
+   "foundIn": "Brannock House, former sickroom (now a paint store)",
+   "act": 4,
+   "whatItProves": "'12.8.74 \u2014 pt. hemiplegic R side, no speech, cannot hold pen, wife present.' Absalom Ferrier signed nothing after 11 August 1974 because he physically could not.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-order-book-offsets",
+   "name": "Mirror Offsets of the Razored Order Book Leaves, 11 Aug\u20133 Nov 1974",
+   "foundIn": "The Muniment Room, Warden's Order Book 1972\u20131976",
+   "act": 4,
+   "whatItProves": "The leaves were taken out at the gutter with a razor in 1989, but fifteen years of pressure left their ink in mirror image on the facing pages, readable under raking light with a shaving mirror. Recovers the deferment of the relief keeper, two of the three refusals, and the instruction to continue the wages.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-deferment-letter",
+   "name": "Cass Verge's Deferment Letter, 18 August 1974",
+   "foundIn": "Ottoline's cottage, 4 Coastguard Row, a biscuit tin on the dresser",
+   "act": 4,
+   "whatItProves": "'Your autumn residence at the Nine Bells is deferred pending refit. Wages will continue. You will not discuss this with the Lamp Superintendent or with any other officer.' Initialled p.p. The order that emptied the rock, kept for twenty-four years by a widow who thought she was protecting the wrong man.",
+   "misleadsToward": "Absalom Ferrier \u2014 which is precisely what Ottoline has believed since 1975"
+  },
+  {
+   "id": "clue-sundries-memo",
+   "name": "Memorandum, Warden's Office to Cashier, 6 November 1974",
+   "foundIn": "Rossport Quay, folded inside the back cover of the 1974 cash book in Enid Charnock's shopping bag",
+   "act": 4,
+   "whatItProves": "'The Nine Bells oil column is to be carried to Sundry Adjustments (Lights) pending refit.' Initialled p.p., dated three days after the wreck. Clears Enid entirely and proves the concealment was ordered from the Warden's Office after the ship was on the rocks.",
+   "misleadsToward": "none \u2014 it is the document that turns a catastrophe into a cover-up"
+  },
+  {
+   "id": "clue-switchboard-log",
+   "name": "Night Plug-Log, Sunday 3 November 1974",
+   "foundIn": "The Switchboard Room",
+   "act": 4,
+   "whatItProves": "Reconstructed by re-patching the twelve-line board: 22:34 IN, Rossport Coastguard to extension 2, six minutes; 22:41 OUT, extension 2 to Cardew 4471, four minutes, no answer; then 23:06, 23:11, 23:19 \u2014 the disaster hour. Extension 2 is the Warden's Office, on a Sunday night, and Cardew 4471 is the public call box forty yards from the relief keeper's front door.",
+   "misleadsToward": "Denzil Kyte, the nineteen-year-old night clerk, who logged it and left in 1976"
+  },
+  {
+   "id": "clue-gpo-account",
+   "name": "GPO Itemised Trunk Account, Quarter 4, 1974",
+   "foundIn": "The Accounts Office, telephone file",
+   "act": 4,
+   "whatItProves": "'3.11.74 \u2014 CARDEW \u2014 22.41 \u2014 4 min \u2014 1s 9d', initialled EC. An outside record, kept by strangers for money, about which nobody in Pilotage House had a vote. It authenticates the plug-log the Board would otherwise strike as self-serving.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-petty-cash-voucher",
+   "name": "Petty Cash Travel Voucher, 4 November 1974",
+   "foundIn": "The Accounts Office, petty cash box 1974",
+   "act": 4,
+   "whatItProves": "'S. Ferrier \u2014 Brannock to Cardew, return \u2014 3s 6d \u2014 urgent, on the Warden's instruction.' The morning after thirty-one people drowned, a woman with no official capacity took a car to the village where the relief keeper lived, and claimed the fare.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-bank-refusal",
+   "name": "Naismith's Bank Letter, 15 August 1974",
+   "foundIn": "The Strongroom, Warden's deed box",
+   "act": 4,
+   "whatItProves": "No further facility. The Authority was approximately four months from insolvency on the day Notice 74/119 was written and the first oil requisition refused. Motive, in a bank manager's handwriting.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-ministry-review",
+   "name": "Ministry Quinquennial Review of Pilotage Authorities, notice of 22 July 1974",
+   "foundIn": "The Long Registry",
+   "act": 4,
+   "whatItProves": "An authority found without an effective Warden was to be abolished, its officers dismissed and its records dispersed. The second half of the motive, six weeks before the stroke.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-charter-art9",
+   "name": "Charter of the Brannock Pilotage Authority, 1811, Article 9",
+   "foundIn": "The Board Room, charter case",
+   "act": 4,
+   "whatItProves": "'The said office of Warden shall be holden by a man of full age.' Never amended in 187 years. The reason a competent woman running an institution had to sign on behalf of an unconscious one \u2014 the contempt and the alibi in the same clause.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-a-curve-applied",
+   "name": "The Imperial 66 'a'-Occlusion Curve Applied",
+   "foundIn": "The Binding Room bench",
+   "act": 4,
+   "whatItProves": "Skill 2 escalated: the 1974 refusals sit at partial occlusion on the plotted curve, the 1998 accident report and the relabelled box 17 sit at full. Same machine, same room, twenty-four years apart, and the machine can be produced in evidence.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-ribbon-spool",
+   "name": "Used Ribbon Spool, Imperial 66, September 1998",
+   "foundIn": "The Stationery Store (Enid's rule 4: no new ribbon issued until the used spool is returned)",
+   "act": 4,
+   "whatItProves": "Read backwards under magnification, in unbroken sequence with no ribbon change between: 12.9.98, 'I know what you mean to send. Please do not send it. There is nothing in it that can help anybody now. S.' \u2014 never posted \u2014 and then the accident report of 14 September. She knew what Sallow intended two days before he died, and has denied it in writing three times.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-site-diary-rail",
+   "name": "Site Diary items 41 and 63: the Muniment gallery rail",
+   "foundIn": "The Site Hut / Sandbach's Discovery",
+   "act": 4,
+   "whatItProves": "2 September: 'gallery rail nth bay, baluster 3 loose, made safe pending order.' 15 September: 'gallery rail nth bay made good at Warden's personal instruction, out of programme, no order no., not billed.' The rail a man went over was known to be defective, and was quietly repaired the next morning, off the books, by the one person who could not order it without leaving a trace anywhere else.",
+   "misleadsToward": "Ivo Sandbach, right up until the reader notices whose instruction it was"
+  },
+  {
+   "id": "clue-gallery-timeswitch",
+   "name": "Gallery Time-Switch Counter and the Fuel & Light Book, 14 September 1998",
+   "foundIn": "The Muniment Gallery (switch) and the Accounts Office (book)",
+   "act": 4,
+   "whatItProves": "The north bay has no daylight and is lit by a twenty-minute spring time-switch with a counter read at lock-up and charged to the Lights account. Eleven windings on 14 September \u2014 220 minutes of light \u2014 for a visit that lasted 88 minutes, the last of them logged by the caretaker at 17:40, seven hours after Sallow died and fifty minutes after the accident report was typed.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-reprax-1998",
+   "name": "Duplicating Book, 14 September 1998 (Reprax 12 counter)",
+   "foundIn": "The Duplicating Room",
+   "act": 4,
+   "whatItProves": "Counter advanced 41 against 12 logged. Twenty-nine unaccounted impressions on the day of the death, in a room whose book is Pike's and whose keeper was nine miles away on the ferry.",
+   "misleadsToward": "Halvard Pike, whose book it is"
+  },
+  {
+   "id": "clue-ferry-booking-book",
+   "name": "Rossport Ferry Booking Book, Monday 14 September 1998",
+   "foundIn": "Rossport Quay, ferry office",
+   "act": 4,
+   "whatItProves": "H. PIKE, out 08:15, return 17:40. Pike was off the headland for the whole of the relevant period: he did not work the counter, did not issue slip R98/2211, and did not run twenty-nine Reprax impressions. The clue that clears the game's obvious suspect also identifies who must have done the counter work instead.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-slip-r982211",
+   "name": "Reading-Room Requisition Slip R98/2211, 09:10, 14 September 1998",
+   "foundIn": "The Registry, requisition stub book (pink carbon)",
+   "act": 4,
+   "whatItProves": "C. SALLOW requisitions series 14/B box 17; 'issued by' column initialled S.F-K. With the ferry book, it places the Warden at the counter, and therefore in the strongroom and on the gallery stair, on a morning she says she spent in the Board Room. The first hard object.",
+   "misleadsToward": "nothing at all in Act I, where the player sees it and turns the page"
+  },
+  {
+   "id": "clue-board-working-file",
+   "name": "The Warden's Board of Dissolution Working File",
+   "foundIn": "The Warden's Office",
+   "act": 4,
+   "whatItProves": "Twenty-six Reprax copies of the contents of series 14/B box 17, correctly foliated, correctly indexed, docketed the Ministry way, four of which are copies of documents no longer in box 17. She copied the evidence, destroyed the originals and filed the copies, because destruction is the one act an archivist cannot perform. Twenty-six copies plus three of the accident report is twenty-nine.",
+   "misleadsToward": "none \u2014 the character kills the character"
+  },
+  {
+   "id": "clue-box17-relabel",
+   "name": "Series 14/B Box 17, relabelled and reshelved",
+   "foundIn": "The Strongroom",
+   "act": 4,
+   "whatItProves": "A box requisitioned at 09:10 on 14 September with no return entry against the slip, standing on its shelf behind a timelock the Warden alone can set, wearing a new label typed on the Imperial 66 at full 'a' occlusion. A box came home that was never sent home.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-keepers-log",
+   "name": "Nine Bells Keeper's Log, final entry 24 August 1974",
+   "foundIn": "The Nine Bells Beacon, Oil Store",
+   "act": 4,
+   "whatItProves": "'22.10. No. 2 vapor. cracked. Oil out. Light down. Nothing more to be done here.' The independent, non-Authority record that authenticates the refused requisitions and fixes the hour the beacon died. On the reverse of the last page, in pencil: tea, boot polish, a birthday card for Nan.",
+   "misleadsToward": "none"
+  },
+  {
+   "id": "clue-kestrel-mandate",
+   "name": "The Kestrel Bequest: bank mandate, trust deed and standing-order schedule",
+   "foundIn": "The Nine Bells Beacon, Lantern Room (handed over by Sabine on the stair)",
+   "act": 4,
+   "whatItProves": "Thirty-one index-linked monthly standing orders established 4 April 1977 out of Isobel Ferrier's legacy, through Mowbray & Slee of Rossport, paid for twenty-one years from an account no auditor queried because the sums were too small to be interesting. Matched against the Pelagia manifest, thirty are the dependants of the drowned. The thirty-first is M. TAIN.",
+   "misleadsToward": "none \u2014 the emotional detonation, and the strongest single item of consciousness of guilt in the file"
+  },
+  {
+   "id": "clue-commission-minute",
+   "name": "Conservancy Commission Minute, 3 October 1998",
+   "foundIn": "Wren's own commission file (requisitioned for an unrelated procedural reason)",
+   "act": 4,
+   "whatItProves": "Phyllida Halkett nominated Wren nine days before she broke her hip. The supervisor did not send an apprentice by accident; she sent a stranger, because a dead man asked for one.",
+   "misleadsToward": "none"
+  }
+ ],
+ "logline": "In the autumn of 1998 a nineteen-year-old apprentice archivist is sent alone to appraise the records of a dissolving coastal pilotage authority in the nine days before they are pulped, and proves that the shipwreck which drowned thirty-one people in 1974 was caused not by a drunken pilot but by a safety notice that was written, approved and never sent \u2014 signed, lawfully and invisibly, by a hand the institution refused to let have a name.",
+ "protagonist": {
+  "name": "Wren Adare",
+  "age": "19 (b. 4 February 1979)",
+  "background": "Second-year apprentice conservator, National Records Conservancy, Ilberry regional store. Raised in a council flat over a launderette in Ilberry by a mother who cleaned offices at night; left school at sixteen with five O-levels and no money and got the Conservancy apprenticeship because a librarian filled in the form for her. Two years of paper: washing, deacidifying, humidifying, leaf-casting, and eleven months on a single water-damaged parish register that taught her patience the hard way. She is not a plucky amateur sleuth. She is a professional reader of paper, which is a far stranger and more dangerous skill: she can date a document by its staple corrosion, tell a carbon from a photocopy at arm's length across a room, read an erased pencil line by raking light, and knows that the most incriminating object in any building is not the safe but the postage register. This is her first solo commission, and she is holding a legal instrument that lets a teenager open a strongroom a Warden cannot.",
+  "voice": "Flat Ilberry vowels, no charm, and a habit of correcting people's dates out loud that has cost her every friendship she has ever nearly had. Speaks in numbered points when nervous. Says 'that's not a document, that's a claim' the way other people say hello. Writes everything down in a wire-bound casebook with a citation column she rules herself, obsessively, in pencil \u2014 the player's evidence board, and, by Act IV, the most important exhibit in the case. Apologises constantly for things that are not her fault and never once for the things that are. When she is frightened she gets more precise, not less, and the game shows this by tightening her prose.",
+  "flaw": "She trusts institutions to be honest if the filing is honest. She believes \u2014 genuinely, structurally, the way other people believe in God \u2014 that a properly kept record cannot lie, and that if you follow procedure exactly the truth arrives on its own. Her flaw is the exact mirror of the culprit's: Sabine used a perfectly kept archive to disappear inside, and Wren has to learn that a perfectly kept archive can be the most complete lie in the world. Her secondary flaw is a physical one and the game makes her pay it in cash: she is genuinely, unglamorously terrified of open water, and the last document is nine miles offshore in a tower.",
+  "whyHere": "Because a dead man asked for a stranger. Cormac Sallow's letter of 11 September reached the Conservancy on 1 October; Phyllida Halkett, Senior Appraiser, nominated Wren on 3 October and broke her hip on the 12th, and has let everyone including Wren believe the hip was the reason. Wren cannot leave, and the reason is paper: her commission under section 41 obliges her to certify every series before dissolution on 3 November, and if she walks out uncertified the entire archive is deemed valueless and goes to the pulper on 4 November \u2014 twenty-four years of evidence destroyed lawfully, by clerical default. The ferry runs twice a week and the causeway floods. Everyone in the building knows both of those facts. Somebody is counting on them."
+ },
+ "setting": {
+  "place": "Pilotage House, Brannock Head \u2014 a slate-and-granite records fortress on a headland at the mouth of Ivory Sound, seat of the Brannock Pilotage Authority (chartered 1811, dissolved by statute with effect from 1 December 1998). Six hundred feet of shelving, 187 years of pilotage logs, light-dues ledgers, wreck registers and inquiry files, a four-hundred-drawer card index, a pneumatic tube system, a twelve-line plug switchboard, a Chubb three-movement timelock strongroom, a Reprax 12 duplicator, four office typewriters with four distinct sets of injuries, a franking meter, an incinerator in the courtyard and, walled up under the north undercroft since June 1975, a tide gauge that has been telling the truth to nobody since 1908. Nine miles offshore, on its reef, stands the Nine Bells Beacon: a hundred and twelve feet of granite, a clockwork optic, an oil store and a dead lantern.",
+  "era": "Monday 26 October to Tuesday 3 November 1998 \u2014 nine days \u2014 with the whole weight of the case sitting in the eighty-four days between Sunday 11 August and Sunday 3 November 1974. Pre-digital and proud of it: nothing here can be searched with a keyword; everything must be walked to, requisitioned by slip, waited for, and read. The 1998 half of the game is bakelite, carbon paper, India rubber, sealing wax and a fax machine; the 1974 half is pounds, shillings and pence, four-penny stamps and a Charter written when the Prince Regent was on the throne.",
+  "weather": "North Atlantic autumn, escalating on a nine-day curve the player can feel without a timer. Acts I\u2013II: grey, still, papery, rain on glass, dust hanging in a shaft of north light. Act III: streaming windows, a sixty-mile southwesterly, the causeway going under twice a day. Act IV: horizontal rain, a burning cottage on a black hill, the telephone line down and the sea getting up to storm force 10. Act V: the gale blows itself out overnight on the rock and 3 November 1998 dawns hard and blue and cold \u2014 the only fully sunlit day in the game, and the anniversary.",
+  "history": "Chartered 1811 to license pilots and levy dues on every vessel entering Ivory Sound. The Nine Bells Beacon first exhibited 1834, re-optic'd 1908 with a clockwork Fresnel showing Fl(3) W 20s. Nine miles south-south-east, Cadran Point shows Fl(3) W 15s, and has since 1911, and the difference between those two numbers is the difference between an accident and a crime. On the night of Sunday 3 November 1974 the coastal motor vessel Pelagia, inbound for Rossport with 118 aboard, steered for a light that was not there and went onto the reef at 23:04; thirty-one people drowned, among them the pilot, Emrys Tain, who was blamed for it in 1975 on the strength of a hip flask recovered from a body. Wardens: Absalom Ferrier 1961\u20131976 (incapacitated 11 August 1974 to 18 November 1974, a fact recorded nowhere); Gethin Rowe 1979\u20131991; Sabine Ferrier-Kyne 1991\u20131998. Half the building is now a working archive and half of it is a construction site: Sandbach & Roule, Conservation Architects, are converting Pilotage House into a heritage hotel with a hard completion date of 1 December, and the strip-out programme is pinned to the site hut wall, room by room, day by day.",
+  "whyIsolated": "Three locks, all of them mundane and all of them legal. Geography: the coast road washed out in the 1993 storms and was never rebuilt, so Brannock Head is reached by the Rossport ferry, twice a week, Mondays and Thursdays, or across a causeway passable for about two hours either side of low water \u2014 and both of those close in a gale. Law: Wren's commission under section 41 obliges her to certify every series in situ before dissolution; if she leaves uncertified the archive is deemed valueless and lawfully pulped on 4 November. Time: the Board of Dissolution sits on 3 November 1998, which is the twenty-fourth anniversary of the wreck, because somebody thought it was tidy. The isolation is not a device; it is a filing deadline, and it is the most frightening thing in the building."
+ },
+ "solution": {
+  "culprit": "Sabine Ferrier-Kyne, 58, Warden of the Brannock Pilotage Authority \u2014 culpable in 1974 of the administrative decisions that darkened the Nine Bells and of twenty-four years of concealment, and in 1998 of the unlawful killing of Cormac Sallow.",
+  "how": "1974: On Sunday 11 August her father, Warden Absalom Ferrier, suffered a cerebral haemorrhage and never signed anything again for ninety-nine days. The Authority was four months from insolvency, the bank refused further facility on 15 August, and the Ministry's quinquennial review was sitting: an authority discovered to have no effective Warden would have been abolished. So his thirty-four-year-old unpaid private secretary ran it, and signed every one of the forty-one documents of the fatal period 'A. Ferrier' with a two-millimetre pencil 'p.p.' beside it, exactly as Standing Order 4 permitted and Article 9 of the Charter of 1811 required, because that Article reserved the office to 'a man of full age'. On 15 August, on Cormac Sallow's report that the No. 2 vaporiser was cracked and the reserve oil down to ninety gallons, she drafted Notice to Mariners 74/119, had 214 copies run off on the Reprax, and refused oil requisition R.741 to the winter refit. On 16 August she ruled 74/119 out of the despatch docket in pencil and initialled it p.p.; 213 envelopes were franked and one \u2014 Schedule D No. 1, the Keeper of the Nine Bells, care of the call box at Cardew \u2014 was never posted at all. On 18 August she deferred the relief keeper's autumn residence with wages continuing, so that the rock was empty and Accounts would ask nothing. She refused R.748 on 9 September and R.755 on 7 October. She went on collecting the light dues throughout, because stopping them would have raised a question. At 21:10 on Saturday 24 August the last oil burned out and the Nine Bells went dark for seventy-one days. At 22:34 on Sunday 3 November the Rossport coastguard rang extension 2 to ask whether the beacon was exhibiting; at 22:41 she rang Cardew 4471 and let it ring for four minutes at a relief keeper who was in the Ship Inn; at 23:04 the Pelagia struck. On 6 November she instructed the Cashier to carry the empty oil column to sundries pending refit. 1998: on 8 September she saw Cormac Sallow's requisition slip for series 14/B box 17 pass through her countersignature pigeonhole; on 12 September she typed him a letter begging him not to send what he meant to send, and did not post it; on Monday 14 September, with the Chief Clerk on the Rossport ferry, she worked the registry counter herself, carried box 17 up to the Muniment gallery, and argued with him for forty minutes in the north bay behind the map presses. He refused. She took the folder; he took hold of it; he went backwards over a rail she knew had been loose since 2 September. She stood there for eleven minutes. Then she telephoned Rossport, and that afternoon photocopied twenty-six sheets on the Reprax, removed four documents, relabelled and reshelved the box behind a timelock only she could set, had the rail repaired the next morning off the programme, and typed the accident report at ten to five and signed it in her own name for the first time in her life.",
+  "why": "Because she was the only competent person left and she was not allowed to exist. In 1974 she was thirty-four, unpaid, untitled and running a bankrupt institution that would have been abolished if the Ministry had learned it was rudderless \u2014 and the Charter would not let her sign her own name to a single decision she made. She refused the oil and held the notice because there was no money until the winter refit and she intended, genuinely, to fix the light properly then. Then thirty-one people drowned, and because officially she had never been there, the Rossport Inquiry could not call her, question her, or list her among those present. The institution that had spent her whole life refusing to write her name down provided, in the one moment it mattered, a perfect alibi, and she took it. She has spent twenty-four years becoming a Warden who does everything correctly and paying thirty-one anonymous annuities out of her mother's money. In September 1998 she was a fortnight from appointment to the National Maritime Heritage Board \u2014 the first title she would ever have held in her own right \u2014 and one living man could still recognise her 1974 hand. The crime and the grievance are the same fact. The contempt that erased her is the mechanism that acquitted her, and she knows it, and she has never once said so out loud until four o'clock in the morning on a rock in a gale.",
+  "provingChain": [
+   "LINK 1 \u2014 PRESENCE (1998). Requisition slip R98/2211, 09:10, 14 September, series 14/B box 17, 'issued by' initialled S.F-K., corroborated by the Rossport ferry booking book placing the Chief Clerk off the headland from 08:15 to 17:40, and by the gallery time-switch counter recording eleven windings for an eighty-eight-minute visit. Counter-evidence rebutted: her Board Room alibi collapses on Sandbach's site diary, which puts the quantity surveyor's meeting on the 15th.",
+   "LINK 2 \u2014 MEANS AND OPPORTUNITY (1998). Site diary item 41 (2 September: gallery rail north bay, baluster 3 loose, made safe pending order) and item 63 (15 September: made good at the Warden's personal instruction, out of programme, no order number, not billed). The defect was known; the repair was ordered off the books by the one person in the building who could not order anything else without leaving a trace. Corroborated by dust reference jar 6 against coroner's exhibit 4 \u2014 chalk-wax and salt bloom from the north bay behind the map presses, and the same chalk-wax in the ribbon well of the Imperial 66 in the Warden's Office.",
+   "LINK 3 \u2014 CONSCIOUSNESS OF GUILT (1998). The Duplicating Book: the Reprax counter advanced forty-one on 14 September against twelve logged, in a room whose keeper was nine miles away. The pathologist's estimate of eleven minutes between the fall and the emergency call. Box 17 standing on its shelf behind a timelock with no return entry against slip R98/2211, wearing a label typed on the Imperial 66 at full 'a' occlusion.",
+   "LINK 4 \u2014 IDENTITY (1998). The Warden's own Board of Dissolution working file: twenty-six Reprax copies of the contents of box 17, correctly foliated, correctly indexed, docketed the Ministry way on the outside third upside down to the tag \u2014 the habit Halvard Pike complained about in Wren's first hour and nobody has mentioned since \u2014 four of them copies of documents no longer in box 17. Twenty-six plus three copies of the accident report is twenty-nine. She copied the evidence, destroyed the originals and filed the copies, because destruction is the one act an archivist cannot perform.",
+   "LINK 5 \u2014 PRIOR KNOWLEDGE (1998). The used ribbon spool from the Imperial 66, preserved by the Cashier's stationery rule 4, on which the unsent sentence of 12 September \u2014 'I know what you mean to send. Please do not send it.' \u2014 runs in unbroken sequence, with no ribbon change, directly into the accident report of 14 September. She has denied that knowledge in writing three times.",
+   "LINK 6 \u2014 SIGNATURE (1974). The p.p. sort: forty-eight documents from four independent custodies, of which every one of the forty-one dated 11 August to 3 November 1974 is per procurationem, and the seven outside that window are a genuine and shaky man's hand. Boundary dates 11 August and 18 November 1974, derived by the player unaided. Supported by the three refused oil requisitions R.741, R.748 and R.755; the struck-through despatch docket of 16 August; Works Order 75/188; and the memorandum to the Cashier of 6 November 1974.",
+   "LINK 7 \u2014 THE HAND HAS A NAME (1974). Absalom Ferrier could not have made those initials: Dr Munn's locum mileage claims from 12 August, Nurse Kilbride's visit ledger ('hemiplegic R side, no speech, cannot hold pen'), and the mirror offsets of the razored Order Book leaves. Only one other person in the building was authorised to sign per procurationem for the Warden, and the only document in 187 years in which she asserts she was here to do it is item 14 of the Authority's own schedule of liabilities: her superannuation claim for reckonable service from 1959, which the player crossed off in the first hour of Act I. Corroborated by the Rossport Inquiry's list of persons considered and not called, No. 33: 'Miss S. Ferrier \u2014 the Warden's private secretary \u2014 no official capacity \u2014 not called.'",
+   "LINK 8 \u2014 MOTIVE, HISTORICAL PREDICATE AND THE ACT ITSELF (1974). Naismith's Bank letter of 15 August 1974 and the Ministry's quinquennial review notice of 22 July 1974 supply the motive for the refusals. The reconciliation \u2014 dues collected and wages paid for seventy-one days on a light that drew no oil, \u00a34,180 4s 0d against 1,182 vessels \u2014 supplies the concealment. The franking shortfall of 16 August 1974, 213 impressions against a docket, a post book and a distribution list all reading 214, supplies the omission: fourpence. The plug-log and the GPO trunk account for 22:41 on 3 November 1974, and the petty cash travel voucher of 4 November, supply the knowledge. The Kestrel Bequest \u2014 thirty-one index-linked annuities paid monthly since 4 April 1977, the thirty-first to M. TAIN \u2014 supplies twenty-one years of a woman paying, in instalments, for something she has never once admitted."
+  ],
+  "confrontation": "There are three, and the game deliberately makes the emotional one worthless. THE FIRST is on the beacon, at four in the morning on 3 November, when the sea has come up past the point where the Ardent can lie off the landing and the Warden of the Brannock Pilotage Authority and a nineteen-year-old apprentice are shut in a granite tower with a paraffin stove for eleven hours. Sabine tells her all of it, flatly, in order, with dates, because she is incapable of telling anything any other way, and it takes four hours, and it is the best writing in the game, and at the end of it she says: 'You will want me to say I am sorry. I have been sorry every day since the fourth of November nineteen seventy-four and it has never once been of the slightest use to anybody, so I stopped offering it. I paid instead. You will find that is worse.' THE SECOND is at seven o'clock the same morning, over the Ardent's radio, when DS Iveson tells Wren that an uncautioned, unrecorded, uncorroborated confession made to one teenage girl on a rock in a gale is worth precisely nothing, and that she should stop crying and go and do her job. Everything must still be cited. Nothing she has been told may be used. THE THIRD is the real one: 14:00, the Board Room, the only fully sunlit background in the game, before Mrs Ellary Voss, Captain Dunnet and Mr Pargeter for the Ministry. Wren reads her case file link by link and Pargeter strikes, aloud, every assertion she cannot cite \u2014 offering in rebuttal the 1975 finding and its statutory presumption of correctness, the Deakin forgery as proof that this whole line of enquiry has already been faked once, Halvard Pike's forty years of theft as a chain-of-custody attack on half the exhibits, and finally the question the whole game exists to answer: on what evidence does a Board propose to name a person whom no record of this Authority has ever named? Wren answers it with the Authority's own pension file. Sabine is in the room throughout, sitting very upright with a 2H pencil behind her ear, taking her own minutes, and does not interrupt once.",
+  "ending": "THE FINDING is a direct function of the citations that survive. Six or fewer links standing: misadventure, the 1975 finding undisturbed, Emrys Tain not cleared, Sabine not named, the archive certified and saved, and the light lit \u2014 the weakest ending still saves the paper, because the game's morality is that the record outlives everybody. Seven links: negligence by the Authority, Tain's blame reduced to a contributory finding, Sabine named as 'an officer of the Authority whose identity is not established by these papers', and arrest on the 1974 offences only. All eight links, with the counter-evidence answered: a finding of corporate manslaughter and misfeasance in public office, the 1975 finding quashed in full, Emrys Tain exonerated by name in a document that will be posted to 214 addressees, and Sabine Ferrier-Kyne arrested on the Board Room steps on a charge of the unlawful killing of Cormac Sallow \u2014 which, if the player worded the referral honestly rather than ambitiously, sticks. In every ending: Halvard Pike is prosecuted for the theft of three thousand documents and, if the strongest file was built, the Board minutes that the finding could not have been made without them and recommends no penalty; he is fined two hundred pounds anyway and dies in 2004 with a warehouse coat on a hook with his name on it. Enid Charnock gets immunity and never sets foot on the headland again, and her last words to the Board, by telephone, are 'I want it minuted that I raised it. Once. In writing.' Ottoline Verge is charged with nothing, and in the strongest ending asks to read the thirty-one names aloud and gets to fourteen. Rita Tain's forgery charge is dropped in the public interest on 11 January 1999. Ivo Sandbach is charged with theft and false accounting, his firm goes into administration on 19 January, and one Fresnel panel comes home. Bram Aylward's clients recover \u00a39.1 million in 2003, of which the thirty-one families receive nothing, because they were never parties. AND IN EVERY SINGLE ENDING, WITHOUT EXCEPTION, TWO THINGS HAPPEN. At 23:04 on 3 November 1998 the Nine Bells shows three flashes in twenty seconds for the first time since 24 August 1974, visible from the Board Room window, from St Bride's churchyard, from Rossport quay and from Cardew, and nobody on that coast needs it explained to them. And Notice to Mariners 74/119 is issued at last \u2014 retyped from a scorched carbon, franked with a single fourpenny impression struck from the old die, entered in the register in its correct place with a note of the delay, and posted to all 214 addressees on Schedule D beginning with No. 1, the Keeper, Nine Bells Beacon \u2014 twenty-four years, two months and eighteen days late, with thirty-one names appended to it against Conservancy house style, at the insistence of a nineteen-year-old who will not be argued out of it. The last unscored choice in the game is whether Wren tells Rita Tain where thirty-four pounds a month has been coming from since 1977. The game does not grade it, does not comment on it, and ends on Rita's face, and then on the light."
+ },
+ "subtitle": "A Wren Adare Mystery",
+ "themes": [
+  "A perfectly kept archive can be the most complete lie in the world, and the only cure for it is a stranger with a warrant and enough patience to read every line.",
+  "The culprit's crime and the culprit's grievance are the same fact: the institution's refusal to write a woman's name down was both the injury done to her and the mechanism of her impunity.",
+  "Bureaucratic omission is a form of violence with a price list. A notice not sent, a stamp not franked, a requisition refused pending refit \u2014 fourpence, and thirty-one lives.",
+  "Fair play is not a promise made by the author; it is an instrument the player operates. Any assertion that cannot be cited is struck, aloud, in front of you.",
+  "Truth is preserved by the wrong virtues. A thief's hoard, a cashier's petty economy, a developer's alibi diary and a machine too boring to bribe are what survive, while every honest, dutiful, correctly filed act of the institution is what buried it.",
+  "The honest witness is the most dangerous evidence there is: Norah Feaver told the exact truth for twenty-four years and nobody thought to ask her to count the seconds.",
+  "Everybody in this story arranged not to be asked. Ottoline typed her own name onto the list of witnesses not to be called; Sabine let a Charter do it for her. The difference between them is nerve, not kind \u2014 and the game refuses to tell you whether that is a difference at all.",
+  "Being right is not the same as being able to prove it, and Rita Tain has spent twenty-four years and every penny she owns learning the difference the expensive way."
+ ],
+ "timeline": [
+  "1811 \u2014 The Brannock Pilotage Authority is chartered to license pilots and levy dues on Ivory Sound. Article 9: 'The said office of Warden shall be holden by a man of full age.' Never amended.",
+  "1834 \u2014 The Nine Bells Beacon first exhibited on its reef, nine miles offshore.",
+  "1908 \u2014 A clockwork Fresnel optic is installed at the Nine Bells, character Fl(3) W 20s. In the same year a Kelvin & White stilling-well marigraph is installed in the north undercroft of Pilotage House and begins scratching the height of the sea onto a smoked drum.",
+  "1911 \u2014 Absalom Ferrier born. The Cadran Point light, nine miles SSE of the Nine Bells, is established with the character Fl(3) W 15s.",
+  "1919 \u2014 Cormac Sallow born. 1922 \u2014 Cass Verge born. 1926 \u2014 Ottoline (later Verge) born. 1932 \u2014 Halvard Pike born. 1935 \u2014 Enid Charnock born.",
+  "12 January 1940 \u2014 Sabine Ferrier born, only child of Absalom Ferrier and Isobel Ferrier.",
+  "1946 \u2014 The Warden's Order Book begins recording the closing hour of every working day; it will not miss one for fifty-two years.",
+  "1949 \u2014 Marguerite 'Rita' Tain born, daughter of the pilot Emrys Tain (b. 1926).",
+  "1954 \u2014 Halvard Pike joins the Authority as a copy boy, aged twenty-two.",
+  "1958 \u2014 Cormac Sallow appointed Lamp Superintendent. 1959 \u2014 Sabine Ferrier, aged nineteen, begins work as her father's unpaid private secretary; there is no post, no salary and no entry in the staff register.",
+  "1961 \u2014 Absalom Ferrier appointed Warden. An Imperial 66 typewriter is bought for the Warden's Office; its lower-case 'a' begins, imperceptibly, to fill with ink and wax.",
+  "1962 \u2014 Enid Charnock joins as junior cashier. 1968 \u2014 Ottoline Verge transfers to the Registrar's office and marries Cass Verge, relief keeper of the Nine Bells. Enid institutes stationery rule 4: no new typewriter ribbon to be issued until the used spool is returned.",
+  "22 July 1974 \u2014 The Ministry serves notice of a quinquennial review of pilotage authorities. An authority found to be without an effective Warden is to be abolished, its officers dismissed and its records dispersed.",
+  "9 August 1974 \u2014 Cormac Sallow makes his fortnightly visit to the Nine Bells and finds the No. 2 vaporiser cracked and the reserve oil down to ninety gallons.",
+  "SUNDAY 11 AUGUST 1974, c.16:00 \u2014 Absalom Ferrier suffers a cerebral haemorrhage at his desk in the Warden's Office. Sabine, aged thirty-four, finds him. He never signs anything again for ninety-nine days.",
+  "12 August 1974 \u2014 Sabine opens the Order Book and writes the first entry 'p.p. A. Ferrier' under Standing Order 4, which permits signature per procurationem in the Warden's temporary absence. She tells the Board chairman by telephone that her father has a chest infection. Dr Munn, locum, begins attending Brannock House, fourteen miles, twice weekly. Nurse Kilbride records: hemiplegic right side, no speech, cannot hold pen.",
+  "13 August 1974 \u2014 Sallow raises oil requisition R.741 for 400 gallons of paraffin for the Nine Bells and signs it.",
+  "15 AUGUST 1974 (Thursday) \u2014 Three things happen in one day. Naismith's Bank writes refusing any further facility: the Authority is approximately four months from insolvency. Sallow files his written report on the No. 2 vaporiser and the ninety gallons. And Sabine, on the Imperial 66 in the Warden's Office, drafts Notice to Mariners 74/119: MARINERS ARE ADVISED THAT THE LIGHT EXHIBITED FROM THE NINE BELLS BEACON MAY NOT BE RELIED UPON UNTIL FURTHER NOTICE. Two hundred and fourteen copies are run off on the Reprax 12; the impression counter advances 437 against 223 logged. The same afternoon, requisition R.741 is stamped REQUISITION NOT SANCTIONED \u2014 REFER WINTER REFIT and initialled p.p.",
+  "FRIDAY 16 AUGUST 1974 \u2014 Despatch day. On the contents docket for the fortnightly batch, Sabine rules 74/119 through in 2H pencil and initials the deletion p.p. The docket foot reads '214 @ 4d \u2014 \u00a33 11s 4d'. The franking meter descends by \u00a33 11s 0d: two hundred and thirteen impressions. One envelope is never franked and never posted \u2014 Schedule D No. 1, the Keeper, Nine Bells Beacon, care of the relief boatman, Cardew Post Office, telephone Cardew 4471. The 214 duplicated copies of the notice go into a japanned deed box on the strongroom bottom shelf; Sabine keeps one carbon in her personal file.",
+  "SUNDAY 18 AUGUST 1974 \u2014 Sabine defers Cass Verge's autumn residence at the beacon 'pending refit', with wages to continue, and instructs him in writing not to discuss it with the Lamp Superintendent or any other officer. The rock is empty. Verge is paid \u00a318 4s 0d a week for eleven weeks \u2014 \u00a3200 4s 0d \u2014 to stay ashore, and begins drinking.",
+  "20 August 1974 \u2014 Cormac Sallow goes into Ilberry Cottage Hospital for a hernia operation. He is off duty until 10 October, which is why nobody with lamp knowledge is watching for seven weeks.",
+  "SATURDAY 24 AUGUST 1974, 21:10 \u2014 The last oil in the Nine Bells burns out. The keeper's log records: '22.10. No. 2 vapor. cracked. Oil out. Light down. Nothing more to be done here.' On the reverse of the last page, in pencil: tea, boot polish, a birthday card for Nan. The light will not be exhibited again for twenty-four years, two months and ten days.",
+  "24 August \u2013 3 November 1974 \u2014 Seventy-one days. Ten complete dues weeks. One thousand one hundred and eighty-two vessels are charged \u00a34,180 4s 0d in light dues for the Nine Bells. Wages are paid every week. No oil is drawn.",
+  "9 September 1974 \u2014 Oil requisition R.748 refused, REFER WINTER REFIT, initialled p.p.",
+  "12 September 1974 \u2014 The Cadran Point relief boatman reports 'Nine Bells not observed'. The report is minuted and carried to sundries.",
+  "7 October 1974 \u2014 Oil requisition R.755 refused, REFER WINTER REFIT, initialled p.p. Sallow, who signed it before his operation, is under anaesthetic when it comes back and never sees it; his file copy goes into a drawer at 3 Coastguard Row.",
+  "10 October 1974 \u2014 Sallow returns to duty, asks about the Nine Bells, is shown a wage sheet with the relief keeper paid and at station, and believes it. Cass Verge lies to his face.",
+  "SUNDAY 3 NOVEMBER 1974 \u2014 22:34, the Rossport coastguard telephones extension 2, the Warden's Office, to ask whether the Nine Bells is exhibiting; a coaster queried it earlier in the evening. 22:41, an outgoing call from extension 2 to Cardew 4471, the public call box forty yards from Cass Verge's front door: four minutes, no answer. Verge is in the Ship Inn. 23:04, the coastal motor vessel Pelagia, inbound for Rossport with 118 aboard and Emrys Tain on the bridge, strikes the Nine Bells reef. Thirty-one people drown, among them Tain. 23:06 the coastguard relay, 23:11 the harbourmaster, 23:19 Rossport.",
+  "4 NOVEMBER 1974 \u2014 Sabine claims 3s 6d petty cash for a car to Cardew and back, 'urgent, on the Warden's instruction', and stands on Cass Verge's step. Neither of them ever speaks of it again.",
+  "6 November 1974 \u2014 A memorandum from the Warden's Office to the Cashier: the Nine Bells oil column is to be carried to Sundry Adjustments (Lights) pending refit. Initialled p.p. Enid Charnock keeps it, folded, inside the back cover of the cash book.",
+  "8 November 1974 \u2014 A relief keeper and 400 gallons of paraffin go out to the Nine Bells. Notice to Mariners 74/126 records the light as having been temporarily discontinued for repair.",
+  "18 NOVEMBER 1974 \u2014 Absalom Ferrier, partially recovered, signs his name for the first time in ninety-nine days. The p.p. stops. It is never used again in his lifetime.",
+  "31 December 1974 \u2014 Enid Charnock rules in a new column, 'Sundry Adjustments (Lights)', and carries \u00a34,180 4s 0d into it. The balance will not move for ninety-six quarters.",
+  "February\u2013June 1975 \u2014 The Rossport Inquiry, Sir Roderick Balgowan presiding. Cormac Sallow gives evidence on Day 9: 'The light was not discontinued', and 'I have no knowledge of any requisition being refused.' The first is true and misleading; the second is false and honest. Norah Feaver, aged nineteen, a survivor, testifies that she saw the light clearly, three flashes; nobody asks her to count the seconds. Ottoline Verge types the assessor's list of persons considered and not called, enters herself at No. 29 and ticks it. At No. 33: 'Miss S. Ferrier \u2014 the Warden's private secretary \u2014 no official capacity \u2014 not called.' FINDING: pilot error, on the strength of a hip flask recovered from a body. Emrys Tain is destroyed in print.",
+  "June 1975 \u2014 Works Order 75/188, 'seal chamber, damp': the Tide Room under the north undercroft is bricked up, with the marigraph, sixty-seven years of drums and the Inquiry's returned working papers inside it. The order is initialled p.p. \u2014 the last p.p. anyone ever writes in this building.",
+  "1975, autumn \u2014 Cass Verge, drunk, tells his wife the beacon was dark. He never mentions it again. Ottoline says nothing at the inquiry, because she is not called, and she has made sure of that herself.",
+  "1976 \u2014 Absalom Ferrier retires. Sabine is at last given a paid post: Clerk, Grade III. Rita Tain, aged twenty-seven, begins the campaign that will consume the rest of her life. Isobel Ferrier dies, leaving her daughter \u00a341,000.",
+  "4 APRIL 1977 \u2014 Sabine settles the Kestrel Bequest through Mowbray & Slee of Rossport: a discretionary trust funded from her mother's legacy, paying thirty-one index-linked monthly standing orders to the dependants of the drowned. The thirty-first beneficiary is M. TAIN, who assumes for twenty-one years that the money is a legacy from her father's union and spends every penny of it on the campaign.",
+  "1979 \u2014 Absalom Ferrier dies. The Wardenship goes to Gethin Rowe. 1981 \u2014 Cass Verge dies, aged fifty-nine, without ever saying why he did not go out to the rock. 1984 \u2014 Cormac Sallow retires as Lamp Superintendent.",
+  "1985 \u2014 Ministry Circular 12/85 orders the Lights records destroyed on transfer of the beacon to Trinity House. Halvard Pike loads them into a van instead and takes them to a rented cottage at Cardew: the Oil Requisition Book 1966\u20131980, the Despatch Books 1970\u201379, the Lamp Superintendent's reports. He never opens them. They are filed under Lights, and he is a Pilotage man.",
+  "1989 \u2014 Two cover-ups happen in the same week and neither knows about the other. Sabine, now Deputy Warden, signs memorandum W/O 89/2 in her own name ordering the rationalisation and reboxing of series 14/B, and weeds seven documents; the leaves for 11 August\u20133 November are razored out of the Order Book at the gutter. Ottoline volunteers to redo the index and retypes forty-seven cards on the Underwood 5 to break the cross-references from the Nine Bells stores file to her husband's wage sheet. Sabine does not know what Ottoline is hiding. Ottoline believes she is protecting Absalom Ferrier.",
+  "1991 \u2014 Sabine Ferrier-Kyne is appointed Warden, aged fifty-one, thirty-two years after she started doing the job. Her husband dies the same year. Ottoline retires and comes back six days a week, unpaid.",
+  "1993 \u2014 The coast road washes out and is not rebuilt. Brannock Head is reached by ferry twice weekly, or by a causeway passable two hours either side of low water.",
+  "1996 \u2014 Rita Tain, refused legal aid for the fourth time and out of money, types the Deakin letter herself on an Adler Gabriele, ages it, and slips it into the lamp-room file.",
+  "1997 \u2014 The Coastal Services Act. The Brannock Pilotage Authority is dissolved with effect from 1 December 1998. Sandbach & Roule are engaged to convert Pilotage House into a heritage hotel, practical completion 1 December.",
+  "March 1998 \u2014 Sabine files a superannuation claim for reckonable service from 1959, \u00a32,140 4s in dispute, because she needs the pension record clean before the Heritage Board appointment. It is the only document in existence in which she asserts that she was working in this building in 1974. It is entered as item 14 on the schedule of outstanding liabilities.",
+  "Early September 1998 \u2014 Sorting his retirement papers at 3 Coastguard Row, Cormac Sallow, seventy-nine, finds his file copy of requisition R.755 with the refusal initialled p.p., and recognises the hand. He tries to tell Rita Tain in August; she is too angry to listen.",
+  "8 September 1998 \u2014 Sallow requisitions series 14/B box 17 on slip R98/2198. The slip passes through the Warden's countersignature pigeonhole under Standing Order 7.",
+  "11 September 1998 (Friday) \u2014 Sallow posts a nine-line letter to the National Records Conservancy from Rossport, asking, with no explanation whatsoever, that 'series 14/B be read by a stranger before it leaves this building'.",
+  "12 September 1998 \u2014 On the Imperial 66, Sabine types: 'I know what you mean to send. Please do not send it. There is nothing in it that can help anybody now. S.' She does not post it. The sentence stays on the ribbon.",
+  "MONDAY 14 SEPTEMBER 1998 \u2014 08:15, Halvard Pike takes the ferry to Rossport. 08:56, Sallow signs the visitors' book; the 'admitted by' column is initialled S.F-K. 09:10, he files slip R98/2211 for box 17 at a counter the Warden is working herself. c.09:40\u201310:24, they argue in the Muniment gallery north bay behind the map presses; he folds his spectacles and sets them on the reading slope. He refuses. She takes the folder; he takes hold of it; he goes backwards over baluster 3 of the north bay rail, recorded loose in the site diary since 2 September, and falls twenty-two feet onto flagstones. Death is instantaneous. She stands there for eleven minutes. 10:41, she telephones Rossport. 12:35, ambulance and police. That afternoon, while the building is in uproar, she runs twenty-nine impressions on the Reprax \u2014 twenty-six copies of the contents of box 17 and three of what she is about to type \u2014 removes four documents, relabels box 17 on the Imperial 66 and reshelves it behind the timelock. 16:50, she types the accident report and signs it Sabine Ferrier-Kyne, the first and only time in 187 years that her name appears on a record of this Authority. 17:40, the caretaker winds the gallery time-switch for the eleventh time that day.",
+  "15 September 1998 \u2014 The gallery rail is made good at the Warden's personal instruction, out of programme, no order number, not billed. Site diary item 63.",
+  "30 September 1998 \u2014 Inquest. Accidental death. 2 October 1998 \u2014 DS Marren Iveson requests the coroner's file on her own initiative, is told there is nothing in it, and puts her request slip back in the folder.",
+  "1 October 1998 \u2014 Sallow's letter, twice forwarded, reaches the National Records Conservancy. 3 October \u2014 Phyllida Halkett, Senior Appraiser, nominates Wren Adare. 6 October \u2014 Bram Aylward signs the Pilotage House visitors' book as 'Ministry, dissolution liaison', and begins photographing. 12 October \u2014 Halkett breaks her hip in a stairwell at the Ilberry store and lets everyone believe that is why an apprentice was sent. 20 October \u2014 Wren's commission is sealed under section 41.",
+  "MONDAY 26 OCTOBER 1998, 09:40 \u2014 Wren Adare lands at Brannock Head with nine days, a warrant, a loupe and a wire-bound casebook. 01:20 on the 27th, somebody burns paper in the courtyard incinerator; the damper was removed by scaffolders on 2 September and the flue will not draw; the rain puts it out badly.",
+  "27 October \u2013 2 November 1998 \u2014 Nine days of paper. The scorched carbon. The card index gap. The strongroom and the flood. The Deakin letter and its collapse. Rita's arrest, 17:15 on 31 October. The revocation of Wren's commission, 16:20 on 1 November. The Tide Room. Pike's hoard and the reconciliation. The p.p. sort. Ottoline's biscuit tin. The switchboard. The ribbon. The fire at Cardew, 22:40 on 1 November. The Aldis lamp on the roof. And, at first light on 2 November, a crossing in a rising gale to a rock nine miles offshore.",
+  "2\u20133 NOVEMBER 1998 \u2014 Sabine Ferrier-Kyne and Wren Adare are shut in the Nine Bells Beacon by the weather for eleven hours, and at about four in the morning Sabine tells her everything, and it is worth nothing.",
+  "TUESDAY 3 NOVEMBER 1998 \u2014 The twenty-fourth anniversary. First light: the optic is repanelled, the sector plates set to three flashes in twenty seconds, the weight wound and the escapement set to release at 23:04. 14:00: the Board of Dissolution sits in the only sunlit room in the building, and strikes every assertion that cannot be cited. 23:04: the Nine Bells shows Fl(3) W 20s across nine miles of black water for the first time since 24 August 1974. And Notice to Mariners 74/119 is issued, franked with one fourpenny impression, to all 214 addressees on Schedule D, beginning with No. 1, the Keeper \u2014 twenty-four years, two months and eighteen days late, with thirty-one names appended."
+ ],
+ "title": "NOTICE TO MARINERS",
+ "toneGuide": "THE GENRE ARGUMENT. This is not deduction from footprints; it is the auditor's fantasy. The player's superpower is literacy and stubbornness. Nothing is solved by intuition and everything is solved by cross-reference, and every single deduction is supported by a document the player can physically hold up to a window. The detective fantasy on offer is: I read it properly, and nobody else ever did.\\n\\nPROSE REGISTER. Plain, cold, exact, and occasionally devastating by accident \u2014 the register of a good coroner's report. No purple. No 'suddenly'. The emotional beats land in numbers: fourpence; two hundred and thirteen impressions against two hundred and fourteen addressees; ninety-six quarters; thirty-one standing orders; eleven minutes. When something terrible happens, describe the paperwork it generated. The one place the prose is allowed to open out is on the water and inside the tower, and it should be noticeably shorter-breathed there, not longer.\\n\\nWREN'S VOICE TIGHTENS UNDER FEAR. When she is calm she rambles slightly and corrects people's dates. When she is frightened she numbers her points. In the strongroom flood and on the crossing her casebook entries become telegraphic. Never write her as brave; write her as unable to stop working.\\n\\nNOBODY IS A VILLAIN AND NOBODY IS EXEMPT. Every suspect is guilty of something real and none of the smaller crimes is the big one. The player must condemn Sabine and, in the boat coming back from the rock, understand precisely how it happened, and not be entirely certain they would have posted the notice either. Never let a character explain the theme aloud; the theme is the mechanic. If a line of dialogue states the meaning of the p.p., cut it.\\n\\nTHE THREE-STATE RULE (ART, MANDATORY). Every interior node is painted three times as the conversion eats the building: (A) intact and dust-sheeted, Acts I\u2013II; (B) half-boxed, scaffold in, shelving stencilled LOT 4, Act III; (C) stripped to plaster, wires hanging, floor protected, Acts IV\u2013V. Plus night variants for eleven key nodes. Returning to a room is never a visual repeat, the demolition schedule becomes a clock the player feels without a timer, and the archive visibly dies around the case as it is assembled. Rooms genuinely become unavailable on their scheduled dates.\\n\\nSILHOUETTE DISCIPLINE. The judges' fair objection \u2014 twenty-six paintings of the same grey room \u2014 is answered by hard silhouette rules. The Nine Bells appears in Act II, not Act V: a hundred and twelve feet of granite through spray at four hundred yards, and the player is made to want it for two more acts. Every node must be identifiable at thumbnail by one non-negotiable shape: the tube head's brass octopus; the four hundred drawers as a wall of brass label-holders; the strongroom's three winding movements; the switchboard's twelve cords; the Reprax drum; the marigraph's glass stilling well; the incinerator's iron mouth; the churchyard's thirty-one slates; the signal mast; the optic. If two nodes can be confused at thumbnail, one of them is redesigned.\\n\\nPALETTE. Wet slate and lead-grey granite; oxblood and bottle-green buckram spines; tobacco-cream foolscap and marbled endpapers; brass gone to verdigris; sodium amber; and one violent accent \u2014 the vermilion of the ISSUED stamp pad, which appears exactly seven times in the entire game and the seventh is on Notice to Mariners 74/119 on the last afternoon.\\n\\nLIGHT. Low raking north light through twelve-foot sashes, thick with suspended dust: every registry background is a study in a shaft of grey daylight hitting paper. At night, isolated warm pools \u2014 the green banker's lamp, the microfilm reader's ground glass, a bare bulb swinging in the undercroft, a paraffin stove in a granite tower. The game walks steadily downward from four-o'clock October afternoon into the black hour before dawn on the rock, and then back up: the Board Room on 3 November is the only fully sunlit background in the game.\\n\\nMATERIALS AND TEXTURE RULE. Dust sheets over ledger presses so the furniture reads as shrouded bodies; scaffold poles and translucent polythene the wind moves, so still backgrounds feel breathed on; japanned deed boxes stencilled with dead men's names; salt bloom flowering through limewash; mahogany, brass, bakelite, india rubber, sealing wax, cold paraffin. NO PEOPLE IN ANY BACKGROUND. Humanity appears only as objects left behind: a cup with the spoon still in it, spectacles folded on an open ledger, a cardigan over a chair, sheepskin slippers in drawer 388, thirty-one slate markers along a churchyard wall.\\n\\nPORTRAIT RULE. Every living suspect is painted as a three-quarter oil against a dark ground in the manner of the Wardens' Hall portraits, so that the whole cast reads as already historical, already framed, already dead. Cormac Sallow, who is dead, is painted exactly the same way as everyone else, and so is Absalom Ferrier, whose caption on the Great Stair gives the dates of a Wardenship he was unconscious for a quarter of, and which the player passes forty times.\\n\\nRHYTHM (THE VERB-MONOTONY FIX, NON-NEGOTIABLE). Head-work and hand-work alternate on a twenty-minute clock. No two consecutive puzzles may use the light table. Every act contains at least one beat in which something happens to a body rather than to a file: Act I the incinerator rake in the rain; Act II the timelock, the flood and the aborted crossing; Act III the crowbar on the bricked wall and re-hanging the marigraph; Act IV the fire, the roof mast and the crossing; Act V the optic. Every act contains at least one machine the player physically operates \u2014 franking meter, Reprax, timelock movements, switchboard, marigraph, Aldis lamp, clockwork optic \u2014 and at least one non-paper emotional object: the spectacles on the reading slope; the shopping list on the back of the last log page; the thirty-one slates along the churchyard wall; the smell of cold paraffin in a store nobody has opened in twenty-four years; a biscuit tin on a dresser.\\n\\nSKILL CURVES (THE PLAYER MUST GET BETTER AT SOMETHING). Three named crafts, each taught in Act I on something trivial and each tested at rising difficulty in III, IV and V. (1) PAPER AUTHENTICATION \u2014 raking light for the watermark, chain-line count, fibre loupe, postmark gazetteer, ribbon-ink comparison; taught on Wren's own commission, kills the Deakin letter in Act III, proves the refused requisitions genuine in Act IV, and is defended under Board challenge in Act V. (2) TYPEWRITER FORENSICS \u2014 four machines with four sets of injuries, and the Imperial 66's progressively clogging 'a' as a dating curve. (3) SERIAL-RECORD AUDITING \u2014 counters, meters and registers: the franking meter, the Reprax counter, the time-switch, the GPO account, the reconciliation itself. A fourth, minor: ribbon-spool reading, taught as a party trick in Act I and lethal in Act IV.\\n\\nHINTS ARE DIEGETIC AND OPINIONLESS. There is no hint system. There is a GPO call box on Rossport quay, reachable at low water with a pocketful of ten-pence pieces, and at the other end of it Phyllida Halkett will explain Conservancy procedure at any length, at any hour \u2014 what section 41 permits, how to certify a series, how to word an adverse report, what happens on 4 November \u2014 and will refuse, every single time, to have an opinion about the case. 'That's not a question for me.'\\n\\nTHE CASEBOOK IS THE GAME. Every assertion Wren records carries a citation column the player fills in. It is the evidence board, the requisition log, the specimen album and, in Act V, the case file itself. The Board of Dissolution strikes uncited assertions aloud, in front of the player, and the transcript prints with the gaps in it. This is not a fail state; it is a score, and it is the game's proof that it played fair.\\n\\nNEW CASE PLUS. On completion, every 1974 document is unlocked from the start and the specimen bundle is available in the first thirty seconds. A second playthrough is not a faster playthrough; it is a different reading of the same text, which is the highest compliment a mystery can pay its audience. Achievement for finishing the game without ever once zooming to full resolution on the p.p. mark before Act IV: 'Per Procurationem'.\\n\\nWHAT THIS GAME IS NEVER ALLOWED TO DO. No timers except the calendar. No fail states except a weak file. No chase sequences. No character explains the twist. No music cue on the reconciliation \u2014 when the third column refuses to agree, the score simply stops, and the only sound for eleven seconds is rain on a kitchen window at Cardew.\"}"
+}

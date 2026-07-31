@@ -1,0 +1,1195 @@
+/**
+ * The heads-up display.
+ *
+ * Everything here is a machined brass fitting screwed onto the frame of the
+ * scene: a gradient body, a lit top edge, a dark undercut, brushed grain, and
+ * a long shadow into the room behind it. The HUD is sized in container units
+ * off the stage, so the same fitting reads identically on a 1280x800 laptop
+ * and a 2560x1440 display — it scales with the artwork instead of drifting
+ * away from it.
+ *
+ * House rules, in case a later hand widens this file:
+ *   - No literal colour. Everything is a token or a `color-mix` of tokens,
+ *     including shadow tints — `rgb(0 0 0 / …)` is a bug, because the room is
+ *     never neutral black, it is `--fit-abyss` — warm, because the room is.
+ *   - No literal duration or easing. `--dur-*` / `--ease-*` only, so the
+ *     reduced-motion collapse in tokens.css reaches every animation for free.
+ *   - Anything that occupies space is expressed against `--slot-size`,
+ *     `--plate-inset` or an `em`, so the whole HUD scales as one object.
+ *   - Filled (`forwards`) animations are forbidden on anything that also has a
+ *     hover or selected transform: a filled keyframe out-ranks every ordinary
+ *     declaration and would freeze the fitting for good.
+ */
+
+/* ===========================================================================
+   Frame
+   ========================================================================= */
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-hud);
+  display: grid;
+  place-items: center;
+  /* The HUD is mostly air. Only the fittings themselves take the pointer. */
+  pointer-events: none;
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    filter var(--dur-slow) var(--ease-out);
+}
+
+.hud.is-hidden {
+  opacity: 0;
+  filter: blur(2px);
+}
+
+.hud__stage {
+  /* Definite 16:10 box (see `.stage-box` in base.css) — which makes it a
+     size container, and lets every fitting below be expressed in cqw. */
+  container-type: size;
+  container-name: stage;
+  /* Toasts start a full card-width off-stage; clip them so they never appear
+     out in the letterbox. The margin leaves room for edge glows to spill. */
+  overflow: clip;
+  overflow-clip-margin: 24px;
+
+  --plate-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23b)'/%3E%3C/svg%3E");
+  /* Same tooth, half the amplitude. The plates attenuate their grain with an
+     `opacity` on the layer itself; a rail blends it as a background layer,
+     where there is no per-layer opacity to turn down — so full-swing
+     turbulence went straight onto a 300px strip and read as sandpaper rather
+     than as cast metal. This is the pre-attenuated copy for that case. */
+  --rail-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23b)' opacity='.45'/%3E%3C/svg%3E");
+  /* The single inset ring. Every fitting hangs off this and nothing adds its
+     own gutter on top: four different edge margins is the difference between
+     a HUD and a set of widgets that happen to share a screen. */
+  --plate-inset: clamp(0.75rem, 1.6cqw, 1.75rem);
+  --slot-size: clamp(2.9rem, 4.4cqw, 4.6rem);
+  --rail-gap: clamp(0.25rem, 0.5cqw, 0.55rem);
+  --rail-pad: clamp(0.34rem, 0.6cqw, 0.65rem);
+  --screw: clamp(5px, 0.62cqw, 9px);
+  --rail-pad-x: calc(var(--rail-pad) * 1.6 + var(--screw));
+
+  /* The location lockup is sized off the *stage*, not off the viewport.
+     `--step-*` clamps against `vw`, which is correct for a document and wrong
+     for a letterboxed cinematic frame: on a wide, short window the type keeps
+     growing while the artwork it is standing on shrinks. Everything else in
+     this file is already in `cqw`; the title had been left behind at 35px on a
+     1920px stage, roughly two thirds of what a commercial adventure sets its
+     location cards at. These are the same fluid recipe as `--step-*`, resolved
+     against the picture. */
+  --place-title: clamp(1.9rem, 3.15cqw, 3.6rem);
+  --place-eyebrow: clamp(0.82rem, 0.95cqw, 1.15rem);
+  --place-subtitle: clamp(0.92rem, 1.08cqw, 1.3rem);
+
+  /* Fittings sit directly on painted artwork, where the shell's 22% hairline
+     disappears: a slot division at rgb(35,28,14) is not a division. Scoped
+     rather than raised in tokens.css — panels drawn on their own dark ground
+     are correct at the lower value; only metal on a painting needs this. */
+  --border-hairline: 1px solid color-mix(in srgb, var(--lamp-500) 36%, transparent);
+
+  /* Shadow and highlight tints. The room is lamplit and its blacks are warm:
+     a fitting screwed to a bulkhead in an oil-lit cabin cannot cast a blue
+     shadow, and the `--ink-*` ramp is a blue-black. See tokens.css. */
+  --cast-1: color-mix(in srgb, var(--fit-abyss) 55%, transparent);
+  --cast-2: color-mix(in srgb, var(--fit-abyss) 75%, transparent);
+  --cast-3: color-mix(in srgb, var(--fit-abyss) 90%, transparent);
+  --lit-1: color-mix(in srgb, var(--lamp-100) 22%, transparent);
+  --lit-2: color-mix(in srgb, var(--lamp-100) 46%, transparent);
+
+  /* How much of this room's key light is lamplight rather than daylight.
+     Written by SceneView per scene (see `OPTICS`), so the rails pick up the
+     temperature of the room they are bolted into instead of staying at one
+     factory setting whatever is behind them. */
+  --key-warm: clamp(0, var(--scene-key-warm, 0.35), 1);
+  --key-edge: color-mix(
+    in srgb,
+    var(--lamp-300) calc(var(--key-warm) * 34%),
+    color-mix(in srgb, var(--moon-300) 22%, transparent)
+  );
+  /* Fittings sit *on* the artwork, so they have to drop a shadow onto it.
+     Without this they are decals. */
+  --cast-onto-art: 0 14px 32px -18px var(--cast-3), 0 2px 6px -3px var(--cast-2);
+}
+
+/* ===========================================================================
+   Brass plate — the one physical recipe every fitting is cut from
+   ========================================================================= */
+
+.hud-slot,
+.hud-toast,
+.hud__nameplate {
+  position: relative;
+  isolation: isolate;
+  border: var(--border-hairline);
+  border-radius: var(--radius-sm);
+  /* The lit arris is anchored in *pixels*, not in percent of the element.
+     Percentage stops make the recipe a function of the fitting's height, so
+     the same brass that read correctly on a 44px tool cell had pushed its only
+     warm stop off the top of a 74px inventory slot and left 60px of flat
+     near-black — a plate that is dead flat across its whole interior is not a
+     lit object, it is a rectangle. Light falls on the top few millimetres of a
+     piece of metal regardless of how big the piece is. */
+  background-image:
+    linear-gradient(
+      177deg,
+      color-mix(in srgb, var(--lamp-400) 26%, var(--fit-700)) 0,
+      color-mix(in srgb, var(--lamp-500) 22%, var(--fit-700)) 3px,
+      color-mix(in srgb, var(--fit-700) 84%, var(--lamp-600)) 14px,
+      color-mix(in srgb, var(--fit-800) 92%, var(--lamp-600)) 62%,
+      var(--fit-900) 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 22%,
+      color-mix(in srgb, var(--lamp-200) 10%, transparent) 44%,
+      transparent 62%
+    );
+  box-shadow:
+    /* lamp catches the top edge */
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
+    /* metal falls away at the bottom */ inset 0 -1px 0
+      color-mix(in srgb, var(--fit-abyss) 90%, transparent),
+    inset 0 -10px 16px -12px var(--fit-abyss),
+    /* Bounce. A fitting in a lamplit room does not go to black at the bottom —
+       the floor, the desk and its own lower bezel throw a little of the key
+       back up into it. Without this term the deep end of every plate is a
+       blue-black that inverts the temperature of the artwork it is bolted to. */
+    inset 0 -14px 22px -18px color-mix(in srgb, var(--lamp-600) 55%, transparent),
+    var(--shadow-2);
+}
+
+/* Brushed grain, so the plate never reads as a CSS gradient. */
+.hud-slot::before,
+.hud-toast::before,
+.hud__nameplate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: var(--plate-grain);
+  background-size: 120px 120px;
+  /* `overlay` at 5.5% over a near-black base is arithmetically invisible —
+     overlay multiplies in the dark half, so 5% noise on a value of 20 moves
+     nothing. `soft-light` lifts as well as darkens, which is what brushed metal
+     in shadow actually does, and it survives at a strength you can measure. */
+  opacity: 0.12;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   Rails — the recessed strips the fittings are bolted to
+   ---------------------------------------------------------------------------
+   The tool cluster and the inventory belt share one backing so they read as
+   two ends of the same piece of hardware rather than two unrelated widgets.
+   ========================================================================= */
+
+.hud__tools,
+.hud__belt {
+  position: absolute;
+  /* Wider at the ends than at the edges: that band is where the rail is bolted
+     down, and it is what makes the screws hardware rather than decoration. */
+  padding: var(--rail-pad) var(--rail-pad-x);
+  /* One radius across the whole HUD. A rail with a visibly larger corner than
+     the cells inside it reads as a box in a box — the CSS-toolbar tell. */
+  border-radius: var(--radius-sm);
+  pointer-events: auto;
+  box-shadow:
+    /* the lamp catches the top arris of the rail */
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-400) 28%, transparent),
+    /* and the side of it that faces the key */
+    inset 0 -1px 0 var(--key-edge),
+    inset 0 -12px 20px -16px var(--fit-abyss),
+    var(--cast-onto-art);
+  backdrop-filter: blur(6px) saturate(0.9);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+  /* The rail carries the same brushed grain as the plates bolted to it —
+     without it a 300px strip of gradient is the flattest thing on screen.
+     Three layers, and the middle one is the point: a strip of metal lit only
+     by a top-down gradient has invented a key light of its own, and in a room
+     whose key is a hanging oil lamp somewhere off to one side that reads as
+     chrome pasted over a painting. `--key-at` is where the lamp actually is,
+     in each rail's own coordinates, so the plate brightens towards it and
+     falls away from it. `--key-warm` scales the wash by how much of the
+     scene's light is lamplight, so a daylit room does not get a brass glow. */
+  background-image:
+    var(--rail-grain),
+    radial-gradient(
+      100% 240% at var(--key-at, 50% 120%),
+      color-mix(in srgb, var(--lamp-600) calc(var(--key-warm) * 30%), transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) calc(var(--key-warm) * 11%), transparent) 38%,
+      transparent 76%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--fit-700) 72%, transparent) 0%,
+      color-mix(in srgb, var(--fit-900) 86%, transparent) 46%,
+      color-mix(in srgb, var(--fit-abyss) 90%, transparent) 100%
+    );
+  background-size:
+    120px 120px,
+    auto,
+    auto;
+  background-blend-mode: soft-light, normal, normal;
+}
+
+/* Two slotted brass screws hold each rail down. Small, dim, and the single
+   detail that stops the rails reading as rounded rectangles. */
+.hud__tools::before,
+.hud__tools::after,
+.hud__belt::before,
+.hud__belt::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: var(--screw);
+  height: var(--screw);
+  margin-top: calc(var(--screw) / -2);
+  border-radius: 50%;
+  /* Two things were wrong with the first cut of this head, and both are
+     failures of scale rather than of colour. The slot ran the full diameter,
+     which at 9px does not read as a slot cut into a disc — it reads as a disc
+     sawn in half, two amber crumbs with a gap. And the dome ramped from
+     --lamp-200 to --lamp-500 at 0.85 alpha, which put its highlight brighter
+     than the icons the rail exists to serve. So: the slot is confined to the
+     middle band of the head and stops short of the rim (background-size on
+     that layer alone), and the dome is brass in shadow — a fastener you only
+     notice when you look for it, which is what a fastener is. */
+  background-image:
+    linear-gradient(
+      96deg,
+      transparent 41%,
+      color-mix(in srgb, var(--fit-abyss) 76%, transparent) 41% 59%,
+      transparent 59%
+    ),
+    radial-gradient(
+      78% 78% at 34% 26%,
+      color-mix(in srgb, var(--lamp-300) 60%, var(--fit-700)) 0%,
+      color-mix(in srgb, var(--lamp-500) 66%, var(--fit-800)) 54%,
+      var(--fit-900) 100%
+    );
+  background-size:
+    100% 54%,
+    auto;
+  background-position: center, center;
+  background-repeat: no-repeat, repeat;
+  box-shadow:
+    /* the countersunk rim the head is seated in */
+    inset 0 0 0 1px color-mix(in srgb, var(--fit-abyss) 62%, transparent),
+    inset 0 -1px 1px var(--cast-2),
+    /* the specular the lamp puts on the crown of the dome. Without a single
+       lit point the head is a brown disc with a line on it, and at 1:1 that is
+       a smudge rather than a fastener. */
+    inset 1px 1px 1px -1px color-mix(in srgb, var(--lamp-100) 72%, transparent),
+    0 1px 1px var(--cast-3);
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+/* Fully inside the rail. Sitting them on the extreme edge left them half
+   swallowed by the corner radius, which at 1:1 is not a screw, it is dirt. */
+.hud__tools::before,
+.hud__belt::before {
+  left: calc((var(--rail-pad-x) - var(--screw)) / 2);
+}
+
+.hud__tools::after,
+.hud__belt::after {
+  right: calc((var(--rail-pad-x) - var(--screw)) / 2);
+}
+
+/* ===========================================================================
+   Top left — where you are
+   ========================================================================= */
+
+.hud__place {
+  position: absolute;
+  top: var(--plate-inset);
+  left: var(--plate-inset);
+  display: flex;
+  flex-direction: column;
+  /* No `gap`. An em gap on the flex parent resolves against the *parent's*
+     inherited size, so `0.15em` here was ~2.4px trying to separate an 18px
+     eyebrow from a 58px display line — which is why the block read as three
+     lines that happened to be near each other. Each line owns its own space
+     below it, in its own em, so the leading scales with the type. */
+  max-width: 42cqw;
+  pointer-events: none;
+  isolation: isolate;
+  /* Resting state: legible if you look for it, invisible if you don't. */
+  opacity: 0.26;
+  /* Two casts, not one: a tight contact shadow that keeps the stems crisp
+     against wood grain, and a wide soft one that separates the whole lockup
+     from whatever value the scene puts behind it. A single 1px text-shadow
+     does neither, and a panel behind the type is the web-page tell. */
+  filter:
+    drop-shadow(0 1px 2px var(--cast-3))
+    drop-shadow(0 6px 18px var(--cast-3));
+  transition: opacity var(--dur-scene) var(--ease-out);
+}
+
+/* The ground the lockup stands on.
+ *
+ * Right now this block survives on luck: the deckhead behind it happens to be
+ * dark. The first scene that puts a lit bulkhead or a window there loses the
+ * title outright, and the fix cannot be a panel — a visible box in the corner
+ * of a painted frame is the web-page tell. So: a corner-anchored wash with no
+ * edge anywhere on screen, deep at the origin and gone well before it reaches
+ * any of the type's boundaries. Warm, because the shadow it stands in is. */
+.hud__place::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  /* Generous: the falloff has to finish off-block, or its own gradient stop
+     becomes the edge we are trying not to draw. */
+  inset: -180% -260% -220% -170%;
+  /* Deliberately weaker than it was. The lockup now carries its own two-stage
+     cast shadow and sets its display line at cap height a third again as
+     large, so it no longer needs the ground to do the separating — and at the
+     old strength this wash was crushing the deckhead behind it below the
+     scene's own black point, i.e. drawing the corner panel it exists to
+     avoid. It should read as the shadow the corner of a cabin is already in,
+     never as a plate. */
+  background: radial-gradient(
+    58% 62% at 30% 38%,
+    color-mix(in srgb, var(--fit-abyss) 46%, transparent) 0%,
+    color-mix(in srgb, var(--fit-abyss) 21%, transparent) 46%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.hud__place.is-announcing {
+  opacity: 1;
+}
+
+/**
+ * The eyebrow.
+ *
+ * Not `--font-ui`. Inter Tight is a 2021 neo-grotesque, and a single line of it
+ * above a Cormorant display line in an 1890s register is the default-web-font
+ * tell — the A, R, S and G give it away at any size. Diegetic titling is set in
+ * the display face, full stop; Inter Tight is reserved for genuinely modern
+ * chrome (settings numerals, keybind caps), where a grotesque is *correct*.
+ *
+ * `all-small-caps` rather than `text-transform: uppercase`: real caps at this
+ * size next to a 58px display line make two competing cap heights, where small
+ * caps sit at x-height and read as the quiet line they are.
+ */
+.hud__act {
+  font-family: var(--font-front);
+  font-size: var(--place-eyebrow);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  /* Tracking adds a trailing sidebearing after the final letter. Pulling it
+     back off the right edge keeps the three lines' ink aligned instead of
+     stepping out by 5px on the eyebrow alone. */
+  margin-right: -0.12em;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+/* The separator already has generous sidebearings of its own; uniform tracking
+   gave it 0.12em on both sides on top of them, so the gaps flanking the middot
+   read wider than the word space inside 'The Appraisal'. */
+.hud__act-sep {
+  font-style: normal;
+  letter-spacing: 0;
+  /* Owns its whole gap, rather than inheriting a tracked word space either
+     side and then adding tracking to the middot on top of that. */
+  margin: 0 0.34em;
+  opacity: 0.72;
+}
+
+.hud__location {
+  font-family: var(--font-display);
+  font-size: var(--place-title);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  margin-bottom: 0.3rem;
+  /* Not --text-primary. See --text-on-art in tokens.css: the eyebrow above and
+     the subtitle below are both warm, and a moonlight-white display line
+     between them split a three-line lockup into two colour temperatures. */
+  color: var(--text-on-art);
+  text-shadow:
+    0 1px 3px var(--cast-3),
+    0 0 14px var(--cast-2);
+}
+
+/* This line carries the only words that say where the player actually is, and
+   it was the weakest type in the frame: 13px italic serif in a cool grey, most
+   of which antialiasing ate. Paper, not moonlight, and enough air for an
+   italic at this size. */
+.hud__subtitle {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--place-subtitle);
+  /* A small old-style italic over painted wood loses its thin strokes to
+     antialiasing before it loses its shape: the 'tt' of 'cutter' and the tail
+     of 'Ivory' went mushy at 1:1. Both the size and the weight have to come
+     up — one without the other just makes a bigger blur. */
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  color: color-mix(in srgb, var(--paper-300) 88%, transparent);
+  text-shadow: 0 1px 3px var(--cast-3);
+}
+
+/* The rule binds the block instead of splitting it. Under the eyebrow it cut
+   the card into two halves and made the eye read two objects; under the whole
+   thing it is a base line, and the size jump from eyebrow to display does the
+   separation work it was doing badly. */
+.hud__place::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-600) 62%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-600) 34%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+/* Arrival: the three lines rise and settle a beat apart, like a title card.
+   `both`, not `forwards` for its own sake — the delayed lines must hold their
+   from-state rather than flash in at full opacity first. The class is removed
+   by the HUD once the announcement is over, which ends the fill. */
+.hud__place.is-announcing .hud__act,
+.hud__place.is-announcing .hud__location,
+.hud__place.is-announcing .hud__subtitle,
+.hud__place.is-announcing::after {
+  animation: place-settle var(--dur-scene) var(--ease-out) both;
+}
+
+.hud__place.is-announcing .hud__location {
+  animation-delay: calc(var(--dur-fast) * 0.6);
+}
+
+.hud__place.is-announcing .hud__subtitle {
+  animation-delay: calc(var(--dur-fast) * 1.2);
+}
+
+/* The base rule draws itself last, under the block it binds. */
+.hud__place.is-announcing::after {
+  animation-delay: calc(var(--dur-fast) * 1.8);
+}
+
+@keyframes place-settle {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* ===========================================================================
+   Top right — the case tools
+   ========================================================================= */
+
+.hud__tools {
+  top: var(--plate-inset);
+  right: var(--plate-inset);
+  /* The rail hangs in the top-right corner; every scene's key light is
+     somewhere inboard and below it, so the plate is warmest at its lower-left
+     end and coldest at the corner of the frame. */
+  --key-at: -4% 112%;
+  display: flex;
+  align-items: center;
+  /* No gap: the cells butt up and are separated by a scribed line, the way
+     marks on one piece of brass are. A gap would need a plate either side of
+     it to be legible, and the plates are what had to go. */
+  gap: 0;
+}
+
+/**
+ * The tool cells.
+ *
+ * There is no button here — there is one continuous strip of brass with five
+ * marks cut into it. A per-button plate nested inside a rail plate is the
+ * oldest tell in web UI, and no amount of gradient rescues it. What replaces
+ * the plate is: a hairline scribed between cells, an icon that reads as
+ * stamped rather than drawn, and a shallow wipe of light on hover — the metal
+ * catching the lamp as your hand passes over it.
+ */
+.brass-btn {
+  --btn-size: clamp(2.35rem, 3.1cqw, 3.2rem);
+  position: relative;
+  isolation: isolate;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  /* Resting, this rail must lose to the lamp hanging in the artwork. At
+     --lamp-300 the strokes peaked around luminance 197 against a plate at 60 —
+     the highest local contrast anywhere in the frame, in the corner furthest
+     from anything the player is meant to look at. Dropped to brass at rest;
+     --accent-strong on hover is then a real event rather than a nudge. */
+  color: color-mix(in srgb, var(--lamp-400) 76%, var(--fit-600));
+  transition:
+    color var(--dur-med) var(--ease-out),
+    background-color var(--dur-med) var(--ease-out);
+}
+
+/* The scribe line between two marks: a cut, which is one dark line with a
+   lit lip below it, never a border. */
+.brass-btn + .brass-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 2px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--fit-abyss) 85%, transparent) 0 1px,
+    color-mix(in srgb, var(--lamp-300) 18%, transparent) 1px 2px
+  );
+  pointer-events: none;
+}
+
+.brass-btn__face {
+  display: grid;
+  place-items: center;
+  width: 56%;
+  height: 56%;
+  /* Stamped into the metal: a lit lower lip and a dark upper one, so the
+     stroke reads as a groove with the lamp falling into it. */
+  filter:
+    drop-shadow(0 1px 0 var(--lit-2))
+    drop-shadow(0 -1px 0 var(--cast-3));
+  transition: filter var(--dur-med) var(--ease-out);
+}
+
+.brass-btn__face svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* Optical, not metric. Five marks normalised on a shared 24-unit box do not
+     look the same size — a wide one (the chart) reads bigger than a tall
+     narrow one (the anchor) at identical bounds, and the rail gets an uneven
+     rhythm despite a perfectly even button pitch. `--icon-optic` is the
+     per-mark correction that brings them all to the same ink coverage; it is
+     written by the HUD next to the glyph it belongs to. */
+  transform: scale(var(--icon-optic, 1));
+}
+
+.brass-btn:hover,
+.brass-btn:focus-visible {
+  color: var(--accent-strong);
+  /* Light wiping across the metal, not a button lighting up. */
+  background-color: color-mix(in srgb, var(--lamp-400) 12%, transparent);
+}
+
+.brass-btn:hover .brass-btn__face,
+.brass-btn:focus-visible .brass-btn__face {
+  filter:
+    drop-shadow(0 1px 0 var(--lit-2))
+    drop-shadow(0 -1px 0 var(--cast-3))
+    drop-shadow(0 0 7px color-mix(in srgb, var(--lamp-300) 60%, transparent));
+}
+
+.brass-btn:active {
+  transition-duration: var(--dur-fast);
+  background-color: color-mix(in srgb, var(--fit-abyss) 45%, transparent);
+}
+
+.brass-btn:active .brass-btn__face {
+  /* Pressed: the groove flips, because the light has not moved but the metal
+     has. */
+  filter:
+    drop-shadow(0 -1px 0 var(--lit-1))
+    drop-shadow(0 1px 0 var(--cast-3));
+}
+
+/* The shortcut letter is stamped into the plate below the glyph. */
+.hud__tool-key {
+  position: absolute;
+  bottom: 0.12em;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: calc(var(--step--2) * 0.8);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--lamp-300) 55%, transparent);
+  text-shadow: 0 1px 0 var(--cast-2);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  pointer-events: none;
+}
+
+.hud__tools:hover .hud__tool-key,
+.hud__tools:focus-within .hud__tool-key {
+  opacity: 1;
+}
+
+/* -- Unread badge --------------------------------------------------------- */
+
+.hud__badge {
+  position: absolute;
+  top: -0.3em;
+  right: -0.3em;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.3em;
+  display: grid;
+  place-items: center;
+  border-radius: 99px;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--fit-900);
+  background:
+    radial-gradient(
+      80% 80% at 50% 22%,
+      var(--lamp-100) 0%,
+      var(--lamp-300) 48%,
+      var(--lamp-500) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 70%, transparent),
+    inset 0 -1px 2px color-mix(in srgb, var(--lamp-600) 80%, transparent),
+    0 2px 6px -1px var(--cast-2),
+    var(--glow-lamp);
+  pointer-events: none;
+}
+
+.hud__badge.is-bumped {
+  animation: badge-bump calc(var(--dur-slow) * 1.4) var(--ease-drama) backwards;
+}
+
+@keyframes badge-bump {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===========================================================================
+   Centre bottom — the hover nameplate
+   ---------------------------------------------------------------------------
+   Shared by scene hotspots and inventory slots, so the answer to "what is
+   that?" always appears in the same place regardless of what is being asked.
+   ========================================================================= */
+
+.hud__nameplate {
+  position: absolute;
+  left: 50%;
+  /* Clears the belt rail at its tallest: rail padding both sides, a full slot,
+     and a whole step of air so a lifted, selected slot never touches it. With
+     no belt on screen it drops to the inset ring like everything else. */
+  bottom: calc(var(--plate-inset) + var(--sp-4));
+  transform: translate(-50%, 0.4rem);
+  padding: 0.34em 1.4em 0.4em;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  opacity: 0;
+  /* Fast in, slow out: the label should chase the pointer, then linger. */
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.hud.has-belt .hud__nameplate {
+  bottom: calc(var(--plate-inset) + var(--slot-size) + 2 * var(--rail-pad) + var(--sp-4));
+}
+
+.hud__nameplate.is-shown {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-duration: var(--dur-fast);
+}
+
+/* An engraved rule under the label — the nameplate on a museum case. */
+.hud__nameplate::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 0.2em;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--lamp-300) 70%, transparent) 22%,
+    color-mix(in srgb, var(--lamp-200) 85%, transparent) 50%,
+    color-mix(in srgb, var(--lamp-300) 70%, transparent) 78%,
+    transparent
+  );
+  opacity: 0.7;
+}
+
+.hud__nameplate-text {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--lamp-100);
+  text-shadow: 0 1px 0 var(--cast-3);
+  white-space: nowrap;
+}
+
+/* ===========================================================================
+   Bottom — the inventory belt
+   ========================================================================= */
+
+/**
+ * The belt.
+ *
+ * Anchored to the left of the inset ring rather than centred on the viewport.
+ * The composition of a first-person adventure frame is almost never
+ * symmetrical — here the scuttle, the satchel and the lit corner of the chart
+ * table are all left of centre — so a centred rail lands on the focal object
+ * and cuts the strongest leading line in the picture. Growing rightward puts
+ * the newest slots into the dead third instead.
+ *
+ * It is also not rendered at all until the player is carrying something (see
+ * `Hud.renderBelt`): eight empty holes on the first frame of a game do not
+ * read as "there is more to find", they read as a UI that failed to load.
+ */
+.hud__belt {
+  left: var(--plate-inset);
+  bottom: var(--plate-inset);
+  /* Mirror of the tool rail: the belt sits low and outboard, so the light
+     arrives over its top-right shoulder. */
+  --key-at: 86% -16%;
+  display: flex;
+  align-items: center;
+  gap: var(--rail-gap);
+
+  /* The belt never outgrows the stage. Once the inventory passes its minimum
+     width the slots size themselves down to fit instead of running off the
+     edge of the artwork; `--slot-count` is written by `Hud.renderBelt`. */
+  --slot-count: 3;
+  --belt-max: 78cqw;
+  --slot-fit: calc(
+    (var(--belt-max) - 2 * var(--rail-pad-x) - (var(--slot-count) - 1) * var(--rail-gap)) /
+      var(--slot-count)
+  );
+  --slot: min(var(--slot-size), var(--slot-fit));
+  max-width: var(--belt-max);
+}
+
+/* Nothing carried, nothing on the wall. */
+.hud__belt[hidden] {
+  display: none;
+}
+
+/* First pickup: the rail is brought out and set down. Rises and fades as one
+   object, ahead of the slot's own arrival animation. */
+.hud__belt.is-revealing {
+  animation: belt-reveal var(--dur-slow) var(--ease-out) backwards;
+}
+
+@keyframes belt-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hud-slot {
+  flex: 0 0 auto;
+  width: var(--slot, var(--slot-size));
+  height: var(--slot, var(--slot-size));
+  --slot-lift: calc(var(--slot, var(--slot-size)) * 0.07);
+  display: grid;
+  place-items: center;
+  transition:
+    transform var(--dur-med) var(--ease-drama),
+    box-shadow var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out);
+}
+
+.hud-slot__well {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76%;
+  height: 76%;
+}
+
+.hud-slot__art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 5px var(--cast-3));
+  pointer-events: none;
+}
+
+.hud-slot__mono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--lamp-300) 72%, transparent);
+  /* Stamped, not printed: light above, shadow below. */
+  text-shadow:
+    0 1px 0 var(--lit-1),
+    0 -1px 1px var(--cast-3);
+}
+
+/* Real art wins; the monogram is only ever the understudy. */
+.hud-slot__well:has(.hud-slot__art) .hud-slot__mono,
+.hud-toast__art:has(.hud-slot__art) .hud-slot__mono {
+  display: none;
+}
+
+/*
+ * Item plates are rendered by the art pipeline onto their own ground, and that
+ * ground is a cool grey-blue (sampled 22,23,27 — b > r). Dropped into a brass
+ * rail in a lamplit cabin, every carried object therefore brings a small cold
+ * square with it, which is the same defect as a blue-black HUD plate on a warm
+ * scene, only forty pixels wide and repeated once per item.
+ *
+ * `soft-light` is the operator that fixes it without repainting anything: it
+ * moves the darks a long way and the lights barely at all, so the ground goes
+ * warm while the painted object on top of it keeps its own colour. Kept low,
+ * and off the monogram fallback, which is drawn in lamp tokens already.
+ */
+.hud-slot__well:has(.hud-slot__art)::after,
+.hud-toast__art:has(.hud-slot__art)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--lamp-500) 62%, var(--fit-700));
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* An inner bevel so the item looks recessed into the plate. */
+.hud-slot__rim {
+  position: absolute;
+  inset: 8%;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  box-shadow:
+    inset 0 1px 2px var(--cast-2),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent);
+}
+
+.hud-slot:hover,
+.hud-slot:focus-visible {
+  transform: translateY(calc(var(--slot-lift) * -1));
+  border-color: color-mix(in srgb, var(--lamp-400) 65%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 44%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--fit-abyss) 90%, transparent),
+    var(--shadow-3),
+    var(--glow-lamp-soft);
+}
+
+/* Selected = in hand. It lifts clear of the rail and holds a warm rim light. */
+.hud-slot.is-selected {
+  transform: translateY(calc(var(--slot-lift) * -1.8));
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 55%, transparent),
+    inset 0 0 12px -4px color-mix(in srgb, var(--lamp-300) 60%, transparent),
+    var(--shadow-3),
+    var(--glow-lamp);
+}
+
+.hud-slot.is-selected .hud-slot__art,
+.hud-slot.is-selected .hud-slot__mono {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--lamp-300) 70%, transparent));
+}
+
+.hud-slot.is-dragging {
+  opacity: 0.45;
+  transform: translateY(calc(var(--slot-lift) * -0.5)) scale(0.96);
+}
+
+/* Never-examined items keep a single amber pip until the player opens them. */
+.hud-slot.is-unread::after {
+  content: '';
+  position: absolute;
+  top: 0.28em;
+  right: 0.28em;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 99px;
+  background: var(--lamp-200);
+  box-shadow: var(--glow-lamp);
+  animation: pip-breathe calc(var(--dur-scene) * 3) var(--ease-in-out) infinite alternate;
+}
+
+@keyframes pip-breathe {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Arrival: the slot drops onto the rail and rocks once before settling.
+   `backwards`, never `forwards` — a filled transform here would permanently
+   out-rank `.is-selected` and the slot could never be picked up again. The
+   HUD also strips the class on `animationend`. */
+.hud-slot.is-arriving {
+  animation: slot-arrive calc(var(--dur-slow) * 1.6) var(--ease-drama) backwards;
+}
+
+@keyframes slot-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-1.6rem) scale(1.18) rotate(-4deg);
+    filter: brightness(1.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(1.2deg);
+    filter: brightness(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* -- Empty recesses -------------------------------------------------------
+   A hole in the rail rather than a plate: no top highlight, all inner
+   shadow, so the eye reads absence instead of a disabled button. */
+
+.hud-slot--empty {
+  border-color: color-mix(in srgb, var(--lamp-600) 14%, transparent);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--fit-abyss) 88%, transparent) 0%,
+    color-mix(in srgb, var(--fit-900) 92%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 2px 5px var(--cast-3),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-500) 12%, transparent);
+  cursor: default;
+}
+
+.hud-slot--empty::before {
+  opacity: 0.03;
+}
+
+/* A flat hairline at this contrast is invisible, which turned an empty socket
+   into a grey hole. A recess needs the two edges a recess has: the shadow the
+   near wall casts into it, and the far wall catching the lamp on its way out. */
+.hud-slot--empty .hud-slot__rim {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--fit-abyss) 60%, transparent),
+    inset 0 2px 4px color-mix(in srgb, var(--fit-abyss) 70%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-500) 24%, transparent);
+}
+
+/* ===========================================================================
+   Toasts — acquisition cards
+   ========================================================================= */
+
+.hud__toasts {
+  position: absolute;
+  top: 22cqh;
+  right: var(--plate-inset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.hud-toast {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(0.5rem, 1cqw, 0.9rem);
+  width: clamp(15rem, 22cqw, 21rem);
+  padding: clamp(0.5rem, 0.9cqw, 0.85rem) clamp(0.7rem, 1.2cqw, 1.1rem);
+  border-radius: var(--radius-lg);
+  opacity: 0;
+  transform: translateX(115%);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-drama);
+}
+
+.hud-toast.is-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* A vertical brass reveal down the leading edge: the card catches the lamp as
+   it slides in from off-stage. */
+.hud-toast::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8%;
+  bottom: 8%;
+  width: 2px;
+  border-radius: 99px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--lamp-300) 25%,
+    var(--lamp-100) 50%,
+    var(--lamp-300) 75%,
+    transparent
+  );
+  box-shadow: var(--glow-lamp);
+}
+
+.hud-toast[data-kind='clue']::after {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--moon-300) 25%,
+    var(--moon-100) 50%,
+    var(--moon-300) 75%,
+    transparent
+  );
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--moon-200) 55%, transparent);
+}
+
+.hud-toast__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(2.4rem, 3.4cqw, 3.4rem);
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  background: radial-gradient(
+    70% 70% at 50% 34%,
+    color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
+    transparent 72%
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-500) 24%, transparent);
+}
+
+.hud-toast__art svg {
+  width: 64%;
+  height: 64%;
+  filter: drop-shadow(0 1px 0 var(--cast-2));
+}
+
+/* Item art in a toast is inset from the recess the same way it is in a slot. */
+.hud-toast__art .hud-slot__art {
+  width: 74%;
+  height: 74%;
+}
+
+.hud-toast__art .hud-slot__mono {
+  font-size: var(--step-0);
+}
+
+.hud-toast[data-kind='clue'] .hud-toast__art {
+  color: var(--moon-100);
+  background: radial-gradient(
+    70% 70% at 50% 34%,
+    color-mix(in srgb, var(--moon-400) 30%, transparent) 0%,
+    transparent 72%
+  );
+}
+
+.hud-toast__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  min-width: 0;
+}
+
+.hud-toast__kicker {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+.hud-toast[data-kind='clue'] .hud-toast__kicker {
+  color: var(--moon-400);
+}
+
+.hud-toast__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+  /* A long item name is a two-line card, never a three-line one. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===========================================================================
+   Reduced motion
+   ---------------------------------------------------------------------------
+   The duration tokens already collapse. What remains to remove is the looping
+   idle motion and the long travel, neither of which a shortened duration fixes.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-slot.is-unread::after,
+  .hud__badge.is-bumped {
+    animation: none;
+  }
+
+  .hud-slot.is-arriving,
+  .hud__place.is-announcing .hud__act,
+  .hud__place.is-announcing .hud__location,
+  .hud__place.is-announcing .hud__subtitle {
+    animation-duration: var(--dur-med);
+  }
+
+  /* Cards cross-fade in place instead of flying in from off-stage. */
+  .hud-toast,
+  .hud-toast.is-in {
+    transform: none;
+  }
+
+  .hud__nameplate {
+    transform: translate(-50%, 0);
+  }
+
+  .hud.is-hidden {
+    filter: none;
+  }
+}

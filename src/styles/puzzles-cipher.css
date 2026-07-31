@@ -1,0 +1,2270 @@
+/**
+ * The cipher, decoding and document-restoration bench.
+ *
+ * Everything here is scoped under `.cx`, the root class the four mechanisms in
+ * `src/puzzles/cipher.ts` mount, so this sheet cannot reach another batch's
+ * parts and another batch cannot reach these.
+ *
+ * Three rules hold throughout.
+ *
+ * 1. MATERIALS, NOT COLOURS. Nothing in this file is a flat fill. Brass is
+ *    three stops and a grain; paper is a gradient, a fibre noise and a shadow
+ *    that proves it is lying on something. The tokens in `tokens.css` and the
+ *    `--pz-*` alloy in `puzzle.css` are the only palette.
+ * 2. LIT FROM THE UPPER LEFT. Every inset, every specular edge and every cast
+ *    shadow agrees about where the lamp is. It is the single cheapest thing
+ *    that makes a screenful of divs read as a bench.
+ * 3. NEVER HUE ALONE. Every state that matters carries a second channel — a
+ *    hatch, a glyph, a notch, a word — and `[data-cb-safe='on']` at the end of
+ *    this file turns those channels up rather than swapping the palette.
+ *
+ * The bench is a size container, so measurements are in `cqw`/`cqh` and the
+ * mechanisms stay proportional to the frame instead of to the window.
+ */
+
+/* ===========================================================================
+   Shared workshop stock
+   ========================================================================= */
+
+.cx {
+  --cx-paper: linear-gradient(168deg, var(--paper-100) 0%, var(--paper-200) 62%, var(--paper-300) 100%);
+  --cx-brass-face: linear-gradient(
+    166deg,
+    var(--pz-brass-hi) 0%,
+    var(--lamp-400) 22%,
+    var(--pz-brass-mid) 58%,
+    var(--pz-brass-lo) 100%
+  );
+  --cx-ink: var(--paper-ink);
+  --cx-ink-soft: var(--paper-ink-faded);
+  --cx-gap: clamp(0.35rem, 1.4cqh, 0.85rem);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cx-gap);
+  min-height: 0;
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  /* A size container, not an inline-size one, and the distinction is
+     load-bearing: `cqh` inside an inline-size container silently falls back to
+     the viewport, which would make every clamp in this sheet scale to the
+     window instead of to the bench. The box has a definite width and height
+     from the stage above it, so size containment costs nothing. */
+  container-type: size;
+}
+
+/* -- the running instruction line ------------------------------------------ */
+
+.cx .cx-step {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.66rem, 1.85cqh, 0.92rem);
+  line-height: 1.4;
+  color: var(--moon-200);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
+  letter-spacing: 0.01em;
+}
+
+.cx .cx-step:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* -- engraved instruction plate -------------------------------------------- */
+/* The in-fiction source of every solution in this file. Cast brass, screwed
+   down at two corners, and legible from the first frame. */
+
+.cx .cx-plate {
+  position: relative;
+  padding: clamp(0.3rem, 1.1cqh, 0.6rem) clamp(0.45rem, 1.6cqw, 0.85rem);
+  border-radius: var(--radius-sm);
+  background-image:
+    var(--pz-grain-brass),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--lamp-600) 42%, var(--ink-800)) 0%,
+      color-mix(in srgb, var(--ink-800) 88%, var(--lamp-600)) 55%,
+      var(--ink-900) 100%
+    );
+  background-blend-mode: overlay, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6),
+    var(--shadow-1);
+  border: 1px solid color-mix(in srgb, var(--lamp-500) 34%, transparent);
+}
+
+/* Two countersunk screws. Cheap, and they do more work than any gradient. */
+.cx .cx-plate::before,
+.cx .cx-plate::after {
+  content: '';
+  position: absolute;
+  top: 0.34rem;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, var(--lamp-200), var(--pz-brass-lo) 70%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5);
+}
+.cx .cx-plate::before { left: 0.34rem; }
+.cx .cx-plate::after { right: 0.34rem; }
+
+.cx .cx-plate-title {
+  margin: 0 0 0.25rem;
+  font-size: clamp(0.52rem, 1.35cqh, 0.68rem);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--lamp-200);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.8);
+  padding-inline: 0.5rem;
+}
+
+.cx .cx-plate-list {
+  margin: 0;
+  padding-left: 0.85rem;
+  list-style: none;
+}
+
+.cx .cx-plate-list li {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: clamp(0.5rem, 1.3cqh, 0.66rem);
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--lamp-100) 72%, var(--ink-400));
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.75);
+}
+
+.cx .cx-plate-list li::before {
+  content: '·';
+  position: absolute;
+  left: -0.6rem;
+  color: var(--lamp-500);
+}
+
+.cx .cx-plate-wide {
+  grid-column: 1 / -1;
+}
+
+/* -- brass stud (the only button shape in this file) ----------------------- */
+
+.cx .cx-stud {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--lamp-500) 52%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 0;
+  cursor: pointer;
+  background: var(--cx-brass-face);
+  background-image: var(--pz-grain-brass), var(--cx-brass-face);
+  background-blend-mode: overlay, normal;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 55%, transparent),
+    inset 0 -1px 2px rgb(0 0 0 / 0.55),
+    var(--shadow-1);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.cx .cx-stud-face {
+  display: block;
+  padding: clamp(0.24rem, 0.9cqh, 0.42rem) clamp(0.5rem, 1.8cqw, 0.95rem);
+  font-size: clamp(0.52rem, 1.35cqh, 0.7rem);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--ink-900) 88%, var(--lamp-600));
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 45%, transparent);
+}
+
+.cx .cx-stud:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.cx .cx-stud:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.6);
+}
+
+.cx .cx-stud:disabled {
+  cursor: default;
+  filter: grayscale(0.7) brightness(0.55);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.6);
+}
+
+/* Ready is signalled twice: a lamp glow, and a machined notch cut into the
+   left edge that survives any colour vision. */
+.cx .cx-stud.is-ready {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 70%, transparent),
+    inset 0 -1px 2px rgb(0 0 0 / 0.5),
+    var(--glow-lamp);
+}
+
+.cx .cx-stud.is-ready .cx-stud-face::before {
+  content: '▸ ';
+  color: color-mix(in srgb, var(--ink-900) 80%, transparent);
+}
+
+.cx .cx-stud.is-major {
+  align-self: flex-start;
+}
+
+.cx .cx-stud.is-slim .cx-stud-face {
+  padding: 0.18rem 0.5rem;
+  font-size: clamp(0.48rem, 1.2cqh, 0.62rem);
+}
+
+.cx .cx-foot {
+  display: flex;
+  gap: var(--sp-2);
+  flex: 0 0 auto;
+}
+
+.cx :focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+/* ===========================================================================
+   1 — THE FUSED COMMISSION
+   ========================================================================= */
+
+.cx-commission .cx-bench {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.9fr) minmax(0, 2fr) minmax(6rem, 0.72fr);
+  gap: clamp(0.4rem, 1.6cqw, 1rem);
+}
+
+@container (max-width: 46rem) {
+  .cx-commission .cx-bench {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .cx-commission .cx-kit { grid-row: 2; grid-column: 1 / -1; }
+}
+
+/* -- the kit lid ------------------------------------------------------------ */
+
+.cx-commission .cx-kit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 0;
+  overflow: auto;
+  padding: clamp(0.3rem, 1.2cqh, 0.6rem);
+  border-radius: var(--radius-sm);
+  /* Fitted canvas over ply: the inside of a field kit lid. */
+  background-image:
+    var(--grain-hide),
+    linear-gradient(150deg, color-mix(in srgb, var(--ink-700) 92%, var(--lamp-600)) 0%, var(--ink-900) 100%);
+  background-blend-mode: overlay, normal;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 26%, transparent),
+    inset 0 3px 12px rgb(0 0 0 / 0.55);
+  scrollbar-width: thin;
+}
+
+.cx-commission .cx-kit-brand {
+  margin: 0;
+  font-size: clamp(0.48rem, 1.2cqh, 0.62rem);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--lamp-500);
+}
+
+.cx-commission .cx-rack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.22rem;
+}
+
+.cx-commission .cx-tool {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 0.4rem;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.22rem 0.35rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(170deg, rgb(255 255 255 / 0.035), transparent 70%);
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.cx-commission .cx-tool:hover {
+  background: linear-gradient(170deg, color-mix(in srgb, var(--lamp-500) 18%, transparent), transparent 80%);
+}
+
+/* Each tool is drawn, not iconified: a shape cut out of brass in the slot. */
+.cx-commission .cx-tool-glyph {
+  grid-row: 1 / span 2;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 2px;
+  background-image: var(--cx-brass-face);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28), 0 1px 2px rgb(0 0 0 / 0.6);
+}
+
+.cx-commission .cx-tool[data-tool='damp'] .cx-tool-glyph,
+.cx-commission .cx-tool[data-tool='dry'] .cx-tool-glyph {
+  background-image: var(--cx-paper);
+  border-radius: 1px;
+}
+.cx-commission .cx-tool[data-tool='damp'] .cx-tool-glyph {
+  filter: saturate(0.6) brightness(0.82);
+}
+.cx-commission .cx-tool[data-tool='membrane'] .cx-tool-glyph {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgb(220 235 244 / 0.5) 0 2px,
+    rgb(150 180 200 / 0.22) 2px 4px
+  );
+}
+.cx-commission .cx-tool[data-tool='spatula'] .cx-tool-glyph {
+  clip-path: polygon(46% 0, 54% 0, 62% 76%, 50% 100%, 38% 76%);
+  background-image: linear-gradient(100deg, #cfd8dd, #7a8c96 55%, #40525c);
+}
+.cx-commission .cx-tool[data-tool='glass'] .cx-tool-glyph {
+  background-image: linear-gradient(140deg, rgb(214 236 245 / 0.5), rgb(120 160 180 / 0.2));
+  box-shadow: inset 0 0 0 1px rgb(214 236 245 / 0.5);
+}
+.cx-commission .cx-tool[data-tool='weight'] .cx-tool-glyph {
+  border-radius: 2px 2px 4px 4px;
+  background-image: linear-gradient(160deg, #7d8288, #3b4046 60%, #22262a);
+}
+
+.cx-commission .cx-tool-name {
+  font-size: clamp(0.5rem, 1.3cqh, 0.68rem);
+  color: var(--moon-100);
+}
+
+.cx-commission .cx-tool-hint {
+  font-family: var(--font-body);
+  font-size: clamp(0.46rem, 1.15cqh, 0.6rem);
+  font-style: italic;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.cx-commission .cx-tool[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--lamp-300) 70%, transparent);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--lamp-400) 26%, transparent), transparent);
+  box-shadow: var(--glow-lamp);
+}
+
+/* Held state also carries a mark, so the selection is not colour alone. */
+.cx-commission .cx-tool[aria-pressed='true'] .cx-tool-name::after {
+  content: ' ✓ in hand';
+  color: var(--lamp-200);
+  letter-spacing: 0.06em;
+}
+
+/* -- the document ----------------------------------------------------------- */
+
+.cx-commission .cx-doc-wrap {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* The sheet is landscape and it must STAY landscape: `flex: 0 0 auto` is
+   load-bearing, because a growable child in a column flex container beats
+   `aspect-ratio` and the document ends up a tall thin strip with the seam
+   overlay stretched across it. The width is clamped against both the column
+   and the bench height, so the ratio is never the thing that gives. */
+.cx-commission .cx-sheet {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(100%, 92cqh);
+  aspect-ratio: 3 / 2;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.cx-commission[data-held='spatula'] .cx-sheet { cursor: crosshair; }
+
+.cx-commission .cx-blotter,
+.cx-commission .cx-membrane,
+.cx-commission .cx-glass,
+.cx-commission .cx-weight {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+
+/* Damp blotter, sitting proud of the sheet at the bottom and right. */
+.cx-commission .cx-blotter {
+  inset: -4% -4% -7% -4%;
+  background-image:
+    var(--grain-paper),
+    linear-gradient(150deg, #b9ac93 0%, #9d9179 60%, #857b66 100%);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--shadow-2);
+  transform: translateY(4px);
+}
+.cx-commission[data-damp='yes'] .cx-blotter { opacity: 1; transform: none; }
+
+/* Gore-Tex: a slightly milky film with a woven texture and a specular sheen. */
+.cx-commission .cx-membrane {
+  inset: 5% 3% 5% 58%;
+  background-image:
+    repeating-linear-gradient(38deg, rgb(226 240 248 / 0.1) 0 2px, rgb(160 195 214 / 0.04) 2px 5px),
+    linear-gradient(150deg, rgb(220 238 246 / 0.14), rgb(150 186 206 / 0.05));
+  border: 1px solid rgb(214 236 245 / 0.3);
+  backdrop-filter: blur(0.4px);
+  transform: translateY(-6px) scale(1.02);
+}
+.cx-commission[data-membrane='yes'] .cx-membrane { opacity: 1; transform: none; }
+
+.cx-commission .cx-glass {
+  inset: -2%;
+  background-image: linear-gradient(
+    128deg,
+    rgb(226 244 252 / 0.2) 0%,
+    rgb(226 244 252 / 0.03) 34%,
+    rgb(226 244 252 / 0.16) 52%,
+    rgb(226 244 252 / 0.02) 70%
+  );
+  box-shadow: inset 0 0 0 1px rgb(226 244 252 / 0.35), 0 8px 22px rgb(0 0 0 / 0.5);
+  transform: translateY(-14px);
+}
+.cx-commission[data-pressed~='glass'] .cx-glass { opacity: 1; transform: none; }
+
+.cx-commission .cx-weight {
+  inset: 22% 26% 22% 26%;
+  border-radius: 3px 3px 6px 6px;
+  background-image:
+    var(--grain-fine),
+    linear-gradient(158deg, #7f858b 0%, #494f55 46%, #23282d 100%);
+  background-blend-mode: overlay, normal;
+  box-shadow: 0 12px 26px rgb(0 0 0 / 0.68), inset 0 1px 0 rgb(255 255 255 / 0.16);
+  transform: translateY(-26px);
+}
+.cx-commission[data-pressed~='weight'] .cx-weight { opacity: 1; transform: none; }
+
+.cx-commission .cx-paper {
+  position: absolute;
+  inset: 0;
+  border-radius: 1px;
+  overflow: hidden;
+  background-image: var(--grain-paper), var(--cx-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 34px color-mix(in srgb, var(--paper-400) 46%, transparent);
+}
+
+/* Salt bloom in the fused corner, which fades once the sheet has let go. */
+.cx-commission .cx-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 74% at 84% 62%, rgb(120 104 74 / 0.42) 0%, transparent 72%),
+    radial-gradient(38% 44% at 68% 30%, rgb(96 86 62 / 0.28) 0%, transparent 76%);
+  transition: opacity var(--dur-scene) var(--ease-out);
+}
+.cx-commission[data-stage='press'] .cx-paper::after { opacity: 0.25; }
+
+.cx-commission .cx-paper-body {
+  position: absolute;
+  inset: 7% 6% 6% 7%;
+  color: var(--cx-ink);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+  container-type: inline-size;
+}
+
+.cx-commission .cx-paper-head {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.5rem, 3.4cqw, 0.95rem);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+.cx-commission .cx-paper-sub {
+  margin: 0 0 0.4em;
+  font-size: clamp(0.36rem, 2.1cqw, 0.6rem);
+  text-align: center;
+  color: var(--cx-ink-soft);
+  letter-spacing: 0.06em;
+}
+.cx-commission .cx-paper-line {
+  margin: 0;
+  font-size: clamp(0.3rem, 1.75cqw, 0.52rem);
+  color: var(--cx-ink-soft);
+}
+.cx-commission .cx-paper-sig {
+  margin: 0.5em 0 0;
+  font-family: var(--font-hand);
+  font-size: clamp(0.42rem, 2.4cqw, 0.72rem);
+  color: #2b3a4c;
+  text-align: right;
+}
+
+/* -- seams, chain lines and tears ------------------------------------------- */
+
+.cx-commission .cx-seams {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Chain lines are the wire marks of laid paper: paler, not darker, and only
+   visible because the sheet is lit from the side. */
+.cx-commission .cx-chain {
+  stroke: rgb(255 250 236 / 0.5);
+  stroke-width: 1.4;
+  filter: drop-shadow(1px 0 0 rgb(90 74 48 / 0.24));
+}
+
+/* The lane the spatula must stay inside. Only drawn while there is a spatula
+   in the fiction: three wide beige bands across a document the player has not
+   been asked to cut yet read as damage, not as guidance. */
+.cx-commission .cx-lane {
+  stroke: rgb(90 74 48 / 0);
+  stroke-width: 30;
+  stroke-linecap: round;
+  transition: stroke var(--dur-slow) var(--ease-out);
+}
+.cx-commission[data-stage='separate'] .cx-lane { stroke: rgb(90 74 48 / 0.1); }
+
+.cx-commission .cx-seam {
+  stroke: rgb(74 60 40 / 0.62);
+  stroke-width: 1.6;
+  stroke-dasharray: 3 3;
+}
+.cx-commission .cx-seam.is-done { stroke-opacity: 0.15; }
+
+/* The cut itself: a dark line with a bright lip on the lamp side, because a
+   separated seam is a shadow with an edge catching the light. */
+.cx-commission .cx-cut {
+  stroke: rgb(28 22 14 / 0.86);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  filter: drop-shadow(-1px 0 0 rgb(255 246 224 / 0.55));
+}
+
+.cx-commission .cx-tear {
+  fill: none;
+  stroke: rgb(36 26 16 / 0.9);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  filter: drop-shadow(1px 1px 0 rgb(255 244 220 / 0.4));
+}
+
+.cx-commission .cx-grip {
+  position: absolute;
+  width: clamp(1.1rem, 4cqh, 1.7rem);
+  height: clamp(1.1rem, 4cqh, 1.7rem);
+  transform: translate(-50%, -50%);
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  background: radial-gradient(circle at 34% 30%, var(--lamp-200) 0%, var(--pz-brass-mid) 52%, var(--pz-brass-lo) 100%);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.4);
+  transition: top var(--dur-fast) linear;
+}
+
+/* A little ground blade sticking out of the knob, pointing down the seam. */
+.cx-commission .cx-grip-blade {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 0.16rem;
+  height: 0.85rem;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #d6dee3, #6d7d87 60%, #3c4a53);
+  clip-path: polygon(0 0, 100% 0, 60% 100%, 40% 100%);
+}
+
+.cx-commission .cx-grip.is-stroking { cursor: grabbing; transition: none; }
+.cx-commission .cx-grip.is-done {
+  filter: grayscale(0.5) brightness(0.7);
+  cursor: default;
+}
+.cx-commission .cx-grip.is-done::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 2px solid rgb(20 16 10 / 0.55);
+  border-right-color: transparent;
+  transform: rotate(38deg);
+}
+
+.cx-commission[data-spatula='no'] .cx-grip { opacity: 0.28; }
+
+/* -- fibre stress ----------------------------------------------------------- */
+
+.cx-commission .cx-stress {
+  flex: 0 0 auto;
+  position: relative;
+  width: min(100%, 92cqh);
+  height: clamp(0.5rem, 1.8cqh, 0.75rem);
+  border-radius: 2px;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--ink-900), var(--ink-800));
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.8), 0 1px 0 rgb(255 255 255 / 0.05);
+}
+
+/* The fill is a hatch, and the hatch gets denser as the stress climbs, so the
+   meter reads as a texture before it reads as a colour. */
+.cx-commission .cx-stress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--fill, 0) * 100%);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--lamp-300) 82%, transparent) 0 2px,
+    transparent 2px 6px
+  );
+  background-color: color-mix(in srgb, var(--lamp-500) 32%, transparent);
+  transition: width 80ms linear;
+}
+
+.cx-commission .cx-stress[data-level='mid'] .cx-stress-fill {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--lamp-200) 88%, transparent) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.cx-commission .cx-stress[data-level='high'] .cx-stress-fill {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--blood-bright) 0 3px,
+    color-mix(in srgb, var(--blood) 70%, transparent) 3px 5px
+  );
+  animation: cx-stress-throb 420ms steps(2, end) infinite;
+}
+
+@keyframes cx-stress-throb {
+  50% { filter: brightness(1.35); }
+}
+
+.cx-commission .cx-stress-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(0.4rem, 1.05cqh, 0.52rem);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--moon-200);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.9);
+  pointer-events: none;
+}
+
+/* The named fault, spoken by the bar itself rather than by a colour. */
+.cx-commission[data-fault='fast'] .cx-stress-label::after { content: ' · too quick'; }
+.cx-commission[data-fault='chain'] .cx-stress-label::after { content: ' · on the chain line'; }
+
+/* -- instruments ------------------------------------------------------------ */
+
+.cx-commission .cx-instruments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 0.4rem;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.cx .cx-instr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.cx .cx-instr-cap {
+  margin: 0;
+  font-size: clamp(0.42rem, 1.05cqh, 0.54rem);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.cx .cx-readout {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.46rem, 1.2cqh, 0.62rem);
+  letter-spacing: 0.04em;
+  color: var(--lamp-200);
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-900));
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.85);
+  white-space: nowrap;
+}
+
+/* Band, high and cockling each get their own glyph as well as their own tint. */
+.cx .cx-readout[data-state='band'] { color: var(--lamp-100); }
+.cx .cx-readout[data-state='band']::before { content: '▣ '; }
+.cx .cx-readout[data-state='out'] { color: var(--moon-300); }
+.cx .cx-readout[data-state='out']::before { content: '▢ '; }
+.cx .cx-readout[data-state='over'] { color: var(--blood-bright); }
+.cx .cx-readout[data-state='over']::before { content: '▲ '; }
+
+.cx-commission .cx-hygro,
+.cx-commission .cx-clock {
+  width: clamp(3.8rem, 19cqh, 7.4rem);
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.6));
+}
+
+.cx-commission .cx-hygro-face {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ink-abyss) 80%, var(--lamp-600));
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.cx-commission .cx-hygro-band {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: butt;
+}
+
+.cx-commission .cx-hatch {
+  stroke: var(--lamp-200);
+  stroke-width: 2.4;
+}
+
+.cx-commission .cx-hygro-tick {
+  stroke: color-mix(in srgb, var(--lamp-200) 60%, transparent);
+  stroke-width: 1;
+}
+
+.cx-commission .cx-hygro-needle {
+  stroke: var(--blood-bright);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  rotate: var(--cx-rot, 0deg);
+  transition: rotate 120ms var(--ease-out);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.7));
+}
+
+.cx-commission .cx-hygro-hub,
+.cx-commission .cx-clock-hub {
+  fill: var(--pz-brass-mid);
+  stroke: var(--pz-brass-lo);
+}
+
+.cx-commission .cx-clock-face {
+  fill: color-mix(in srgb, var(--paper-100) 84%, var(--ink-700));
+  stroke: var(--pz-brass-mid);
+  stroke-width: 2.5;
+}
+
+.cx-commission .cx-clock-tick { stroke: rgb(44 35 26 / 0.5); stroke-width: 0.7; }
+.cx-commission .cx-clock-tick.is-major { stroke: rgb(44 35 26 / 0.9); stroke-width: 1.6; }
+
+.cx-commission .cx-clock-hand {
+  stroke: var(--blood);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  transform-box: view-box;
+  transform-origin: 50px 50px;
+  rotate: var(--cx-rot, 0deg);
+}
+
+.cx-commission .cx-vent { margin-top: 0; }
+
+/* A torn commission wears it. Once, quietly, for the rest of the game. */
+.cx-commission[data-torn='yes'] .cx-paper {
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 34px color-mix(in srgb, var(--paper-400) 46%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--blood) 26%, transparent);
+}
+
+/* ===========================================================================
+   2 — THE ASH GRATE
+   ---------------------------------------------------------------------------
+   Three stages, one root. Only the active one is laid out; the others are
+   `display: none`, so a fragment in the grate cannot be tabbed to from the
+   light box and the bench never measures a hidden canvas.
+   ========================================================================= */
+
+.cx-ashgrate > section { display: none; flex: 1 1 auto; min-height: 0; }
+.cx-ashgrate[data-stage='grate'] .cx-grate-stage,
+.cx-ashgrate[data-stage='bench'] .cx-bench-stage,
+.cx-ashgrate[data-stage='register'] .cx-register-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cx-gap);
+}
+
+/* -- stage A: the grate ------------------------------------------------------ */
+
+.cx-ashgrate .cx-grate-stage {
+  --cx-rain: repeating-linear-gradient(
+    72deg,
+    rgb(190 216 232 / 0.09) 0 1px,
+    transparent 1px 9px
+  );
+}
+
+.cx-ashgrate .cx-grate {
+  position: relative;
+  flex: 1 1 62%;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  /* Wet ash in a cast-iron grate, under a hooded torch from the upper left. */
+  background-image:
+    var(--cx-rain),
+    radial-gradient(
+      26% 40% at var(--torch-x, 40%) var(--torch-y, 30%),
+      rgb(255 230 176 / 0.3) 0%,
+      rgb(255 226 168 / 0.09) 46%,
+      transparent 78%
+    ),
+    var(--grain-hide),
+    linear-gradient(168deg, #1c1b19 0%, #0d0d0e 52%, #060607 100%);
+  background-blend-mode: screen, screen, overlay, normal;
+  box-shadow: inset 0 0 44px rgb(0 0 0 / 0.9), inset 0 0 0 1px rgb(0 0 0 / 0.7);
+}
+
+/* The bars. Cast iron, worn bright on the top edge where the rake goes. */
+.cx-ashgrate .cx-grate-bars {
+  position: absolute;
+  inset: 6% 4%;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(128 130 134 / 0.42) 0 2px,
+    rgb(58 58 62 / 0.5) 2px 5px,
+    rgb(10 10 11 / 0.72) 5px 9px,
+    transparent 9px 42px
+  );
+  box-shadow: inset 0 2px 0 rgb(190 200 210 / 0.12);
+  opacity: 0.9;
+}
+
+.cx-ashgrate .cx-tray {
+  position: relative;
+  flex: 0 0 clamp(4rem, 22cqh, 8rem);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-image:
+    linear-gradient(180deg, rgb(120 165 185 / 0.16) 0%, rgb(30 54 66 / 0.5) 100%),
+    linear-gradient(160deg, var(--ink-700), var(--ink-900));
+  box-shadow:
+    inset 0 2px 10px rgb(0 0 0 / 0.75),
+    inset 0 0 0 2px color-mix(in srgb, var(--moon-400) 30%, transparent);
+}
+
+/* Cold water: a slow horizontal shimmer, and a meniscus at the rim. */
+.cx-ashgrate .cx-tray-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    100deg,
+    rgb(200 230 244 / 0.07) 0 2px,
+    transparent 2px 11px
+  );
+  animation: cx-water 9s linear infinite;
+}
+
+@keyframes cx-water {
+  to { background-position: 90px 0; }
+}
+
+.cx-ashgrate .cx-tray-label {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.3rem;
+  font-size: clamp(0.42rem, 1.1cqh, 0.56rem);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: color-mix(in srgb, var(--moon-200) 70%, transparent);
+  pointer-events: none;
+}
+
+.cx-ashgrate .cx-flake {
+  position: absolute;
+  clip-path: polygon(var(--clip));
+  rotate: var(--tilt, 0deg);
+  cursor: grab;
+  /* Burnt paper: near-black at the rim, brown-grey where the fire did not
+     reach, with the char driven by the fragment's distance from the edge. */
+  background-image:
+    /* Wet. These have been lying in the rain in an open grate for two hours,
+       and a sodden fragment catches the torch along its upper-left curl —
+       which is also the only thing that separates fourteen black shapes on a
+       black brick into fourteen findable objects. */
+    linear-gradient(
+      152deg,
+      rgb(214 220 226 / 0.16) 0%,
+      rgb(150 160 170 / 0.05) 16%,
+      transparent 42%
+    ),
+    var(--grain-fine),
+    radial-gradient(
+      132% 132% at 50% 46%,
+      rgb(126 112 88 / calc(0.62 - var(--char, 0.5) * 0.3)) 0%,
+      rgb(58 50 40 / 0.86) 52%,
+      rgb(10 9 8 / 0.98) 88%
+    ),
+    linear-gradient(150deg, #2a2520, #100e0c);
+  background-blend-mode: screen, overlay, multiply, normal;
+  box-shadow: 0 3px 7px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(0 0 0 / 0.7);
+  filter: brightness(calc(0.6 + var(--integrity, 1) * 0.4));
+  transition: left 720ms var(--ease-out), top 720ms var(--ease-out), opacity 480ms linear;
+}
+
+/* Strain reads as a crackle spreading through the fragment, not as a tint. */
+.cx-ashgrate .cx-flake-crack {
+  position: absolute;
+  inset: 0;
+  opacity: calc(1 - var(--integrity, 1));
+  background-image:
+    repeating-linear-gradient(28deg, rgb(200 190 175 / 0.5) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(-52deg, rgb(200 190 175 / 0.34) 0 1px, transparent 1px 11px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.cx-ashgrate .cx-flake.is-straining {
+  animation: cx-shudder 140ms steps(2, end) infinite;
+}
+
+@keyframes cx-shudder {
+  50% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) translateX(0.6px); }
+}
+
+.cx-ashgrate .cx-flake.is-dust {
+  opacity: 0;
+  filter: blur(3px) brightness(0.4);
+  transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(1.35);
+}
+
+.cx-ashgrate .cx-flake.is-floating {
+  transition: left 760ms var(--ease-in-out), top 760ms var(--ease-in-out);
+}
+
+/* -- stage B: the light box --------------------------------------------------- */
+
+.cx-ashgrate .cx-lightbox {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  /* Opal glass over fluorescent tubes: flat, cold, and much too bright, which
+     is exactly what a binding-room light box is. */
+  background-image:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.03) 0 2px, transparent 2px 60px),
+    radial-gradient(120% 90% at 46% 36%, #cfd2cb 0%, #a3a9a4 58%, #737d7c 100%);
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--pz-brass-lo) 80%, transparent),
+    inset 0 0 26px rgb(0 0 0 / 0.28),
+    var(--shadow-2);
+}
+
+/* The assembly frame: two pencil corner marks, not a box. */
+.cx-ashgrate .cx-assembly {
+  position: absolute;
+  pointer-events: none;
+  border: 1px dashed rgb(40 52 60 / 0.34);
+  transition: border-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+}
+.cx-ashgrate .cx-assembly.is-complete {
+  border-color: color-mix(in srgb, var(--lamp-600) 70%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--lamp-500) 40%, transparent), var(--glow-lamp-soft);
+}
+
+.cx-ashgrate .cx-frag {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+}
+
+.cx-ashgrate .cx-frag-spin {
+  position: absolute;
+  inset: 0;
+  rotate: var(--cx-rot, 0deg);
+  clip-path: polygon(var(--clip));
+  /* The drop-shadow follows the clip path, which is what puts a charred outline
+     on the torn edge itself rather than on the piece's bounding box. */
+  filter:
+    drop-shadow(0 0 calc(1px + var(--char, 0.4) * 4px) rgb(16 10 5 / 0.95))
+    drop-shadow(0 0 calc(0.5px + var(--char, 0.4) * 1.5px) rgb(52 30 12 / 0.9))
+    drop-shadow(0 2px 4px rgb(0 0 0 / 0.45));
+  transition: rotate 110ms var(--ease-out);
+}
+
+.cx-ashgrate .cx-frag-win {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-image: var(--grain-paper), linear-gradient(160deg, #ddd0b2, #c6b591);
+  background-blend-mode: multiply, normal;
+}
+
+/* Char: strongest at the fragment's outside edge, because paper curls toward
+   the fire. It is also the only clue to which pieces belong at the perimeter. */
+.cx-ashgrate .cx-frag-char {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Scorch, not vignette: the middle of a fragment is untouched paper and the
+     burn is a hard rim a few millimetres wide following the torn edge. */
+  background:
+    radial-gradient(
+      128% 128% at 50% 50%,
+      transparent 40%,
+      rgb(88 58 26 / calc(0.22 + var(--char, 0.4) * 0.34)) 66%,
+      rgb(40 26 14 / calc(0.5 + var(--char, 0.4) * 0.4)) 86%,
+      rgb(8 6 5 / calc(0.66 + var(--char, 0.4) * 0.34)) 100%
+    );
+  mix-blend-mode: multiply;
+}
+
+/* The whole notice, printed once per fragment and clipped to its window. */
+.cx-ashgrate .cx-notice {
+  position: absolute;
+  padding: 6% 7%;
+  /* Its own inline-size container, so the typescript scales with the assembled
+     sheet. Sized off the bench instead, the text stays put while the frame
+     changes and lines start running out of their fragments. */
+  container-type: inline-size;
+  font-family: var(--font-mono);
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  color: #2a2118;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Sized on the CHILDREN, never on `.cx-notice` itself: an element's own `cqw`
+   resolves against its nearest ancestor container, not against itself, so a
+   font-size in `cqw` on the container silently measures the whole bench and
+   the typescript runs off the edge of the sheet. */
+.cx-ashgrate .cx-notice-line,
+.cx-ashgrate .cx-notice-gap {
+  margin: 0;
+  font-size: 3.2cqw;
+}
+.cx-ashgrate .cx-notice-gap { visibility: hidden; }
+.cx-ashgrate .cx-notice-line:nth-child(2) { font-weight: 700; letter-spacing: 0.08em; }
+.cx-ashgrate .cx-notice-line:nth-child(n + 5):nth-child(-n + 8) {
+  letter-spacing: 0.05em;
+}
+
+/* Near-enough-to-seat: a bright register mark, plus a dashed halo. Two
+   channels, so the affordance survives the colour-blind mode. */
+.cx-ashgrate .cx-frag.is-near .cx-frag-spin {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--lamp-200) 90%, transparent))
+    drop-shadow(0 2px 4px rgb(0 0 0 / 0.45));
+}
+
+.cx-ashgrate .cx-frag-seat {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  border: 1px dashed color-mix(in srgb, var(--lamp-100) 80%, transparent);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.cx-ashgrate .cx-frag.is-near .cx-frag-seat { opacity: 1; }
+
+.cx-ashgrate .cx-frag.is-placed {
+  cursor: default;
+  z-index: 0;
+}
+.cx-ashgrate .cx-frag.is-placed .cx-frag-spin {
+  filter: none;
+  animation: cx-seat 460ms var(--ease-drama) 1;
+}
+.cx-ashgrate .cx-frag.is-placed .cx-frag-seat { opacity: 0; }
+
+@keyframes cx-seat {
+  0% { transform: scale(1.035); filter: brightness(1.4); }
+  100% { transform: scale(1); filter: none; }
+}
+
+/* -- stage C: the register ----------------------------------------------------- */
+
+.cx-ashgrate .cx-book {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: clamp(0.5rem, 2cqh, 1rem) clamp(0.6rem, 2.4cqw, 1.4rem);
+  border-radius: 2px 5px 5px 2px;
+  overflow: auto;
+  scrollbar-width: thin;
+  background-image:
+    linear-gradient(90deg, rgb(60 44 26 / 0.34) 0 1.1%, transparent 1.1% 2.6%, rgb(60 44 26 / 0.12) 2.6% 3%, transparent 3%),
+    var(--grain-paper),
+    linear-gradient(172deg, #efe4c8 0%, #e0d2b0 58%, #cdbc96 100%);
+  background-blend-mode: multiply, multiply, normal;
+  box-shadow: var(--shadow-3), inset -14px 0 26px -18px rgb(60 44 26 / 0.6);
+  color: var(--cx-ink);
+}
+
+.cx-ashgrate .cx-book-head {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.66rem, 2.2cqh, 1rem);
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgb(90 70 44 / 0.4);
+  padding-bottom: 0.2rem;
+}
+
+.cx-ashgrate .cx-book-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cx-ashgrate .cx-book-row {
+  border-bottom: 1px solid rgb(90 70 44 / 0.22);
+}
+
+.cx-ashgrate .cx-book-entry,
+.cx-ashgrate .cx-book-gap {
+  display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: clamp(0.16rem, 0.8cqh, 0.32rem) 0.3rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.46rem, 1.35cqh, 0.68rem);
+  color: var(--cx-ink);
+  border-radius: 2px;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.cx-ashgrate .cx-book-entry:hover {
+  background: rgb(90 70 44 / 0.1);
+}
+
+/* The blank rule. It is the answer, and it must look like nothing at all —
+   a ruled line with the ink missing — until the cursor is on it. */
+.cx-ashgrate .cx-book-gap {
+  position: relative;
+  min-height: 1.6em;
+  display: grid;
+  align-items: center;
+}
+
+.cx-ashgrate .cx-book-gap-rule {
+  display: block;
+  height: 1px;
+  width: 92%;
+  background: rgb(90 70 44 / 0.34);
+}
+
+.cx-ashgrate .cx-book-gap-note {
+  position: absolute;
+  right: 0.4rem;
+  font-family: var(--font-hand);
+  font-size: clamp(0.5rem, 1.4cqh, 0.72rem);
+  color: rgb(90 70 44 / 0);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.cx-ashgrate .cx-book-gap:hover .cx-book-gap-note,
+.cx-ashgrate .cx-book-gap:focus-visible .cx-book-gap-note {
+  color: color-mix(in srgb, var(--blood) 82%, transparent);
+}
+
+.cx-ashgrate .cx-book-gap:hover,
+.cx-ashgrate .cx-book-gap:focus-visible {
+  background: rgb(143 47 40 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(143 47 40 / 0.3);
+}
+
+.cx-ashgrate .cx-book-rule { list-style: none; height: 1px; }
+
+.cx-ashgrate .cx-book-foot {
+  margin: auto 0 0;
+  font-size: clamp(0.42rem, 1.1cqh, 0.56rem);
+  font-style: italic;
+  color: var(--cx-ink-soft);
+  text-align: right;
+}
+
+.cx-ashgrate .cx-book-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  flex: 0 0 auto;
+}
+
+/* ===========================================================================
+   3 — PER PROCURATIONEM
+   ========================================================================= */
+
+.cx-pp .cx-rail {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--lamp-600) 40%, transparent);
+}
+
+/* Index tabs cut into the edge of a file, not browser tabs. */
+.cx-pp .cx-tab {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 3px 3px 0 0;
+  background-image: linear-gradient(180deg, var(--ink-700), var(--ink-900));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.cx-pp .cx-tab-face {
+  display: block;
+  padding: clamp(0.2rem, 0.9cqh, 0.36rem) clamp(0.4rem, 1.6cqw, 0.9rem);
+  font-size: clamp(0.46rem, 1.2cqh, 0.62rem);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.cx-pp .cx-tab.is-on {
+  background-image: var(--pz-grain-brass), var(--cx-brass-face);
+  background-blend-mode: overlay, normal;
+  transform: translateY(1px);
+}
+.cx-pp .cx-tab.is-on .cx-tab-face {
+  color: color-mix(in srgb, var(--ink-900) 88%, var(--lamp-600));
+  text-shadow: 0 1px 0 rgb(255 240 210 / 0.35);
+}
+
+/* Locked tabs carry a padlock glyph, not just a dim tint. */
+.cx-pp .cx-tab.is-locked { cursor: default; opacity: 0.42; }
+.cx-pp .cx-tab.is-locked .cx-tab-face::after { content: ' ⊘'; }
+
+.cx-pp .cx-panels {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+
+.cx-pp .cx-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cx-gap);
+}
+.cx-pp .cx-page[hidden] { display: none; }
+
+/* -- stage A: the light table -------------------------------------------------- */
+
+.cx-pp .cx-sort-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(9rem, 1fr);
+  gap: clamp(0.4rem, 1.6cqw, 0.9rem);
+}
+
+@container (max-width: 44rem) {
+  .cx-pp .cx-sort-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1.2fr) auto; }
+}
+
+.cx-pp .cx-table {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(4.6rem, 15cqw, 7.2rem), 1fr));
+  gap: clamp(0.16rem, 0.7cqh, 0.34rem);
+  padding: clamp(0.2rem, 0.9cqh, 0.4rem);
+  border-radius: var(--radius-sm);
+  /* The Chart Loft light table again, but cooler: these are documents, not
+     tracings, and they are being looked *at* rather than *through*. */
+  background-image:
+    radial-gradient(120% 90% at 40% 20%, rgb(212 226 232 / 0.14) 0%, transparent 70%),
+    linear-gradient(160deg, var(--ink-800), var(--ink-abyss));
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.6), inset 0 3px 14px rgb(0 0 0 / 0.6);
+}
+
+.cx-pp .cx-card {
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  display: grid;
+  gap: 0.05rem;
+  padding: clamp(0.18rem, 0.8cqh, 0.34rem) clamp(0.22rem, 0.9cqw, 0.4rem);
+  border: 1px solid rgb(120 100 70 / 0.35);
+  border-radius: 1px;
+  position: relative;
+  min-height: clamp(3.1rem, 9cqh, 4.4rem);
+  align-content: start;
+  overflow: hidden;
+  background-image: var(--grain-paper), var(--cx-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.55);
+  color: var(--cx-ink);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.cx-pp .cx-card:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgb(0 0 0 / 0.6); }
+
+.cx-pp .cx-card.is-selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  transform: translateY(-2px) rotate(-0.4deg);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 0.66);
+}
+
+.cx-pp .cx-card-date {
+  font-family: var(--font-mono);
+  font-size: clamp(0.34rem, 1cqh, 0.5rem);
+  letter-spacing: 0.02em;
+}
+.cx-pp .cx-card-title {
+  font-family: var(--font-body);
+  font-size: clamp(0.34rem, 1cqh, 0.5rem);
+  line-height: 1.2;
+  color: var(--cx-ink-soft);
+}
+.cx-pp .cx-card-custody {
+  font-size: clamp(0.3rem, 0.9cqh, 0.44rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--paper-ink-faded) 78%, transparent);
+}
+.cx-pp .cx-card-sig {
+  margin-top: auto;
+  font-family: var(--font-hand);
+  font-size: clamp(0.44rem, 1.35cqh, 0.68rem);
+  color: #223448;
+  transform: rotate(-2deg);
+}
+
+/* Filed cards get a rubber-stamp band across the corner — the word, not a
+   colour, is the signal, and the two trays get two different band angles. */
+.cx-pp .cx-card-filed {
+  position: absolute;
+  display: none;
+}
+.cx-pp .cx-card[data-tray] .cx-card-filed {
+  display: block;
+  right: -1.5rem;
+  top: 0.5rem;
+  width: 5rem;
+  text-align: center;
+  font-size: clamp(0.3rem, 0.85cqh, 0.42rem);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 0.05rem 0;
+  transform: rotate(38deg);
+  color: var(--paper-100);
+  background: color-mix(in srgb, var(--ink-700) 88%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+}
+.cx-pp .cx-card[data-tray='pp'] .cx-card-filed {
+  background: color-mix(in srgb, var(--amethyst) 88%, var(--ink-900));
+  transform: rotate(38deg);
+}
+.cx-pp .cx-card[data-tray='signed'] .cx-card-filed {
+  background: color-mix(in srgb, var(--verdigris) 82%, var(--ink-900));
+  transform: rotate(-38deg);
+  left: -1.5rem;
+  right: auto;
+}
+.cx-pp .cx-card[data-tray] { filter: saturate(0.86) brightness(0.94); }
+
+/* -- the zoom viewer ------------------------------------------------------------ */
+
+.cx-pp .cx-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.cx-pp .cx-viewer-head,
+.cx-pp .cx-cite-head {
+  margin: 0;
+  font-size: clamp(0.44rem, 1.15cqh, 0.58rem);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--lamp-500);
+}
+
+.cx-pp .cx-glass-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(100%, 21cqw);
+  align-self: center;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: var(--shadow-2), inset 0 0 24px rgb(0 0 0 / 0.4);
+}
+
+.cx-pp .cx-corner-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The glass itself: a brass ring, a curved specular streak and a vignette,
+   which is what turns a canvas into a lens. */
+.cx-pp .cx-glass-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 4px color-mix(in srgb, var(--pz-brass-mid) 88%, transparent),
+    inset 0 0 0 5px rgb(0 0 0 / 0.5),
+    inset 0 0 30px rgb(0 0 0 / 0.35);
+  background: linear-gradient(
+    128deg,
+    rgb(255 255 255 / 0.16) 0%,
+    rgb(255 255 255 / 0.02) 22%,
+    transparent 46%
+  );
+}
+
+.cx-pp .cx-viewer-cap {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.46rem, 1.2cqh, 0.62rem);
+  line-height: 1.35;
+  color: var(--moon-200);
+  min-height: 2.4em;
+}
+
+.cx-pp .cx-trays {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem;
+}
+
+.cx-pp .cx-stud.is-tray .cx-stud-face { text-align: center; }
+
+/* -- stage B: the casebook dates ------------------------------------------------- */
+
+.cx-pp .cx-casebook {
+  flex: 0 0 auto;
+  display: grid;
+  gap: clamp(0.3rem, 1.4cqh, 0.7rem);
+  padding: clamp(0.5rem, 2cqh, 1rem) clamp(0.6rem, 2.4cqw, 1.3rem);
+  border-radius: 2px;
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(1.6em - 1px),
+      rgb(80 110 130 / 0.16) calc(1.6em - 1px) 1.6em
+    ),
+    var(--grain-paper),
+    var(--cx-paper);
+  background-blend-mode: normal, multiply, normal;
+  box-shadow: var(--shadow-2);
+  color: var(--cx-ink);
+}
+
+.cx-pp .cx-date-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 12rem) auto;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.cx-pp .cx-date-label {
+  font-family: var(--font-body);
+  font-size: clamp(0.5rem, 1.4cqh, 0.72rem);
+}
+
+.cx-pp .cx-date-hint {
+  grid-column: 1 / 2;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(0.42rem, 1.1cqh, 0.56rem);
+  color: var(--cx-ink-soft);
+}
+
+/* Ruled entry, filled in with a pen. Not an input box on a card. */
+.cx-pp .cx-date-input {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgb(70 56 36 / 0.55);
+  padding: 0.1rem 0.2rem;
+  font-family: var(--font-hand);
+  font-size: clamp(0.7rem, 2cqh, 1.05rem);
+  color: #1e2c3c;
+  outline-offset: 4px;
+}
+
+.cx-pp .cx-date-input::placeholder {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.7em;
+  color: rgb(70 56 36 / 0.42);
+}
+
+.cx-pp .cx-date-mark {
+  grid-row: 1 / span 2;
+  grid-column: 3;
+  width: 1.1rem;
+  text-align: center;
+  font-size: clamp(0.6rem, 1.7cqh, 0.9rem);
+  color: transparent;
+}
+.cx-pp .cx-date-row.is-typed .cx-date-mark::before { content: '·'; color: rgb(70 56 36 / 0.5); }
+.cx-pp .cx-date-row.is-right .cx-date-mark::before {
+  content: '✓';
+  color: color-mix(in srgb, var(--verdigris) 90%, var(--ink-900));
+}
+.cx-pp .cx-date-row.is-right .cx-date-input { border-bottom-color: rgb(74 133 119 / 0.7); }
+
+.cx-pp .cx-span {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.44rem, 1.2cqh, 0.6rem);
+  color: var(--cx-ink-soft);
+}
+
+/* -- stage C: the offsets --------------------------------------------------------- */
+
+.cx-pp .cx-off-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(8rem, 1fr);
+  gap: clamp(0.4rem, 1.6cqw, 0.9rem);
+}
+
+@container (max-width: 44rem) {
+  .cx-pp .cx-off-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+}
+
+.cx-pp .cx-leaf {
+  position: relative;
+  min-height: 0;
+  border-radius: 1px 4px 4px 1px;
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
+  /* A lamp that actually moves: the wash across the leaf brightens and slides
+     as the arm comes down, which is the whole reason the player believes the
+     offsets are standing out of the paper. */
+  transition: box-shadow var(--dur-med) var(--ease-out);
+}
+
+.cx-pp .cx-leaf-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cx-pp .cx-leaf::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    rgb(255 236 198 / 0.3) 0%,
+    rgb(255 236 198 / 0.05) 26%,
+    transparent 52%
+  );
+  opacity: 0.35;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+.cx-pp .cx-leaf[data-rake='some']::after { opacity: 0.7; }
+.cx-pp .cx-leaf[data-rake='good']::after {
+  opacity: 1;
+  background: linear-gradient(
+    96deg,
+    rgb(255 240 208 / 0.44) 0%,
+    rgb(255 236 198 / 0.1) 18%,
+    transparent 38%
+  );
+}
+
+/* The razored stubs at the gutter: seven leaves taken out with a blade. */
+.cx-pp .cx-stubs {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3%;
+  pointer-events: none;
+}
+.cx-pp .cx-stub {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 8%;
+  top: calc(14% + var(--n) * 9.4%);
+  background: linear-gradient(90deg, #c3b28d, #9c8b68);
+  clip-path: polygon(0 0, 100% 6%, 88% 52%, 100% 96%, 0 100%);
+  box-shadow: 2px 0 3px rgb(0 0 0 / 0.35);
+}
+
+.cx-pp .cx-mirror {
+  position: absolute;
+  /* Parked over the first offset rather than on blank ruling: the mechanic
+     teaches itself in the first frame, and then the player has to go and find
+     the other two. */
+  left: 8%;
+  top: 24%;
+  width: 66%;
+  height: 14%;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 10px 22px rgb(0 0 0 / 0.55), 0 2px 4px rgb(0 0 0 / 0.5);
+}
+
+/* Silvered, not clear: old mirror glass is cool, slightly flat and a shade
+   brighter than the paper in front of it, and without that the widget reads as
+   an empty rectangle rather than as glass. */
+.cx-pp .cx-mirror-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: saturate(0.62) brightness(1.08) contrast(1.05);
+}
+
+/* Silvered glass in a nickel rim, with the tarnish a shaving mirror gets. */
+.cx-pp .cx-mirror-rim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 3px #b9c1c6,
+    inset 0 0 0 4px rgb(0 0 0 / 0.45),
+    inset 0 2px 12px rgb(210 230 240 / 0.16);
+  background:
+    linear-gradient(112deg, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0.02) 30%, transparent 46%),
+    linear-gradient(0deg, rgb(150 178 194 / 0.13), rgb(150 178 194 / 0.13)),
+    radial-gradient(80% 140% at 90% 110%, rgb(78 96 106 / 0.34), transparent 62%);
+}
+
+.cx-pp .cx-off-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.cx-pp .cx-off-cap {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.44rem, 1.2cqh, 0.6rem);
+  line-height: 1.35;
+  color: var(--moon-200);
+  min-height: 2.6em;
+}
+
+.cx-pp .cx-transcript {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.cx-pp .cx-transcript-line {
+  display: grid;
+  grid-template-columns: 0.9rem 1fr;
+  gap: 0.2rem;
+  font-family: var(--font-hand);
+  font-size: clamp(0.56rem, 1.5cqh, 0.8rem);
+  line-height: 1.25;
+  color: var(--lamp-100);
+  padding: 0.16rem 0.24rem;
+  border-left: 2px solid color-mix(in srgb, var(--lamp-500) 70%, transparent);
+  background: linear-gradient(90deg, rgb(255 226 168 / 0.07), transparent 70%);
+}
+
+.cx-pp .cx-transcript-mark::before { content: '✎'; color: var(--lamp-400); }
+
+/* -- the citation column ------------------------------------------------------- */
+
+.cx-pp .cx-cite {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.cx-pp .cx-cite-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+
+/* A ruled box in the casebook's right-hand column. Empty is a dash, not a
+   dotted "drop here" rectangle. */
+.cx-pp .cx-cite-slot {
+  min-height: 2.1rem;
+  display: grid;
+  place-items: center;
+  padding: 0.16rem;
+  border-radius: 1px;
+  border: 1px solid rgb(120 100 70 / 0.4);
+  background-image: var(--grain-paper), linear-gradient(170deg, #e6dabc, #d3c39f);
+  background-blend-mode: multiply, normal;
+  box-shadow: inset 0 1px 3px rgb(90 70 44 / 0.25);
+}
+.cx-pp .cx-cite-slot.is-filled { box-shadow: inset 0 1px 3px rgb(90 70 44 / 0.14), var(--shadow-1); }
+
+.cx-pp .cx-cite-empty { color: rgb(90 70 44 / 0.45); }
+
+.cx-pp .cx-cite-pinned {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background: none;
+  font-family: var(--font-hand);
+  font-size: clamp(0.5rem, 1.35cqh, 0.72rem);
+  line-height: 1.2;
+  color: #1e2c3c;
+  text-align: center;
+  padding: 0.1rem;
+}
+
+.cx-pp .cx-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.24rem;
+}
+
+/* Evidence chips: buff card with the accession corner clipped, the way the
+   Registry cuts a card when it is issued. */
+.cx-pp .cx-chip {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgb(120 100 70 / 0.42);
+  border-radius: 1px;
+  padding: 0;
+  clip-path: polygon(0 0, calc(100% - 0.45rem) 0, 100% 0.45rem, 100% 100%, 0 100%);
+  background-image: var(--grain-paper), linear-gradient(168deg, #e9ddbf, #cfbe9a);
+  background-blend-mode: multiply, normal;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  transition: transform var(--dur-fast) var(--ease-out), filter var(--dur-fast) var(--ease-out);
+}
+
+.cx-pp .cx-chip-face {
+  display: block;
+  padding: 0.18rem 0.7rem 0.18rem 0.4rem;
+  font-family: var(--font-body);
+  font-size: clamp(0.42rem, 1.15cqh, 0.58rem);
+  color: var(--cx-ink);
+  text-align: left;
+}
+
+.cx-pp .cx-chip:hover { transform: translateY(-1px); }
+
+/* Cited is a stamp and a shift, not a tint: the chip goes flat and gets a bar. */
+.cx-pp .cx-chip.is-cited {
+  filter: brightness(0.8) saturate(0.7);
+  transform: none;
+}
+.cx-pp .cx-chip.is-cited .cx-chip-face::before {
+  content: '▪ ';
+  color: var(--blood);
+}
+
+/* ===========================================================================
+   4 — THE SEPTEMBER SPOOL
+   ========================================================================= */
+
+.cx-spool {
+  display: grid;
+  grid-template-rows: minmax(0, 1.15fr) auto auto auto auto auto auto;
+  gap: clamp(0.2rem, 1cqh, 0.5rem);
+}
+
+/* -- the winder deck --------------------------------------------------------- */
+
+.cx-spool .cx-deck {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.2rem, 1cqw, 0.6rem);
+  padding: clamp(0.25rem, 1.2cqh, 0.6rem);
+  border-radius: var(--radius-sm);
+  background-image:
+    var(--grain-hide),
+    radial-gradient(70% 120% at 18% 0%, rgb(255 226 168 / 0.1), transparent 62%),
+    linear-gradient(164deg, var(--ink-700) 0%, var(--ink-900) 70%, var(--ink-abyss) 100%);
+  background-blend-mode: overlay, screen, normal;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.6), inset 0 3px 14px rgb(0 0 0 / 0.55);
+}
+
+/* Two ebonite spool hubs, one paying out and one taking up. */
+.cx-spool .cx-spool-hub {
+  position: relative;
+  width: clamp(2.2rem, 11cqh, 4rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, rgb(255 255 255 / 0.05) 0deg 6deg, transparent 6deg 12deg),
+    radial-gradient(circle at 36% 32%, #4b5158 0%, #24282d 46%, #101316 100%);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.cx-spool .cx-spool-flange {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, var(--lamp-200), var(--pz-brass-mid) 56%, var(--pz-brass-lo));
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.6);
+}
+.cx-spool .cx-spool-hub.is-left .cx-spool-flange { inset: 30%; }
+
+/* -- the gate: the ribbon under the magnifier --------------------------------- */
+
+.cx-spool .cx-gate {
+  position: relative;
+  height: clamp(2.6rem, 15cqh, 5.4rem);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: crosshair;
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.8),
+    inset 0 2px 10px rgb(0 0 0 / 0.8),
+    0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.cx-spool .cx-strip { display: block; width: 100%; height: 100%; }
+
+/* The hairline the crank centres a feature under. It is also the keyboard
+   pin target, so it is drawn as an instrument mark, not a cursor. */
+.cx-spool .cx-hair {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blood-bright) 90%, transparent),
+    color-mix(in srgb, var(--blood-bright) 30%, transparent)
+  );
+  box-shadow: 0 0 4px rgb(194 69 58 / 0.6);
+}
+.cx-spool .cx-hair::before,
+.cx-spool .cx-hair::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  transform: translateX(-50%);
+  background: var(--blood-bright);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+.cx-spool .cx-hair::before { top: 0; }
+.cx-spool .cx-hair::after { bottom: 0; rotate: 180deg; }
+
+/* Glass over the gate: a curved highlight and a heavy vignette, so the strip
+   reads as something seen *through* an instrument. */
+.cx-spool .cx-magnifier {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(104deg, rgb(255 255 255 / 0.11) 0%, rgb(255 255 255 / 0.01) 26%, transparent 48%),
+    radial-gradient(120% 180% at 50% 50%, transparent 44%, rgb(0 0 0 / 0.55) 100%);
+}
+
+.cx-spool[data-legible='yes'] .cx-gate {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-400) 60%, transparent),
+    inset 0 2px 10px rgb(0 0 0 / 0.75),
+    var(--glow-lamp-soft);
+}
+
+.cx-spool .cx-spool-read {
+  margin: 0;
+  min-height: 2.2em;
+  font-family: var(--font-mono);
+  font-size: clamp(0.44rem, 1.25cqh, 0.64rem);
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: var(--moon-300);
+  padding: 0.2rem 0.35rem;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-900));
+  box-shadow: inset 0 1px 4px rgb(0 0 0 / 0.85);
+}
+.cx-spool[data-legible='yes'] .cx-spool-read { color: var(--lamp-100); }
+
+/* -- controls ------------------------------------------------------------------ */
+
+.cx-spool .cx-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: clamp(0.3rem, 1.4cqw, 0.8rem);
+}
+
+.cx-spool .cx-crank-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+}
+
+.cx-spool .cx-crank {
+  position: relative;
+  width: clamp(2rem, 9cqh, 3.2rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  rotate: var(--cx-rot, 0deg);
+  background:
+    repeating-conic-gradient(from 0deg, rgb(0 0 0 / 0.22) 0deg 5deg, transparent 5deg 10deg),
+    radial-gradient(circle at 34% 30%, var(--pz-brass-hi) 0%, var(--pz-brass-mid) 52%, var(--pz-brass-lo) 100%);
+  box-shadow: 0 3px 7px rgb(0 0 0 / 0.65), inset 0 1px 0 rgb(255 255 255 / 0.34);
+}
+.cx-spool .cx-crank.is-turning { cursor: grabbing; }
+
+/* The arm and its knob, which is what makes it a crank rather than a knob. */
+.cx-spool .cx-crank-arm {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 0.24rem;
+  height: 42%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--pz-brass-hi), var(--pz-brass-lo));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+.cx-spool .cx-crank-knob {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 0.52rem;
+  height: 0.52rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #6d747b, #2a2f34 70%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.7);
+}
+
+.cx-spool .cx-toggles {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* -- the timeline and the marker tin -------------------------------------------- */
+
+.cx-spool .cx-timeline { position: relative; }
+
+.cx-spool .cx-rule {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(1.5rem, 6cqh, 2.4rem);
+  appearance: none;
+  border: none;
+  padding: 0;
+  cursor: copy;
+  border-radius: 2px;
+  /* An engraved brass rule: major marks every hundred millimetres, minor every
+     twenty, cut into the metal rather than printed on it. */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0.5) 0 1px,
+      transparent 1px calc(100% / 18)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0.24) 0 1px,
+      transparent 1px calc(100% / 36)
+    ),
+    var(--pz-grain-brass),
+    linear-gradient(178deg, var(--pz-brass-hi) 0%, var(--pz-brass-mid) 46%, var(--pz-brass-lo) 100%);
+  background-blend-mode: normal, normal, overlay, normal;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.34), inset 0 -2px 4px rgb(0 0 0 / 0.45), var(--shadow-1);
+}
+
+/* Where the magnifier is looking: a bright sash across the rule. */
+.cx-spool .cx-window {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: rgb(255 243 214 / 0.22);
+  box-shadow: inset 0 0 0 1px rgb(255 243 214 / 0.5);
+}
+
+.cx-spool .cx-pins { position: absolute; inset: 0; }
+
+.cx-spool .cx-pin {
+  position: absolute;
+  top: -0.15rem;
+  transform: translateX(-50%);
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0 0.1rem;
+  cursor: pointer;
+  pointer-events: auto;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.7));
+}
+
+.cx-spool .cx-pin-glyph {
+  display: block;
+  font-size: clamp(0.6rem, 2.1cqh, 0.95rem);
+  color: var(--ink-abyss);
+  text-shadow: 0 1px 0 rgb(255 240 208 / 0.5);
+}
+.cx-spool .cx-pin[data-kind='passage-a'] .cx-pin-glyph,
+.cx-spool .cx-pin[data-kind='passage-b'] .cx-pin-glyph { color: var(--blood); }
+
+/* A pin has a shaft as well as a head, so it reads as stuck *into* the rule. */
+.cx-spool .cx-pin::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 90%;
+  width: 1px;
+  height: clamp(0.8rem, 3.4cqh, 1.4rem);
+  transform: translateX(-50%);
+  background: rgb(0 0 0 / 0.55);
+}
+
+.cx-spool .cx-palette {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.24rem;
+}
+
+.cx-spool .cx-marker-pick {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.22rem;
+  padding: 0.16rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--lamp-600) 44%, transparent);
+  border-radius: 2px;
+  background: linear-gradient(172deg, var(--ink-700), var(--ink-900));
+  transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.cx-spool .cx-marker-glyph {
+  font-size: clamp(0.5rem, 1.4cqh, 0.7rem);
+  color: var(--lamp-300);
+}
+.cx-spool .cx-marker-label {
+  font-size: clamp(0.42rem, 1.1cqh, 0.56rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.cx-spool .cx-marker-pick.is-on {
+  background: linear-gradient(172deg, color-mix(in srgb, var(--lamp-500) 34%, var(--ink-700)), var(--ink-800));
+  box-shadow: var(--glow-lamp), inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+.cx-spool .cx-marker-pick.is-on .cx-marker-label { color: var(--lamp-100); }
+/* Selection is also a physical fact: the chosen marker sits proud of the tin. */
+.cx-spool .cx-marker-pick.is-on .cx-marker-glyph { transform: translateY(-1px) scale(1.15); }
+
+/* -- the assertion --------------------------------------------------------------- */
+
+.cx-spool .cx-assert {
+  display: grid;
+  gap: 0.24rem;
+  padding: clamp(0.28rem, 1.2cqh, 0.55rem) clamp(0.4rem, 1.6cqw, 0.8rem);
+  border-radius: 2px;
+  background-image: var(--grain-paper), linear-gradient(170deg, #e9ddbf, #d1c09c);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--shadow-2);
+  color: var(--cx-ink);
+}
+
+.cx-spool .cx-assert-head {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.46rem, 1.3cqh, 0.66rem);
+}
+
+.cx-spool .cx-assert-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.cx-spool .cx-assert-note {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(0.42rem, 1.1cqh, 0.56rem);
+  color: var(--cx-ink-soft);
+}
+
+/* ===========================================================================
+   Accessibility overrides
+   ---------------------------------------------------------------------------
+   Neither of these swaps the palette. The colour-blind pass turns *up* the
+   second channel each state already carries — the hatch, the glyph, the word —
+   and the reduced-motion pass removes travel while keeping every readout,
+   because a hygrometer needle that stops moving is a broken instrument, not a
+   calm one.
+   ========================================================================= */
+
+:root[data-cb-safe='on'] .cx .cx-readout {
+  /* The band/high/over glyphs are already there; make them impossible to miss. */
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+:root[data-cb-safe='on'] .cx-commission .cx-hygro-band {
+  stroke-width: 12;
+}
+:root[data-cb-safe='on'] .cx-commission .cx-hatch {
+  stroke-width: 3.4;
+}
+:root[data-cb-safe='on'] .cx-commission .cx-hygro-needle {
+  stroke-width: 3;
+  stroke-dasharray: 4 2;
+}
+
+:root[data-cb-safe='on'] .cx-commission .cx-stress[data-level='high'] .cx-stress-fill {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--paper-100) 0 2px,
+    var(--ink-abyss) 2px 5px
+  );
+}
+:root[data-cb-safe='on'] .cx-commission .cx-stress[data-level='mid'] .cx-stress-fill {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--paper-200) 0 2px,
+    transparent 2px 7px
+  );
+}
+
+/* Filed cards: the two trays already stamp different words at different angles;
+   add a hard edge treatment so the pile reads at a glance. */
+:root[data-cb-safe='on'] .cx-pp .cx-card[data-tray='pp'] {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.55), inset 0 0 0 2px var(--ink-abyss);
+}
+:root[data-cb-safe='on'] .cx-pp .cx-card[data-tray='signed'] {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.55), inset 0 0 0 2px var(--paper-400);
+  border-style: dashed;
+}
+
+:root[data-cb-safe='on'] .cx-pp .cx-leaf[data-rake='good'] {
+  box-shadow: var(--shadow-3), 0 0 0 2px var(--paper-100);
+}
+:root[data-cb-safe='on'] .cx-pp .cx-leaf[data-rake='none'] {
+  box-shadow: var(--shadow-3), 0 0 0 2px var(--ink-600);
+}
+
+:root[data-cb-safe='on'] .cx-spool .cx-pin[data-kind='splice'] .cx-pin-glyph::after { content: 'S'; }
+:root[data-cb-safe='on'] .cx-spool .cx-pin[data-kind='eyelet'] .cx-pin-glyph::after { content: 'E'; }
+:root[data-cb-safe='on'] .cx-spool .cx-pin[data-kind='colour'] .cx-pin-glyph::after { content: 'C'; }
+:root[data-cb-safe='on'] .cx-spool .cx-pin[data-kind^='passage'] .cx-pin-glyph::after { content: 'P'; }
+:root[data-cb-safe='on'] .cx-spool .cx-pin-glyph::after {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.55em;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--ink-abyss);
+}
+
+:root[data-cb-safe='on'] .cx-spool[data-legible='yes'] .cx-gate {
+  box-shadow:
+    inset 0 0 0 3px var(--paper-100),
+    inset 0 2px 10px rgb(0 0 0 / 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cx *,
+  .cx *::before,
+  .cx *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 60ms !important;
+  }
+  /* The two exceptions are readouts, not decoration: the needle and the sweep
+     hand must still move, because their position *is* the information. */
+  .cx-commission .cx-hygro-needle,
+  .cx-commission .cx-clock-hand {
+    transition-duration: 0ms !important;
+  }
+  .cx-ashgrate .cx-tray-shimmer { animation: none; }
+  .cx-ashgrate .cx-flake.is-straining { animation: none; outline: 2px dashed var(--paper-200); }
+  .cx-commission .cx-stress[data-level='high'] .cx-stress-fill { animation: none; }
+}
+
+/* Forced-colours mode: keep the mechanisms operable even when every gradient
+   in this file is thrown away by the OS. */
+@media (forced-colors: active) {
+  .cx .cx-stud,
+  .cx .cx-tool,
+  .cx-pp .cx-card,
+  .cx-pp .cx-chip,
+  .cx-spool .cx-marker-pick {
+    border: 1px solid CanvasText;
+  }
+  .cx .cx-stud.is-ready,
+  .cx-pp .cx-card.is-selected,
+  .cx-spool .cx-marker-pick.is-on {
+    outline: 3px solid Highlight;
+  }
+}

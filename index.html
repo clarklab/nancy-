@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="The Lamplight Cipher — a first-person mystery adventure. Ten days of rain, one drowned lamp-room, and a keeper who never signed off."
+    />
+    <title>The Lamplight Cipher</title>
+
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+    <!-- Key art is the first thing a player sees; fetch it before anything else. -->
+    <link rel="preload" as="image" href="./art/ui/key-art.webp" />
+  </head>
+  <body>
+    <!-- The boot screen is inline so it paints before any module loads. It is
+         removed by main.ts once the game shell has mounted. -->
+    <div id="boot">
+      <div class="boot-inner">
+        <div class="boot-lamp" aria-hidden="true"></div>
+        <p class="boot-title">The Lamplight Cipher</p>
+        <p class="boot-status" id="boot-status">Lighting the lamps…</p>
+      </div>
+    </div>
+
+    <!-- The game shell is NOT a live region: marking the whole app polite
+         makes a screen reader re-announce every scene change, hotspot
+         hover and HUD update. Individual components own their own
+         aria-live scopes where an announcement is actually wanted. -->
+    <div id="app"></div>
+
+    <noscript>
+      <p style="color: #e7d9ba; font-family: Georgia, serif; padding: 2rem; text-align: center">
+        The Lamplight Cipher needs JavaScript enabled to run.
+      </p>
+    </noscript>
+
+    <style>
+      /* Inline boot styling only — the real design system lives in src/styles. */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #070a0d;
+      }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(ellipse at 50% 45%, #131c24 0%, #070a0d 70%);
+        z-index: 999;
+        transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: Georgia, 'Times New Roman', serif;
+        color: #b3cbdb;
+      }
+      #boot.is-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .boot-inner {
+        text-align: center;
+      }
+      .boot-lamp {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 1.75rem;
+        border-radius: 50%;
+        background: radial-gradient(circle at 50% 45%, #ffe2a8 0%, #e0a83f 32%, rgba(184, 130, 42, 0) 70%);
+        animation: boot-flicker 3.2s ease-in-out infinite;
+      }
+      @keyframes boot-flicker {
+        0%,
+        100% {
+          opacity: 0.85;
+          transform: scale(1);
+        }
+        43% {
+          opacity: 1;
+          transform: scale(1.04);
+        }
+        61% {
+          opacity: 0.72;
+          transform: scale(0.99);
+        }
+      }
+      .boot-title {
+        margin: 0;
+        font-size: 1.6rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #f4ead3;
+      }
+      .boot-status {
+        margin: 0.6rem 0 0;
+        font-size: 0.82rem;
+        letter-spacing: 0.1em;
+        color: #55768c;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-lamp {
+          animation: none;
+        }
+      }
+    </style>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,2775 @@
+/**
+ * The mechanism bench — brass, brick, bakelite and bronze.
+ *
+ * Everything in this file is scoped under `.mech-root` (and, below that, one
+ * class per mechanism) so that ten puzzles written by ten hands cannot collide
+ * in the cascade. Nothing here invents a colour, a duration or a font: the
+ * palette is `tokens.css`, the alloy is the `--pz-brass-*` stock declared by
+ * `puzzle.css`, and the timing is `--dur-*`.
+ *
+ * The lamp is off the upper left, as it is everywhere else in the game. Top
+ * and left edges take a warm specular; bottom and right edges fall into an
+ * inner shadow; cast shadows go down and to the right. A fitting that ignores
+ * the lamp reads as a sticker on a photograph, which is the exact failure mode
+ * this file exists to avoid.
+ */
+
+/* ===========================================================================
+   Shared stock
+   ========================================================================= */
+
+.mech-root {
+  /* -- alloys ----------------------------------------------------------- */
+  --mech-brass: linear-gradient(
+    158deg,
+    var(--pz-brass-hi) 0%,
+    var(--pz-brass-mid) 44%,
+    var(--pz-brass-lo) 100%
+  );
+  --mech-brass-worn: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--pz-brass-hi) 62%, var(--ink-700)) 0%,
+    color-mix(in srgb, var(--pz-brass-mid) 78%, var(--ink-800)) 48%,
+    var(--pz-brass-lo) 100%
+  );
+  --mech-steel: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--moon-200) 26%, var(--ink-600)) 0%,
+    var(--ink-600) 46%,
+    var(--ink-900) 100%
+  );
+  --mech-bronze: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--lamp-300) 58%, var(--verdigris)) 0%,
+    color-mix(in srgb, var(--lamp-600) 70%, var(--verdigris)) 52%,
+    color-mix(in srgb, var(--ink-900) 78%, var(--verdigris)) 100%
+  );
+  --mech-paper: linear-gradient(
+    172deg,
+    var(--paper-100) 0%,
+    var(--paper-200) 62%,
+    color-mix(in srgb, var(--paper-300) 72%, var(--paper-200)) 100%
+  );
+
+  /* -- edges and lift ---------------------------------------------------- */
+  --mech-edge: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 42%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    inset 1px 0 0 color-mix(in srgb, var(--pz-specular) 16%, transparent);
+  --mech-sunk: inset 0 2px 5px color-mix(in srgb, var(--ink-abyss) 82%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--pz-specular) 12%, transparent);
+  --mech-lift: 0 6px 15px -5px rgb(0 0 0 / 0.66), 0 1px 2px rgb(0 0 0 / 0.5);
+  --mech-lift-hi: 0 14px 30px -8px rgb(0 0 0 / 0.72), 0 2px 4px rgb(0 0 0 / 0.5);
+
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--lamp-600) 60%, transparent) transparent;
+  font-family: var(--font-ui);
+  font-size: clamp(0.62rem, 1.5cqh, 0.78rem);
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+/* Engraved caption. Every fitting on this bench is named, because every
+   fitting on the real machines was. */
+.mech-caption {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--lamp-300) 72%, var(--moon-300));
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
+  white-space: nowrap;
+}
+
+/* -- the cast instruction plate --------------------------------------------
+   Sand-cast brass, filled letters, four countersunk screws. The single most
+   period-correct object in the game: every one of these machines wore one. */
+.mech-plate {
+  position: relative;
+  padding: 0.7em 0.9em 0.75em;
+  border-radius: var(--radius-sm);
+  background-image: var(--pz-grain-brass), var(--mech-brass-worn);
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  color: color-mix(in srgb, var(--ink-abyss) 78%, var(--lamp-600));
+}
+
+.mech-plate::before,
+.mech-plate::after {
+  content: '';
+  position: absolute;
+  width: 0.42em;
+  height: 0.42em;
+  border-radius: 50%;
+  top: 0.42em;
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in srgb, var(--pz-specular) 60%, transparent),
+    color-mix(in srgb, var(--ink-abyss) 70%, transparent)
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 40%, transparent);
+}
+
+.mech-plate::before {
+  left: 0.42em;
+}
+
+.mech-plate::after {
+  right: 0.42em;
+}
+
+.mech-plate-head {
+  margin: 0 0 0.45em;
+  padding: 0 0.9em;
+  font-size: 0.82em;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 34%, transparent);
+}
+
+.mech-plate-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.2em;
+}
+
+.mech-plate-line {
+  font-size: 0.86em;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 26%, transparent);
+}
+
+/* -- the operations rail ---------------------------------------------------- */
+
+.mech-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mech-rail-step {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.28em 0.7em 0.28em 0.32em;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--ink-900) 70%, transparent);
+  box-shadow: var(--mech-sunk);
+  color: var(--text-muted);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.mech-rail-numeral {
+  display: grid;
+  place-items: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  font-size: 0.85em;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--ink-700) 80%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 40%, transparent);
+}
+
+.mech-rail-name {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  font-size: 0.82em;
+}
+
+.mech-rail-step.is-done {
+  color: color-mix(in srgb, var(--moon-300) 80%, transparent);
+}
+
+/* Done is a filled numeral *and* a tick, never a colour on its own. */
+.mech-rail-step.is-done .mech-rail-numeral::after {
+  content: '✓';
+  position: absolute;
+  font-size: 0.9em;
+}
+
+.mech-rail-step.is-done .mech-rail-numeral {
+  position: relative;
+  color: transparent;
+  background-image: var(--mech-brass-worn);
+}
+
+.mech-rail-step.is-done .mech-rail-numeral::after {
+  color: var(--ink-900);
+}
+
+.mech-rail-step.is-live {
+  color: var(--accent-strong);
+  background: color-mix(in srgb, var(--lamp-600) 24%, var(--ink-900));
+  box-shadow: var(--mech-sunk), var(--glow-lamp-soft);
+}
+
+.mech-rail-step.is-live .mech-rail-numeral {
+  background-image: var(--mech-brass);
+  color: var(--ink-900);
+  box-shadow: var(--mech-edge);
+}
+
+.mech-stages {
+  position: relative;
+  min-height: 0;
+  display: grid;
+}
+
+.mech-stage {
+  min-height: 0;
+  outline: none;
+}
+
+.mech-stage[hidden] {
+  display: none;
+}
+
+/* ===========================================================================
+   puz-three-movements — the Chubb timelock
+   ========================================================================= */
+
+.mech-timelock {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.85fr) minmax(0, 1.9fr);
+  /* One explicit row that fills the bench. Left implicit, an `auto` track in a
+     definite-height grid gets stretched — or, worse, crushed below its own
+     content when its items carry `min-height: 0` — and the mechanism ends up
+     drawn on top of itself. */
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(0.5rem, 2cqw, 1.2rem);
+  padding: 0.2rem;
+}
+
+.tl-column {
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.tl-column--work {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+/* -- the Order Book, propped against the door frame ------------------------- */
+
+.tl-book {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+  background-image: var(--pz-grain-paper), var(--mech-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--mech-lift), inset 0 0 0 1px color-mix(in srgb, var(--paper-400) 60%, transparent);
+  color: var(--paper-ink);
+  /* A working copy that has lived in a coat pocket does not sit square. */
+  transform: rotate(-0.5deg);
+}
+
+.tl-book-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4em;
+  padding: 0.45em 0.6em 0.3em;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-400) 70%, transparent);
+}
+
+.tl-book-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.tl-book-tag {
+  font-size: 0.72em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--paper-ink-faded);
+}
+
+.tl-book-body {
+  padding: 0.5em 0.6em;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.tl-page-head {
+  margin: 0 0 0.15em;
+  font-family: var(--font-body);
+  font-size: 0.98em;
+  font-weight: 600;
+}
+
+.tl-page-strap {
+  margin: 0 0 0.5em;
+  font-family: var(--font-body);
+  font-size: 0.88em;
+  font-style: italic;
+  color: var(--paper-ink-faded);
+}
+
+.tl-entries {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.18em 0.55em;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+}
+
+.tl-entry-when {
+  white-space: nowrap;
+  color: var(--paper-ink-faded);
+}
+
+.tl-entry-what {
+  margin: 0;
+  color: var(--paper-ink);
+}
+
+.tl-book-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  padding: 0.3em;
+  border-top: 1px solid color-mix(in srgb, var(--paper-400) 70%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  color: var(--paper-ink-faded);
+}
+
+.tl-page-btn {
+  border: 0;
+  padding: 0.1em 0.5em;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--paper-300) 55%, transparent);
+  color: var(--paper-ink);
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.tl-page-btn:hover:not(:disabled),
+.tl-page-btn:focus-visible {
+  background: color-mix(in srgb, var(--lamp-400) 40%, var(--paper-200));
+}
+
+.tl-page-btn:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+/* -- the three movements ---------------------------------------------------- */
+
+.tl-bank {
+  --face: clamp(4.2rem, 20cqh, 7.4rem);
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.3rem, 1.4cqw, 1rem);
+  align-content: center;
+}
+
+.tl-movement {
+  display: grid;
+  justify-items: center;
+  gap: 0.35em;
+  padding: 0.5em 0.3em 0.6em;
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(80% 60% at 22% 4%, color-mix(in srgb, var(--lamp-600) 20%, transparent), transparent 70%),
+    linear-gradient(168deg, var(--ink-700) 0%, var(--ink-900) 100%);
+  box-shadow: var(--mech-edge), var(--mech-lift);
+}
+
+.tl-mv-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+}
+
+.tl-mv-numeral {
+  font-family: var(--font-display);
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.tl-mv-title {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
+.tl-movement .mech-caption {
+  white-space: normal;
+  text-align: center;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
+.tl-face {
+  position: relative;
+  width: var(--face);
+  height: var(--face);
+  border-radius: 50%;
+  background-image: var(--pz-grain-brass),
+    radial-gradient(circle at 30% 24%, color-mix(in srgb, var(--pz-specular) 30%, transparent), transparent 62%),
+    conic-gradient(
+      from 210deg,
+      color-mix(in srgb, var(--pz-brass-hi) 70%, var(--paper-200)) 0deg,
+      color-mix(in srgb, var(--pz-brass-mid) 82%, var(--paper-300)) 140deg,
+      color-mix(in srgb, var(--pz-brass-lo) 70%, var(--ink-800)) 250deg,
+      color-mix(in srgb, var(--pz-brass-hi) 70%, var(--paper-200)) 360deg
+    );
+  background-blend-mode: overlay, screen, normal;
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--ink-abyss) 55%, transparent),
+    inset 0 2px 6px color-mix(in srgb, var(--ink-abyss) 45%, transparent),
+    var(--mech-lift);
+}
+
+.tl-ticks {
+  position: absolute;
+  inset: 0;
+}
+
+.tl-tick,
+.tl-numeral {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+
+.tl-tick {
+  width: 1px;
+  height: 0.42em;
+  margin: -0.21em 0 0 -0.5px;
+  background: color-mix(in srgb, var(--ink-abyss) 70%, transparent);
+  transform: rotate(var(--a)) translateY(calc(var(--face) / -2 + 0.34em));
+}
+
+.tl-tick.is-major {
+  width: 2px;
+  height: 0.62em;
+  margin-left: -1px;
+  background: var(--ink-abyss);
+}
+
+.tl-numeral {
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  color: color-mix(in srgb, var(--ink-abyss) 82%, transparent);
+  transform: rotate(var(--a)) translateY(calc(var(--face) / -2 + 1.5em))
+    rotate(calc(-1 * var(--a))) translate(-50%, -50%);
+}
+
+.tl-needle {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--a, 0deg));
+  transition: transform var(--dur-fast) linear;
+  pointer-events: none;
+}
+
+.tl-needle::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 2px;
+  height: 40%;
+  margin-left: -1px;
+  border-radius: 1px 1px 0 0;
+  background: linear-gradient(180deg, var(--blood) 0%, color-mix(in srgb, var(--blood) 70%, var(--ink-900)) 100%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+.tl-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.6em;
+  height: 0.6em;
+  margin: -0.3em 0 0 -0.3em;
+  border-radius: 50%;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge), 0 1px 2px rgb(0 0 0 / 0.6);
+}
+
+.tl-window {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  min-width: 3.6em;
+  padding: 0.08em 0.3em;
+  text-align: center;
+  border-radius: 1px;
+  font-family: var(--font-mono);
+  font-size: 0.74em;
+  letter-spacing: 0.04em;
+  color: var(--lamp-100);
+  background: linear-gradient(180deg, var(--ink-abyss) 0%, var(--ink-800) 100%);
+  box-shadow: var(--mech-sunk);
+}
+
+.tl-key-well {
+  display: grid;
+  justify-items: center;
+  gap: 0.2em;
+}
+
+/* The winding key. Six degrees to the quarter-hour, and the bit is what tells
+   you how far round you have taken it. */
+.tl-key {
+  position: relative;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background-image: var(--pz-grain-brass),
+    radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--pz-specular) 48%, transparent), transparent 58%),
+    var(--mech-brass);
+  background-blend-mode: overlay, screen, normal;
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  outline-offset: 3px;
+}
+
+.tl-key::after {
+  /* Knurling, cut as a repeating conic so it turns with the key. */
+  content: '';
+  position: absolute;
+  inset: 0.18em;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--ink-abyss) 34%, transparent) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.7;
+}
+
+.tl-key-bit {
+  position: absolute;
+  left: 50%;
+  top: 0.1em;
+  width: 3px;
+  height: 0.85em;
+  margin-left: -1.5px;
+  border-radius: 1px;
+  background: var(--ink-abyss);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 25%, transparent);
+}
+
+.tl-key-bow {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--pz-brass-lo), var(--ink-900));
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.7);
+}
+
+.tl-movement.is-wound .tl-face {
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--lamp-400) 55%, transparent),
+    inset 0 2px 6px color-mix(in srgb, var(--ink-abyss) 45%, transparent),
+    var(--mech-lift);
+}
+
+/* -- the handle and the releasing lever ------------------------------------- */
+
+.tl-gate {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.5rem, 2cqw, 1.4rem);
+  padding: 0.5em 0.8em;
+  border-radius: var(--radius-md);
+  background: linear-gradient(168deg, var(--ink-800), var(--ink-abyss));
+  box-shadow: var(--mech-edge), var(--mech-sunk);
+}
+
+.tl-handle-well {
+  display: grid;
+  justify-items: center;
+  gap: 0.25em;
+}
+
+.tl-handle {
+  --hand: clamp(3rem, 13cqh, 4.6rem);
+
+  position: relative;
+  width: var(--hand);
+  height: var(--hand);
+  border-radius: 50%;
+  transform: rotate(var(--rot, 0deg));
+  outline-offset: 4px;
+}
+
+.tl-handle-rim {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 200deg,
+    var(--pz-brass-hi) 0deg,
+    var(--pz-brass-mid) 120deg,
+    var(--pz-brass-lo) 210deg,
+    var(--pz-brass-mid) 300deg,
+    var(--pz-brass-hi) 360deg
+  );
+  mask: radial-gradient(circle, transparent 0 62%, #000 64%);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.6);
+}
+
+.tl-spoke {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--a));
+}
+
+.tl-spoke::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: 0.32em;
+  height: 84%;
+  margin-left: -0.16em;
+  border-radius: 99px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--pz-specular) 35%, var(--pz-brass-mid)) 0%,
+    var(--pz-brass-mid) 40%,
+    var(--pz-brass-lo) 100%
+  );
+}
+
+.tl-handle-boss {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge), inset 0 -2px 4px rgb(0 0 0 / 0.5);
+}
+
+.tl-handle.is-refused {
+  animation: mech-shudder 340ms var(--ease-in-out);
+}
+
+.tl-handle.is-drawn .tl-handle-boss {
+  box-shadow: var(--mech-edge), var(--glow-lamp);
+}
+
+.tl-lever {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.2em;
+  padding: 0.4em 0.7em;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(170deg, var(--ink-700), var(--ink-900));
+  box-shadow: var(--mech-edge), var(--mech-sunk);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transition: color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+}
+
+.tl-lever-arm {
+  width: 0.42em;
+  height: 1.8em;
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--ink-500), var(--ink-800));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 20%, transparent);
+  transition: transform var(--dur-slow) var(--ease-drama), background var(--dur-med) var(--ease-out);
+  transform-origin: 50% 100%;
+}
+
+.tl-lever-label {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  font-size: 0.78em;
+}
+
+.tl-lever.is-live {
+  cursor: pointer;
+  color: var(--accent-strong);
+  box-shadow: var(--mech-edge), var(--glow-lamp-soft);
+}
+
+.tl-lever.is-live .tl-lever-arm {
+  background-image: var(--mech-brass);
+}
+
+.tl-lever.is-lifted .tl-lever-arm {
+  transform: rotate(-26deg) translateY(-0.2em);
+}
+
+.tl-verdict {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1em;
+  font-style: italic;
+  color: var(--text-secondary);
+  min-height: 1.3em;
+}
+
+.mech-timelock.is-agreed .tl-verdict {
+  color: var(--accent-strong);
+  font-style: normal;
+}
+
+/* ===========================================================================
+   puz-tide-room — brick, brass and a drum from 1974
+   ========================================================================= */
+
+.mech-tideroom {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.2rem;
+}
+
+/* -- stage I: nine courses in a Portland stone opening ---------------------- */
+
+.tr-wall-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(11rem, 0.9fr);
+  gap: clamp(0.5rem, 2cqw, 1.4rem);
+  align-content: start;
+}
+
+.tr-wall-holder {
+  display: grid;
+  gap: 0.4em;
+  align-content: start;
+  min-width: 0;
+}
+
+.tr-wall {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding: 0.55em;
+  border-radius: 2px;
+  /* Portland stone reveal around a panel of common brick. */
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--moon-200) 22%, var(--ink-700)) 0 0.5em, transparent 0.5em),
+    linear-gradient(270deg, color-mix(in srgb, var(--moon-200) 18%, var(--ink-700)) 0 0.5em, transparent 0.5em),
+    linear-gradient(180deg, color-mix(in srgb, var(--moon-200) 20%, var(--ink-700)) 0 0.5em, transparent 0.5em),
+    var(--ink-abyss);
+  box-shadow: var(--mech-sunk), var(--mech-lift);
+  overflow: hidden;
+}
+
+.tr-course {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  height: clamp(0.85rem, 3.4cqh, 1.5rem);
+  /* Wider than the opening, so a half-bond course shifted left still fills
+     the reveal instead of showing a slot of black at the far end. */
+  width: 110%;
+  transform: translateX(calc(var(--offset) * -8%));
+  transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out);
+}
+
+.tr-brick {
+  background-image: var(--pz-grain-leather),
+    linear-gradient(168deg, color-mix(in srgb, var(--blood) 34%, var(--ink-700)) 0%, var(--ink-800) 100%);
+  background-blend-mode: overlay, normal;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 8%, transparent);
+}
+
+.tr-joint {
+  position: relative;
+  height: 5px;
+  margin: 1px 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--ink-500) 60%, var(--ink-900));
+  transition: box-shadow var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+/* The 1975 cement is pale *and* hatched, so the tell survives a colour-blind
+   player and a badly calibrated screen alike. */
+/* A four-pixel mortar joint is a real bed joint and an unusable target, so
+   the hit area reaches into the brick either side of it. */
+.tr-joint::before {
+  content: '';
+  position: absolute;
+  inset: -3px 0;
+}
+
+.tr-joint.is-soft {
+  background-color: color-mix(in srgb, var(--moon-200) 42%, var(--ink-600));
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--moon-100) 34%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}
+
+.tr-joint:hover,
+.tr-joint:focus-visible {
+  box-shadow: 0 0 0 1px var(--accent), var(--glow-lamp-soft);
+  outline: none;
+}
+
+.tr-joint.is-seated {
+  background-color: var(--lamp-400);
+  box-shadow: 0 0 0 1px var(--lamp-200);
+}
+
+.tr-joint.is-seated::after {
+  /* The bar itself, sticking out of the joint. */
+  content: '';
+  position: absolute;
+  right: -0.4em;
+  top: 50%;
+  width: 3.2em;
+  height: 4px;
+  transform: translateY(-50%) rotate(-14deg);
+  transform-origin: 0 50%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--ink-400), var(--ink-900));
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.6);
+}
+
+.tr-wall[data-out='1'] .tr-course:nth-child(-n + 1),
+.tr-wall[data-out='2'] .tr-course:nth-child(-n + 3),
+.tr-wall[data-out='3'] .tr-course:nth-child(-n + 5) {
+  opacity: 0;
+  transform: translateX(-40%) rotate(-4deg);
+}
+
+.tr-wall-panel {
+  display: grid;
+  gap: 0.6em;
+  align-content: start;
+}
+
+.tr-gauge {
+  display: grid;
+  justify-items: center;
+  gap: 0.35em;
+  padding: 0.5em;
+  border-radius: var(--radius-md);
+  background: linear-gradient(168deg, var(--ink-800), var(--ink-abyss));
+  box-shadow: var(--mech-edge), var(--mech-sunk);
+  opacity: 0.5;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.tr-wall-panel.is-armed .tr-gauge {
+  opacity: 1;
+}
+
+.tr-gauge-track {
+  position: relative;
+  width: 100%;
+  height: 1.1em;
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-800));
+  box-shadow: var(--mech-sunk);
+  overflow: hidden;
+}
+
+.tr-gauge-fill {
+  position: absolute;
+  inset: 2px;
+  width: calc((100% - 4px) * var(--p, 0));
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--lamp-600), var(--lamp-300));
+  transition: width 60ms linear;
+}
+
+/* The band is a notched window, not a green stripe: two hard cheeks and a
+   hatched floor, legible with no colour vision at all. */
+.tr-gauge-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% * var(--lo, 0.6));
+  width: calc(100% * (var(--hi, 0.8) - var(--lo, 0.6)));
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--moon-100) 26%, transparent) 0 3px,
+    transparent 3px 7px
+  );
+  border-left: 2px solid var(--moon-100);
+  border-right: 2px solid var(--moon-100);
+  pointer-events: none;
+}
+
+.tr-gauge-track.is-in-band {
+  box-shadow: var(--mech-sunk), 0 0 0 1px var(--lamp-200);
+}
+
+.tr-grip {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.35em 0.9em;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-image: var(--mech-brass-worn);
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  color: var(--ink-900);
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  font-size: 0.85em;
+  cursor: grab;
+  touch-action: none;
+}
+
+.tr-grip.is-hauling {
+  cursor: grabbing;
+  transform: translateY(1px);
+  box-shadow: var(--mech-edge), 0 2px 5px rgb(0 0 0 / 0.6);
+}
+
+.tr-grip-shaft {
+  width: 1.4em;
+  height: 0.32em;
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--ink-500), var(--ink-900));
+}
+
+.tr-readout,
+.tr-courses {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1em;
+  color: var(--text-secondary);
+  min-height: 1.3em;
+}
+
+.tr-courses {
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* -- stage II: TO SET GOING -------------------------------------------------- */
+
+.tr-set-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: clamp(0.5rem, 2cqw, 1.2rem);
+  align-content: start;
+}
+
+.tr-set-left,
+.tr-set-right {
+  display: grid;
+  gap: 0.5em;
+  align-content: start;
+  min-width: 0;
+}
+
+.tr-saltplate {
+  position: relative;
+  isolation: isolate;
+}
+
+.tr-salt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  cursor: crosshair;
+  touch-action: none;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  z-index: 2;
+}
+
+.tr-salt.is-gone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tr-scrub-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1.6em;
+  margin: 0;
+  z-index: 3;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: center;
+  pointer-events: none;
+}
+
+.tr-cloth {
+  position: absolute;
+  right: 0.3em;
+  bottom: 0.3em;
+  z-index: 4;
+  border: 0;
+  padding: 0.2em 0.6em;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--moon-200) 70%, var(--ink-700));
+  color: var(--ink-900);
+  font-family: var(--font-ui);
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  cursor: pointer;
+  box-shadow: var(--mech-lift);
+}
+
+.tr-rack {
+  display: grid;
+  gap: 0.3em;
+  margin-top: 1.4em;
+}
+
+.tr-op {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.3em 0.55em;
+  border-radius: var(--radius-sm);
+  background-image: var(--pz-grain-paper), var(--mech-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--mech-lift);
+  color: var(--paper-ink);
+  font-family: var(--font-body);
+  font-size: 0.98em;
+  cursor: grab;
+}
+
+.tr-op-grip {
+  width: 0.5em;
+  height: 1.4em;
+  flex: none;
+  border-radius: 1px;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--paper-400) 90%, transparent) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.tr-op.is-refused {
+  animation: mech-shudder 340ms var(--ease-in-out);
+}
+
+.tr-op.is-returning {
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.tr-sequence {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.22em;
+  counter-reset: op;
+}
+
+.tr-seq-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.1em 0.5em;
+  padding: 0.25em 0.4em;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ink-800) 80%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 26%, transparent);
+}
+
+.tr-seq-num {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background-image: var(--mech-brass);
+  color: var(--ink-900);
+  font-weight: 700;
+  font-size: 0.85em;
+  box-shadow: var(--mech-edge);
+}
+
+.tr-seq-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
+.tr-seq-done {
+  font-family: var(--font-body);
+  font-size: 0.95em;
+  color: var(--accent);
+}
+
+/* The instrument. Each operation switches a part on, so the machine assembles
+   itself in front of the player instead of a checklist ticking itself off. */
+.tr-machine-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 0.3em;
+}
+
+.tr-machine {
+  position: relative;
+  width: min(100%, 22rem);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(70% 50% at 24% 8%, color-mix(in srgb, var(--lamp-600) 22%, transparent), transparent 70%),
+    linear-gradient(168deg, var(--ink-700), var(--ink-abyss));
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  overflow: hidden;
+}
+
+.tr-mach-case {
+  position: absolute;
+  inset: 8% 6%;
+  border-radius: 2px;
+  /* Mahogany case, brass corner posts, and a floor for the weight to hang
+     over — visible from the first frame, so the empty machine is an object
+     waiting to be worked on rather than a blank rectangle. */
+  background:
+    linear-gradient(180deg, transparent 0 86%, color-mix(in srgb, var(--lamp-600) 26%, transparent) 86% 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--lamp-600) 30%, transparent) 0 3px, transparent 3px),
+    linear-gradient(270deg, color-mix(in srgb, var(--lamp-600) 30%, transparent) 0 3px, transparent 3px),
+    repeating-linear-gradient(
+      96deg,
+      color-mix(in srgb, var(--blood) 12%, transparent) 0 7px,
+      transparent 7px 15px
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 45%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 12%, transparent);
+}
+
+/* The spindle the drum ships onto, and the pulley the weight hangs from. */
+.tr-mach-case::before {
+  content: '';
+  position: absolute;
+  left: 44%;
+  top: 22%;
+  width: 3px;
+  height: 56%;
+  background: linear-gradient(180deg, var(--ink-500), var(--ink-900));
+}
+
+.tr-mach-case::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  top: 6%;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--lamp-500) 60%, transparent);
+}
+
+.tr-machine > span {
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+}
+
+.tr-mach-case {
+  opacity: 1;
+}
+
+.tr-mach-weight {
+  position: absolute;
+  left: 14%;
+  top: 12%;
+  width: 8%;
+  height: 40%;
+  background: linear-gradient(180deg, transparent 0 62%, var(--ink-500) 62% 100%);
+  transform: translateY(-30%);
+}
+
+.tr-mach-drum {
+  position: absolute;
+  left: 38%;
+  top: 26%;
+  width: 26%;
+  height: 52%;
+  border-radius: 3px;
+  background-image: var(--pz-grain-brass), var(--mech-brass-worn);
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--mech-edge);
+}
+
+.tr-mach-paper {
+  position: absolute;
+  left: 40%;
+  top: 29%;
+  width: 22%;
+  height: 46%;
+  background: linear-gradient(180deg, var(--paper-200), var(--paper-300));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 30%, transparent);
+}
+
+.tr-mach-pen {
+  position: absolute;
+  left: 62%;
+  top: 48%;
+  width: 18%;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ink-400), var(--lamp-300));
+}
+
+.tr-mach-clutch {
+  position: absolute;
+  right: 12%;
+  top: 30%;
+  width: 9%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge);
+}
+
+.tr-mach-clock {
+  position: absolute;
+  left: 16%;
+  bottom: 14%;
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge), var(--glow-lamp-soft);
+}
+
+.tr-mach-trace {
+  position: absolute;
+  left: 41%;
+  top: 46%;
+  width: 0;
+  height: 2px;
+  background: var(--blood-bright);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--blood-bright) 60%, transparent);
+}
+
+.tr-machine.has-weight .tr-mach-weight {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tr-machine.has-drum .tr-mach-drum,
+.tr-machine.has-paper .tr-mach-paper,
+.tr-machine.has-pen .tr-mach-pen,
+.tr-machine.has-clutch .tr-mach-clutch,
+.tr-machine.has-clock .tr-mach-clock {
+  opacity: 1;
+}
+
+.tr-machine.is-running .tr-mach-trace {
+  opacity: 1;
+  width: 20%;
+  transition: width 2.4s linear;
+}
+
+.tr-machine.is-running .tr-mach-clock {
+  animation: mech-tick 2s steps(2) infinite;
+}
+
+/* -- stage III: drum 1974/44 ------------------------------------------------- */
+
+.tr-drum-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(11rem, 0.72fr);
+  gap: clamp(0.5rem, 2cqw, 1.2rem);
+  align-content: center;
+}
+
+.tr-chart {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 430;
+  max-height: 62cqh;
+  border-radius: var(--radius-sm);
+  background-image: var(--pz-grain-hide),
+    radial-gradient(70% 90% at 40% 24%, color-mix(in srgb, var(--lamp-200) 26%, transparent), transparent 76%),
+    linear-gradient(168deg, var(--ink-700), var(--ink-abyss));
+  background-blend-mode: overlay, screen, normal;
+  box-shadow: var(--mech-edge), var(--mech-sunk);
+  overflow: hidden;
+}
+
+.tr-chart-plate,
+.tr-sheet {
+  /* The two must share a box exactly, or the overlay's coordinate system
+     stops meaning the same thing as the drum's. */
+  position: absolute;
+  inset: 12% 8%;
+}
+
+.tr-chart-plate {
+  background-image: var(--pz-grain-paper),
+    linear-gradient(172deg, color-mix(in srgb, var(--paper-100) 96%, var(--lamp-200)) 0%, var(--paper-200) 100%);
+  background-blend-mode: multiply, normal;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35), inset 0 0 0 1px color-mix(in srgb, var(--paper-400) 80%, transparent);
+}
+
+.tr-chart-svg,
+.tr-sheet-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tr-grid-minor {
+  stroke: color-mix(in srgb, var(--blood) 22%, transparent);
+  stroke-width: 0.6;
+}
+
+.tr-grid-major {
+  stroke: color-mix(in srgb, var(--blood) 40%, transparent);
+  stroke-width: 1.1;
+}
+
+.tr-grid-label {
+  fill: var(--paper-ink-faded);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.tr-trace {
+  stroke: var(--paper-ink);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 0.35));
+}
+
+.tr-cross line {
+  stroke: color-mix(in srgb, var(--paper-ink) 70%, transparent);
+  stroke-width: 1.6;
+}
+
+.tr-cross--sheet line {
+  stroke: var(--amethyst);
+  stroke-width: 1.8;
+}
+
+.tr-sheet {
+  touch-action: none;
+  cursor: grab;
+  background: color-mix(in srgb, var(--moon-100) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--amethyst) 55%, transparent);
+}
+
+.tr-sheet.is-near {
+  box-shadow: inset 0 0 0 2px var(--lamp-300), 0 0 18px -4px color-mix(in srgb, var(--lamp-300) 70%, transparent);
+}
+
+.tr-sheet.is-registered {
+  cursor: default;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Registered is also *pinned*: two corner tacks appear, so the state is not a
+   glow the player has to remember seeing. */
+.tr-sheet.is-registered::before,
+.tr-sheet.is-registered::after {
+  content: '';
+  position: absolute;
+  top: 4%;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, var(--lamp-100), var(--lamp-600));
+  box-shadow: 0 2px 3px rgb(0 0 0 / 0.5);
+}
+
+.tr-sheet.is-registered::before {
+  left: 3%;
+}
+
+.tr-sheet.is-registered::after {
+  right: 3%;
+}
+
+.tr-pred {
+  stroke: var(--amethyst);
+  stroke-width: 2;
+  stroke-dasharray: 9 6;
+}
+
+.tr-sheet-label {
+  position: absolute;
+  left: 26%;
+  top: 0.35em;
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  color: color-mix(in srgb, var(--amethyst) 80%, var(--ink-900));
+}
+
+.tr-vernier-line {
+  stroke: color-mix(in srgb, var(--blood-bright) 60%, transparent);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+
+.tr-vernier-span,
+.tr-vernier-cap {
+  stroke: var(--blood-bright);
+  stroke-width: 2.4;
+  opacity: 0;
+}
+
+.tr-vernier.is-live .tr-vernier-span,
+.tr-vernier.is-live .tr-vernier-cap {
+  opacity: 1;
+}
+
+.tr-dials {
+  display: grid;
+  gap: 0.4em;
+  align-content: start;
+}
+
+.tr-reading {
+  display: grid;
+  gap: 0.1em;
+  padding: 0.5em 0.6em;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--ink-abyss), var(--ink-800));
+  box-shadow: var(--mech-sunk);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  color: var(--lamp-200);
+}
+
+.tr-read-diff {
+  color: var(--lamp-100);
+  font-size: 1.05em;
+}
+
+.tr-transfer {
+  display: grid;
+  gap: 0.15em;
+  padding: 0.5em 0.7em;
+  border: 0;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  background-image: var(--pz-grain-paper), var(--mech-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--mech-lift);
+  color: var(--paper-ink);
+  cursor: pointer;
+}
+
+.tr-transfer-line {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--paper-ink-faded);
+}
+
+.tr-transfer-cta {
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  font-size: 0.82em;
+}
+
+.tr-transfer:hover,
+.tr-transfer:focus-visible {
+  box-shadow: var(--mech-lift-hi), 0 0 0 1px var(--lamp-300);
+}
+
+.tr-transfer.is-written {
+  box-shadow: var(--mech-lift), 0 0 0 2px var(--lamp-300);
+}
+
+.tr-transfer.is-written .tr-transfer-cta::after {
+  content: ' ✓ written';
+  color: var(--lamp-600);
+}
+
+/* ===========================================================================
+   puz-switchboard — twelve holes and six cords
+   ========================================================================= */
+
+.mech-switchboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(12rem, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(0.5rem, 2cqw, 1.2rem);
+  padding: 0.2rem;
+  /* The G.P.O. coda arrives late and takes a second row of its own. */
+  grid-auto-rows: auto;
+}
+
+.sb-left,
+.sb-right {
+  display: grid;
+  gap: 0.45em;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* The board: dark waxed oak, a brass face plate, and holes bored in 1926. */
+.sb-board {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 0.5em;
+  padding: 0.6em 0.7em 0.8em;
+  border-radius: var(--radius-md);
+  background-image: var(--pz-grain-hide),
+    repeating-linear-gradient(
+      92deg,
+      color-mix(in srgb, var(--ink-700) 92%, var(--blood)) 0 6px,
+      color-mix(in srgb, var(--ink-800) 96%, var(--blood)) 6px 13px
+    ),
+    linear-gradient(168deg, var(--ink-700), var(--ink-abyss));
+  background-blend-mode: overlay, soft-light, normal;
+  box-shadow: var(--mech-edge), var(--mech-lift-hi);
+  touch-action: none;
+}
+
+.sb-field {
+  display: grid;
+  gap: 0.2em;
+}
+
+.sb-row {
+  display: grid;
+  gap: 0.3em;
+  padding: 0.35em 0.4em;
+  border-radius: 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ink-900) 80%, transparent), transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 24%, transparent);
+}
+
+.sb-row--ext {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.sb-row--trunk {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 42%;
+}
+
+.sb-jack {
+  display: grid;
+  justify-items: center;
+  gap: 0.12em;
+  min-width: 0;
+}
+
+.sb-jack-hole {
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, var(--ink-abyss) 0 52%, var(--ink-800) 54%, var(--pz-brass-lo) 74%, var(--pz-brass-mid) 100%);
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.9),
+    0 1px 0 color-mix(in srgb, var(--pz-specular) 22%, transparent);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.sb-jack.is-taken .sb-jack-hole {
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.9),
+    0 0 0 2px var(--lamp-400),
+    var(--glow-lamp-soft);
+}
+
+.sb-jack-face {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  color: var(--accent);
+}
+
+.sb-jack-name {
+  font-size: 0.66em;
+  text-align: center;
+  line-height: 1.1;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.sb-shelf {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3em;
+  padding-top: 2.2em;
+}
+
+.sb-pair {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.2em;
+  padding: 0.3em 0.15em;
+  border-radius: 2px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--ink-abyss) 60%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 8%, transparent);
+}
+
+/* Plugs rest nose-up in the shelf and are dragged out on their cords. */
+.sb-plug {
+  position: absolute;
+  top: -1.9em;
+  width: 0.9em;
+  height: 2.1em;
+  display: grid;
+  align-content: start;
+  z-index: 3;
+  cursor: grab;
+  transition: filter var(--dur-fast) var(--ease-out);
+}
+
+.sb-plug--a {
+  left: 18%;
+}
+
+.sb-plug--b {
+  right: 18%;
+}
+
+.sb-plug-tip {
+  height: 0.75em;
+  border-radius: 99px 99px 2px 2px;
+  background: linear-gradient(160deg, var(--moon-100) 0%, var(--moon-300) 42%, var(--ink-600) 100%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+
+.sb-plug-collar {
+  height: 0.22em;
+  background: var(--ink-abyss);
+}
+
+.sb-plug-shank {
+  height: 1.1em;
+  border-radius: 2px 2px 40% 40%;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge);
+}
+
+.sb-plug.is-seated .sb-plug-tip {
+  height: 0.3em;
+}
+
+.sb-plug.is-seated {
+  filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.7));
+}
+
+.sb-cord-num {
+  font-size: 0.68em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.sb-key {
+  font-size: 0.74em;
+  transform: scale(0.86);
+  transform-origin: 50% 50%;
+}
+
+.sb-key .pz-toggle-legend {
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.sb-lamps {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3em;
+  justify-items: center;
+}
+
+.sb-lamp {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.sb-lamp-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, var(--ink-600), var(--ink-abyss) 70%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.8), 0 0 0 2px color-mix(in srgb, var(--pz-brass-lo) 80%, transparent);
+  transition: background var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+}
+
+.sb-lamp-num {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  color: var(--text-muted);
+}
+
+/* Lit is a filled, ringed lamp *and* a bright numeral — two signals, not one. */
+.sb-lamp.is-lit .sb-lamp-glass {
+  background: radial-gradient(circle at 38% 32%, var(--lamp-100), var(--lamp-400) 60%, var(--lamp-600) 100%);
+  box-shadow: 0 0 0 2px var(--lamp-200), var(--glow-lamp);
+}
+
+.sb-lamp.is-lit .sb-lamp-num {
+  color: var(--ink-900);
+  font-weight: 700;
+}
+
+.sb-lamp.is-buzz {
+  animation: mech-shudder 300ms var(--ease-in-out);
+}
+
+.sb-cords {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.sb-cord {
+  stroke: color-mix(in srgb, var(--ink-abyss) 72%, var(--blood));
+  stroke-width: 4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.7));
+}
+
+.sb-legend {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.92em;
+  color: var(--text-muted);
+}
+
+/* -- the books beside the board --------------------------------------------- */
+
+.sb-books {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.sb-tabs {
+  display: flex;
+  gap: 0.2em;
+}
+
+.sb-tab {
+  border: 0;
+  padding: 0.25em 0.6em;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: color-mix(in srgb, var(--paper-300) 40%, var(--ink-700));
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  cursor: pointer;
+}
+
+.sb-tab.is-on {
+  background-image: var(--mech-paper);
+  color: var(--paper-ink);
+  box-shadow: 0 -2px 0 var(--lamp-400) inset;
+}
+
+.sb-pages {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  padding: 0.5em 0.6em;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) var(--radius-sm);
+  background-image: var(--pz-grain-paper), var(--mech-paper);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--mech-lift);
+  color: var(--paper-ink);
+}
+
+.sb-page-head {
+  margin: 0 0 0.35em;
+  font-family: var(--font-display);
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+.sb-page-foot {
+  margin: 0.4em 0 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--paper-ink-faded);
+}
+
+.sb-log {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+}
+
+.sb-log th {
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-400) 80%, transparent);
+  padding-bottom: 0.15em;
+  color: var(--paper-ink-faded);
+}
+
+.sb-log td {
+  padding: 0.14em 0.4em 0.14em 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--paper-400) 60%, transparent);
+}
+
+.sb-log-cord,
+.sb-log-mins {
+  text-align: center;
+  color: var(--paper-ink-faded);
+}
+
+.sb-log-note {
+  letter-spacing: 0.02em;
+}
+
+.sb-dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.14em 0.6em;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+}
+
+.sb-dl dt {
+  white-space: nowrap;
+  color: var(--paper-ink-faded);
+}
+
+.sb-dl dd {
+  margin: 0;
+}
+
+/* -- the casebook column ----------------------------------------------------- */
+
+.sb-casebook {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.3em;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.sb-case-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.15em 0.5em;
+  padding: 0.35em 0.5em;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ink-800) 88%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 30%, transparent);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+}
+
+.sb-case-row.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.sb-case-time {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  color: var(--accent);
+}
+
+.sb-case-text {
+  font-family: var(--font-body);
+  font-size: 0.98em;
+  color: var(--text-primary);
+}
+
+.sb-dock {
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+  color: var(--verdigris);
+}
+
+.sb-dock.is-docketed::before {
+  content: '⌗ ';
+}
+
+.sb-coda {
+  display: grid;
+  gap: 0.35em;
+  grid-column: 1 / -1;
+  padding: 0.5em 0.6em;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(168deg, var(--ink-800), var(--ink-abyss));
+  box-shadow: var(--mech-edge), var(--mech-sunk);
+}
+
+.sb-coda-strap {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+}
+
+.sb-slip {
+  justify-self: start;
+  padding: 0.3em 0.6em;
+  border-radius: 1px;
+  background-image: var(--pz-grain-paper),
+    linear-gradient(172deg, color-mix(in srgb, var(--paper-100) 80%, var(--verdigris)) 0%, var(--paper-300) 100%);
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--mech-lift);
+  color: var(--paper-ink);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  cursor: grab;
+  z-index: 4;
+}
+
+.sb-slip.is-refused {
+  animation: mech-shudder 340ms var(--ease-in-out);
+}
+
+/* ===========================================================================
+   puz-the-optic — First Light
+   ========================================================================= */
+
+.mech-optic {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.2rem;
+}
+
+.op-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.4rem, 2cqw, 1.2rem);
+}
+
+.op-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(0.5rem, 2cqw, 1.4rem);
+  align-items: center;
+  min-height: 0;
+}
+
+/* -- the optic ---------------------------------------------------------------
+   A bronze frame ring seen from above, with the burner at the centre. Every
+   stage happens on this one object, because in life it is one object. */
+.op-ring {
+  --ring: clamp(9rem, 46cqh, 17rem);
+
+  position: relative;
+  width: var(--ring);
+  height: var(--ring);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--lamp-200) 22%, transparent), transparent 58%),
+    radial-gradient(circle, var(--ink-900) 0 30%, var(--ink-800) 32%, var(--ink-abyss) 100%);
+  box-shadow: var(--mech-lift-hi), inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 40%, transparent);
+}
+
+.op-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.op-frame-seg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--a));
+}
+
+.op-frame-seg::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 1.5%;
+  width: 0.5em;
+  height: 11%;
+  margin-left: -0.25em;
+  border-radius: 2px;
+  background-image: var(--mech-bronze);
+  box-shadow: var(--mech-edge);
+}
+
+.op-bay {
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  width: 26%;
+  height: 30%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--lamp-600) 60%, transparent);
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ink-abyss) 70%, transparent) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+.op-datum {
+  position: absolute;
+  left: 50%;
+  top: -0.5em;
+  width: 0;
+  height: 0;
+  margin-left: -0.35em;
+  border-left: 0.35em solid transparent;
+  border-right: 0.35em solid transparent;
+  border-top: 0.55em solid var(--lamp-200);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.6));
+}
+
+.op-datum::after {
+  content: 'Datum';
+  position: absolute;
+  left: 50%;
+  top: -1.3em;
+  transform: translateX(-50%);
+  font-size: 0.62em;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--lamp-200);
+}
+
+.op-burner {
+  position: absolute;
+  inset: 40%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, var(--lamp-100), var(--lamp-500) 55%, var(--ink-900) 100%);
+  box-shadow: var(--glow-lamp);
+}
+
+.op-beam {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--a, 0deg));
+  pointer-events: none;
+}
+
+.op-beam::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -14%;
+  width: 12%;
+  height: 64%;
+  margin-left: -6%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--lamp-200) 28%, transparent) 70%,
+    color-mix(in srgb, var(--lamp-100) 46%, transparent) 100%
+  );
+  opacity: 0.55;
+}
+
+.op-ring.is-flashing {
+  box-shadow: var(--mech-lift-hi), 0 0 34px -6px color-mix(in srgb, var(--lamp-200) 70%, transparent);
+}
+
+/* -- stage I: the panel ------------------------------------------------------ */
+
+.mech-optic[data-stage='0'] .op-sectors {
+  display: none;
+}
+
+.mech-optic:not([data-stage='0']) .op-clips {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.op-seat-stage {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.4rem, 2cqw, 1.2rem);
+}
+
+.op-panel-holder {
+  position: relative;
+  width: clamp(3rem, 12cqh, 4.6rem);
+  height: clamp(5rem, 20cqh, 7.6rem);
+}
+
+.op-panel {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+  filter: drop-shadow(0 8px 12px rgb(0 0 0 / 0.6));
+}
+
+.op-panel-spin {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: space-evenly;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 2px;
+  transform: rotate(var(--panel-rot, 0deg)) perspective(400px) rotateY(calc(var(--bow, 0) * 26deg));
+  transform-origin: 50% 50%;
+  background: linear-gradient(
+    118deg,
+    color-mix(in srgb, var(--moon-100) 30%, transparent) 0%,
+    color-mix(in srgb, var(--moon-300) 22%, transparent) 46%,
+    color-mix(in srgb, var(--verdigris) 26%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--lamp-300) 45%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 40%, transparent);
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.op-prism {
+  height: 0.34em;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--moon-100) 62%, transparent) 0%,
+    color-mix(in srgb, var(--moon-300) 18%, transparent) 55%,
+    color-mix(in srgb, var(--ink-900) 30%, transparent) 100%
+  );
+}
+
+.op-panel-bull {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 36%,
+    color-mix(in srgb, var(--moon-100) 55%, transparent),
+    transparent 62%
+  );
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--moon-100) 26%, transparent);
+}
+
+.op-panel.is-near .op-panel-spin {
+  box-shadow:
+    inset 0 0 0 2px var(--lamp-200),
+    0 0 22px -2px color-mix(in srgb, var(--lamp-200) 70%, transparent);
+}
+
+.op-panel.is-seated {
+  position: absolute;
+  inset: -6% -4%;
+  width: auto;
+  height: auto;
+  cursor: default;
+}
+
+.op-panel.is-bowing .op-panel-spin {
+  animation: mech-bow 500ms var(--ease-in-out);
+}
+
+.op-panel.is-cracked .op-panel-spin::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(112deg, transparent 46%, var(--moon-100) 47%, transparent 48%),
+    linear-gradient(74deg, transparent 62%, color-mix(in srgb, var(--moon-100) 70%, transparent) 63%, transparent 64%);
+  opacity: 0.9;
+}
+
+.op-collar-well {
+  display: grid;
+  justify-items: center;
+  gap: 0.3em;
+}
+
+.op-collar {
+  position: relative;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  background-image: var(--pz-grain-brass), var(--mech-brass);
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  display: grid;
+  place-items: center;
+  transform: rotate(var(--rot, 0deg));
+}
+
+.op-collar-bar {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 3px;
+  height: 34%;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--ink-abyss);
+}
+
+.op-cue {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1em;
+  color: var(--text-secondary);
+}
+
+/* -- the six clips ----------------------------------------------------------- */
+
+.op-clips {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.op-clips[hidden] {
+  display: none;
+}
+
+.op-clip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.5em;
+  height: 1.5em;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 36% 30%, var(--ink-500), var(--ink-900));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 50%, transparent), var(--mech-lift);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(var(--ring) / -2 - 0.55em))
+    rotate(calc(-1 * var(--a)));
+  transition: background var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+}
+
+.op-clip-jaw {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--moon-200) 40%, transparent);
+  border-bottom-color: transparent;
+  transition: transform var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+
+.op-clip-num {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+}
+
+/* Fastened is brass, a closed jaw *and* a bolder numeral. */
+.op-clip.is-fast {
+  background-image: var(--mech-brass);
+  color: var(--ink-900);
+  box-shadow: var(--mech-edge), var(--glow-lamp-soft);
+}
+
+.op-clip.is-fast .op-clip-jaw {
+  border-color: var(--ink-900);
+  transform: rotate(180deg) scale(0.82);
+}
+
+.op-clips.is-done .op-clip {
+  cursor: default;
+}
+
+/* -- stage II: the character -------------------------------------------------- */
+
+.op-sectors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.op-sector {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--rot, 0deg));
+  cursor: grab;
+}
+
+.op-sector-arm {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 0.34em;
+  height: 44%;
+  margin-left: -0.17em;
+  border-radius: 2px;
+  background-image: var(--mech-brass-worn);
+  box-shadow: var(--mech-edge);
+  pointer-events: auto;
+}
+
+.op-sector-window {
+  position: absolute;
+  left: 50%;
+  top: -0.15em;
+  width: 1.5em;
+  height: 0.8em;
+  margin-left: -0.75em;
+  border-radius: 2px;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.op-sector-num {
+  position: absolute;
+  left: 50%;
+  top: -0.1em;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  color: var(--ink-900);
+  pointer-events: none;
+}
+
+.op-sector:focus-visible .op-sector-window {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.op-char-stage {
+  display: grid;
+  align-content: start;
+  gap: 0.4em;
+}
+
+.op-observer {
+  display: grid;
+  gap: 0.3em;
+  padding: 0.5em 0.6em;
+  border-radius: var(--radius-md);
+  background: linear-gradient(168deg, var(--ink-800), var(--ink-abyss));
+  box-shadow: var(--mech-edge), var(--mech-sunk);
+}
+
+.op-sea {
+  position: relative;
+  width: min(100%, 24rem);
+  height: clamp(3rem, 14cqh, 5rem);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--ink-900) 0%, var(--ink-800) 52%, var(--ink-abyss) 100%);
+  box-shadow: var(--mech-sunk);
+}
+
+.op-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  height: 1px;
+  background: color-mix(in srgb, var(--moon-300) 40%, transparent);
+}
+
+.op-spark {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 0.42em;
+  height: 0.42em;
+  margin: -0.21em 0 0 -0.21em;
+  border-radius: 50%;
+  background: var(--ink-700);
+  transition: background 40ms linear, box-shadow 40ms linear;
+}
+
+.op-spark.is-on {
+  background: var(--lamp-100);
+  box-shadow: 0 0 16px 3px color-mix(in srgb, var(--lamp-200) 80%, transparent);
+}
+
+.op-stopwatch {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--lamp-200);
+}
+
+.op-named {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.02em;
+  color: var(--text-secondary);
+}
+
+/* Every verdict carries a glyph as well as a colour. */
+.op-named[data-match='true'] {
+  color: var(--lamp-100);
+}
+
+.op-named[data-match='true']::before {
+  content: '✓ ';
+}
+
+.op-named[data-match='wrong'] {
+  color: var(--blood-bright);
+}
+
+.op-named[data-match='wrong']::before {
+  content: '✗ ';
+}
+
+.op-named[data-match='near']::before {
+  content: '· ';
+}
+
+.op-list {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+  color: var(--text-secondary);
+}
+
+.op-list th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid color-mix(in srgb, var(--lamp-600) 40%, transparent);
+}
+
+.op-list td {
+  padding: 0.1em 0.7em 0.1em 0;
+}
+
+/* -- stage III: wind and set --------------------------------------------------- */
+
+.op-wind-stage {
+  display: grid;
+  gap: 0.4em;
+  align-content: start;
+}
+
+.op-wind-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(0.5rem, 2cqw, 1.4rem);
+  align-items: center;
+}
+
+.op-crank-well {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 0.35em 0.7em;
+  justify-items: center;
+}
+
+.op-crank-well .mech-caption {
+  grid-column: 1 / -1;
+}
+
+.op-shaft {
+  position: relative;
+  width: 1.1em;
+  height: clamp(3.6rem, 18cqh, 6rem);
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ink-abyss), var(--ink-800), var(--ink-abyss));
+  box-shadow: var(--mech-sunk);
+}
+
+.op-shaft-scale {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lamp-600) 45%, transparent) 0 1px,
+    transparent 1px 12.5%
+  );
+}
+
+.op-weight {
+  position: absolute;
+  left: 50%;
+  width: 1.5em;
+  height: 1.1em;
+  margin-left: -0.75em;
+  border-radius: 2px;
+  bottom: calc(6% + var(--fall, 0) * 78%);
+  background-image: var(--mech-steel);
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  transition: bottom 90ms linear;
+}
+
+.op-crank {
+  position: relative;
+  width: clamp(2.8rem, 12cqh, 4rem);
+  height: clamp(2.8rem, 12cqh, 4rem);
+  border-radius: 50%;
+  transform: rotate(var(--rot, 0deg));
+  background: radial-gradient(circle at 36% 30%, var(--ink-600), var(--ink-900) 72%);
+  box-shadow: var(--mech-edge), var(--mech-lift);
+  cursor: grab;
+}
+
+.op-crank-arm {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  width: 0.4em;
+  height: 40%;
+  margin-left: -0.2em;
+  border-radius: 99px;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge);
+}
+
+.op-crank-handle {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: -0.4em;
+  border-radius: 50%;
+  background-image: var(--mech-brass);
+  box-shadow: var(--mech-edge), 0 2px 4px rgb(0 0 0 / 0.6);
+}
+
+.op-clock-well {
+  display: grid;
+  justify-items: start;
+  gap: 0.3em;
+}
+
+.op-dial-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.op-dial-row .pz-dial {
+  --dial-size: clamp(4rem, 18cqh, 6.4rem);
+}
+
+.op-colon {
+  font-family: var(--font-mono);
+  font-size: 1.4em;
+  color: var(--accent);
+  align-self: start;
+  margin-top: 1.4em;
+}
+
+/* Sixty legends round a dial is a clock face, not a control panel: keep the
+   fives and let the rest be ticks. The spoken value is unaffected. */
+.op-dial-minutes .pz-dial-tick:not(:nth-child(5n + 1)) .pz-dial-legend {
+  opacity: 0;
+}
+
+.op-release-read,
+.op-wind-read {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  color: var(--lamp-200);
+}
+
+.mech-optic.is-lit .op-ring {
+  box-shadow: var(--mech-lift-hi), 0 0 60px -4px color-mix(in srgb, var(--lamp-200) 85%, transparent);
+}
+
+/* ===========================================================================
+   Motion
+   ========================================================================= */
+
+@keyframes mech-shudder {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  45% {
+    transform: translateX(3px);
+  }
+  70% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes mech-bow {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: brightness(1.3) saturate(0.6);
+  }
+}
+
+@keyframes mech-tick {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* A shudder is information — "it refused" — so it survives reduced motion as a
+   flash rather than being dropped altogether. */
+@media (prefers-reduced-motion: reduce) {
+  .mech-root *,
+  .mech-root *::before,
+  .mech-root *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 60ms !important;
+  }
+
+  .tl-handle.is-refused,
+  .tr-op.is-refused,
+  .sb-slip.is-refused,
+  .sb-lamp.is-buzz {
+    outline: 2px solid var(--danger);
+    outline-offset: 2px;
+  }
+}
+
+/* ===========================================================================
+   Accessibility settings
+   ========================================================================= */
+
+/* Colour-blind-safe: no signal in this file is hue-only to begin with, so the
+   job here is to make the *shape* cues louder rather than to recolour. */
+:root[data-cb-safe='on'] .mech-root {
+  --mech-cb: 1;
+}
+
+:root[data-cb-safe='on'] /* A four-pixel mortar joint is a real bed joint and an unusable target, so
+   the hit area reaches into the brick either side of it. */
+.tr-joint::before {
+  content: '';
+  position: absolute;
+  inset: -3px 0;
+}
+
+.tr-joint.is-soft {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--moon-100) 0 2px,
+    transparent 2px 5px
+  );
+}
+
+:root[data-cb-safe='on'] .tr-gauge-band {
+  border-left-width: 3px;
+  border-right-width: 3px;
+}
+
+:root[data-cb-safe='on'] .sb-lamp.is-lit .sb-lamp-glass {
+  box-shadow: 0 0 0 3px var(--moon-100), var(--glow-lamp);
+}
+
+:root[data-cb-safe='on'] .op-clip.is-fast .op-clip-jaw {
+  border-width: 3px;
+}
+
+:root[data-cb-safe='on'] .tr-pred {
+  stroke-dasharray: 12 5 3 5;
+  stroke-width: 2.6;
+}
+
+/* High-contrast text: the engraved captions are the first thing to go on a
+   dim screen, so they come back up to full strength. */
+:root[data-contrast-boost='on'] .mech-caption,
+:root[data-contrast-boost='on'] .sb-jack-name,
+:root[data-contrast-boost='on'] .tl-mv-title {
+  color: var(--moon-100);
+  text-shadow: 0 1px 2px var(--ink-abyss);
+}
+
+/* ===========================================================================
+   Narrow benches
+   ========================================================================= */
+
+@container (max-width: 46rem) {
+  .mech-timelock,
+  .mech-switchboard,
+  .tr-wall-stage,
+  .tr-set-stage,
+  .tr-drum-stage,
+  .op-body,
+  .op-head,
+  .op-seat-stage,
+  .op-wind-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+    align-content: start;
+  }
+
+  /* Stacked, the columns must take their own height and let the bench scroll,
+     rather than compressing into one another. */
+  .sb-left,
+  .sb-right,
+  .tl-column,
+  .tr-set-left,
+  .tr-set-right {
+    min-height: auto;
+  }
+
+  .tl-column--work {
+    grid-template-rows: auto auto;
+  }
+
+  .op-ring {
+    justify-self: center;
+  }
+
+  .sb-jack-name {
+    display: none;
+  }
+}

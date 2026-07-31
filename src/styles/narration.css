@@ -1,0 +1,362 @@
+/**
+ * Narration, item close-ups and act cards.
+ *
+ * Three distinct registers, deliberately not sharing a look:
+ *   .is-say    — a physical page, warm paper, weight and shadow
+ *   .is-think  — no surface at all; the words float in the dark, cool and italic
+ *   .act-card  — full-bleed, ceremonial, the only place type gets to be large
+ */
+
+.narration-root {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-dialogue);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 var(--sp-6) clamp(var(--sp-6), 7vh, var(--sp-8));
+  pointer-events: none;
+}
+
+.narration-root.is-active {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* -- Panels ---------------------------------------------------------------- */
+
+.narration-panel {
+  position: relative;
+  max-width: min(64ch, 78%);
+  padding: var(--sp-5) var(--sp-6);
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.narration-panel.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.narration-panel.is-out {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition-duration: var(--dur-med);
+}
+
+/* Spoken: aged paper with a torn top edge and a real drop shadow. */
+.narration-panel.is-say {
+  background:
+    linear-gradient(178deg, rgb(0 0 0 / 0.06) 0%, transparent 18%),
+    radial-gradient(120% 90% at 30% 0%, var(--paper-100) 0%, var(--paper-200) 58%, var(--paper-300) 100%);
+  color: var(--paper-ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-3);
+  /* Irregular edge so it reads as a torn slip rather than a div. */
+  clip-path: polygon(
+    0% 3%, 4% 0%, 12% 2.5%, 23% 0.5%, 37% 2.8%, 51% 0.4%, 66% 2.6%, 79% 0.6%, 91% 2.4%, 100% 0.8%,
+    100% 100%, 0% 100%
+  );
+}
+
+/* Paper grain, so the fill is never flat. */
+.narration-panel.is-say::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: var(--grain-paper);
+  background-size: 180px 180px;
+}
+
+/* Interior voice: no surface, cool light, italic. */
+.narration-panel.is-think {
+  color: var(--moon-200);
+  text-align: center;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.9),
+    0 0 26px rgb(0 0 0 / 0.85),
+    0 0 60px rgb(0 0 0 / 0.6);
+  max-width: min(56ch, 72%);
+}
+
+.narration-speaker {
+  display: block;
+  margin-bottom: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--lamp-600);
+}
+
+.narration-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  line-height: var(--leading-body);
+  /* Reserve the line box before text arrives so the panel never grows mid-reveal. */
+  min-height: calc(var(--step-1) * var(--leading-body));
+}
+
+.narration-panel.is-think .narration-text {
+  font-style: italic;
+  font-size: var(--step-1);
+}
+
+/* Continue caret — only once the line has finished revealing. */
+.narration-caret {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: var(--sp-2);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--lamp-500);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.narration-panel.is-ready .narration-caret {
+  opacity: 0.85;
+  animation: caret-nudge 1.5s var(--ease-in-out) infinite;
+}
+
+.narration-panel.is-think .narration-caret {
+  border-top-color: var(--moon-400);
+  right: 50%;
+  transform: translateX(50%);
+  bottom: calc(var(--sp-4) * -1);
+}
+
+@keyframes caret-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.narration-panel.is-think.is-ready .narration-caret {
+  animation: caret-nudge-centered 1.5s var(--ease-in-out) infinite;
+}
+
+@keyframes caret-nudge-centered {
+  0%,
+  100% {
+    transform: translateX(50%) translateY(0);
+  }
+  50% {
+    transform: translateX(50%) translateY(3px);
+  }
+}
+
+/* -- Item close-up --------------------------------------------------------- */
+
+.examine-view {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 50%, rgb(6 9 12 / 0.82) 0%, rgb(4 6 8 / 0.96) 78%);
+  backdrop-filter: blur(6px) saturate(0.75);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  cursor: default;
+}
+
+.examine-view.is-in {
+  opacity: 1;
+}
+
+.examine-view.is-out {
+  opacity: 0;
+}
+
+.examine-plate {
+  display: grid;
+  grid-template-columns: auto minmax(0, 42ch);
+  gap: var(--sp-6);
+  align-items: center;
+  max-width: min(70rem, 88vw);
+  padding: var(--sp-6) var(--sp-7);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.05) 0%, transparent 12%),
+    linear-gradient(170deg, var(--ink-700) 0%, var(--ink-900) 100%);
+  border: var(--border-brass);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-4), inset 0 1px 0 rgb(255 255 255 / 0.07);
+  transform: scale(0.96) translateY(8px);
+  transition: transform var(--dur-slow) var(--ease-drama);
+}
+
+.examine-view.is-in .examine-plate {
+  transform: scale(1) translateY(0);
+}
+
+.examine-image {
+  width: clamp(11rem, 20vw, 17rem);
+  height: auto;
+  /* A long warm shadow sells the object as lit from the upper left. */
+  filter: drop-shadow(10px 18px 24px rgb(0 0 0 / 0.75));
+}
+
+.examine-title {
+  margin: 0 0 var(--sp-3);
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  color: var(--lamp-200);
+}
+
+.examine-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  color: var(--text-secondary);
+}
+
+.examine-close {
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin-top: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: transparent;
+  border: var(--border-hairline);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.examine-close:hover,
+.examine-close:focus-visible {
+  color: var(--lamp-200);
+  border-color: var(--lamp-400);
+  background: color-mix(in srgb, var(--lamp-500) 12%, transparent);
+}
+
+@media (max-width: 900px) {
+  .examine-plate {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+}
+
+/* -- Act card -------------------------------------------------------------- */
+
+.act-card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--ink-abyss);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-in-out);
+  cursor: pointer;
+}
+
+.act-card.is-in {
+  opacity: 1;
+}
+
+.act-card.is-out {
+  opacity: 0;
+  transition-duration: 700ms;
+}
+
+.act-card-inner {
+  text-align: center;
+  padding: var(--sp-6);
+  max-width: 52ch;
+}
+
+.act-card-number,
+.act-card-title,
+.act-card-rule,
+.act-card-epigraph {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: act-rise 900ms var(--ease-out) forwards;
+}
+
+.act-card-number {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--lamp-500);
+  animation-delay: 220ms;
+}
+
+.act-card-title {
+  margin: var(--sp-4) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-5);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--paper-100);
+  text-shadow: 0 0 44px color-mix(in srgb, var(--lamp-400) 24%, transparent);
+  animation-delay: 420ms;
+}
+
+.act-card-rule {
+  width: 8rem;
+  height: 1px;
+  margin: var(--sp-5) auto;
+  background: linear-gradient(90deg, transparent, var(--lamp-500), transparent);
+  animation-delay: 700ms;
+}
+
+.act-card-epigraph {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  color: var(--moon-300);
+  animation-delay: 900ms;
+}
+
+@keyframes act-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act-card-number,
+  .act-card-title,
+  .act-card-rule,
+  .act-card-epigraph {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .narration-panel.is-ready .narration-caret,
+  .narration-panel.is-think.is-ready .narration-caret {
+    animation: none;
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "the-lamplight-cipher",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit",
+    "art": "node tools/generate-art.mjs",
+    "test": "vitest run",
+    "check:audio": "node tools/check-audio.mjs",
+    "shoot": "node tools/shoot.mjs",
+    "fonts": "node tools/fetch-fonts.mjs",
+    "manifest": "node tools/build-manifest.mjs",
+    "check:content": "node tools/check-content.mjs",
+    "voice": "node tools/generate-voice.mjs",
+    "voice:manifest": "node tools/build-voice-manifest.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.0",
+    "sharp": "^0.35.3",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8"
+  }
+}

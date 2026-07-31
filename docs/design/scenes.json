@@ -1,0 +1,1680 @@
+{
+ "scenes": [
+  {
+   "id": "the-ardent",
+   "name": "The Ardent \u2014 Deck and Cabin",
+   "act": 1,
+   "description": "The Authority's pilot cutter. Cold-open tutorial cabin, Act II's aborted crossing, and the only way to the rock in Act IV.",
+   "navigation": [
+    "rossport-quay",
+    "slipway-and-ritas-shed",
+    "beacon-landing"
+   ],
+   "hotspots": [
+    {
+     "id": "satchel",
+     "label": "Wren's soaked satchel",
+     "type": "puzzle",
+     "effect": "Opens the cold-open conservation puzzle: humidify, separate and blot the two fused leaves of the s.41 commission. Hurrying tears it permanently and scars the document for the rest of the game."
+    },
+    {
+     "id": "spatula-kit",
+     "label": "Conservation roll: spatula, Gore-Tex sheet, blotters",
+     "type": "take",
+     "effect": "Adds the hand-tool kit; unlocks the humidification verb used again on the incinerator fragments in Act I and the razored offsets in Act IV."
+    },
+    {
+     "id": "lee-rail",
+     "label": "The lee rail",
+     "type": "examine",
+     "effect": "Act II aborted crossing: Wren is sick over the side while the beacon comes and goes behind grey water. Her fear of open water as a mechanic, not a line."
+    },
+    {
+     "id": "binocular-case",
+     "label": "Brass-bound glasses in the locker",
+     "type": "use",
+     "effect": "Act II: at four hundred yards, reveals the beacon's gallery door standing open, contradicting Rita's claim that nobody goes out in the off season."
+    },
+    {
+     "id": "radio-set",
+     "label": "The set on its shelf",
+     "type": "talk",
+     "effect": "Act V, 07:00: DS Iveson tells Wren an uncautioned confession on a rock is worth precisely nothing. Everything must still be cited."
+    },
+    {
+     "id": "helm-course",
+     "label": "Compass and course card",
+     "type": "travel",
+     "effect": "Sea travel hub: Rossport Quay, the Brannock slipway, or (Act IV only, with Rita) the Nine Bells landing."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person seated view inside the low cabin of a 1950s wooden pilot cutter, eye height about 1.1 metres, camera angled slightly down at a varnished fold-down chart table in the near foreground. On the table: a soaked leather satchel, blotting paper, a bone spatula, a curling water-stained legal document. Key light is cold grey-green daylight through a salt-blurred rectangular port, with a weak warm brass paraffin cabin lamp swinging above throwing a second amber moving highlight. Materials: varnished mahogany, dulled brass, wet canvas, condensation on painted steel. Through the port: heaving grey Atlantic swell and low cloud. Heeled horizon, everything slightly tilted. Mood: cramped, cold, nauseous, intimate. No people. No text.",
+   "ambience": "Hull working in a swell, water slapping planking, a diesel throb two rooms away, loose brass ticking, rain on the port glass."
+  },
+  {
+   "id": "rossport-quay",
+   "name": "Rossport Quay and the GPO Call Box",
+   "act": 1,
+   "description": "The mainland toehold: ferry office, memorial plate, and the red kiosk that is the game's entire hint system.",
+   "navigation": [
+    "the-ardent",
+    "rossport-police"
+   ],
+   "hotspots": [
+    {
+     "id": "call-box",
+     "label": "GPO call box",
+     "type": "talk",
+     "effect": "The diegetic hint line. Phyllida Halkett explains section 41, certification, adverse reports and the 4 November pulping, and refuses every time to have an opinion about the case."
+    },
+    {
+     "id": "ferry-office",
+     "label": "Ferry office booking book",
+     "type": "examine",
+     "effect": "Act IV: H. PIKE, out 08:15, return 17:40 on 14 September 1998. Clears the obvious suspect and implies who worked the counter instead."
+    },
+    {
+     "id": "tide-board",
+     "label": "Causeway tide board",
+     "type": "examine",
+     "effect": "Posts today's low-water windows; gates travel to Cardew and warns when the causeway is closing."
+    },
+    {
+     "id": "phone-money",
+     "label": "Pocketful of ten-pence pieces",
+     "type": "use",
+     "effect": "Limits call length; the pips cut Halkett off mid-procedure unless the player has saved change."
+    },
+    {
+     "id": "pelagia-memorial",
+     "label": "Cast-iron memorial plate on the harbour wall",
+     "type": "examine",
+     "effect": "Thirty-one names, salt-pitted. Cross-referenced against the Pelagia manifest and the Kestrel Bequest schedule in Act IV."
+    },
+    {
+     "id": "enid-bench",
+     "label": "The bench by the ferry ramp",
+     "type": "talk",
+     "effect": "Act IV: Enid Charnock, resigning, unfolds the back cover of the 1974 cash book and hands over the memorandum of 6 November."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres on a wet granite harbour quay at dusk, camera three-quarters toward a red-painted GPO telephone kiosk with small glazing bars, interior lit weak warm yellow. Foreground framing: a rust-scabbed mooring bollard with looped tarred rope, bottom left, close and slightly soft. Key light is sodium orange from a single quay lamp against cool blue-grey rain-heavy sky, with orange smears reflected in standing water across the setts. Materials: streaked granite, flaking red paint, salt-bleached timber, iron. Background: a ferry slip, a shuttered office, low cloud over black water. Mood: cold, provincial, exposed. No people. No text.",
+   "ambience": "Rain on a kiosk roof, halyards ringing, water sucking at the quay wall, a distant diesel, gulls, the pips of a payphone."
+  },
+  {
+   "id": "rossport-police",
+   "name": "Rossport Police Station, Interview Room 2",
+   "act": 3,
+   "description": "Two officers and a district of four hundred square miles. The wall the player's case has to be strong enough to stand against.",
+   "navigation": [
+    "rossport-quay"
+   ],
+   "hotspots": [
+    {
+     "id": "iveson",
+     "label": "DS Marren Iveson",
+     "type": "talk",
+     "effect": "Wall-testing dialogue. 'That's an inference, that is. Bring me an object.' Her register changes permanently once handed a properly cited schedule of exhibits."
+    },
+    {
+     "id": "custody-record",
+     "label": "Custody record, 31 October 17:15",
+     "type": "examine",
+     "effect": "Rita Tain's arrest on Wren's own adverse report. The player reads the consequence of her honesty in a clerk's handwriting."
+    },
+    {
+     "id": "referral-form",
+     "label": "Homicide referral form",
+     "type": "puzzle",
+     "effect": "Act V: word the referral from a menu of what can actually be proved. 'Murder' collapses; the grab, the defective rail and the eleven minutes stand."
+    },
+    {
+     "id": "exhibits-schedule",
+     "label": "Schedule of exhibits",
+     "type": "use",
+     "effect": "Submits the casebook's cited exhibits; each accepted item unlocks a corroborating question Iveson will put on the record."
+    },
+    {
+     "id": "noticeboard",
+     "label": "Station noticeboard",
+     "type": "examine",
+     "effect": "Coastguard bulletins and a storm warning that quietly forecasts the Act IV gale, the downed line and the closed causeway."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person seated view at eye height 1.2 metres across a scratched grey laminate table in a small 1990s police interview room. Camera square-on to a blank magnolia breeze-block wall with a wall-mounted twin-deck tape recorder and a black plastic clock. Key light is flat greenish light from a recessed fluorescent tube behind a yellowed diffuser, plus a thin wedge of blue evening through high frosted glazing. Foreground framing: the near table edge with a buff folder, a plastic cup of water, a biro. Materials: laminate, breeze block, grey vinyl, cheap plastic. Deliberately institutional green-white palette, the least painterly interior in the game. Mood: procedural, unbeautiful, honest. No people. No text.",
+   "ambience": "Fluorescent hum, a radio handset squawking down a corridor, a printer, chair legs on vinyl, rain against high glass."
+  },
+  {
+   "id": "slipway-and-ritas-shed",
+   "name": "The Slipway and Rita's Shed",
+   "act": 2,
+   "description": "Where the Ardent lies and where the causeway starts. Rita's kingdom ashore, and three boxes of a dead man's effects she has never opened.",
+   "navigation": [
+    "the-ardent",
+    "cliff-path-churchyard",
+    "cardew-village"
+   ],
+   "hotspots": [
+    {
+     "id": "ardent-mooring",
+     "label": "The Ardent on her mooring",
+     "type": "travel",
+     "effect": "Boards the cutter. Gated by weather: refuses in Act III's southwesterly, permitted only with Rita aboard in the Act IV gale."
+    },
+    {
+     "id": "rita",
+     "label": "Rita Tain, working on the engine",
+     "type": "talk",
+     "effect": "Boat talk, the 1975 findings recited by paragraph number, and the Deakin letter offered in Act II as the thing that ends the case."
+    },
+    {
+     "id": "sallow-boxes",
+     "label": "Three unopened boxes of Cormac Sallow's effects",
+     "type": "puzzle",
+     "effect": "Act III: sorting them yields Sallow's file copy of oil requisition R.755, refused, initialled p.p. The object that made him write to a stranger."
+    },
+    {
+     "id": "fog-signal-book",
+     "label": "Fog-signal service book on a nail",
+     "type": "examine",
+     "effect": "Rita's initials against every month since 1991, catching her claim that nobody goes out to the rock in the off season, and confirming her 14 September alibi."
+    },
+    {
+     "id": "causeway-head",
+     "label": "Head of the causeway",
+     "type": "travel",
+     "effect": "Crosses to Cardew at low water only; the causeway physically closes for hours and, in Act IV, for good."
+    },
+    {
+     "id": "davit-scar",
+     "label": "The broken davit",
+     "type": "examine",
+     "effect": "1988, and the white scar through Rita's eyebrow. A character note the player finds without being told."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres at the head of a weed-slick concrete slipway running down into grey-green water, mid morning, overcast. To the right a tarred timber shed with an open door, inside a warm brown gloom of coiled rope, cardboard boxes and an oily bench. Foreground framing: a rusted winch drum and frayed wire, close, lower left. Key light is flat silver-grey maritime daylight from high overcast with one weak warm interior glow from the shed. Materials: barnacled concrete, bladderwrack, tarred boards, galvanised sheet, oil-stained timber. Distant headland with a granite building on its skyline. Mood: working, salt-eaten, unsentimental. No people. No text.",
+   "ambience": "Wavelets on concrete, wind in corrugated iron, a halyard tapping, dripping water, distant sheep and gulls."
+  },
+  {
+   "id": "cardew-village",
+   "name": "Cardew Village and the Post Office",
+   "act": 3,
+   "description": "One wet street on the mainland side. A dead sorting office, a call box that rang for four minutes in 1974, and the road up to Pike's cottage.",
+   "navigation": [
+    "slipway-and-ritas-shed",
+    "pikes-cottage"
+   ],
+   "hotspots": [
+    {
+     "id": "call-box-4471",
+     "label": "The call box, Cardew 4471",
+     "type": "examine",
+     "effect": "Forty yards from a dead man's door. Standing in it while reading the 1974 plug-log makes the four unanswered minutes physical."
+    },
+    {
+     "id": "post-office",
+     "label": "Cardew sorting office counter",
+     "type": "examine",
+     "effect": "The frank die, last struck 30 September 1972: the second nail in the Deakin letter, verifiable against the postmark gazetteer."
+    },
+    {
+     "id": "garage-fuel-book",
+     "label": "Garage fuel book",
+     "type": "examine",
+     "effect": "Act IV: H. Pike, four gallons at 18:20 on 14 September, nine miles from the headland. The alibi he would rather not give."
+    },
+    {
+     "id": "ship-inn",
+     "label": "The Ship Inn",
+     "type": "examine",
+     "effect": "Where Cass Verge was at 22:41 on 3 November 1974 while a telephone rang in the box across the road."
+    },
+    {
+     "id": "telephone-pole",
+     "label": "The pole at the Cardew turn",
+     "type": "examine",
+     "effect": "Act IV: taken down by the gale. Cuts the hint line and the police, and forces the Aldis lamp onto the roof."
+    },
+    {
+     "id": "hill-road",
+     "label": "The hill road",
+     "type": "travel",
+     "effect": "Walks up to Pike's rented cottage; in Act IV the same road is walked toward a fire."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres in a single wet village street of low limewashed cottages under heavy rain, late afternoon. Camera looks along the street toward a small post office with a green-painted shopfront and a black cast-iron post box; a cream-and-red telephone box on the near pavement streaming with water. Foreground framing: a dripping slate wall corner, lower right, close. Key light is failing daylight, blue-grey and diffuse, with two warm yellow window rectangles as the only heat in the picture. Materials: limewash going green, wet slate, iron, running gutters, puddled tarmac reflecting sky. Mood: small, shut-up, drenched, watched. No people. No text.",
+   "ambience": "Hard rain on slate, water in a gutter, wind round a chimney, a dog barking twice, a car passing on a wet road."
+  },
+  {
+   "id": "pikes-cottage",
+   "name": "Pike's Cottage, Cardew",
+   "act": 3,
+   "description": "Three thousand stolen documents in a rented kitchen, and the table where the reconciliation refuses to agree.",
+   "navigation": [
+    "cardew-village"
+   ],
+   "hotspots": [
+    {
+     "id": "kitchen-table",
+     "label": "The kitchen table under the bare bulb",
+     "type": "puzzle",
+     "effect": "THE RECONCILIATION. Dues ledger, oil requisition book and wage sheets filled column by column on a Conservancy form. No hint, no chime; the third column refuses to agree and the music stops."
+    },
+    {
+     "id": "oil-requisition-book",
+     "label": "Oil Requisition Book, Nine Bells 1966\u20131980",
+     "type": "take",
+     "effect": "R.741, R.748, R.755, each stamped REQUISITION NOT SANCTIONED \u2014 REFER WINTER REFIT, each initialled p.p."
+    },
+    {
+     "id": "despatch-book",
+     "label": "Despatch Book 1970\u201379 on the dresser",
+     "type": "examine",
+     "effect": "The docket of 16 August 1974 with 74/119 ruled through in 2H pencil and initialled p.p.; foot of the docket, 214 at 4d."
+    },
+    {
+     "id": "tide-table-catalogue",
+     "label": "Catalogue on the backs of tide-table covers",
+     "type": "examine",
+     "effect": "Forty years of theft indexed in a chief clerk's hand. Establishes provenance for every exhibit from this house, and the chain-of-custody attack the Board will make."
+    },
+    {
+     "id": "pike",
+     "label": "Halvard Pike",
+     "type": "talk",
+     "effect": "Eleven minutes without stopping, not looking at her: Circular 12/85, the van, and the box marked LIGHTS: STORES he never opened."
+    },
+    {
+     "id": "paraffin-heater",
+     "label": "The paraffin heater",
+     "type": "examine",
+     "effect": "Foreshadows the Act IV fire, in which the player chooses in smoke which four of nine bundles to carry out."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.55 metres in a small rented cottage kitchen at night, filled to the ceiling with archival material: taped bundles of documents on every surface, a dresser packed with ledgers, boxes under the table. Key light is one bare hanging bulb directly over a scrubbed deal table, a hard warm pool with long shadows falling into cold blue-black periphery; a rain-streaked black window at the right returns a faint reflection. Foreground framing: the near table edge with three open ledgers and a ruled form, close and central. Materials: buckram, foolscap, string, tarnished tin, worn linoleum, distempered wall. Mood: obsessive, tender, criminal; warm in the middle, freezing at the edges. No people. No text.",
+   "ambience": "Rain on a kitchen window, a paraffin heater ticking, a mantel clock, paper turning, wind under the door \u2014 and at the reconciliation, no music at all."
+  },
+  {
+   "id": "cliff-path-churchyard",
+   "name": "The Cliff Path and St Bride's Churchyard",
+   "act": 1,
+   "description": "The spine of the headland. Thirty-one slate markers along a drystone wall, and the game's weather gauge.",
+   "navigation": [
+    "entrance-hall",
+    "courtyard-and-site-hut",
+    "slipway-and-ritas-shed",
+    "brannock-house",
+    "ottolines-cottage"
+   ],
+   "hotspots": [
+    {
+     "id": "thirty-one-slates",
+     "label": "Thirty-one slate markers along the wall",
+     "type": "examine",
+     "effect": "Read individually; names accumulate in the casebook and are matched against the Pelagia manifest and the Kestrel Bequest schedule in Act IV."
+    },
+    {
+     "id": "tain-marker",
+     "label": "The marker with no dates",
+     "type": "examine",
+     "effect": "Emrys Tain, the pilot, buried apart along the wall. The Act V exoneration is measured against this stone."
+    },
+    {
+     "id": "sallow-grave",
+     "label": "Fresh turf, September 1998",
+     "type": "examine",
+     "effect": "Cormac Sallow, six weeks in the ground with the flowers gone over. The absent protagonist made physical."
+    },
+    {
+     "id": "headland-view",
+     "label": "The headland edge",
+     "type": "examine",
+     "effect": "Nine miles out, the dead beacon on its reef: still haze in Act I, storm force 10 in Act IV, hard blue cold on 3 November."
+    },
+    {
+     "id": "lychgate",
+     "label": "The lychgate and burial register",
+     "type": "examine",
+     "effect": "Thirty-one interments in eleven days of November 1974, in a curate's deteriorating handwriting."
+    },
+    {
+     "id": "path-to-house",
+     "label": "The path to Pilotage House",
+     "type": "travel",
+     "effect": "Returns to the front door or the courtyard side gate; in Act IV the path is under spray and the gate is chained."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres on a narrow grass cliff path beside a low drystone churchyard wall, late October afternoon under a bruised sky. Along the wall a row of small dark slate markers, weathered and lichened, receding to the left. Foreground framing: wind-flattened sea thrift and a leaning slate marker, close, lower left. Key light is cold flat northern daylight with a single low break of pale gold on the sea horizon; wind visibly bending the grass one way. Far off and small on the horizon, a slim dark tower on a reef. Materials: wet slate, lichen, drystone, salt grass, granite church gable. Palette: wet slate, moss, gunmetal sea. Mood: exposed, elegiac, windblown. No people. No text.",
+   "ambience": "Steady wind over grass, sea breaking on rock far below, a bell rope knocking, oystercatchers, distant surf."
+  },
+  {
+   "id": "brannock-house",
+   "name": "Brannock House \u2014 the Old Sickroom",
+   "act": 3,
+   "description": "The Warden's residence along the headland, its 1974 sickroom now a contractor's paint store, with a nurse's ledger still in a box of bills.",
+   "navigation": [
+    "cliff-path-churchyard"
+   ],
+   "hotspots": [
+    {
+     "id": "nurse-ledger",
+     "label": "Nurse Kilbride's visit ledger, 1974",
+     "type": "take",
+     "effect": "'12.8.74 \u2014 pt. hemiplegic R side, no speech, cannot hold pen, wife present.' Proof of incapacity, source two of three."
+    },
+    {
+     "id": "bed-outline",
+     "label": "The unfaded rectangle on the wallpaper",
+     "type": "examine",
+     "effect": "Where a bed stood for two years. The room's whole history without a word of dialogue."
+    },
+    {
+     "id": "paint-store",
+     "label": "Contractor's paint and dust sheets",
+     "type": "examine",
+     "effect": "Sandbach's men are using a dead Warden's sickroom as a store; establishes how nearly the ledger was skipped and binned."
+    },
+    {
+     "id": "commode-chair",
+     "label": "Invalid chair under a sheet",
+     "type": "examine",
+     "effect": "A man who could not hold a pen. The physical object behind Link 7 of the proving chain."
+    },
+    {
+     "id": "medical-file-box",
+     "label": "Box of household bills",
+     "type": "puzzle",
+     "effect": "Cross-reference with Dr Munn's locum mileage claims from Accounts to fix 12 August 1974 as the first attendance."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres in a stripped upstairs bedroom of a Victorian granite house, now a builders' paint store. Faded rose wallpaper with a clean unfaded rectangle where a bed once stood; stacked paint tins, a folded invalid chair under a dust sheet, a roll of protective board. Key light is thin cool blue-white daylight through a tall sash with peeling white paint, rain on the glass, a grey band of sea beyond. Foreground framing: a paint-spattered stepladder rail crossing the lower left. Materials: distempered plaster, dust sheets, chipped enamel, dry rose wallpaper, bare boards with tack lines. Palette: dust, chalk, faded pink, wet grey. Mood: domestic sickness overwritten by commerce; quiet and slightly shameful. No people. No text.",
+   "ambience": "Rain on sash glass, a loose window catch, distant hammering, floorboards settling, wind in an empty chimney."
+  },
+  {
+   "id": "ottolines-cottage",
+   "name": "Ottoline's Cottage, 4 Coastguard Row",
+   "act": 4,
+   "description": "The warmest room in the game, where a kind woman fetches a biscuit tin down off the dresser and stops digressing.",
+   "navigation": [
+    "cliff-path-churchyard"
+   ],
+   "hotspots": [
+    {
+     "id": "biscuit-tin",
+     "label": "The biscuit tin on the dresser",
+     "type": "take",
+     "effect": "Cass Verge's deferment letter of 18 August 1974: residence deferred, wages to continue, you will not discuss this. Initialled p.p."
+    },
+    {
+     "id": "ottoline",
+     "label": "Ottoline Verge",
+     "type": "talk",
+     "effect": "The break. No accusation; Wren lays out the cards, the stock date, the raised e, the struck-through wage sheets and the tick beside number 29, and Ottoline's sentences go short and flat."
+    },
+    {
+     "id": "wedding-photograph",
+     "label": "Photograph on the mantelpiece, 1968",
+     "type": "examine",
+     "effect": "Cass Verge in keeper's uniform: the face behind eleven weeks of wages and seven years of drinking."
+    },
+    {
+     "id": "naval-college-letter",
+     "label": "Letter from Ilberry naval college",
+     "type": "examine",
+     "effect": "Emlyn Verge, second year. The reason a kind woman kept quiet for twenty-four years longer than she needed to."
+    },
+    {
+     "id": "knitting-chair",
+     "label": "The chair by the range",
+     "type": "examine",
+     "effect": "A cardigan, a folded handkerchief, a rubber thimble \u2014 the same objects as her chair in the Rolls Room, moved eight hundred yards."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person seated view at eye height 1.2 metres in a small warm cottage parlour, evening. A black-leaded range with a low fire, a Welsh dresser crowded with willow-pattern plates and a dented biscuit tin, an armchair with a cardigan over the back. Key light is warm orange firelight from below left plus a soft yellow table lamp with a fringed shade; a small deep-set window shows blue-black rain. Foreground framing: the arm of a chintz armchair and a cup of tea on a side table, close, lower right. Materials: horsehair upholstery, blacked iron, glazed china, crochet, worn rag rug. Palette: the warmest in the game \u2014 amber, madder, brown \u2014 against one cold blue window. Mood: safe, kind, and about to be dismantled. No people. No text.",
+   "ambience": "Coal settling in a range, a mantel clock, rain at a small window, a kettle just off the boil, wind in the eaves."
+  },
+  {
+   "id": "entrance-hall",
+   "name": "The Wicket and Entrance Hall",
+   "act": 1,
+   "description": "The building's throat: visitors' book, hook board and the brass head of the pneumatic tube system. Everyone signs in here, including the dead.",
+   "navigation": [
+    "cliff-path-churchyard",
+    "great-stair",
+    "registry-counter",
+    "reading-room",
+    "courtyard-and-site-hut"
+   ],
+   "hotspots": [
+    {
+     "id": "visitors-book",
+     "label": "The visitors' book",
+     "type": "examine",
+     "effect": "C. SALLOW in at 08:56 on 14 September, never signed out, 'admitted by' initialled S.F-K. Also B. AYLWARD, 6 October, catching his 'I only got here on Tuesday'."
+    },
+    {
+     "id": "hook-board",
+     "label": "The hook board",
+     "type": "take",
+     "effect": "Numbered keys by room. The third hook is the strongroom; Pike leaves it there for her in Act III when she has no legal right to it."
+    },
+    {
+     "id": "tube-head",
+     "label": "The pneumatic tube head",
+     "type": "use",
+     "effect": "Brass octopus. Sends and receives requisition carriers; in Act II it begins returning the wrong boxes."
+    },
+    {
+     "id": "aylward",
+     "label": "Bram Aylward, 'Ministry liaison'",
+     "type": "talk",
+     "effect": "Charming, quick, and lying about exactly one thing. His laser-printed identification card is 1998 paper in a letterpress building."
+    },
+    {
+     "id": "strip-out-notice",
+     "label": "Contractor's notice by the door",
+     "type": "examine",
+     "effect": "Dated room-closure schedule. Rooms it names genuinely become unavailable on those days."
+    },
+    {
+     "id": "umbrella-stand",
+     "label": "Umbrella stand and wet boots",
+     "type": "examine",
+     "effect": "Tells the player who is in the building today without a line of dialogue."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres in the stone entrance hall of a Georgian granite records fortress. Camera faces a glazed clerk's wicket of dark mahogany with a brass grille and a shelf, an open ledger on it; to the right a board of numbered brass hooks with iron keys; overhead left a polished brass pneumatic-tube head with several radiating tubes like an octopus. Key light is cold north daylight in a hard shaft from a tall twelve-pane window, thick with suspended dust, striking the ledger. Foreground framing: the dark edge of a chained oak door, lower left. Materials: dressed granite, mahogany, brass, worn flagstones, black iron. Palette: lead grey, oxblood, verdigris. Mood: institutional, indifferent, cold. No people. No text.",
+   "ambience": "Flagstone echo, a longcase clock, the thump and hiss of a pneumatic carrier arriving, rain on high glass, a distant door."
+  },
+  {
+   "id": "great-stair",
+   "name": "The Great Stair and Wardens' Hall",
+   "act": 1,
+   "description": "Twenty-two dark portraits of twenty-two men, and the first-floor landing that connects everything above ground level.",
+   "navigation": [
+    "entrance-hall",
+    "wardens-office",
+    "accounts-office",
+    "rolls-room",
+    "muniment-gallery",
+    "board-room",
+    "chart-loft"
+   ],
+   "hotspots": [
+    {
+     "id": "ferrier-portrait",
+     "label": "Portrait: Absalom Ferrier, Warden 1961\u20131976",
+     "type": "examine",
+     "effect": "The caption gives the dates of a Wardenship he was unconscious for a quarter of. The player passes it forty times before it means anything."
+    },
+    {
+     "id": "portrait-row",
+     "label": "Twenty-two Wardens",
+     "type": "examine",
+     "effect": "Every one a man, in the same dark ground, back to 1811. Article 9 of the Charter stated as decor rather than dialogue."
+    },
+    {
+     "id": "vent-trunk",
+     "label": "Galvanised ventilation trunk at the landing",
+     "type": "examine",
+     "effect": "Forty feet of duct down to the strongroom. In Act II the player hears two women arguing through the other end of it."
+    },
+    {
+     "id": "blank-space",
+     "label": "The empty hook at the end of the row",
+     "type": "examine",
+     "effect": "No portrait of the current Warden. Nobody has commissioned one and nobody has said why."
+    },
+    {
+     "id": "landing-window",
+     "label": "The half-landing window",
+     "type": "examine",
+     "effect": "The nine-day weather curve seen from inside: still grey, then streaming glass, then horizontal rain, then hard blue."
+    },
+    {
+     "id": "stair-up",
+     "label": "The upper flight",
+     "type": "travel",
+     "effect": "Continues to the attic floor: the Chart Loft, the Binding Room and the roof hatch."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person view from three steps up a wide stone staircase, eye height 1.7 metres, camera angled slightly up along a panelled first-floor gallery hung with a long unbroken row of dark three-quarter oil portraits in heavy black frames, all against near-black grounds, faces indistinct in shadow. A tall arched half-landing window at the left admits cold blue-white daylight that rakes across the portrait varnish, leaving faces dark and frames bright. Foreground framing: a massive turned mahogany newel post and worn brass stair rod, close, lower right. Materials: granite treads hollowed by feet, mahogany, cracked varnish, dulled gilt, a galvanised duct grille in the cornice. Palette: bitumen brown, black, cold blue. Mood: watched, ancestral, male. Painted portraits are indistinct and unreadable; no living figures. No text.",
+   "ambience": "Deep stone reverberation, a clock two floors down, wind moaning in a duct, footsteps that might be somewhere else."
+  },
+  {
+   "id": "registry-counter",
+   "name": "The Registry Counter",
+   "act": 1,
+   "description": "Where paper is asked for. Slips, stubs, stamps, an Olivetti, and a chief clerk who will not shake your hand.",
+   "navigation": [
+    "entrance-hall",
+    "long-registry",
+    "post-room",
+    "duplicating-room"
+   ],
+   "hotspots": [
+    {
+     "id": "slip-lesson",
+     "label": "Requisition slips and stub book",
+     "type": "puzzle",
+     "effect": "Ottoline teaches the system: white top copy up the tube, pink carbon into the stub, countersignature box, 'if the Warden's out, her clerk initials it p.p.' The twist, taught as housekeeping."
+    },
+    {
+     "id": "standing-order-7",
+     "label": "Standing Order 7, printed on the slip back",
+     "type": "examine",
+     "effect": "Every reader's requisition passes the Warden's pigeonhole for countersignature. Read by nobody, and the whole of the Act IV surveillance proof."
+    },
+    {
+     "id": "pike-grievance",
+     "label": "Halvard Pike at the counter",
+     "type": "talk",
+     "effect": "Four minutes of unprompted contempt ending on docketing: one hand endorses on the outside third, upside down to the tag. Never journalled, never repeated."
+    },
+    {
+     "id": "olivetti",
+     "label": "Olivetti Lettera 32",
+     "type": "use",
+     "effect": "Typewriter survey specimen 3: grey doubling from a slack ribbon vibrator, chipped l."
+    },
+    {
+     "id": "stub-book-r982211",
+     "label": "Stub book, pink carbons, September 1998",
+     "type": "examine",
+     "effect": "Slip R98/2211, 09:10, 14 September, series 14/B box 17, 'issued by' initialled S.F-K. Read in Act I as nothing at all."
+    },
+    {
+     "id": "treasury-tags",
+     "label": "Bundle of treasury tags",
+     "type": "take",
+     "effect": "Pike squares one for her, tail under, loop left, and calls it her people's knot. An object-level fingerprint used in Act IV."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.55 metres at a long worn mahogany counter topped with scuffed brown linoleum, seen from the reader's side. On the counter: a spike of pink carbon slips, a rubber stamp rack, an inkpad tin, a black portable typewriter, a bell push worn to brass. Behind, pigeonholes to the ceiling stuffed with docketed folders and a brass tube terminal with a leather carrier in its cradle. Key light is grey north daylight from high left plus a green-shaded pendant throwing a warm oval on the counter top. Materials: mahogany, linoleum, rubber, brass, buff card. Palette: tobacco cream, oxblood, verdigris, one vermilion inkpad. Mood: busy, worn smooth, faintly hostile. No people. No text.",
+   "ambience": "Rubber stamp thud, a bell push, typewriter keys in another room, the tube system thumping, a kettle, low voices in stone."
+  },
+  {
+   "id": "long-registry",
+   "name": "The Long Registry",
+   "act": 1,
+   "description": "Six hundred feet of shelving in a single top-lit gallery, and the bound registers that say a notice number was used and then unused.",
+   "navigation": [
+    "registry-counter",
+    "strongroom",
+    "undercroft",
+    "reading-room"
+   ],
+   "hotspots": [
+    {
+     "id": "register-notices-1974",
+     "label": "Register of Notices Issued, 1974",
+     "type": "examine",
+     "effect": "74/117, 74/118, 74/120. A number used and then unused, with no cancellation minute: the other half of the Act I cliffhanger."
+    },
+    {
+     "id": "inquiry-transcripts",
+     "label": "Bound Rossport Inquiry transcripts",
+     "type": "examine",
+     "effect": "Day 9: a Lamp Superintendent answers a question about exhibition with an answer about administration, and a dead pilot pays for it for twenty-four years."
+    },
+    {
+     "id": "ministry-circulars",
+     "label": "Ministry staff circulars",
+     "type": "examine",
+     "effect": "Lists all four dissolution liaison officers by name. Bram Aylward is not among them."
+    },
+    {
+     "id": "quinquennial-notice",
+     "label": "Quinquennial Review notice, 22 July 1974",
+     "type": "take",
+     "effect": "An authority found without an effective Warden is to be abolished and its records dispersed. Half the motive, six weeks before the stroke."
+    },
+    {
+     "id": "works-file",
+     "label": "Works orders file",
+     "type": "examine",
+     "effect": "Works Order 75/188, June 1975, 'seal chamber, damp', initialled p.p. \u2014 the last p.p. anyone ever wrote in this building."
+    },
+    {
+     "id": "lot4-stencils",
+     "label": "Shelving stencilled LOT 4",
+     "type": "examine",
+     "effect": "State-change marker: bays vanish between acts on the strip-out schedule and their contents become unrequisitionable."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres down the centre of an immensely long top-lit gallery of steel and timber shelving, six hundred feet of bound ledgers in oxblood and bottle-green buckram receding to a distant vanishing point. Key light is a series of cold north clerestory shafts falling in regular bars across the aisle, dust hanging visibly in each, the far end lost in blue shadow. Foreground framing: the near end of a shelf bay with a ladder on a running rail and a stencilled wooden crate, close, left. Materials: buckram, leather labels, cast-iron shelf standards, oiled boards, chalk numbering. Palette: oxblood, bottle green, tobacco cream, cold grey. Extreme depth and perspective, the largest-feeling interior in the game. Mood: vast, orderly, doomed. No people. No text.",
+   "ambience": "Enormous quiet with a long reverb tail, a ladder rolling, rain on clerestory glass, a single dripping pipe."
+  },
+  {
+   "id": "strongroom",
+   "name": "The Strongroom",
+   "act": 2,
+   "description": "A barrel-vaulted vault behind a three-movement timelock, where series 14/B sits on the bottom shelf and the door shuts at 18:20.",
+   "navigation": [
+    "long-registry"
+   ],
+   "hotspots": [
+    {
+     "id": "timelock",
+     "label": "Chubb three-movement timelock",
+     "type": "puzzle",
+     "effect": "Set all three movements from the Warden's Order Book closing hours \u2014 1974, 1998 and Saturdays each different. Opens the door, then closes it behind her."
+    },
+    {
+     "id": "deed-box",
+     "label": "Japanned deed box stencilled A. FERRIER, WARDEN",
+     "type": "take",
+     "effect": "Empty but for dust, a dead moth and page two of Notice 74/119 on blue-black flimsy: 'until oil supply is restored and the No. 2 vaporiser renewed'."
+    },
+    {
+     "id": "box-17",
+     "label": "Series 14/B box 17",
+     "type": "examine",
+     "effect": "Requisitioned 14 September 1998 with no return entry, wearing a new label typed on the Imperial 66 at full 'a' occlusion. A box came home that was never sent home."
+    },
+    {
+     "id": "bottom-shelf",
+     "label": "The bottom shelf, 1974",
+     "type": "puzzle",
+     "effect": "The flood: forty minutes of hand-work in the dark, lifting boxes to high shelves by feel with a failing torch. What she saves, she saves."
+    },
+    {
+     "id": "vent-grille",
+     "label": "Ventilation grille",
+     "type": "examine",
+     "effect": "Two women arguing forty feet above. The player transcribes what she is sure of and marks the rest 'not certain'."
+    },
+    {
+     "id": "bank-letter",
+     "label": "Naismith's Bank letter, 15 August 1974",
+     "type": "take",
+     "effect": "No further facility. Motive in a bank manager's handwriting, four months from insolvency."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.55 metres inside a low barrel-vaulted granite strongroom, the enormous steel door swung toward camera at the left showing three brass clockwork winding movements behind a glazed plate in its inner face. Racked steel shelving to the vault, japanned black deed boxes stencilled in faded white, archive boxes on a low shelf just above a wet stone floor. Key light is a single caged bulb of weak warm yellow high on the vault plus a hard white torch beam from camera raking across box labels; everything else near-black. A shine of standing water across the flags. Materials: riveted steel, brass, japanned tin, granite, wet stone. Palette: black, gunmetal, one sodium-warm pool. Mood: airless, subterranean, trapped. No people. No text.",
+   "ambience": "Dead acoustic with no reverb, clock movements ticking in the door, water running below, a torch filament buzzing, close breathing."
+  },
+  {
+   "id": "undercroft",
+   "name": "The Undercroft",
+   "act": 2,
+   "description": "Brick vaults under the north end, a sump that backs up in rain, and a blind wall whose mortar is twenty-three years too young.",
+   "navigation": [
+    "long-registry",
+    "courtyard-and-site-hut",
+    "tide-room"
+   ],
+   "hotspots": [
+    {
+     "id": "blind-north-wall",
+     "label": "The blind north wall",
+     "type": "puzzle",
+     "effect": "Nine courses of brick in a Portland stone opening. Act III: opened with a crowbar at night in horizontal rain under the site floodlights."
+    },
+    {
+     "id": "sump",
+     "label": "The sump",
+     "type": "examine",
+     "effect": "Backs up in the rain; the source of the strongroom flood and a running clock on how long the lower floors stay usable."
+    },
+    {
+     "id": "mortar-sample",
+     "label": "Mortar sample",
+     "type": "take",
+     "effect": "Dated against the fabric survey to prove the sealing is 1975, not original: physical support for Works Order 75/188."
+    },
+    {
+     "id": "bulb-flex",
+     "label": "Bare bulb on a flex",
+     "type": "use",
+     "effect": "Swings when the door opens, moving every shadow in the room. The only light source, and it can be knocked out."
+    },
+    {
+     "id": "plan-comparison",
+     "label": "Building plan pinned to a joist",
+     "type": "examine",
+     "effect": "A post-1975 plan showing solid ground where the chart overlays say there is a chamber."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.5 metres in a low brick-vaulted basement, camera facing a blank brick wall filling a Portland stone arched opening, its mortar visibly newer and paler than the surrounding masonry. Key light is one bare swinging bulb overhead casting a hard travelling warm-yellow cone and long moving shadows; damp brick glistens and salt bloom flowers white across the limewash. Foreground framing: an iron sump grating and a coil of hose, close, lower centre. Materials: soft red brick, Portland stone, salt efflorescence, cast iron, standing water, cobwebbed lead pipework. Palette: liver-red brick, chalky salt white, black shadow, sodium yellow. Mood: buried, damp, expectant. No people. No text.",
+   "ambience": "Dripping into a sump, a bulb flex creaking, a pump kicking in, muffled sea through stone."
+  },
+  {
+   "id": "tide-room",
+   "name": "The Tide Room",
+   "act": 3,
+   "description": "Bricked up in June 1975 with a tide gauge, sixty-seven years of drums and the Inquiry's own working papers still inside it.",
+   "navigation": [
+    "undercroft"
+   ],
+   "hotspots": [
+    {
+     "id": "marigraph",
+     "label": "Kelvin & White stilling-well marigraph",
+     "type": "puzzle",
+     "effect": "Re-ink the pen, re-hang the driving weight, wind the clock. It starts writing the height of the sea again in front of her after twenty-three years."
+    },
+    {
+     "id": "drum-1974-44",
+     "label": "Drum 1974/44",
+     "type": "take",
+     "effect": "A surge of 1.4m above prediction on 3 November 1974: Tain had 4.2m over the Sowens. The Inquiry's central tidal assumption is simply wrong."
+    },
+    {
+     "id": "drum-shelf",
+     "label": "Sixty-seven years of smoked drums",
+     "type": "examine",
+     "effect": "1908 to 1975, unread, in order. A machine with no opinion in its head, testifying for the first time."
+    },
+    {
+     "id": "inquiry-papers",
+     "label": "Bundle tied with tape, never accessioned",
+     "type": "take",
+     "effect": "The Rossport Inquiry's working papers, returned in 1975 and walled in the same month. Not in the index, so nobody could weed them."
+    },
+    {
+     "id": "rejects-list",
+     "label": "List of Persons Considered and Not Called",
+     "type": "examine",
+     "effect": "No. 29, Mrs O. Verge, with a tick in her own hand. No. 33, Miss S. Ferrier, private secretary, no official capacity. The thematic keystone, in the assessor's ink."
+    },
+    {
+     "id": "breach",
+     "label": "The breach in the wall",
+     "type": "travel",
+     "effect": "Back into the undercroft; the gap admits wind and rain and never stops sounding like the sea."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.5 metres in a small sealed brick chamber just opened after twenty-three years, dust still hanging in the air. Centrepiece: a Victorian brass-and-glass stilling-well tide gauge, a tall glass cylinder beside a clockwork drum wrapped in smoked paper with a fine ink pen arm; next to it a shelf of dozens of identical paper drums. Key light is a hard white raking beam entering through a ragged breach behind camera-left, cutting through hanging dust and igniting the glass cylinder; everything else deep umber gloom. Foreground framing: fallen bricks and a dropped crowbar, close, lower left. Materials: lacquered brass, plate glass, smoked paper, an iron weight on a chain, mould-bloomed brick. Palette: umber, brass, one blade of cold white. Mood: sealed time, reverent, astonishing. No people. No text.",
+   "ambience": "Dead air, dust settling, a clockwork drum starting to turn, a pen scratching, wind whistling through a breach."
+  },
+  {
+   "id": "reading-room",
+   "name": "The Reading Room",
+   "act": 1,
+   "description": "Green banker's lamps, a delivery hatch, and the table where Wren works. The coroner's file is waiting on it in the first hour.",
+   "navigation": [
+    "entrance-hall",
+    "long-registry"
+   ],
+   "hotspots": [
+    {
+     "id": "coroners-file",
+     "label": "Coroner's file: Cormac Sallow",
+     "type": "examine",
+     "effect": "Inquest papers, the one police photograph the game lets you see, the accident report typed at 16:50, and Sallow's letter of 11 September asking that 14/B be read by a stranger."
+    },
+    {
+     "id": "iveson-slip",
+     "label": "Request slip stapled inside the back cover",
+     "type": "examine",
+     "effect": "DS Iveson pulled this file on her own initiative on 2 October and was told there was nothing in it."
+    },
+    {
+     "id": "delivery-hatch",
+     "label": "The delivery hatch",
+     "type": "use",
+     "effect": "Requisitioned boxes arrive here. In Act II they start arriving wrong: 14/A for 14/B, NOT TRACED see W/O 89/2."
+    },
+    {
+     "id": "wrens-table",
+     "label": "Wren's table and casebook",
+     "type": "puzzle",
+     "effect": "Opens the casebook: assertions, citation column, requisition log, specimen album. Carried everywhere and scored in Act V."
+    },
+    {
+     "id": "banker-lamps",
+     "label": "Green banker's lamps",
+     "type": "use",
+     "effect": "Switches the room to its night state; raking-light examinations are only possible with the overheads off."
+    },
+    {
+     "id": "docket-fold",
+     "label": "Folders on the returns trolley",
+     "type": "examine",
+     "effect": "Practice at reading docket habits: everyone in the building endorses one way, and one hand does not."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person seated view at eye height 1.15 metres at the end of a long oak reading table in a high panelled room, camera looking down the table past three green glass banker's lamps receding into shadow. On the near table: an open buff file, a magnifying loupe, a wire-bound notebook ruled in pencil columns. Behind, a small brass-framed delivery hatch set in the panelling. Key light is warm green-shaded lamplight pooling on the tabletop against cold blue-grey daylight from tall sashes at the left with rain running down them. Materials: waxed oak, green glass, brass, buff card, leather table edging. Palette: bottle green, honey oak, cold rain-blue. Mood: studious, hushed, the safest room in the building. No people. No text.",
+   "ambience": "Deep hush, rain on tall glass, a faint lamp hum, a chair creak, pages turning, a hatch closing far off."
+  },
+  {
+   "id": "rolls-room",
+   "name": "The Rolls Room",
+   "act": 1,
+   "description": "Four hundred drawers, sixty thousand cards, an Underwood 5 four feet from Ottoline's chair, and a kettle in drawer 388.",
+   "navigation": [
+    "great-stair",
+    "muniment-gallery"
+   ],
+   "hotspots": [
+    {
+     "id": "drawers-214-216",
+     "label": "Card index drawers 214\u2013216",
+     "type": "puzzle",
+     "effect": "THE INDEX GAP. Sort by stock, ribbon colour and typeface; isolate forty-seven cards retyped on 1987 stock and derive seven accession numbers that exist as cards and not as paper."
+    },
+    {
+     "id": "underwood",
+     "label": "Underwood 5, 1928",
+     "type": "use",
+     "effect": "Typewriter survey specimen 2: lower-case e riding 0.3mm high, a wandering 3. The machine that retyped the forty-seven cards."
+    },
+    {
+     "id": "drawer-388",
+     "label": "Drawer 388",
+     "type": "examine",
+     "effect": "A kettle, a tin of biscuits, sheepskin slippers, in a drawer of a national record."
+    },
+    {
+     "id": "ottoline-desk",
+     "label": "Ottoline Verge at her desk",
+     "type": "talk",
+     "effect": "Tea, kindness and steering: Mr Pike holds keys to everything, and he was here the evening poor Cormac died. Two of the three clauses are true."
+    },
+    {
+     "id": "card-stock-samples",
+     "label": "Manufacturer's card stock samples",
+     "type": "examine",
+     "effect": "Watermark and thickness reference that dates the retyped cards to no earlier than 1987."
+    },
+    {
+     "id": "rolls-returns",
+     "label": "Rolls returns, 1974",
+     "type": "examine",
+     "effect": "Ottoline's initials on every quarter of 1974, catching her claim that she was in Accounts in those days."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.55 metres facing a floor-to-ceiling wall of small wooden card-index drawers, hundreds of them, each with a polished brass label holder and brass knob, the whole wall a dense grid of warm brass points. Three drawers stand open at chest height packed with buff cards, one pulled fully onto a sliding shelf. Key light is soft warm tungsten from a low anglepoise at the left plus weak grey daylight from behind camera; the brass holders catch it in an even glittering field. Foreground framing: the corner of a desk with a kettle, a biscuit tin and sheepskin slippers, lower right. Materials: oak, brass, buff card, bakelite, worn linoleum. Palette: honey oak, brass, biscuit. Mood: warm, obsessive, kind, and quietly wrong. No people. No text.",
+   "ambience": "Wooden drawers running on runners, cards riffling, a kettle coming to the boil, a clock, a small electric fire ticking."
+  },
+  {
+   "id": "wardens-office",
+   "name": "The Warden's Office",
+   "act": 1,
+   "description": "Oxblood leather, an Imperial 66, and the most helpful person in the building. Extension 2, on a Sunday night in 1974.",
+   "navigation": [
+    "great-stair",
+    "board-room"
+   ],
+   "hotspots": [
+    {
+     "id": "specimen-bundle",
+     "label": "The specimen bundle: nine documents of 1974",
+     "type": "examine",
+     "effect": "THE TWIST, OFFERED AS HOSPITALITY. Every sheet signed A. FERRIER, every one carrying a two-millimetre 2H pencil p.p. in the bottom left corner, at full zoomable resolution, in the first thirty minutes."
+    },
+    {
+     "id": "imperial-66",
+     "label": "Imperial 66, 1961",
+     "type": "use",
+     "effect": "Typewriter survey specimen 1: clogged lower-case a, comma printing 0.4mm high, broken y descender. The clogging rate becomes a dating curve."
+    },
+    {
+     "id": "sabine",
+     "label": "Sabine Ferrier-Kyne",
+     "type": "talk",
+     "effect": "Total courtesy; complete answers as armour; the passive voice for anything she did. A player who hears it in Act I has the whole game."
+    },
+    {
+     "id": "in-tray",
+     "label": "The in-tray and countersignature pigeonhole",
+     "type": "examine",
+     "effect": "Every reader's requisition passes through here under Standing Order 7. The kindness was the gate."
+    },
+    {
+     "id": "w-o-89-2",
+     "label": "Policy file: Memorandum W/O 89/2",
+     "type": "take",
+     "effect": "The 1989 reboxing of 14/B, signed openly in her own name; its schedule lists twenty-three items in box 17 against seventeen present. A cover-up of a cover-up."
+    },
+    {
+     "id": "board-working-file",
+     "label": "Board of Dissolution working file",
+     "type": "puzzle",
+     "effect": "Act IV: twenty-six Reprax copies of box 17, correctly foliated, docketed the Ministry way, four of them copies of documents no longer in box 17."
+    },
+    {
+     "id": "ribbon-well",
+     "label": "The ribbon well and platen knob",
+     "type": "examine",
+     "effect": "French chalk, beeswax and salt bloom from the Muniment gallery north bay, in a machine two floors away."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres in front of a large leather-topped partners' desk in a panelled corner office, camera angled slightly down at the desktop. On it: a heavy black standard typewriter with a chrome-edged carriage, a wooden in-tray of docketed folders, a squared stack of foolscap, a sharpened pencil laid exactly parallel to the blotter, a cup on a coaster. Key light is cold flat north daylight from two tall twelve-pane sashes showing rain and a grey sea horizon; an unlit green-shaded desk lamp. Materials: oxblood leather, dark oak panelling, black enamel and chrome, foolscap, brass. Palette: oxblood, near-black panelling, rain-grey, one vermilion stamp pad. Everything on the desk perfectly square to everything else. Mood: courteous, controlled, immaculate, cold. No people. No text.",
+   "ambience": "A carriage return, a clock with a heavy escapement, rain on sash glass, a drawer closing softly, sea wind."
+  },
+  {
+   "id": "accounts-office",
+   "name": "The Accounts Office and Stationery Store",
+   "act": 1,
+   "description": "Ledgers, a cash tin, eleven keys on a chain, and a shelf of two hundred and forty used typewriter ribbons that nobody was allowed to throw away.",
+   "navigation": [
+    "great-stair",
+    "switchboard-room"
+   ],
+   "hotspots": [
+    {
+     "id": "liabilities-schedule",
+     "label": "Schedule of Outstanding Liabilities",
+     "type": "puzzle",
+     "effect": "Item 14: FERRIER-KYNE, S., superannuation arrears, reckonable service from 1959. Crossed off in the first hour, and it wins the Board in Act V."
+    },
+    {
+     "id": "cash-books",
+     "label": "Cash books and the Sundry Adjustments column",
+     "type": "examine",
+     "effect": "'Sundry Adjustments (Lights)', ruled in by hand on 31 December 1974, holding \u00a34,180 4s 0d that has not moved in ninety-six quarters."
+    },
+    {
+     "id": "ribbon-shelf",
+     "label": "Rule 4 shelf: two hundred and forty used ribbon spools",
+     "type": "puzzle",
+     "effect": "Act IV: the Imperial 66's September 1998 spool, read backwards under magnification \u2014 the unsent letter of 12 September running unbroken into the accident report of the 14th."
+    },
+    {
+     "id": "remington",
+     "label": "Remington Noiseless, 1938",
+     "type": "use",
+     "effect": "Typewriter survey specimen 4: heavy g from a bent typebar, capitals dropping 0.2mm."
+    },
+    {
+     "id": "gpo-account",
+     "label": "Telephone file: GPO itemised trunk account Q4 1974",
+     "type": "take",
+     "effect": "3.11.74 \u2014 CARDEW \u2014 22.41 \u2014 4 min \u2014 1s 9d, initialled EC. An outside record nobody in this building had a vote about."
+    },
+    {
+     "id": "munn-claims",
+     "label": "Medical attendance file",
+     "type": "examine",
+     "effect": "Dr Munn's locum mileage claims: Brannock House, fourteen miles, twice weekly, from 12 August 1974. An expense claim that documents a man's collapse."
+    },
+    {
+     "id": "enid",
+     "label": "Enid Charnock",
+     "type": "talk",
+     "effect": "Precise about figures, vague about people, eyes going to the Warden's door every ninety seconds. 'I'm sure there's an explanation.'"
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.55 metres in a narrow high-ceilinged accounts office, camera three-quarters onto a sloped clerk's desk carrying two enormous open ledgers with red and blue ruled columns. Behind, a wall of shallow shelving holding rows of small identical cardboard ribbon-spool boxes each with a pasted docket, and a bank of green steel deed cupboards. Key light is hard cold daylight from a tall narrow window with a half-drawn holland blind, plus a single anglepoise with a warm bulb angled onto the ledger columns. Materials: ledger paper, feint rule, green enamelled steel, worn brown linoleum, black japanned cash tin, brass keys on a chain. Palette: ledger cream, bottle green, red rule lines, ink blue-black. Mood: airless, scrupulous, frightened. No people. No text.",
+   "ambience": "An adding machine handle, ledger pages turning, a clock, a distant switchboard buzzer, a chair scraping."
+  },
+  {
+   "id": "switchboard-room",
+   "name": "The Switchboard Room",
+   "act": 2,
+   "description": "A twelve-line plug board and forty-five years of call logs. Re-patching it reconstructs the hour the Pelagia struck.",
+   "navigation": [
+    "accounts-office"
+   ],
+   "hotspots": [
+    {
+     "id": "plug-board",
+     "label": "Twelve-line plug board",
+     "type": "puzzle",
+     "effect": "Re-patch against the log for 3 November 1974: 22:34 in from the coastguard, 22:41 out to Cardew 4471 for four minutes with no answer, then 23:06, 23:11, 23:19."
+    },
+    {
+     "id": "call-logs",
+     "label": "Call-log books 1946\u20131991",
+     "type": "examine",
+     "effect": "Handwriting changes with the night clerks; Denzil Kyte's hand runs 1973\u201376 and misleads the player toward a nineteen-year-old who left."
+    },
+    {
+     "id": "extension-list",
+     "label": "Extension list under glass",
+     "type": "examine",
+     "effect": "Extension 2 is the Warden's Office. On a Sunday night in November 1974, somebody was in it."
+    },
+    {
+     "id": "directory-1974",
+     "label": "1974 telephone directory",
+     "type": "examine",
+     "effect": "Cardew 4471 is the public call box outside Cardew Post Office, forty yards from the relief keeper's front door."
+    },
+    {
+     "id": "night-roster",
+     "label": "Night-duty roster",
+     "type": "examine",
+     "effect": "Who should have been on the board, and the fact that it was unattended when extension 2 dialled out."
+    },
+    {
+     "id": "headset",
+     "label": "Operator's headset",
+     "type": "use",
+     "effect": "Plays the reconstructed sequence as clicks, relay chatter and four minutes of unanswered ringing tone."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person seated view at eye height 1.2 metres directly facing a small twelve-line manual telephone switchboard: a vertical black bakelite panel of brass jack fields and small round indicator shutters, with a dozen braided cloth-covered cords rising from weighted pulleys on the shelf below, several plugged in at angles. Key light is a low warm tungsten inspection lamp clipped to the frame raking across brass and bakelite, with cold blue-grey window light behind camera-left barely reaching the panel. Foreground framing: an operator's headset and a hardbound call-log open on the shelf, close, lower centre. Materials: bakelite, braided cord, brass jacks, ebonite keys, oak carcase. Palette: black, brass, tungsten amber, cold blue rim. Mood: intimate, mechanical, listening. No people. No text.",
+   "ambience": "Relay clicks, shutter drops, a ringing tone with no answer, faint crosstalk, a bakelite hum, rain far off."
+  },
+  {
+   "id": "post-room",
+   "name": "The Post Room",
+   "act": 1,
+   "description": "Zinc bench, mail sacks, address plates, and a franking meter that has counted every penny of the Authority's postage since 1961 without an opinion.",
+   "navigation": [
+    "registry-counter",
+    "duplicating-room",
+    "courtyard-and-site-hut"
+   ],
+   "hotspots": [
+    {
+     "id": "franking-meter",
+     "label": "Pitney Postmaster franking meter",
+     "type": "puzzle",
+     "effect": "Skill 4, taught: open it under warrant, wind the register drum, read descending credit against ascending total, reconcile the day's post book. A GPO offence for anyone else."
+    },
+    {
+     "id": "post-book",
+     "label": "Post book",
+     "type": "examine",
+     "effect": "Act III: cross-totalled between the recharges of 2 August and 4 September 1974, the 16 August despatch cost 852 pence \u2014 213 impressions at fourpence, against a list of 214."
+    },
+    {
+     "id": "address-plates",
+     "label": "Address-plate cabinet",
+     "type": "examine",
+     "effect": "Schedule D: 214 addressees in statutory precedence. No. 1 is the Keeper, Nine Bells Beacon, per relief boatman, Cardew Post Office, tel. Cardew 4471."
+    },
+    {
+     "id": "meter-card-book",
+     "label": "Meter Card Book",
+     "type": "take",
+     "effect": "Recharge readings that turn a postage meter into a serial witness with a date on every entry."
+    },
+    {
+     "id": "old-die",
+     "label": "The superseded fourpenny die",
+     "type": "take",
+     "effect": "Kept in a drawer since decimalisation. In Act V it strikes the single impression that finally franks Notice 74/119."
+    },
+    {
+     "id": "sack-rack",
+     "label": "Mail sacks and the collection rack",
+     "type": "examine",
+     "effect": "Establishes the physical route an envelope takes, and therefore exactly where one could fail to take it."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.5 metres over a zinc-topped bench, camera angled down onto a green-enamelled 1960s franking machine with a chromed handle, a small glazed counter window showing numeral wheels, and a rubber die block. Beside it, a stack of buff envelopes, a wooden rack of brass address plates, a bound post book. Behind, canvas mail sacks on an iron rack and a heavy studded outer door with a wired-glass light. Key light is cool overcast daylight through the wired glass plus a bare warm bulb over the bench making the chrome handle flare. Materials: zinc, green enamel, chrome, canvas, brass plates, buff paper, sealing wax. Palette: municipal green, zinc grey, buff, one hot chrome highlight. Mood: mechanical, mundane, incorruptible. No people. No text.",
+   "ambience": "The chunk of a franking handle, a numeral drum stepping over, canvas sacks dropping, a door on a spring, wind in a passage."
+  },
+  {
+   "id": "duplicating-room",
+   "name": "The Duplicating Room",
+   "act": 1,
+   "description": "The Reprax 12 and a microfilm reader in a windowless service room. The impression counter advances whether or not anyone writes the job in the book.",
+   "navigation": [
+    "registry-counter",
+    "post-room"
+   ],
+   "hotspots": [
+    {
+     "id": "reprax",
+     "label": "Reprax 12 duplicator",
+     "type": "use",
+     "effect": "The player runs it. The counter advances whether or not the operator logs the job, and has done since 1961."
+    },
+    {
+     "id": "duplicating-book-1974",
+     "label": "Duplicating Book, 15 August 1974",
+     "type": "examine",
+     "effect": "Counter 41,882 to 42,319: an advance of 437 against 223 logged. Two hundred and fourteen copies of a document that officially does not exist."
+    },
+    {
+     "id": "duplicating-book-1998",
+     "label": "Duplicating Book, 14 September 1998",
+     "type": "examine",
+     "effect": "Counter advanced 41 against 12 logged, in a room whose keeper was nine miles away on the ferry. Twenty-six plus three is twenty-nine."
+    },
+    {
+     "id": "microfilm-reader",
+     "label": "Microfilm reader",
+     "type": "puzzle",
+     "effect": "Ground-glass reading of filmed registers; the only way to check series already boxed as LOT 4 and physically gone."
+    },
+    {
+     "id": "ink-drums",
+     "label": "Drum ink and stencil skins",
+     "type": "examine",
+     "effect": "Ink formulation changes date a copy to within a few years: an independent check on the Board working file's twenty-six sheets."
+    },
+    {
+     "id": "waste-bin",
+     "label": "Spoil bin",
+     "type": "take",
+     "effect": "Misfed sheets nobody thought worth burning; in Act IV one of them is the reverse of something that was."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.5 metres in a small windowless service room dominated by a heavy cast-iron rotary duplicator: a large black cylindrical drum on a green enamelled frame, a chromed crank handle, a paper feed tray of foolscap and a delivery tray of fresh copies. On the wall, an oxidised ground-glass microfilm reader glowing pale grey-green. Key light is a single fluorescent batten overhead, cold and slightly greenish, plus the sickly glow of the reader screen. Materials: cast iron, green enamel, black rubber drum, purple-black duplicating ink spatter, chrome, foolscap. Palette: greenish white, black, ink violet \u2014 the only cool-green interior in the building. Foreground framing: a stack of freshly run copies and an ink tin, lower left. Mood: chemical, industrial, faintly nauseating. No people. No text.",
+   "ambience": "A rotary drum turning and slapping paper, a fluorescent batten buzzing, a counter stepping, a fan, a solvent hiss."
+  },
+  {
+   "id": "binding-room",
+   "name": "The Binding Room \u2014 Wren's Bench",
+   "act": 1,
+   "description": "A disused bindery under the roof that Wren commandeers as a laboratory. Blotters, jars, a loupe, and the casebook.",
+   "navigation": [
+    "chart-loft"
+   ],
+   "hotspots": [
+    {
+     "id": "casebook",
+     "label": "The casebook",
+     "type": "puzzle",
+     "effect": "The game. Assertions, sources and a citation column the player rules and fills. Becomes the Act V case file and the most important exhibit in it."
+    },
+    {
+     "id": "specimen-album",
+     "label": "Typewriter specimen sheets",
+     "type": "puzzle",
+     "effect": "Four machines, four sets of injuries, mounted and dated. In Act IV the Imperial 66's 'a'-occlusion curve is plotted from them and applied."
+    },
+    {
+     "id": "drying-blotters",
+     "label": "Fragments drying between blotters",
+     "type": "puzzle",
+     "effect": "The incinerator carbon, floated off in cold water and dried flat, resolves over several in-game hours into Notice to Mariners 74/119."
+    },
+    {
+     "id": "raking-lamp",
+     "label": "Raking light lamp and shaving mirror",
+     "type": "use",
+     "effect": "Reads watermarks, erased pencil, and in Act IV the mirror offsets of the razored Order Book leaves."
+    },
+    {
+     "id": "dust-jars",
+     "label": "Dust reference jars",
+     "type": "examine",
+     "effect": "Jar 6, gallery north bay, against coroner's exhibit 4: French chalk, beeswax and a salt bloom that occur in exactly one room."
+    },
+    {
+     "id": "nipping-press",
+     "label": "The nipping press and sewing frame",
+     "type": "use",
+     "effect": "Flattens and holds recovered leaves; the disused trade of the room becomes Wren's equipment."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.5 metres over a scarred beech workbench under a north roof light, camera angled down. On the bench: charred paper fragments laid out in a grid between white blotters, a bone folder, a loupe, glass sample jars with handwritten labels, a wire-bound notebook ruled in pencil columns, a small shaving mirror. Behind, a disused iron nipping press and a sewing frame under a dust sheet. Key light is clean cold north skylight falling straight onto the white blotters, making them the brightest thing in the picture, with deep brown shadow beyond. Materials: beech, bone, white blotting paper, char, glass, cast iron, linen thread. Palette: white, char black, warm beech, cold grey; the highest-contrast interior in the game. Mood: methodical, private, this is where the work gets done. No people. No text.",
+   "ambience": "Rain on a roof light, a pencil on paper, glass set on wood, a press screw turning, deep attic quiet."
+  },
+  {
+   "id": "chart-loft",
+   "name": "The Chart Loft",
+   "act": 2,
+   "description": "A bottom-lit glass table under the roof timbers, where three surveys are registered on their triangulation marks and a room appears that is on no plan after 1975.",
+   "navigation": [
+    "great-stair",
+    "binding-room",
+    "pilotage-roof"
+   ],
+   "hotspots": [
+    {
+     "id": "light-table",
+     "label": "The light table",
+     "type": "puzzle",
+     "effect": "Register the 1948, 1974 buoyage and 1998 surveys: the Pelagia is not where the finding says she was, and a chamber appears under the north undercroft."
+    },
+    {
+     "id": "admiralty-list",
+     "label": "Admiralty List of Lights, 1974",
+     "type": "examine",
+     "effect": "Nine Bells Fl(3) W 20s; Cadran Point, nine miles SSE, Fl(3) W 15s. Three flashes either way, and nobody asked a frightened girl to count the seconds."
+    },
+    {
+     "id": "feaver-deposition",
+     "label": "Deposition of Norah Feaver, 1975",
+     "type": "puzzle",
+     "effect": "The honest witness. Telephoning her and asking her to count on a kitchen clock turns the strongest evidence against the case into the strongest evidence for it."
+    },
+    {
+     "id": "survey-drawer",
+     "label": "The survey drawer",
+     "type": "take",
+     "effect": "Rolled sheets by date. The strip-out schedule strikes this room on the 30th and the drawer goes with it."
+    },
+    {
+     "id": "dividers",
+     "label": "Dividers and parallel rule",
+     "type": "use",
+     "effect": "Steps off a competent pilot's line across the Sowens: the physical act that exonerates Emrys Tain."
+    },
+    {
+     "id": "pp-sort-bench",
+     "label": "The sorting bench",
+     "type": "puzzle",
+     "effect": "Act IV: forty-eight documents signed A. FERRIER from four independent custodies, sorted signed against p.p. The answer is forty-one and none."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.5 metres over a large glass-topped illuminated chart table in a timber-framed attic loft, camera angled steeply down. On the glass, three translucent survey sheets overlaid slightly out of register, glowing from beneath; brass dividers, a parallel rule and a rolled chart at the edge. Key light is the cold blue-white glow of the light table from below, uplighting the underside of roof timbers and turning the room into a lantern; a small dormer at the back shows a bruised evening sky and rain. Materials: plate glass, tracing linen, brass instruments, pine trusses, rolled cartridge paper in racks. Palette: luminous blue-white centre, warm pine periphery; the only bottom-lit room in the game. Mood: analytical, floating, revelatory. No people. No text.",
+   "ambience": "Rain drumming on slate close overhead, a tube ticking under glass, paper sliding on glass, wind in trusses."
+  },
+  {
+   "id": "muniment-gallery",
+   "name": "The Muniment Room and Gallery",
+   "act": 2,
+   "description": "A narrow iron gallery over a twenty-two-foot drop, with a dead corner behind the map presses where two people can talk and nobody hears.",
+   "navigation": [
+    "great-stair",
+    "rolls-room"
+   ],
+   "hotspots": [
+    {
+     "id": "spectacles",
+     "label": "Folded spectacles on an open ledger",
+     "type": "examine",
+     "effect": "He took them off. A man reading does not fold his spectacles; a man standing up to talk to somebody does. The player may never move them."
+    },
+    {
+     "id": "baluster-3",
+     "label": "The north bay rail, baluster 3",
+     "type": "examine",
+     "effect": "Recorded loose on 2 September; made good on 15 September at the Warden's personal instruction, out of programme, no order number, not billed."
+    },
+    {
+     "id": "dust-sample",
+     "label": "Floor dust, north bay",
+     "type": "take",
+     "effect": "Jar 6: French chalk, beeswax, salt bloom, later found in the ribbon well of the Imperial 66 two floors away."
+    },
+    {
+     "id": "map-presses",
+     "label": "The map presses",
+     "type": "examine",
+     "effect": "The dead corner behind them has no sightline from anywhere, which is why two people go there to have a conversation nobody hears."
+    },
+    {
+     "id": "order-book",
+     "label": "Warden's Order Book 1972\u20131976",
+     "type": "puzzle",
+     "effect": "Act IV: leaves razored at the gutter for 11 August\u20133 November, and fifteen years of mirror-image offset ink on the facing pages, read backwards under raking light."
+    },
+    {
+     "id": "time-switch",
+     "label": "Gallery time-switch",
+     "type": "use",
+     "effect": "Twenty minutes a winding, counted and charged to Lights. Eleven windings on 14 September 1998 for an eighty-eight-minute visit."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view from a narrow first-floor iron gallery, eye height 1.6 metres, camera looking along the gallery toward a dead-end bay behind two tall wooden map presses. A slim cast-iron balustrade runs along the right with one baluster visibly newer and cleaner than its neighbours; beyond it a twenty-two-foot drop to unlit flagstones. On a sloped oak reading slope in the bay: an open ledger and a pair of folded wire-rimmed spectacles. Key light is a single mean tungsten bulb in a conical shade over the bay, warm and small, the rest of the volume cold blue-black; no daylight reaches this corner. Materials: cast iron, oak, vellum, dust, chalky floor bloom. Palette: black, iron grey, one small warm pool. Mood: still, unvisited for six weeks, held breath. No people. No text.",
+   "ambience": "A time-switch ticking down and clunking off, iron gallery ringing underfoot, deep hall reverb below, wind at a high window."
+  },
+  {
+   "id": "courtyard-and-site-hut",
+   "name": "The Courtyard, Incinerator and Site Hut",
+   "act": 1,
+   "description": "An enclosed granite yard with an iron-mouthed incinerator whose damper the scaffolders removed, and a site hut whose diary nobody in the Authority controls.",
+   "navigation": [
+    "entrance-hall",
+    "cliff-path-churchyard",
+    "undercroft",
+    "lamp-room",
+    "post-room"
+   ],
+   "hotspots": [
+    {
+     "id": "incinerator",
+     "label": "The incinerator's iron mouth",
+     "type": "puzzle",
+     "effect": "01:20, 27 October: rake the sodden ash grate, float the fragments off in a tray of cold water, carry them up to dry between blotters."
+    },
+    {
+     "id": "site-diary",
+     "label": "Sandbach's site diary in the hut",
+     "type": "examine",
+     "effect": "Item 41: damper removed, 2 September. Item 63: gallery rail made good at the Warden's personal instruction. The one daily record she does not control."
+    },
+    {
+     "id": "strip-out-programme",
+     "label": "Strip-out programme pinned to the hut wall",
+     "type": "examine",
+     "effect": "Room by room, day by day. Rooms named here genuinely close on those dates and their contents become unreachable."
+    },
+    {
+     "id": "sandbach",
+     "label": "Ivo Sandbach",
+     "type": "talk",
+     "effect": "Programme language, jokes that bully, a man doing sums in his head. In Act III he is caught in the Lamp Room at two in the morning."
+    },
+    {
+     "id": "scaffold-lift",
+     "label": "Scaffold deck and crowbar",
+     "type": "take",
+     "effect": "Takes the crowbar used on the undercroft's blind north wall, and gives a way up to the roof when the internal stair is boarded."
+    },
+    {
+     "id": "ash-grate",
+     "label": "The ash grate, 30 October",
+     "type": "examine",
+     "effect": "Enid Charnock, 22:50, in a coat over her nightdress, feeding the 1974 cash book into a fire that will not take."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres in a small enclosed granite courtyard at night in rain. Centre-left, a squat brick incinerator with a heavy cast-iron door standing open on a wet black ash grate, its chimney head open to the sky with rain visibly falling into it. Right, a green portable site hut with one lit window and a sheet of translucent polythene lifting in the wind. Key light is a harsh blue-white site floodlight on a scaffold standard throwing hard wet highlights and a long shadow up the granite, plus a weak warm rectangle from the hut window. Materials: streaming granite, sooty brick, cast iron, galvanised scaffold, polythene, standing water. Palette: blue-white flood, sodium spill, soot black, wet slate. Mood: nocturnal, criminal, sodden. No people. No text.",
+   "ambience": "Hard rain on iron and polythene, a floodlight ballast humming, scaffold clips ringing, wind funnelling through an archway, wet ash raked."
+  },
+  {
+   "id": "lamp-room",
+   "name": "The Lamp Room",
+   "act": 2,
+   "description": "Rita's kingdom: dismounted optics, a hundred and forty kilos of brass in a crate addressed to Antwerp, and Cormac Sallow's portrait on the wall.",
+   "navigation": [
+    "courtyard-and-site-hut"
+   ],
+   "hotspots": [
+    {
+     "id": "deakin-letter",
+     "label": "Rita's campaign file",
+     "type": "take",
+     "effect": "The Deakin letter, 4 March 1975: the beacon was dark, they all knew, they were told to say nothing. It appears to end the case."
+    },
+    {
+     "id": "adler-locker",
+     "label": "Rita's locker",
+     "type": "examine",
+     "effect": "An Adler Gabriele with a nylon ribbon. The third tell, which the player may or may not find, and which breaks a woman who is right about everything else."
+    },
+    {
+     "id": "dismounted-optics",
+     "label": "Dismounted Fresnel panels",
+     "type": "examine",
+     "effect": "Prismatic glass in crates. Two panels are missing from the schedule of condition, and one of them comes home at four in the morning on 3 November."
+    },
+    {
+     "id": "sandbach-crate",
+     "label": "Packing crate addressed to Antwerp",
+     "type": "puzzle",
+     "effect": "Act III, 02:00: a hooded torch, a crowbar and a hundred and forty kilos of brass. He is guilty of exactly what he appears guilty of, and of nothing else."
+    },
+    {
+     "id": "superintendents-frame",
+     "label": "The Lamp Superintendents' frame",
+     "type": "examine",
+     "effect": "Cormac Sallow, painted 1979 against a dark ground, patient and faintly amused, waiting for you to catch up."
+    },
+    {
+     "id": "sector-plates",
+     "label": "Brass occulting sector plates",
+     "type": "take",
+     "effect": "Act V: the physical means of entering Fl(3) W 20s into a machine by hand."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres in a long stone workshop, camera three-quarters onto a dismounted Fresnel lens panel standing in a timber cradle: concentric prismatic glass rings a metre across, catching and splintering light into faint spectra. Around it, brass lamp mechanisms on trestles, a part-crated pile of fittings, an oily bench with a locker at the end, and a single dark varnished portrait high on the wall with an indistinct face. Key light is cold silver daylight through a high dusty window, refracted by the lens into scattered warm rainbow glints across the stone. Materials: prismatic crown glass, polished and tarnished brass, oiled steel, packing straw, granite. Palette: gunmetal and grey ignited by prismatic colour \u2014 the only spectral colour in the game. Mood: cathedral of dead machinery. No people. No text.",
+   "ambience": "Wind moaning at a high window, tools set on a bench, straw rustling, brass ringing faintly, distant surf through stone."
+  },
+  {
+   "id": "pilotage-roof",
+   "name": "The Roof and Signal Mast",
+   "act": 4,
+   "description": "Lead walk behind a granite parapet with a signal mast and an Aldis lamp under a tarpaulin. The only way to reach the mainland with the line down.",
+   "navigation": [
+    "chart-loft"
+   ],
+   "hotspots": [
+    {
+     "id": "aldis-lamp",
+     "label": "Aldis lamp under a tarpaulin",
+     "type": "puzzle",
+     "effect": "The line is down. Look the international code up in the Signal Book, because she does not know it, and signal four miles across black water until Rossport answers."
+    },
+    {
+     "id": "signal-book",
+     "label": "The Signal Book",
+     "type": "examine",
+     "effect": "Code tables read page by page in the rain. The player composes the message letter by letter and gets it wrong before getting it right."
+    },
+    {
+     "id": "signal-mast",
+     "label": "The signal mast and halyards",
+     "type": "use",
+     "effect": "Day shapes and storm cones; hoisting the cone is how the coast is told the causeway is shut."
+    },
+    {
+     "id": "parapet-view",
+     "label": "The parapet",
+     "type": "examine",
+     "effect": "The whole map from above: courtyard, churchyard, causeway under six feet of water, and nine miles of black sea with nothing on it."
+    },
+    {
+     "id": "lead-flashing",
+     "label": "Lifted lead flashing",
+     "type": "examine",
+     "effect": "Where the rain has been getting into the Long Registry all along. The building dying on its own account, without anyone's help."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres on a narrow leaded roof walk behind a granite parapet, at night in horizontal rain and storm-force wind. Foreground framing: a heavy signal mast with taut wire stays and a whipping halyard, close, right of centre; at its foot a canvas-shrouded signalling lamp with a brass barrel and trigger shutter, half unwrapped. Key light is a hard white beam from the lamp firing out to sea into the rain, plus faint sodium from far below and one tiny warm pinprick four miles across black water. Materials: lead, granite, wet wire, canvas, brass, spray. Palette: black, white beam, faint sodium; the most sparsely lit image in the game. Mood: physical, desperate, exhilarating. No people. No text.",
+   "ambience": "Storm wind at the top of its register, halyards cracking on a mast, rain driving flat, a shutter clacking, distant surf."
+  },
+  {
+   "id": "board-room",
+   "name": "The Board Room",
+   "act": 4,
+   "description": "The Charter of 1811 in a glazed case, a long mahogany table, and on 3 November the only fully sunlit background in the game.",
+   "navigation": [
+    "great-stair",
+    "wardens-office"
+   ],
+   "hotspots": [
+    {
+     "id": "charter-case",
+     "label": "The Charter of 1811, Article 9",
+     "type": "examine",
+     "effect": "'The said office of Warden shall be holden by a man of full age.' Never amended in 187 years. The contempt and the alibi in the same clause."
+    },
+    {
+     "id": "case-file",
+     "label": "The case file",
+     "type": "puzzle",
+     "effect": "Act V: eight links \u2014 presence, means, opportunity, signature, identity, motive, consciousness of guilt, historical predicate \u2014 every assertion tied to an accession number."
+    },
+    {
+     "id": "board-table",
+     "label": "The Board of Dissolution",
+     "type": "talk",
+     "effect": "Mrs Ellary Voss, Captain Dunnet and Mr Pargeter for the Ministry, whose job is to strike. Named counter-evidence is fired at every weak link."
+    },
+    {
+     "id": "transcript",
+     "label": "The transcript",
+     "type": "examine",
+     "effect": "Uncited assertions are struck aloud, in front of her, and the transcript prints with the gaps in it. Not a fail state; a score."
+    },
+    {
+     "id": "window-seat",
+     "label": "The south window",
+     "type": "examine",
+     "effect": "At 23:04 on 3 November, three flashes in twenty seconds nine miles out, seen from the room where it was argued."
+    },
+    {
+     "id": "certificate",
+     "label": "The section 41 certificate",
+     "type": "use",
+     "effect": "Signing it saves the archive from the pulper on 4 November, in every ending, whatever else stands or falls."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres at the foot of a long polished mahogany board table in a high Georgian room, camera looking down its length toward three empty carved chairs and a glazed charter case on the far wall holding a single vellum document with a pendant wax seal. On the table: blotters, water carafes, a squared stack of foliated papers, a brass inkstand. Key light is brilliant hard low November sunshine flooding from three tall sashes at the left, throwing long warm window-shaped rectangles across table and floorboards with dust motes bright in the beams; outside, hard blue sky and glittering cold sea. Materials: French-polished mahogany, vellum, red wax, brass, gilt, plaster cornice. Palette: gold, honey, blue sky, white paper; the only fully sunlit background in the game. Mood: clear, formal, merciless. No people. No text.",
+   "ambience": "Large-room reverb, a wall clock, chair legs on boards, paper squared on a table, gulls outside, and long silences after sentences."
+  },
+  {
+   "id": "beacon-landing",
+   "name": "The Nine Bells \u2014 Landing Stage and Doorway",
+   "act": 4,
+   "description": "A hundred and twelve feet of granite on a reef, seen from a pitching boat. The jump for the landing is timed to the rise.",
+   "navigation": [
+    "the-ardent",
+    "beacon-oil-store"
+   ],
+   "hotspots": [
+    {
+     "id": "jump",
+     "label": "The landing, on the rise",
+     "type": "puzzle",
+     "effect": "Timed to the swell, hands white on the rail, with the Ardent lifting four feet. The cost of the last document, paid in body not file."
+    },
+    {
+     "id": "gallery-door",
+     "label": "The gallery door far above",
+     "type": "examine",
+     "effect": "Standing open at four hundred yards in Act II; from directly beneath, the reason is a broken hasp and twenty-four years of weather."
+    },
+    {
+     "id": "entrance-door",
+     "label": "The bronze entrance door",
+     "type": "use",
+     "effect": "Sealed since 1974 with a keeper's padlock, whose key is on the third hook nine miles away \u2014 which is why it had to be fetched first."
+    },
+    {
+     "id": "reef",
+     "label": "The Nine Bells reef",
+     "type": "examine",
+     "effect": "The rocks the Pelagia struck at 23:04, named on a chart for a hundred and sixty years and seen for the first time from sea level."
+    },
+    {
+     "id": "dry-bag",
+     "label": "Rita's dry bag",
+     "type": "use",
+     "effect": "What can be carried off the rock and what has to be left. Rita runs for Cardew with the log and leaves the two women behind."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person view at eye height 1.4 metres from a pitching small boat at the foot of a granite sea tower, camera angled steeply up the curving battered plinth toward a small bronze door set in the stone above a weed-slick landing stage with iron dog-steps. Grey-green swell surges up the plinth and drains white off the rock. Key light is a hard low dawn from the right, cold silver-orange, lighting spray into brilliant white against a slate storm sky; the granite streaked black with a century of weather. Materials: dressed granite, bronze gone green, rusted iron rungs, kelp, foam. Foreground framing: a wet gunwale and a coiled painter, close, lower edge, tilted with the swell. Vast vertical scale above and no ground anywhere. Mood: physical dread and awe. No people. No text.",
+   "ambience": "Sea breaking on granite, water draining off rock, fenders squealing, wind, an engine held in gear, gulls."
+  },
+  {
+   "id": "beacon-oil-store",
+   "name": "The Nine Bells \u2014 Oil Store",
+   "act": 4,
+   "description": "The circular base of the tower: empty paraffin drums, a cracked vaporiser on a shelf, and a keeper's log that stops on 24 August 1974.",
+   "navigation": [
+    "beacon-landing",
+    "beacon-service-room"
+   ],
+   "hotspots": [
+    {
+     "id": "keepers-log",
+     "label": "The keeper's log in its rack",
+     "type": "take",
+     "effect": "Final entry, 24 August 1974, 22.10: 'No. 2 vapor. cracked. Oil out. Light down. Nothing more to be done here.' The independent record the Authority never held."
+    },
+    {
+     "id": "log-reverse",
+     "label": "The back of the last page",
+     "type": "examine",
+     "effect": "In pencil: tea, boot polish, a birthday card for Nan."
+    },
+    {
+     "id": "oil-drums",
+     "label": "Empty paraffin drums",
+     "type": "examine",
+     "effect": "The cold smell of a store nobody has opened in twenty-four years, and drum tallies that match the refused requisitions exactly."
+    },
+    {
+     "id": "vaporiser",
+     "label": "The cracked No. 2 vaporiser",
+     "type": "examine",
+     "effect": "On a shelf where somebody put it down. The mechanical fault named on page two of Notice 74/119, in the hand."
+    },
+    {
+     "id": "stores-tally",
+     "label": "Stores tally board",
+     "type": "puzzle",
+     "effect": "Chalk figures reconcile against the Oil Requisition Book from Pike's cottage, authenticating the refusals against a record outside the Authority's custody."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.55 metres inside the circular base of a granite sea tower: a curved windowless drum of massive dressed stone, cold and dry, lined with cast-iron paraffin drums, a wooden log rack on the wall and a stone stair curving up out of the top right of frame. Key light is a single torch beam from camera raking across curved granite and drum labels, plus a thin cold wedge of dawn from the doorway behind camera-left; everything beyond the beam is black. Materials: dressed granite in curving courses, iron drums, verdigris, dry salt crust, oak rack, a cold paraffin sheen on the flagstones. Palette: near-monochrome grey-black with one warm torch pool. Mood: sealed, cold, twenty-four years unbreathed. No people. No text.",
+   "ambience": "Sea booming through granite from below, absolute inside stillness, a torch buzzing, iron ringing faintly, breathing."
+  },
+  {
+   "id": "beacon-service-room",
+   "name": "The Nine Bells \u2014 Service Room",
+   "act": 4,
+   "description": "A curved whitewashed room with a bunk and a paraffin stove, where two women are shut in for eleven hours and one of them tells the truth.",
+   "navigation": [
+    "beacon-oil-store",
+    "beacon-lantern-room"
+   ],
+   "hotspots": [
+    {
+     "id": "stove",
+     "label": "The paraffin stove",
+     "type": "use",
+     "effect": "Lighting it is the whole of survival for eleven hours; its blue ring is the only light in the confession."
+    },
+    {
+     "id": "sabine-confession",
+     "label": "Sabine Ferrier-Kyne",
+     "type": "talk",
+     "effect": "04:00: all of it, flatly, in order, with dates, over four hours \u2014 and at seven o'clock it is worth precisely nothing."
+    },
+    {
+     "id": "kestrel-satchel",
+     "label": "The satchel and the Kestrel Bequest",
+     "type": "puzzle",
+     "effect": "Bank mandate, trust deed and thirty-one standing orders since 4 April 1977, matched against the Pelagia manifest. The thirty-first is M. TAIN."
+    },
+    {
+     "id": "bunk",
+     "label": "The keeper's bunk",
+     "type": "examine",
+     "effect": "A curved wooden berth with a folded blanket, made up in 1974 by a man who came back for it and was told not to."
+    },
+    {
+     "id": "radio",
+     "label": "The radio set",
+     "type": "use",
+     "effect": "07:00: Iveson through four miles of static, telling her to stop crying and go and do her job."
+    },
+    {
+     "id": "stair-up",
+     "label": "The stair to the lantern",
+     "type": "travel",
+     "effect": "Climbs to the optic. At first light on 3 November it is the last climb in the game."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person seated view at eye height 1.1 metres in a small circular room inside a granite sea tower at night: curved whitewashed wall, a built-in wooden bunk with a folded blanket, a shelf of enamel mugs, a curving iron stair rising out of frame. Centre foreground, a squat brass paraffin stove burning with a low blue-and-amber ring, the only light source, throwing warm underlight up the curved wall and enormous soft shadows. A small deep-set window of thick glass shows nothing but black and running water. Materials: flaking whitewash on granite, brass, enamel, wool blanket, iron stair. Palette: amber and deep blue-black; the warmest small light in the coldest place. Mood: intimate, becalmed, terrible things said quietly. No people. No text.",
+   "ambience": "Sea striking granite in slow enormous thuds, a paraffin stove hissing, wind at a tiny window, a mug set down, long silences."
+  },
+  {
+   "id": "beacon-lantern-room",
+   "name": "The Nine Bells \u2014 Lantern Room and Gallery",
+   "act": 5,
+   "description": "Inside the optic at first light on the anniversary: sector plates, a falling weight, and one Fresnel panel that came home.",
+   "navigation": [
+    "beacon-service-room"
+   ],
+   "hotspots": [
+    {
+     "id": "optic",
+     "label": "The clockwork Fresnel optic",
+     "type": "puzzle",
+     "effect": "Set the brass occulting sector plates on the rotation drum, wind the weight, set the escapement release for 23:04. Fl(3) W 20s, entered by hand."
+    },
+    {
+     "id": "returned-panel",
+     "label": "The panel wrapped in a fleece",
+     "type": "use",
+     "effect": "Sandbach bought it back off a shipping agent at four in the morning with money he does not have, and said nothing about it. It goes in here."
+    },
+    {
+     "id": "weight-shaft",
+     "label": "The falling weight and shaft",
+     "type": "use",
+     "effect": "A hundredweight on a chain down the tower's spine; winding it is the last physical act of the game."
+    },
+    {
+     "id": "gallery-door",
+     "label": "The gallery door",
+     "type": "travel",
+     "effect": "Out onto the black gallery rail, a hundred and twelve feet up, where the whole coast is visible and nobody is."
+    },
+    {
+     "id": "lamp-log-slate",
+     "label": "The lighting-up slate",
+     "type": "examine",
+     "effect": "Chalk columns ruled in 1974 and never filled. Wren writes the date on the next line, which is not evidence and is the only thing in the game that is not."
+    }
+   ],
+   "artPrompt": "Painterly digital oil painting, 1536x1024, first-person standing view at eye height 1.6 metres inside a lighthouse lantern room at first light, enclosed by a great drum of concentric prismatic glass rings in a brass framework, one panel newly refitted and brighter than its neighbours. Below, a cast-iron rotation drum with brass sector plates and a heavy clockwork train, a chain disappearing down a shaft. Around and above, small-paned storm glazing and a black iron gallery rail against a hard cold blue sunrise over an empty glittering sea. Key light is low horizontal dawn sun coming straight through the prisms, splitting into hundreds of blades of white and spectral colour across brass and floor plates. Materials: crown glass prisms, polished brass, cast iron, storm glazing, salt. Palette: cold blue, brilliant white, brass gold, prism spectra. Mood: elation, clarity, the top of the world. No people. No text.",
+   "ambience": "Wind singing in storm glazing, a clockwork train ticking over, a chain paying out, gulls far below, the sea a long way down."
+  }
+ ]
+}

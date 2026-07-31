@@ -1,0 +1,443 @@
+/**
+ * The cutscene player — mirrors src/ui/cinematic.ts exactly.
+ *
+ * A cinematic is the only thing in the game that fills the whole window: no
+ * stage box, no chrome, no HUD. Four layers, back to front:
+ *   .cine-frame   — the still, drifting under a Ken Burns move
+ *   .cine-scrim   — a gradient that darkens the lower third so text can live
+ *   .cine-bar     — the letterbox, which travels in and out
+ *   .cine-caption — display type, centred, rising a line at a time
+ *
+ * The bars are the whole grammar of the thing: they are what tells the player
+ * that control has been taken away, and that it will be handed back.
+ */
+
+.cine-root {
+  /* The letterbox height. A hair under a true 2.39:1 crop on a 16:10 window,
+     which is enough to read as "widescreen" without eating the composition. */
+  --cine-bar-h: 11.5%;
+
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-cinematic);
+  overflow: hidden;
+  pointer-events: auto;
+  background: var(--ink-abyss);
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-in-out);
+  /* Nothing here is a target; a click anywhere is "next". */
+  cursor: pointer;
+}
+
+.cine-root[hidden] {
+  display: none;
+}
+
+.cine-root.is-open {
+  opacity: 1;
+}
+
+/* The letterbox opening back up is the "you have control again" beat, so the
+   fade is held back until the bars have started travelling rather than
+   dissolving the gesture out from under them. */
+.cine-root.is-ending {
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-in-out) var(--dur-med);
+}
+
+.cine-root:focus {
+  outline: none;
+}
+
+/* -- Stills ----------------------------------------------------------------- */
+
+.cine-frames {
+  position: absolute;
+  inset: 0;
+}
+
+/**
+ * A whisper of emulsion grain over the stills.
+ *
+ * Painted backgrounds exported as clean bitmaps read as *files* on a modern
+ * display — perfectly smooth gradients with visible banding in the darks. The
+ * grain is what makes the same image read as photographed, and it hides the
+ * banding for free. It sits over both frames and under the scrim, so a
+ * cross-dissolve happens beneath a single unmoving layer of noise rather than
+ * two competing ones.
+ */
+.cine-frames::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.07;
+}
+
+.cine-frame {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* A shade under full brightness and saturation so the type on top always
+     wins, and so cuts between paintings of different exposure don't jolt. */
+  filter: brightness(0.94) saturate(0.96) contrast(1.02);
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-in-out);
+}
+
+/* Promoted only while it is actually moving: two permanently-composited
+   full-bleed layers is a lot of texture memory to hold for a cutscene that
+   plays once. */
+.cine-frame.is-moving {
+  will-change: transform, opacity;
+}
+
+.cine-frame.is-front {
+  opacity: 1;
+}
+
+/* Ken Burns. --kb-dur is set per beat from JS so the move always outlasts the
+   beat by one dissolve and never comes to a visible stop. `forwards` holds the
+   end pose while the next frame fades over the top. */
+.cine-frame.is-moving[data-move='in'] {
+  animation: cine-kb-in var(--kb-dur, 4s) linear forwards;
+}
+
+.cine-frame.is-moving[data-move='out'] {
+  animation: cine-kb-out var(--kb-dur, 4s) linear forwards;
+}
+
+.cine-frame.is-moving[data-move='left'] {
+  animation: cine-kb-left var(--kb-dur, 4s) linear forwards;
+}
+
+.cine-frame.is-moving[data-move='right'] {
+  animation: cine-kb-right var(--kb-dur, 4s) linear forwards;
+}
+
+/* Even a still beat breathes very slightly — a perfectly locked frame reads as
+   a bug on a modern display. */
+.cine-frame.is-moving[data-move='none'] {
+  animation: cine-kb-hold var(--kb-dur, 4s) linear forwards;
+}
+
+@keyframes cine-kb-in {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.13);
+  }
+}
+
+@keyframes cine-kb-out {
+  from {
+    transform: scale(1.13);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes cine-kb-left {
+  from {
+    transform: scale(1.1) translateX(2.6%);
+  }
+  to {
+    transform: scale(1.1) translateX(-2.6%);
+  }
+}
+
+@keyframes cine-kb-right {
+  from {
+    transform: scale(1.1) translateX(-2.6%);
+  }
+  to {
+    transform: scale(1.1) translateX(2.6%);
+  }
+}
+
+@keyframes cine-kb-hold {
+  from {
+    transform: scale(1.015);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+/* -- Scrim ------------------------------------------------------------------ */
+
+/* Only as dark as the text needs, and only where the text is. A full-frame
+   wash would flatten the painting. */
+.cine-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-abyss) 34%, transparent) 0%,
+      transparent 22%,
+      transparent 46%,
+      color-mix(in srgb, var(--ink-abyss) 52%, transparent) 74%,
+      color-mix(in srgb, var(--ink-abyss) 78%, transparent) 100%
+    ),
+    radial-gradient(
+      120% 80% at 50% 50%,
+      transparent 42%,
+      color-mix(in srgb, var(--ink-abyss) 58%, transparent) 100%
+    );
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-in-out);
+}
+
+.cine-root.is-open .cine-scrim {
+  opacity: 1;
+}
+
+.cine-root.has-caption .cine-scrim {
+  opacity: 1;
+  /* Deepen only the lower third once there are words in it. */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-abyss) 34%, transparent) 0%,
+      transparent 22%,
+      transparent 40%,
+      color-mix(in srgb, var(--ink-abyss) 72%, transparent) 76%,
+      color-mix(in srgb, var(--ink-abyss) 90%, transparent) 100%
+    ),
+    radial-gradient(
+      120% 80% at 50% 50%,
+      transparent 42%,
+      color-mix(in srgb, var(--ink-abyss) 58%, transparent) 100%
+    );
+}
+
+/* -- Letterbox -------------------------------------------------------------- */
+
+.cine-bar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--cine-bar-h);
+  pointer-events: none;
+  /* Not a flat fill: the bar is a physical mask in front of the frame, so it
+     falls off away from the image edge instead of sitting there as one value. */
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.3) 0%, rgb(0 0 0 / 0.86) 100%),
+    var(--ink-abyss);
+  transition: transform var(--dur-scene) var(--ease-drama);
+  z-index: 2;
+}
+
+/* The lip where the bar meets the image: a single hair of spill, so the crop
+   is an object in front of the painting rather than a hole cut in it. */
+.cine-bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: color-mix(in srgb, var(--lamp-600) 40%, transparent);
+  opacity: 0.7;
+}
+
+.cine-bar.is-top {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.cine-bar.is-top::after {
+  bottom: 0;
+}
+
+.cine-bar.is-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+.cine-bar.is-bottom::after {
+  top: 0;
+}
+
+.cine-root.is-open .cine-bar {
+  transform: none;
+}
+
+/* Out the way they came, a beat before the whole overlay fades. */
+.cine-root.is-ending .cine-bar.is-top {
+  transform: translateY(-100%);
+}
+
+.cine-root.is-ending .cine-bar.is-bottom {
+  transform: translateY(100%);
+}
+
+/* -- Caption ---------------------------------------------------------------- */
+
+.cine-caption {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--cine-bar-h) + clamp(var(--sp-5), 6vh, var(--sp-8)));
+  translate: -50% 0;
+  width: min(72ch, 82vw);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  pointer-events: none;
+  text-align: center;
+}
+
+.cine-speaker {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: var(--lamp-300);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
+}
+
+.cine-speaker:empty {
+  display: none;
+}
+
+.cine-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.cine-line {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 400;
+  line-height: 1.34;
+  letter-spacing: var(--tracking-display);
+  color: var(--paper-100);
+  text-wrap: balance;
+  /* Two shadows: a tight one for legibility over any painting, and a wide warm
+     one so the words sit in the same lamplight as the scene. */
+  text-shadow:
+    0 2px 10px rgb(0 0 0 / 0.85),
+    0 0 34px color-mix(in srgb, var(--lamp-500) 30%, transparent);
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition:
+    opacity var(--dur-slow) var(--ease-out) var(--line-delay, 0ms),
+    transform var(--dur-scene) var(--ease-out) var(--line-delay, 0ms);
+}
+
+.cine-line.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* -- Hold to skip ----------------------------------------------------------- */
+
+/* `display` is set below, which would beat the UA's `[hidden] { display: none }`
+   on specificity and leave the badge on screen through an unskippable
+   cinematic — the one scene where offering a skip is actively a lie. */
+.cine-skip[hidden] {
+  display: none;
+}
+
+.cine-skip {
+  --hold: 0;
+
+  position: absolute;
+  right: clamp(var(--sp-4), 3vw, var(--sp-7));
+  bottom: calc(var(--cine-bar-h) / 2);
+  translate: 0 50%;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-1) var(--sp-2);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-ui);
+  color: color-mix(in srgb, var(--moon-300) 78%, transparent);
+  opacity: 0;
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    color var(--dur-med) var(--ease-out);
+}
+
+/* Only offered once the scene is actually running, and never on an
+   unskippable one. */
+.cine-root.is-open.is-skippable .cine-skip {
+  opacity: 0.75;
+}
+
+.cine-root.is-skippable .cine-skip:hover,
+.cine-root.is-skippable .cine-skip:focus-visible,
+.cine-root.is-holding .cine-skip {
+  opacity: 1;
+  color: var(--lamp-200);
+}
+
+/* Under the hand the badge presses in slightly, so the hold has weight rather
+   than just being a ring that fills on its own. */
+.cine-root.is-holding .cine-skip {
+  text-shadow: 0 0 14px color-mix(in srgb, var(--lamp-400) 55%, transparent);
+}
+
+.cine-skip-label kbd {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  padding: 0 0.3em;
+  border: var(--border-hairline);
+  border-radius: var(--radius-sm);
+  color: inherit;
+}
+
+/* The ring fills clockwise as --hold runs 0..1, set from JS. */
+.cine-skip-ring {
+  position: relative;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    var(--lamp-300) calc(var(--hold) * 360deg),
+    color-mix(in srgb, var(--moon-400) 40%, transparent) 0
+  );
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+  mask: radial-gradient(circle, transparent 58%, #000 60%);
+}
+
+/* A dot in the middle that swells as the ring fills, so the gesture has a
+   focal point rather than being a thin sliver of colour. */
+.cine-skip-ring::after {
+  content: '';
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: var(--lamp-200);
+  opacity: var(--hold);
+  scale: calc(0.5 + var(--hold) * 0.5);
+}
+
+/* -- Reduced motion --------------------------------------------------------- */
+
+/* The tokens already collapse every duration above. The Ken Burns move is the
+   one thing that cannot simply be made faster — a 12% zoom in 120ms is worse
+   than no move at all — so it is dropped outright and the stills hold. */
+@media (prefers-reduced-motion: reduce) {
+  .cine-frame.is-moving[data-move] {
+    animation: none;
+    transform: scale(1.02);
+  }
+}
