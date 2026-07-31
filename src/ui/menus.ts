@@ -255,6 +255,15 @@ const BUILD_VERSION = '1.0.0';
  */
 const KEY_ART = './art/ui/title-plate.webp';
 
+/**
+ * The drawn title wordmark, from `tools/generate-wordmark.mjs`.
+ *
+ * Gold on a transparent field, keyed out of a black plate rather than
+ * requested as alpha — the mark *is* light, so a luminance key leaves each
+ * stroke's bloom falling off naturally into the storm behind it.
+ */
+const WORDMARK = './art/ui/wordmark.webp';
+
 /** Small numbers read as words in a title card; '5 acts' reads as marketing. */
 const NUMERALS = [
   'no',
@@ -747,6 +756,29 @@ export class Menus {
 
         const wordmark = el('h1', 'title-wordmark');
         wordmark.setAttribute('aria-label', this.state.content.title);
+
+        // The drawn wordmark, over the CSS one.
+        //
+        // The lettering below is good typography and it is not a logo — a
+        // shipped adventure game has a *drawn* mark, with its own material and
+        // its own light. `tools/generate-wordmark.mjs` renders one and keys its
+        // alpha out of a black field.
+        //
+        // The CSS setting stays underneath as a real fallback rather than being
+        // deleted: it is the same two lines, it needs no network, and it is what
+        // the title screen shows if the asset ever fails to load. Only one is
+        // ever visible — `has-mark` retires the type.
+        const mark = new Image();
+        mark.className = 'title-wordmark__mark';
+        mark.decoding = 'async';
+        // The h1 already carries the name for assistive tech; alt text here
+        // would announce the title twice.
+        mark.alt = '';
+        mark.setAttribute('aria-hidden', 'true');
+        mark.onload = () => wordmark.classList.add('has-mark');
+        mark.src = WORDMARK;
+        wordmark.appendChild(mark);
+
         // Per-letter spans so the title can be lit from left to right on first
         // paint. Marked hidden from assistive tech; the h1 carries the label.
         //

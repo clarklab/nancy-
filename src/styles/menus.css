@@ -701,6 +701,57 @@
 
 /* -- Type ------------------------------------------------------------------ */
 
+/**
+ * The drawn wordmark.
+ *
+ * Sits inside `.title-content`, which is `position: relative; z-index: 1` and
+ * therefore already above every layer of `.title-art` — the plate, the weather,
+ * the lamp bloom, the scrim gradient and the grain. That ordering is the whole
+ * reason the mark can be a lit object rather than something the scrim washes
+ * over, so it is stated here as well: if `.title-content` ever loses its
+ * z-index, the logo goes *under* the fade and the screen falls apart.
+ *
+ * Size is deliberately under the CSS setting it replaces. A drawn mark carries
+ * its own weight — material, bevel, bloom — where the type needed scale to hold
+ * the frame, so matching the old display size made it shout.
+ */
+.title-wordmark__mark {
+  display: none;
+  width: clamp(16rem, 31vw, 35rem);
+  height: auto;
+  /* Contact with the plate. The mark is lit from its own lower right, so the
+     cast goes down-and-left, matching the rule and subtitle beneath it. */
+  filter: drop-shadow(-2px 3px 10px color-mix(in srgb, var(--ink-abyss) 62%, transparent));
+}
+
+/* Only one setting is ever visible. The type is the fallback and it is retired
+   the moment the drawn mark decodes. */
+.title-wordmark.has-mark .title-wordmark__mark {
+  display: block;
+  animation: wordmark-in var(--dur-slow) var(--ease-out) both;
+}
+
+.title-wordmark.has-mark .title-wordmark__line {
+  display: none;
+}
+
+@keyframes wordmark-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-wordmark.has-mark .title-wordmark__mark {
+    animation: none;
+  }
+}
+
 .title-content {
   position: relative;
   z-index: 1;
