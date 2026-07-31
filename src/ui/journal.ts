@@ -162,6 +162,12 @@ export class Journal {
    */
   private scrollMemory = new Map<string, number>();
 
+  /**
+   * The resolved depth of `--page-fade` per scroller, held against the
+   * scrollport height it was measured at. See `pageFadePx`.
+   */
+  private fadeCache = new WeakMap<HTMLElement, { at: number; px: number }>();
+
   private ptr: PointerCarry | null = null;
 
   /** Keyboard/click carry: a clue held, waiting for a destination. */
@@ -1488,9 +1494,10 @@ export class Journal {
   }
 
   /**
-   * Hides the catchword on any leaf that is already showing its last line.
+   * Hides the catchword on any leaf that is already showing its last line, and
+   * lands the foot dissolve between two lines rather than across them.
    * Runs after every render (the page may not overflow at all) and on every
-   * scroll, which is cheap: two reads on one element, no layout written.
+   * scroll, which is cheap: a handful of reads, no layout written.
    */
   private syncCatchword() {
     for (const wide of this.panelEl.querySelectorAll<HTMLElement>('.journal-spread--wide')) {
@@ -1498,6 +1505,7 @@ export class Journal {
       if (!scroller) continue;
       const ended = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
       wide.classList.toggle('is-ended', ended);
+      this.landPageTear(scroller, ended);
     }
     // The deduction board's persons column is the same problem in a different
     // material: it scrolls, it has no scrollbar worth seeing, and without a
@@ -1509,6 +1517,88 @@ export class Journal {
       const ended = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
       col.classList.toggle('is-ended', ended);
     }
+  }
+
+  /**
+   * Puts the foot dissolve in the leading between two lines.
+   *
+   * The stylesheet decides how *deep* the tear is; this decides where it comes
+   * to rest, which the stylesheet cannot know because it depends on where the
+   * player has scrolled to. It used to be left to `scroll-snap-type: y
+   * mandatory` on the theory that every card is a snap port, but a snap port is
+   * a card *start*: once a row of cards is taller than what is left of the
+   * scrollport there is no port under the foot at all, and the tear fell where
+   * it liked — measured on the shipping build, five rows into the eighth line
+   * of the copy, which is a guillotine, not a page ending.
+   *
+   * So the tear is walked *up* to the nearest line-box boundary of whatever
+   * paragraph it is crossing — never more than one line, never downwards, so
+   * the dissolve can only ever end a hair earlier than the stylesheet asked and
+   * never deeper. Below the boundary there is no half-line left to read.
+   */
+  private landPageTear(scroller: HTMLElement, ended: boolean) {
+    // Nothing under the leaf: the deep fade is already off and the content's
+    // own foot padding ends the page. Snapping here would only chew into it.
+    if (ended) {
+      scroller.style.removeProperty('--page-snap');
+      return;
+    }
+    const fade = this.pageFadePx(scroller);
+    if (!fade) return;
+
+    // Everything in this function is measured from the top of the scrollport,
+    // so it needs no scrollTop of its own: the boxes have already moved.
+    const port = scroller.getBoundingClientRect().top;
+    const cut = scroller.clientHeight - fade;
+
+    let snap = 0;
+    // Every run of body copy the tear can cross, not only the card summaries:
+    // a group blurb caught across its own x-height would read exactly the same.
+    for (const p of scroller.querySelectorAll<HTMLElement>(
+      '.clue-card__summary, .clue-group__blurb',
+    )) {
+      const box = p.getBoundingClientRect();
+      if (box.top - port > cut || box.bottom - port <= cut) continue;
+      const cs = getComputedStyle(p);
+      const pitch = parseFloat(cs.lineHeight);
+      if (!Number.isFinite(pitch) || pitch <= 1) break;
+      // Line boxes are stacked from the *content* top, so a paragraph that ever
+      // grows a border or a top padding must not shift the grid out from under
+      // this by exactly that much.
+      const first =
+        box.top - port + (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.paddingTop) || 0);
+      // The distance back to the bottom of the last line box that finished
+      // above the tear. Zero when the tear is already in the leading.
+      snap = (cut - first) % pitch;
+      break;
+    }
+    scroller.style.setProperty('--page-snap', `${snap.toFixed(2)}px`);
+  }
+
+  /**
+   * `--page-fade` in pixels.
+   *
+   * It is a `clamp()` over container units held in a custom property, and a
+   * custom property computes to its own token stream — `getComputedStyle` hands
+   * back the literal `clamp(2rem, 4.5cqh, 3.25rem)` rather than a length.
+   * Restating that clamp in TypeScript would put the depth in two places and
+   * guarantee they drift, so it is resolved by giving a throwaway box that
+   * height inside the same container and asking what happened. Cached against
+   * the scrollport's height, so the DOM write happens on a resize or a tab
+   * change and never on a scroll.
+   */
+  private pageFadePx(scroller: HTMLElement): number {
+    const hit = this.fadeCache.get(scroller);
+    if (hit && hit.at === scroller.clientHeight) return hit.px;
+    const probe = document.createElement('div');
+    probe.setAttribute('aria-hidden', 'true');
+    probe.style.cssText =
+      'position:absolute;top:0;left:0;width:0;height:var(--page-fade);visibility:hidden;pointer-events:none;';
+    scroller.appendChild(probe);
+    const px = probe.getBoundingClientRect().height;
+    probe.remove();
+    this.fadeCache.set(scroller, { at: scroller.clientHeight, px });
+    return px;
   }
 
   /**

@@ -41,8 +41,27 @@
      frame measured 72.6% dead. 58rem is 928px: roughly 80 characters, the top
      of the readable band rather than past it, and it closes two thirds of the
      orphan. The rest of the right-hand void is a lighting problem, not a layout
-     one, and is answered in `.dialogue-lamp`. */
-  --dlg-measure: min(58rem, 100%);
+     one, and is answered in `.dialogue-lamp`.
+
+     That estimate was wrong, and it was wrong in the direction that costs the
+     most: 58rem does not set 80 characters, it sets 94. Counted off the shot,
+     'Miss Adare. Nine days. …' runs 94 characters over 856px of ink — past
+     WCAG's 80 ceiling and half again over the 45–75 comfort band, on the
+     surface the player reads more than any other. 46rem is 736px and measures
+     ~72 characters at this size. The orphan the widening was paying for is
+     answered by `--dlg-origin` below instead — a composition move, not a
+     typographic one. */
+  --dlg-measure: min(46rem, 100%);
+
+  /* Where the column of speech starts, not how wide it is. The 12rem the
+     measure just gave back is spent here: the sheet and the tray slide right
+     by exactly that much, so their right edge lands where the 58rem sheet's
+     did and no new void opens in the right third of the frame — the reclaimed
+     space goes into the gap between the bay and the sheet, which is the one
+     place in this layout that can absorb it. Collapses to nothing as soon as
+     the column is narrower than the measure, so the cramped layout below is
+     unaffected. */
+  --dlg-origin: clamp(0px, calc(100% - var(--dlg-measure)), 12rem);
 
   /* A clip-path erases box-shadow outright, so the torn sheet's cast shadow has
      to be a filter — the only shadow that follows a clipped silhouette. The
@@ -323,6 +342,7 @@
   align-self: end;
   margin-bottom: var(--sp-4);
   justify-self: start;
+  margin-inline-start: var(--dlg-origin);
 }
 
 .dialogue-tray {
@@ -334,6 +354,9 @@
      list upward and the "end conversation" plate never moves under the cursor. */
   justify-content: flex-end;
   width: var(--dlg-measure);
+  /* Same origin as the sheet above it, or the shared left edge — the only
+     thing making the two materials read as one column — comes apart. */
+  margin-inline-start: var(--dlg-origin);
   min-width: 0;
   min-height: 0;
 }
@@ -360,6 +383,14 @@
 
 .dialogue-root[data-side='right'] .dialogue-bay {
   grid-area: 1 / 2 / -1 / 3;
+}
+
+/* Mirrored, the origin is the other edge: the column pulls in from the frame
+   side, not from the bay side. */
+.dialogue-root[data-side='right'] .dialogue-speech,
+.dialogue-root[data-side='right'] .dialogue-tray {
+  margin-inline-start: 0;
+  margin-inline-end: var(--dlg-origin);
 }
 
 .dialogue-root[data-side='right'] .dialogue-speech {

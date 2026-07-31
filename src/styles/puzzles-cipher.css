@@ -1980,7 +1980,14 @@
   inset: 22%;
   border-radius: 50%;
   background:
-    var(--pz-key-spec),
+    /* Damped, for the same reason the hub above it is: the near flange sits at
+       0.25 of the key's radius, where `--pz-key-spec` screens at alpha 0.43 and
+       takes brass to rgb(215,178,103) — pale, low-chroma and with its own
+       roll-off erased — against rgb(190,138,47) on its twin 1640px away. Two
+       instances of one casting were reading as two different metals. The
+       damped source keeps the falloff (the near one is still the lit one)
+       without bleaching the material it lands on. */
+    var(--pz-key-spec-soft),
     radial-gradient(
       circle at var(--pz-spec-x) var(--pz-spec-y),
       var(--lamp-200),

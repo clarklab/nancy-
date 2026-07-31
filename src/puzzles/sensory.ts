@@ -3524,6 +3524,10 @@ function chartLoft(): PuzzleModule {
 
       const set = h('div', 'sx-cl-set');
       set.append(
+        /* The cradle goes in before the handset so it paints under it: without
+           a lit trough the handset's contact shadow falls on near-black and
+           the whole prop floats. */
+        h('span', 'sx-cl-set-cradle', '', { 'aria-hidden': 'true' }),
         h('span', 'sx-cl-set-body', '', { 'aria-hidden': 'true' }),
         h('span', 'sx-cl-set-bell', '', { 'aria-hidden': 'true' }),
         h('span', 'sx-cl-set-plate', 'ROSSPORT 2 · PRESS BUTTON A'),

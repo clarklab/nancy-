@@ -854,12 +854,22 @@
  * The tracks are content-sized and the group is centred, so the bar is a bar of
  * controls at any width and the verdict — when there is one — reads beside them
  * instead of alone at the far end of a runway.
+ *
+ * The *plate* stayed full-column, though, so the content-sized tracks were
+ * centred inside 1150px of near-black fill: a handwheel and a lever floating as
+ * two orphans in the largest flat area on the screen, and the terminal action of
+ * the puzzle the least findable object on it. The plate is sized to the console
+ * it carries, so the wheel and the lever read as one mounted mechanism and the
+ * leather around it reads as bench rather than as an empty panel.
  */
 .tl-gate {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
   justify-content: center;
+  width: max-content;
+  max-width: 100%;
+  justify-self: center;
   align-items: center;
   gap: clamp(0.9rem, 3cqw, 2.4rem);
   padding: 0.7em 1em;
@@ -993,7 +1003,10 @@
   display: grid;
   place-items: center;
   gap: 0.4em;
-  padding: 0.7em 1.1em;
+  /* 62x52 is a chip, not the last move in the puzzle. The fitting is sized to
+     be hit, and to stand beside the handwheel as its equal on the console
+     plate rather than as a label next to it. */
+  padding: 0.85em 1.6em;
   border: 0;
   border-radius: var(--radius-sm);
   background:
@@ -1020,7 +1033,9 @@
 .tl-lever-label {
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
-  font-size: 0.85em;
+  /* The name of the terminal action set smaller than the captions under the
+     three inputs is the hierarchy the wrong way up. */
+  font-size: 0.95em;
   line-height: 1;
   text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
 }

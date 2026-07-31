@@ -2947,8 +2947,13 @@ function septemberSpool(): PuzzleModule {
         makeToggle({
           label: 'Mirror the impressions',
           value: mirrorOn,
-          onLabel: 'Mirror on',
-          offLabel: 'Mirror off',
+          /* The legend names the *control*, not its state. The switch already
+             says on or off twice over — thumb position and a lit track — and a
+             legend reading 'Mirror off' next to it parses as an imperative:
+             a button that turns the mirror off. Since the whole puzzle gates on
+             mirror and reverse both being on, that misreading is fatal. */
+          onLabel: 'Mirror',
+          offLabel: 'Mirror',
           feedback: ctx.feedback,
           onChange: (v) => {
             mirrorOn = v;
@@ -2961,8 +2966,8 @@ function septemberSpool(): PuzzleModule {
         makeToggle({
           label: 'Reverse the travel',
           value: reverseOn,
-          onLabel: 'Reverse on',
-          offLabel: 'Reverse off',
+          onLabel: 'Reverse',
+          offLabel: 'Reverse',
           feedback: ctx.feedback,
           onChange: (v) => {
             reverseOn = v;

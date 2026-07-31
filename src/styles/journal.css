@@ -838,12 +838,16 @@
   font-weight: 600;
   font-variant-caps: all-small-caps;
   letter-spacing: var(--tracking-label);
-  /* Undiluted. This is the only scroll affordance on a leaf with no visible
-     scrollbar, and at 82% of an already-faded ink, sitting at the darkest point
-     of the vignette, it measured 2.43:1 — an instruction you cannot read is not
-     an affordance. `--paper-ink-faded` is itself the "faded" ink; mixing it
-     back toward the paper a second time was doing the same job twice. */
-  color: var(--paper-ink-faded);
+  /* Not the faded ink at all. This is the only scroll affordance on a leaf with
+     no visible scrollbar, and at 82% of an already-faded ink it measured 2.43:1;
+     undiluting it to the whole of `--paper-ink-faded` bought a third of a stop
+     and still measured 2.25:1, because the ink was never the problem — the
+     token is. `--paper-ink-faded` is furniture ink, for folios and running
+     heads, and at `--step--1` in small caps the antialiasing lifts it another
+     stop and a third on its way to the screen. An affordance is not furniture,
+     so it gets the reading ink, held back from full only enough that it does
+     not out-weigh the card titles above it. */
+  color: color-mix(in srgb, var(--paper-ink) 85%, transparent);
   opacity: 1;
   transition: opacity var(--dur-med) var(--ease-out);
 }
@@ -1004,18 +1008,25 @@
      is 9-14px — half a line box — so the line meeting the edge is torn through
      its own strokes and the one under it is simply not there. */
   --page-ramp: clamp(0.45rem, 1cqh, 0.75rem);
+  /* The last few pixels of depth, written by `syncCatchword` and never by a
+     stylesheet: how far *further* up the tear has to move to come to rest in
+     the leading between two lines instead of across their x-heights. It is
+     always less than one line box, so it changes where the dissolve lands and
+     never how deep it is. Zero here so the prose columns, which JS does not
+     measure, keep the composition they were tuned with. */
+  --page-snap: 0px;
   mask-image: linear-gradient(
     to bottom,
     black 0,
-    black calc(100% - var(--page-fade)),
-    transparent calc(100% - var(--page-fade) + var(--page-ramp)),
+    black calc(100% - var(--page-fade) - var(--page-snap)),
+    transparent calc(100% - var(--page-fade) - var(--page-snap) + var(--page-ramp)),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     black 0,
-    black calc(100% - var(--page-fade)),
-    transparent calc(100% - var(--page-fade) + var(--page-ramp)),
+    black calc(100% - var(--page-fade) - var(--page-snap)),
+    transparent calc(100% - var(--page-fade) - var(--page-snap) + var(--page-ramp)),
     transparent 100%
   );
 }
@@ -1023,16 +1034,20 @@
 /* And it must land *between* things. A dissolve is only convincing over the
    gap between two rows of cards; over the fifth line of a paragraph it is a
    blurred guillotine however long it is.
-   `proximity` left that to the browser's discretion and it declined: a row
-   parked half inside the ramp on every measured shot. A book turns whole
-   leaves, so the snap is mandatory and every card is a snap port. */
+   Scroll snapping cannot deliver that and it was a mistake to ask it to: a
+   snap port is a card *start*, and the second row of cards is taller than what
+   is left of the scrollport, so its foot came to rest wherever the mask
+   happened to be — measured, five rows into the eighth line of the copy. The
+   tear is now positioned by `syncCatchword`, which reads the live line grid and
+   writes `--page-snap`. The snap below is kept for what it is actually good at,
+   which is making the leaf come to rest on a section or a card rather than
+   mid-row when the player flicks it. */
 .journal-scroll {
   scroll-snap-type: y mandatory;
 }
 
-/* Both the group head and the card rows are ports, so the ramp always lands in
-   a gutter and a section can still be scrolled to by its own title rather than
-   only by the first card under it. */
+/* Both the group head and the card rows are ports, so a section can be scrolled
+   to by its own title rather than only by the first card under it. */
 .journal-scroll .clue-group,
 .journal-scroll .clue-card {
   scroll-snap-align: start;
@@ -2856,14 +2871,21 @@
   border-top: 1px solid color-mix(in srgb, var(--ink-abyss) 34%, transparent);
   box-shadow: 0 -1px 0 color-mix(in srgb, var(--lamp-300) 9%, transparent);
   font-family: var(--font-hand);
-  font-size: var(--step--1);
+  /* A step up from the rest of the foot rail. This is the only statement
+     anywhere of the board's core verb, and at `--step--1` it was the smallest
+     type on a screen whose entire purpose is that one interaction — and a
+     script face at that size is mostly antialiasing, which is where the
+     measured contrast was going. */
+  font-size: var(--step-0);
   /* A connecting hand must never be tracked — the letterforms stop touching,
      which is the one thing you cannot do to a script face. */
   letter-spacing: 0;
   /* The only instruction on the screen, written in pencil on a strip of card at
      the foot of the board. A hand is a light face to begin with; diluted to 76%
-     over lit cork it measured 2.13:1, which is a note somebody rubbed out. */
-  color: color-mix(in srgb, var(--paper-100) 94%, transparent);
+     over lit cork it measured 2.13:1, which is a note somebody rubbed out, and
+     at 94% it still measured 2.36:1. An affordance gets its own value rather
+     than a thinned one. */
+  color: var(--paper-100);
   text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 46%, transparent);
 }
 
@@ -3111,7 +3133,20 @@
   padding-top: var(--sp-3);
   border-top: 1px solid color-mix(in srgb, var(--ink-abyss) 34%, transparent);
   box-shadow: 0 -1px 0 color-mix(in srgb, var(--lamp-300) 9%, transparent);
-  color: color-mix(in srgb, var(--paper-100) 92%, transparent);
+  /* Undiluted, for the same reason as the catchword on the leaf: at 92% of the
+     paper it measured 2.53:1, fainter than the tear it exists to explain, and
+     with the brass chevron beside it carrying more contrast than the words —
+     which puts the hardware ahead of the sentence in the reading order. */
+  color: var(--paper-100);
+  /* Follows the hint across the board to `--step-0` rather than inheriting
+     `--step--1` from `.journal-more`. The two foot rails are ruled at the same
+     height on purpose — "the hint rail on one side is answered by the catchword
+     on the other" — and both rows are `auto` over an inherited unitless
+     leading, so raising one face and not the other would pull the left-hand
+     rule five pixels above the right-hand one. It also buys back the stroke
+     weight that small caps at `--step--1` were losing to antialiasing, which is
+     where this label's contrast was going in the first place. */
+  font-size: var(--step-0);
   text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 55%, transparent);
 }
 
