@@ -58,7 +58,7 @@ export interface CinematicCallbacks {
  * beats array, and only the canonical id is rendered — so an alias is folded
  * back onto it here rather than paying for a second copy of identical audio.
  */
-function voiceLineId(cinematicId: string, beatIndex: number): string {
+export function voiceLineId(cinematicId: string, beatIndex: number): string {
   const canonical = cinematicId.startsWith('cin-') ? cinematicId : `cin-${cinematicId}`;
   const slug = canonical
     .toLowerCase()
