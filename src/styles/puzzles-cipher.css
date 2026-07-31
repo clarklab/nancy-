@@ -28,12 +28,22 @@
 
 .cx {
   --cx-paper: linear-gradient(168deg, var(--paper-100) 0%, var(--paper-200) 62%, var(--paper-300) 100%);
+  /* The alloy every stud on this bench is cut from — and studs carry engraved,
+     near-black labels, so this is a *ground*, not a decoration. It used to run
+     out to `--pz-brass-lo` (Y 0.061) at the far corner, and near-black ink on
+     that is 2.0:1 however the ink is mixed: the bottom third of every button
+     was a dead zone, which is where PIN AT THE HAIRLINE measured 3.75:1. The
+     four stops are the same brass in the same order lit from the same corner;
+     the run simply stops at the mid stop instead of continuing down into the
+     shadow alloy, so the darkest ground under any label is Y 0.262 and the
+     whole face clears 5.6:1. Nothing here touches a shadow, an inset or the
+     lamp. */
   --cx-brass-face: linear-gradient(
     166deg,
     var(--pz-brass-hi) 0%,
-    var(--lamp-400) 22%,
-    var(--pz-brass-mid) 58%,
-    var(--pz-brass-lo) 100%
+    color-mix(in srgb, var(--pz-brass-hi) 62%, var(--pz-brass-mid)) 26%,
+    color-mix(in srgb, var(--pz-brass-mid) 82%, var(--pz-brass-hi)) 68%,
+    var(--pz-brass-mid) 100%
   );
   --cx-ink: var(--paper-ink);
   --cx-ink-soft: var(--paper-ink-faded);
@@ -69,7 +79,7 @@
   flex: 0 0 auto;
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.89rem, 2.55cqh, 1.29rem);
+  font-size: var(--step-0);
   line-height: 1.4;
   color: var(--moon-200);
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
@@ -122,7 +132,7 @@
 
 .cx .cx-plate-title {
   margin: 0 0 0.25rem;
-  font-size: clamp(0.72rem, 1.86cqh, 0.95rem);
+  font-size: var(--step--1);
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
   color: var(--lamp-200);
@@ -139,7 +149,7 @@
 .cx .cx-plate-list li {
   position: relative;
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.79cqh, 0.92rem);
+  font-size: var(--step--1);
   line-height: 1.45;
   color: color-mix(in srgb, var(--lamp-100) 72%, var(--ink-400));
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.75);
@@ -166,7 +176,12 @@
   cursor: pointer;
   background: var(--cx-brass-face);
   background-image: var(--pz-grain-brass), var(--cx-brass-face);
-  background-blend-mode: overlay, normal;
+  /* `soft-light`, not `overlay`. Overlay doubles the swing of the fibre noise
+     against a light ground, which put patches of the casting a stop or more
+     below the face's own darkest value directly under the engraved label — the
+     grain, not the alloy, was setting the worst local contrast on the stud. The
+     texture is the same texture; it is applied at half the gain. */
+  background-blend-mode: soft-light, normal;
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 55%, transparent),
     inset 0 -1px 2px rgb(0 0 0 / 0.55),
@@ -180,16 +195,26 @@
 .cx .cx-stud-face {
   display: block;
   padding: clamp(0.24rem, 0.9cqh, 0.42rem) clamp(0.5rem, 1.8cqw, 0.95rem);
-  /* Small caps sit lower than capitals at the same nominal size, so the size
-     comes up as the register changes and the tracking comes down — small caps
-     are already open, and 0.14em on them sets as a smear. */
-  font-variant-caps: all-small-caps;
+  /* The face on every button in this file, and until now the least legible type
+     on the bench.
+     `font-variant-caps: all-small-caps` was the cause and it is gone. Cormorant
+     cuts its small capitals to its own x-height, and this face has an unusually
+     short one: 0.36em against 0.66em for the capitals. An 18px declaration
+     therefore painted 6px of cap height, which is what NO RIBBON CHANGE
+     BETWEEN / A RIBBON CHANGE BETWEEN / CANNOT SAY ON THIS EVIDENCE measured —
+     the three controls that answer the cipher, set smaller than anything else
+     on the screen. Tracked full capitals in the same face are the same
+     engraved register at 1.8x the ink for 1.2x the width.
+     The fill goes down to near-black and the light edge under it comes off
+     45%: a 45% specular under a 6px letter is most of the letter, and it is
+     what took the stem measurement on PIN AT THE HAIRLINE to 3.75:1 while the
+     core read 5.1:1. */
   font-weight: 600;
-  font-size: clamp(0.86rem, 2.2cqh, 1.16rem);
+  font-size: var(--step-0);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--ink-900) 88%, var(--lamp-600));
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 45%, transparent);
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--ink-abyss) 92%, var(--lamp-600));
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 28%, transparent);
 }
 
 .cx .cx-stud:hover:not(:disabled) {
@@ -224,8 +249,16 @@
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.6);
 }
 
+/* Moonlight, one stop up. The previous mix landed on RGB(129,143,145) over the
+   steel ground at RGB(24,35,43): 4.73:1 at the core and 3.37:1 measured on the
+   stem, because the stem of a 6px letter is one antialiased pixel and an
+   antialiased pixel is never the declared colour. The size fix above is half of
+   that; this is the other half. `--moon-200` on the same ground is 8.3:1 at the
+   core, which leaves the stem well past 4.5:1 with room for the grain. The
+   state still reads as held rather than live: cold against warm, sunk against
+   proud, no glow, no notch. */
 .cx .cx-stud:disabled .cx-stud-face {
-  color: color-mix(in srgb, var(--moon-300) 78%, var(--lamp-600));
+  color: color-mix(in srgb, var(--moon-200) 88%, var(--lamp-600));
   text-shadow: none;
 }
 
@@ -249,7 +282,7 @@
 
 .cx .cx-stud.is-slim .cx-stud-face {
   padding: 0.18rem 0.5rem;
-  font-size: clamp(0.72rem, 1.66cqh, 0.87rem);
+  font-size: var(--step--1);
 }
 
 .cx .cx-foot {
@@ -306,7 +339,7 @@
 
 .cx-commission .cx-kit-brand {
   margin: 0;
-  font-size: clamp(0.72rem, 1.66cqh, 0.87rem);
+  font-size: var(--step--1);
   text-transform: uppercase;
   letter-spacing: var(--pz-tracking-ui);
   color: var(--lamp-500);
@@ -377,13 +410,13 @@
 }
 
 .cx-commission .cx-tool-name {
-  font-size: clamp(0.72rem, 1.79cqh, 0.95rem);
+  font-size: var(--step--1);
   color: var(--moon-100);
 }
 
 .cx-commission .cx-tool-hint {
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 1.59cqh, 0.84rem);
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--text-muted);
   line-height: 1.25;
@@ -529,26 +562,33 @@
 .cx-commission .cx-paper-head {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(0.72rem, 4.69cqw, 1.33rem);
+  /* The four `.cx-paper-*` sizes are bounded by the scale at both ends rather
+     than set to a single step. `.cx-paper-body` is its own inline-size
+     container and this is a reproduction of a document printed on the sheet:
+     the type has to stay in proportion to the paper, which no fixed step can
+     do. Clamping between two adjacent steps keeps the response and puts the
+     floor on the scale — the old lower bounds were bare `0.72rem` and the `cqw`
+     term could take the body lines to 9.7px on a narrow sheet. */
+  font-size: clamp(var(--step--1), 4.69cqw, var(--step-1));
   letter-spacing: 0.1em;
   text-align: center;
 }
 .cx-commission .cx-paper-sub {
   margin: 0 0 0.4em;
-  font-size: clamp(0.72rem, 2.9cqw, 0.84rem);
+  font-size: clamp(var(--step--2), 2.9cqw, var(--step--1));
   text-align: center;
   color: var(--cx-ink-soft);
   letter-spacing: 0.06em;
 }
 .cx-commission .cx-paper-line {
   margin: 0;
-  font-size: clamp(0.72rem, 2.42cqw, 0.8rem);
+  font-size: clamp(var(--step--2), 2.42cqw, var(--step--1));
   color: var(--cx-ink-soft);
 }
 .cx-commission .cx-paper-sig {
   margin: 0.5em 0 0;
   font-family: var(--font-hand);
-  font-size: clamp(0.72rem, 3.31cqw, 1.01rem);
+  font-size: clamp(var(--step--1), 3.31cqw, var(--step-0));
   color: #2b3a4c;
   text-align: right;
 }
@@ -704,7 +744,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: clamp(0.72rem, 1.45cqh, 0.8rem);
+  font-size: var(--step--2);
   text-transform: uppercase;
   letter-spacing: var(--pz-tracking-ui);
   color: var(--moon-200);
@@ -737,18 +777,21 @@
 }
 
 /* The names of the two controls the puzzle is operated with. They are cut into
-   the deck, so they are set in `--font-label` — Cormorant small-caps — and not
-   in a 2020s neo-grotesk; and they are set in a colour that clears 4.5:1 on
-   `--ink-900`, which `--text-muted` (`--ink-400`) cannot. This is the value
-   `.lg-cap` already uses on the same ground, where it measures 6.83:1. */
+   the deck, so they are set in `--font-label` — Cormorant — and not in a 2020s
+   neo-grotesk; and they are set in a colour that clears 4.5:1 on `--ink-900`,
+   which `--text-muted` (`--ink-400`) cannot.
+   The small-caps variant is gone. FOCUS and CRANK · WIND THE RIBBON are the
+   names of the two things the player touches, and Cormorant's small capitals
+   are cut to a 0.36em x-height: a 14px declaration was painting 5px letters on
+   the two most important labels on the bench. Full capitals in the same face
+   read at 0.66em and cost about a fifth more width, which these have. */
 .cx .cx-instr-cap {
   margin: 0;
   font-family: var(--font-label);
-  font-variant-caps: all-small-caps;
   font-weight: 600;
-  font-size: clamp(0.86rem, 1.72cqh, 0.96rem);
+  font-size: var(--step--1);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: color-mix(in srgb, var(--lamp-300) 72%, var(--moon-300));
   text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
   text-align: center;
@@ -757,7 +800,7 @@
 .cx .cx-readout {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.66cqh, 0.87rem);
+  font-size: var(--step--1);
   letter-spacing: 0.04em;
   color: var(--lamp-200);
   padding: 0.08rem 0.3rem;
@@ -947,7 +990,7 @@
   position: absolute;
   left: 0.5rem;
   bottom: 0.3rem;
-  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
+  font-size: var(--step--2);
   text-transform: uppercase;
   letter-spacing: var(--pz-tracking-ui);
   color: color-mix(in srgb, var(--moon-200) 70%, transparent);
@@ -1114,10 +1157,15 @@
    resolves against its nearest ancestor container, not against itself, so a
    font-size in `cqw` on the container silently measures the whole bench and
    the typescript runs off the edge of the sheet. */
+/* The one place in this sheet where the scale genuinely cannot carry the size
+   on its own: the typescript has to stay in proportion to the burnt fragment it
+   is printed on, so the *relationship* is `cqw` and no rem step can express it.
+   The scale still sets the floor — `max()` keeps the smallest fragment's lines
+   at the scale's bottom step rather than at 6px. */
 .cx-ashgrate .cx-notice-line,
 .cx-ashgrate .cx-notice-gap {
   margin: 0;
-  font-size: 3.2cqw;
+  font-size: max(var(--step--2), 3.2cqw);
 }
 .cx-ashgrate .cx-notice-gap { visibility: hidden; }
 .cx-ashgrate .cx-notice-line:nth-child(2) { font-weight: 700; letter-spacing: 0.08em; }
@@ -1181,7 +1229,7 @@
 .cx-ashgrate .cx-book-head {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(0.89rem, 3.04cqh, 1.4rem);
+  font-size: var(--step-1);
   letter-spacing: 0.04em;
   border-bottom: 1px solid rgb(90 70 44 / 0.4);
   padding-bottom: 0.2rem;
@@ -1210,7 +1258,7 @@
   cursor: pointer;
   padding: clamp(0.16rem, 0.8cqh, 0.32rem) 0.3rem;
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.86cqh, 0.95rem);
+  font-size: var(--step--1);
   color: var(--cx-ink);
   border-radius: 2px;
   transition: background var(--dur-fast) var(--ease-out);
@@ -1240,7 +1288,7 @@
   position: absolute;
   right: 0.4rem;
   font-family: var(--font-hand);
-  font-size: clamp(0.72rem, 1.93cqh, 1.01rem);
+  font-size: var(--step--1);
   color: rgb(90 70 44 / 0);
   transition: color var(--dur-med) var(--ease-out);
 }
@@ -1260,7 +1308,7 @@
 
 .cx-ashgrate .cx-book-foot {
   margin: auto 0 0;
-  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--cx-ink-soft);
   text-align: right;
@@ -1299,7 +1347,7 @@
 .cx-pp .cx-tab-face {
   display: block;
   padding: clamp(0.2rem, 0.9cqh, 0.36rem) clamp(0.4rem, 1.6cqw, 0.9rem);
-  font-size: clamp(0.72rem, 1.66cqh, 0.87rem);
+  font-size: var(--step--1);
   text-transform: uppercase;
   letter-spacing: var(--pz-tracking-ui);
   color: var(--text-secondary);
@@ -1396,17 +1444,17 @@
 
 .cx-pp .cx-card-date {
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.38cqh, 0.8rem);
+  font-size: var(--step--2);
   letter-spacing: 0.02em;
 }
 .cx-pp .cx-card-title {
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 1.38cqh, 0.8rem);
+  font-size: var(--step--1);
   line-height: 1.2;
   color: var(--cx-ink-soft);
 }
 .cx-pp .cx-card-custody {
-  font-size: clamp(0.72rem, 1.24cqh, 0.8rem);
+  font-size: var(--step--2);
   text-transform: uppercase;
   letter-spacing: var(--pz-tracking-ui);
   color: color-mix(in srgb, var(--paper-ink-faded) 78%, transparent);
@@ -1414,7 +1462,7 @@
 .cx-pp .cx-card-sig {
   margin-top: auto;
   font-family: var(--font-hand);
-  font-size: clamp(0.72rem, 1.86cqh, 0.95rem);
+  font-size: var(--step--1);
   color: #223448;
   transform: rotate(-2deg);
 }
@@ -1431,7 +1479,7 @@
   top: 0.5rem;
   width: 5rem;
   text-align: center;
-  font-size: clamp(0.72rem, 1.17cqh, 0.8rem);
+  font-size: var(--step--2);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   padding: 0.05rem 0;
@@ -1466,7 +1514,7 @@
 .cx-pp .cx-viewer-head,
 .cx-pp .cx-cite-head {
   margin: 0;
-  font-size: clamp(0.72rem, 1.59cqh, 0.81rem);
+  font-size: var(--step--2);
   text-transform: uppercase;
   letter-spacing: var(--pz-tracking-ui);
   color: var(--lamp-500);
@@ -1510,7 +1558,7 @@
 .cx-pp .cx-viewer-cap {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 1.66cqh, 0.87rem);
+  font-size: var(--step--1);
   line-height: 1.35;
   color: var(--moon-200);
   min-height: 2.4em;
@@ -1554,14 +1602,14 @@
 
 .cx-pp .cx-date-label {
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 1.93cqh, 1.01rem);
+  font-size: var(--step--1);
 }
 
 .cx-pp .cx-date-hint {
   grid-column: 1 / 2;
   font-family: var(--font-body);
   font-style: italic;
-  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
+  font-size: var(--step--2);
   color: var(--cx-ink-soft);
 }
 
@@ -1575,7 +1623,7 @@
   border-bottom: 1px solid rgb(70 56 36 / 0.55);
   padding: 0.1rem 0.2rem;
   font-family: var(--font-hand);
-  font-size: clamp(0.95rem, 2.76cqh, 1.47rem);
+  font-size: var(--step-1);
   color: #1e2c3c;
   outline-offset: 4px;
 }
@@ -1583,7 +1631,7 @@
 .cx-pp .cx-date-input::placeholder {
   font-family: var(--font-body);
   font-style: italic;
-  font-size: 0.7em;
+  font-size: var(--step--1);
   color: rgb(70 56 36 / 0.42);
 }
 
@@ -1592,7 +1640,7 @@
   grid-column: 3;
   width: 1.1rem;
   text-align: center;
-  font-size: clamp(0.81rem, 2.35cqh, 1.26rem);
+  font-size: var(--step-0);
   color: transparent;
 }
 .cx-pp .cx-date-row.is-typed .cx-date-mark::before { content: '·'; color: rgb(70 56 36 / 0.5); }
@@ -1605,7 +1653,7 @@
 .cx-pp .cx-span {
   margin: 0.2rem 0 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.66cqh, 0.84rem);
+  font-size: var(--step--1);
   color: var(--cx-ink-soft);
 }
 
@@ -1740,7 +1788,7 @@
 .cx-pp .cx-off-cap {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 1.66cqh, 0.84rem);
+  font-size: var(--step--1);
   line-height: 1.35;
   color: var(--moon-200);
   min-height: 2.6em;
@@ -1759,7 +1807,7 @@
   grid-template-columns: 0.9rem 1fr;
   gap: 0.2rem;
   font-family: var(--font-hand);
-  font-size: clamp(0.76rem, 2.07cqh, 1.12rem);
+  font-size: var(--step-0);
   line-height: 1.25;
   color: var(--lamp-100);
   padding: 0.16rem 0.24rem;
@@ -1806,7 +1854,7 @@
   cursor: pointer;
   background: none;
   font-family: var(--font-hand);
-  font-size: clamp(0.72rem, 1.86cqh, 1.01rem);
+  font-size: var(--step--1);
   line-height: 1.2;
   color: #1e2c3c;
   text-align: center;
@@ -1838,7 +1886,7 @@
   display: block;
   padding: 0.18rem 0.7rem 0.18rem 0.4rem;
   font-family: var(--font-body);
-  font-size: clamp(0.72rem, 1.59cqh, 0.81rem);
+  font-size: var(--step--2);
   color: var(--cx-ink);
   text-align: left;
 }
@@ -2070,7 +2118,7 @@
   margin: 0;
   min-height: 2.2em;
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.73cqh, 0.9rem);
+  font-size: var(--step--1);
   line-height: 1.35;
   letter-spacing: 0.02em;
   color: var(--moon-300);
@@ -2240,7 +2288,7 @@
 
 .cx-spool .cx-pin-glyph {
   display: block;
-  font-size: clamp(0.81rem, 2.9cqh, 1.33rem);
+  font-size: var(--step-1);
   color: var(--ink-abyss);
   text-shadow: 0 1px 0 rgb(255 240 208 / 0.5);
 }
@@ -2280,14 +2328,22 @@
 }
 
 .cx-spool .cx-marker-glyph {
-  font-size: clamp(0.72rem, 1.93cqh, 0.98rem);
+  font-size: var(--step--1);
   color: var(--lamp-300);
 }
+/* The names in the marker tin — SPLICE, EYELET, COLOUR BREAK, PASSAGE. These
+   were 12.5px of Cormorant small caps, which is 4.5px of rendered letter, and
+   they measured 3.34:1 (COLOUR BREAK) and 3.53:1 (PASSAGE) on the stem against
+   a nominal 6.65:1. They are chips the player has to hit to mark the ribbon, so
+   they are controls, not annotation: full capitals at the scale's second step,
+   and the ink comes up a stop to `--moon-200` (11.3:1 nominal) so the stem has
+   somewhere to fall to. `is-on` still separates by warmth, glow and lift rather
+   than by this value. */
 .cx-spool .cx-marker-label {
-  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
+  font-size: var(--step--1);
   text-transform: uppercase;
-  letter-spacing: var(--pz-tracking-ui);
-  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  color: var(--moon-200);
 }
 
 .cx-spool .cx-marker-pick.is-on {
@@ -2347,7 +2403,7 @@
   grid-column: 1;
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.82rem, 1.9cqh, 1rem);
+  font-size: var(--step-0);
   line-height: 1.4;
 }
 
@@ -2380,7 +2436,7 @@
   );
   background-position: 0 0.1em;
   font-family: var(--font-body);
-  font-size: clamp(0.78rem, 1.62cqh, 0.88rem);
+  font-size: var(--step--1);
   line-height: 1.45;
   /* `--cx-ink-soft` measured 4.38:1 here, on the rule that gates the answer.
      Nominal ratios overstate what a 12px serif actually delivers once it has
@@ -2454,7 +2510,7 @@
 :root[data-cb-safe='on'] .cx-spool .cx-pin-glyph::after {
   display: block;
   font-family: var(--font-ui);
-  font-size: 0.55em;
+  font-size: var(--step--2);
   font-weight: 700;
   letter-spacing: 0;
   color: var(--ink-abyss);
@@ -2507,10 +2563,23 @@
    ---------------------------------------------------------------------------
    Every tracked-caps label on this bench, now that the root serves Cormorant
    rather than Inter Tight. Grouped and last so it wins the tracking off the
-   rules above without any of them having to repeat the same three lines: small
-   caps are already open, so `--tracking-ui` (0.14em) blows them apart, and the
-   weight comes up because a transitional serif at label size is lighter than a
-   grotesque at the same size.
+   rules above without any of them having to repeat the same three lines.
+
+   `font-variant-caps: all-small-caps` used to be the first line of this block,
+   and it was quietly the largest legibility fault in the file. Cormorant cuts
+   its small capitals to its own x-height and this face's x-height is 0.36em
+   against 0.66em for the capitals — so every label listed here rendered at
+   roughly *half* its declared size. A 12.5px chip painted 4.5px of letter; a
+   15px plate title painted 5.5px. No amount of colour work reaches type that
+   small, which is why these kept coming back measured at 3.3–3.8:1 on the stem
+   with nominal ratios of 6–9:1.
+
+   Full capitals in the same face at the same sizes are the same period
+   register — a stamp, a ledger head and a maker's plate are all cut in
+   capitals — and they render at 0.66em. The tracking goes from 0.06em to
+   0.08em because full caps close up more than small caps do, and stays well
+   short of `--tracking-ui` (0.14em), which is the grotesque value this bench
+   does not use.
    ========================================================================= */
 .cx .cx-plate-title,
 .cx-spool .cx-marker-label,
@@ -2521,7 +2590,6 @@
 .cx-pp .cx-card-custody,
 .cx-pp .cx-card[data-tray] .cx-card-filed,
 .cx-pp .cx-cite-head {
-  font-variant-caps: all-small-caps;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }

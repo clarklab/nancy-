@@ -632,18 +632,22 @@
   display: none;
 }
 
-/* The entry point: a small-caps kicker with a rule under it, the way a filing
+/* The entry point: a tracked-caps kicker with a rule under it, the way a filing
    slip is headed. Decorative and inert — the premise itself is what
-   `aria-describedby` points at. */
+   `aria-describedby` points at.
+   It was `0.7em` of small caps in `--font-front`, and both halves of that were
+   shrinking it: 0.7 of the card's inherited size, then Cormorant's small
+   capitals at a 0.36em x-height, which put CASE NOTE on the screen at about
+   4px of letter. The size is the scale's bottom step outright — a kicker is
+   still two steps under the premise it heads — and the capitals are real ones. */
 .puzzle-placard::before {
   content: 'Case note';
   display: block;
   margin-bottom: 0.5em;
   padding-bottom: 0.35em;
   font-family: var(--font-front);
-  font-size: 0.7em;
+  font-size: var(--step--2);
   font-weight: 600;
-  font-variant-caps: all-small-caps;
   letter-spacing: 0.18em;
   /* Composited against the sheet, 55% put this at L 0.255 on L 0.719 paper —
      2.52:1, on the one word that tells the player what the card is. Mixed
@@ -937,7 +941,7 @@
   display: inline-block;
   padding-left: 0.55em;
   border-left: 1px solid color-mix(in srgb, var(--lamp-500) 40%, transparent);
-  font-size: 1.5em;
+  font-size: var(--step-0);
   line-height: 0.6;
   letter-spacing: 0.24em;
   color: var(--lamp-300);

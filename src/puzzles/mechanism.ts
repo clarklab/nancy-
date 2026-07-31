@@ -584,7 +584,15 @@ function threeMovements(): PuzzleModule {
       lever.setAttribute('aria-label', `Lift the releasing lever. ${LEVER_HELD}`);
       lever.title = LEVER_HELD;
 
-      const verdict = h('p', 'tl-verdict');
+      /* The gate says what it is doing before it is touched as well as after.
+         Left empty at rest this collapsed the console to the width of its two
+         controls and left a bordered 456x216 rectangle of bare leather beside
+         them; and a strongroom door that only speaks when you have already
+         failed to open it is also, separately, worse. The resting line is the
+         state of the dogs, which is the one fact the wheel and the lever do not
+         show. */
+      const GATE_AT_REST = 'The dogs are down. The handle turns against them until all three movements agree.';
+      const verdict = h('p', 'tl-verdict', GATE_AT_REST);
       verdict.setAttribute('role', 'status');
       gate.append(handleWell, lever, verdict);
       right.appendChild(gate);
@@ -680,7 +688,9 @@ function threeMovements(): PuzzleModule {
           verdict.textContent = 'Something drops inside the door. The handle is live.';
           ctx.note('Three detents, one after another, somewhere behind eleven inches of steel.');
         } else if (!drawn) {
-          verdict.textContent = '';
+          // Back to the resting line, not to nothing: the console keeps its
+          // third part when the player winds a movement back out of agreement.
+          verdict.textContent = GATE_AT_REST;
           armLever(false);
         }
       });

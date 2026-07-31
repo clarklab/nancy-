@@ -104,11 +104,19 @@
   gap: 0.6em;
   padding: 0.2em;
   font-family: var(--font-ui);
-  /* The em root for the whole bench: every `em` below resolves against it, so
-     it is the one number deciding whether the archive reads at arm's length.
-     At a 0.78rem ceiling the card codes came out at 7–8px and the engraved
-     captions at 10px — a spreadsheet, not a set. */
-  font-size: clamp(0.78rem, 1.65cqh, 0.94rem);
+  /**
+   * The bench root, and the end of the em chain.
+   *
+   * This used to be the one number every other size in the sheet multiplied
+   * against, and that is exactly what went wrong: `0.66em` inside `0.76em`
+   * inside a `0.66em` row resolved to 7px, and no single declaration in the
+   * file looked wrong on its own. Every text size below is now an absolute
+   * step off `tokens.css` — `--step--2` is the floor of this sheet and renders
+   * at 12px — so a size can be read off the declaration instead of computed
+   * up a tree. What is still in `em` here is *spacing*, which is meant to
+   * track the root and does no harm compounding.
+   */
+  font-size: clamp(var(--step--1), 1.65cqh, var(--step-0));
   line-height: 1.35;
   color: var(--text-primary);
 }
@@ -125,7 +133,7 @@
   font-family: var(--font-label);
   font-variant-caps: all-small-caps;
   font-weight: 600;
-  font-size: 0.94em;
+  font-size: var(--step--1);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--lamp-300) 70%, var(--moon-300));
@@ -208,7 +216,7 @@
 .lg-plate-head {
   margin: 0 0 0.5em;
   padding-bottom: 0.4em;
-  font-size: 0.94em;
+  font-size: var(--step--1);
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
@@ -229,7 +237,7 @@
    head over left-aligned sentence-case body lines is two typographic decisions
    arguing on one object. */
 .lg-plate-line {
-  font-size: 0.82em;
+  font-size: var(--step--2);
   line-height: 1.3;
   text-align: center;
   text-transform: uppercase;
@@ -247,7 +255,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 0.86em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
   color: color-mix(in srgb, var(--ink-abyss) 80%, var(--lamp-600));
@@ -292,7 +300,7 @@
 
 .lg-key.is-page {
   padding: 0.3em 0.62em;
-  font-size: 0.95em;
+  font-size: var(--step--1);
 }
 
 .lg-key.is-sign,
@@ -336,7 +344,7 @@
   min-width: 1.5em;
   height: 1.5em;
   border-radius: 50%;
-  font-size: 0.85em;
+  font-size: var(--step--2);
   font-weight: 600;
   background: color-mix(in srgb, var(--ink-700) 80%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 40%, transparent);
@@ -345,7 +353,7 @@
 .lg-rail-name {
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
-  font-size: 0.82em;
+  font-size: var(--step--2);
 }
 
 .lg-rail-step.is-done {
@@ -360,7 +368,7 @@
 .lg-rail-step.is-done .lg-rail-numeral::after {
   content: '✓';
   position: absolute;
-  font-size: 0.9em;
+  font-size: var(--step--2);
   color: var(--ink-900);
 }
 
@@ -405,7 +413,7 @@
 
 .lg-wheels-unit {
   font-family: var(--font-mono);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   color: color-mix(in srgb, var(--lamp-300) 80%, var(--moon-200));
 }
 
@@ -453,7 +461,7 @@
   place-items: center;
   height: 1.9em;
   font-family: var(--font-mono);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   color: var(--paper-ink);
 }
 
@@ -505,7 +513,7 @@
   margin: 0 0 0.45em;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.82em;
+  font-size: var(--step--2);
   letter-spacing: 0.08em;
   color: color-mix(in srgb, var(--lamp-300) 74%, var(--moon-200));
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
@@ -545,7 +553,13 @@
   overflow: auto;
   scrollbar-width: thin;
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  /* Nine, not twelve. The reference code is thirteen monospaced characters and
+     the type floor for this sheet is `--step--2`; at 12px IBM Plex Mono that is
+     94px of glyph before padding, and a twelfth of the drawer is 82px. Twelve
+     columns were only ever possible because the codes were set at 9px. The
+     drawer still shows all 180 cards without scrolling — 9 x 20 — because the
+     grid's rows stretch to the box. */
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 3px;
   padding-top: 0.7em;
   padding-bottom: 0.7em;
@@ -560,7 +574,7 @@
   border: 0;
   border-radius: 1px;
   font: inherit;
-  font-size: 0.66em;
+  font-size: var(--step--2);
   cursor: pointer;
   color: var(--paper-ink-faded);
   background-image: var(--pz-grain-paper), var(--lg-card-buff);
@@ -604,12 +618,18 @@
  */
 .lg-cards .fc-card-acc {
   position: relative;
-  padding: 0.08em 0.24em;
+  padding: 0.08em 0.2em;
   border-radius: 1px;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.98em;
-  letter-spacing: 0.02em;
+  /* Same step as the tile, i.e. no step at all: the code *is* the tile's text
+     and there is nothing on the card for it to be secondary to. It was 0.98em
+     of a 0.66em tile, which is how a nominally 14px sheet ended up striking
+     reference codes at 9px. Tracking comes off with it — a monospace face is
+     already tracked, and at the floor the extra 0.02em was three columns of
+     the measure. */
+  font-size: var(--step--2);
+  letter-spacing: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
@@ -652,7 +672,7 @@
   position: absolute;
   top: 1px;
   right: 2px;
-  font-size: 0.9em;
+  font-size: var(--step--2);
   line-height: 1;
   color: var(--lg-ink-red);
   opacity: 0;
@@ -729,7 +749,7 @@
 .lg-cards .fc-loupe-acc {
   margin: 0 0 0.3em;
   font-family: var(--font-mono);
-  font-size: 0.92em;
+  font-size: var(--step--1);
   letter-spacing: 0.04em;
   color: var(--lg-ink-faded);
 }
@@ -739,7 +759,7 @@
 .lg-cards .fc-loupe-subject {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.98em;
+  font-size: var(--step--1);
   line-height: 1.5;
   letter-spacing: 0.02em;
   color: var(--lg-ink);
@@ -788,7 +808,7 @@
 .lg-cards .fc-loupe-body {
   margin: 0.5em 0 0;
   font-family: var(--font-mono);
-  font-size: 0.82em;
+  font-size: var(--step--2);
   color: color-mix(in srgb, var(--lg-ink-faded) 88%, transparent);
   overflow: hidden;
   white-space: nowrap;
@@ -808,7 +828,7 @@
 .lg-cards .fc-read-term {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.8em;
+  font-size: var(--step--2);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-secondary);
@@ -823,11 +843,21 @@
   /* 46ch and it wraps. A 110-character line running the full panel width beside
      two rows that stop at 40% is not a measure, it is a ragged right. */
   max-width: 46ch;
-  font-size: 0.88em;
+  font-size: var(--step--2);
   color: var(--text-primary);
 }
 
-/* One badge shape for all three rows. */
+/**
+ * One badge shape for all three rows.
+ *
+ * WOV / NYL / UND are the three-letter form of the answer the whole mechanism
+ * is about, and they were struck in `--ink-900` on `--lg-brass-worn` — a worn
+ * alloy mixed down toward `--ink-700`/`--ink-800`, which measured 3.31:1 and at
+ * 11px was a smudge. The plate stock is the same casting polished rather than
+ * weathered (its middle stop is #CFA358) and it is what the sorting frame's own
+ * instruction plate was lightened to for the same reason. Ink and engraving are
+ * unchanged; only the ground moves. Measured 3.31:1 -> 8.2:1.
+ */
 .lg-cards .fc-read-mark {
   grid-column: 1;
   align-self: start;
@@ -836,10 +866,10 @@
   border-radius: 1px;
   font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 0.9em;
+  font-size: var(--step--2);
   text-align: center;
   color: var(--ink-900);
-  background-image: var(--lg-brass-worn);
+  background-image: var(--lg-brass-plate);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 40%, transparent);
 }
 
@@ -853,7 +883,7 @@
   grid-column: 2;
   font-family: var(--font-body);
   font-style: italic;
-  font-size: 0.94em;
+  font-size: var(--step--2);
   line-height: 1.4;
   text-wrap: pretty;
   color: var(--text-secondary);
@@ -909,7 +939,7 @@
      the wrong stem weight. */
   font-variant-caps: normal;
   font-weight: 500;
-  font-size: 0.84em;
+  font-size: var(--step--2);
   letter-spacing: 0.08em;
   color: color-mix(in srgb, var(--lamp-300) 80%, var(--moon-200));
 }
@@ -928,8 +958,54 @@
    `!important` because the size arrives as an inline custom property from
    `makeDial`, and the right size for a control is a function of the panel it is
    bolted to, which the sheet knows and the constructor does not. */
+/**
+ * Dial size, and why the ring geometry below had to move with it.
+ *
+ * `puzzle.css` budgets the bezel in per-cent of the face — index notch 0–4%,
+ * legend ring 11–22%, tick ring 23–27%, knob cap 32–68% — but a legend is set
+ * in *absolute* type (`--step--2`, 12px), so the smaller the face the more of
+ * the ring one four-letter word eats. At 136px the box for WOVE is 30x12, and
+ * a horizontal box parked at 4 or 8 o'clock reaches further in along its own
+ * radius than the same box at twelve does: its inner corner landed at 0.229 of
+ * the face against a tick ending at 0.27, i.e. four pixels *through* the tick.
+ * That is the stray acute on WOVE and the grave on LAID, and it is why NYL,
+ * SILK, PRE, IMP, REM and UND all carry a mark that reads as a typo.
+ *
+ * 168px is the size at which the ring holds the type it is being given. Three
+ * dials at that size also close the ~100px of bare navy the row was leaving
+ * above and below itself inside the frame, so the fix does not buy legibility
+ * with a hole.
+ */
 .lg-cards .fc-dial-well > .pz-dial {
-  --dial-size: clamp(5rem, 13cqw, 8.5rem) !important;
+  --dial-size: clamp(6.5rem, 16cqw, 10.5rem) !important;
+}
+
+/**
+ * The engraved ring, re-cut for this bench.
+ *
+ * Same four numbers as the shared component, moved apart. In from the rim:
+ *
+ *   index notch   0 – 4%        (unchanged, `puzzle.css`)
+ *   legend ring   8.5 – ~17%    set upright, counter-rotated
+ *   tick ring     27 – 30.6%    a hairline inboard of every legend
+ *   knob cap      32 – 68%      (unchanged, `puzzle.css`)
+ *
+ * At 168px that puts the far corner of a four-letter legend at 4 o'clock on
+ * 0.95R — still on the metal, where the warm halo in the component's text
+ * shadow can catch it — and its inner corner at 0.57R against a tick that stops
+ * at 0.46R. Nine pixels of clean brass between stroke and glyph, and the tick's
+ * inner end still clears the knob cap by two.
+ *
+ * Scoped to `.fc-dial-well` on purpose: the other benches set their own labels
+ * and this is a fix for these three dials, not a change to the component.
+ */
+.lg-cards .fc-dial-well .pz-dial-legend {
+  top: 8.5%;
+}
+
+.lg-cards .fc-dial-well .pz-dial-tick::before {
+  top: 27%;
+  height: 3.6%;
 }
 
 .lg-cards .fc-dials > .fc-dial-well:nth-child(1) .pz-dial { --pz-el-x: 0.655; --pz-el-y: 0.70; }
@@ -978,7 +1054,7 @@
 
 .lg-cards .fc-tray-count {
   font-family: var(--font-mono);
-  font-size: 1.7em;
+  font-size: var(--step-1);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: lining-nums tabular-nums;
@@ -1010,12 +1086,15 @@
 .lg-cards .fc-tray-note {
   grid-column: 1 / -1;
   margin: 0;
-  font-size: 0.8em;
+  font-size: var(--step--2);
   font-style: italic;
-  /* 84%, not 62%. At 62% this measured 3.31:1 on the tray's brass, and it is
-     the line that tells the player the frame is currently passing everything —
-     i.e. that they have not started. */
-  color: color-mix(in srgb, var(--ink-abyss) 84%, var(--lamp-600));
+  /* 96%, not 84% and never 62%. At 62% this measured 3.31:1 on the tray's
+     brass; at 84% it still only reached 4.05:1, and it is the line that tells
+     the player the frame is currently passing everything — i.e. that they have
+     not started — so it is body copy and owes 4.5:1. Taking the last of the
+     lamp out of the ink puts it at 5.2:1 measured, which is the most this
+     ground gives; the tray's own alloy stays where it is. */
+  color: color-mix(in srgb, var(--ink-abyss) 96%, var(--lamp-600));
 }
 
 /* -- stage II: the collation ----------------------------------------------- */
@@ -1052,7 +1131,7 @@
 
 .lg-cards .fc-colbox-head {
   margin: 0;
-  font-size: 0.8em;
+  font-size: var(--step--2);
   font-weight: 600;
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink);
@@ -1060,7 +1139,7 @@
 
 .lg-cards .fc-colbox-sub {
   margin: 0 0 0.4em;
-  font-size: 0.74em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -1084,7 +1163,7 @@
   gap: 0.4em;
   padding: 0.1em 0.3em;
   border-bottom: 1px dotted color-mix(in srgb, var(--paper-400) 60%, transparent);
-  font-size: 0.8em;
+  font-size: var(--step--2);
   color: var(--lg-ink-faded);
   transition: background var(--dur-fast) var(--ease-out);
 }
@@ -1098,7 +1177,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 0.94em;
+  font-size: var(--step--2);
 }
 
 .lg-cards .fc-line.is-void {
@@ -1198,7 +1277,7 @@
 
 .lg-cards .fc-want-head {
   margin: 0;
-  font-size: 0.78em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--accent);
 }
@@ -1241,12 +1320,12 @@
 
 .lg-cards .fc-want-acc {
   font-family: var(--font-mono);
-  font-size: 0.8em;
+  font-size: var(--step--2);
   color: var(--lg-ink-red);
 }
 
 .lg-cards .fc-want-subject {
-  font-size: 0.76em;
+  font-size: var(--step--2);
 }
 
 /* ===========================================================================
@@ -1290,7 +1369,7 @@
 .lg-chart .cl-phone-line {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 1.02em;
+  font-size: var(--step--1);
   font-style: italic;
   line-height: var(--leading-body);
   color: var(--text-secondary);
@@ -1433,7 +1512,7 @@
 .lg-chart .cl-watch-read {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 1.2em;
+  font-size: var(--step-0);
   color: var(--accent-strong);
 }
 
@@ -1461,7 +1540,7 @@
   gap: 0.3em;
   padding: 0.1em 0.3em;
   font-family: var(--font-mono);
-  font-size: 0.82em;
+  font-size: var(--step--2);
   color: var(--text-secondary);
   background: color-mix(in srgb, var(--ink-700) 40%, transparent);
 }
@@ -1495,7 +1574,7 @@
 
 .lg-chart .cl-chit-text {
   font-family: var(--font-hand);
-  font-size: 1.35em;
+  font-size: var(--step-0);
   line-height: 1.1;
   color: var(--lg-ink);
 }
@@ -1542,12 +1621,12 @@
   margin: 0;
   flex: 1 1 auto;
   font-family: var(--font-display);
-  font-size: 1.1em;
+  font-size: var(--step--1);
   letter-spacing: 0.06em;
 }
 
 .lg-chart .cl-list-page {
-  font-size: 0.78em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -1590,11 +1669,11 @@
 
 .lg-chart .cl-entry-char {
   font-family: var(--font-mono);
-  font-size: 0.92em;
+  font-size: var(--step--1);
 }
 
 .lg-chart .cl-entry-detail {
-  font-size: 0.82em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -1659,22 +1738,38 @@
   stroke-dasharray: 7 5;
 }
 
+/**
+ * Chart lettering — the one place in this sheet that is not on the type scale.
+ *
+ * These are drawn inside a `0 0 1000 640` viewBox, so the number here is a
+ * *user unit*, not a pixel: it is multiplied by whatever the sheet is scaled to
+ * on the bench (about 1.09x at the shipping size). A step token would be
+ * resolved against the root before that multiplication and would therefore
+ * arrive on the chart at an arbitrary size, and the three ranks below have to
+ * hold a fixed ratio to each other and to the coastline they are lettered
+ * against. They are set in user units and the smallest of them is 11, which
+ * lands at 12px rendered — the same floor the rest of the sheet keeps.
+ *
+ * The fills moved as well: a sounding at 42% of `--paper-ink` measured 2.6:1 on
+ * the sea tint and a trig label at 58% measured 3.9:1. Soundings are a chart's
+ * smallest reading and they are still the number a player has to trust.
+ */
 .lg-chart .cl-sounding {
   font-family: var(--font-mono);
   font-size: 11px;
-  fill: color-mix(in srgb, var(--paper-ink) 42%, transparent);
+  fill: color-mix(in srgb, var(--paper-ink) 68%, transparent);
 }
 
 .lg-chart .cl-chart-label {
   font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 0.08em;
-  fill: color-mix(in srgb, var(--paper-ink) 72%, transparent);
+  fill: color-mix(in srgb, var(--paper-ink) 82%, transparent);
 }
 
 .lg-chart .cl-chart-label.is-trig {
   font-size: 11px;
-  fill: color-mix(in srgb, var(--paper-ink) 58%, transparent);
+  fill: color-mix(in srgb, var(--paper-ink) 76%, transparent);
 }
 
 .lg-chart .cl-chart-label.is-sheet {
@@ -1875,7 +1970,7 @@
 .lg-chart .cl-leg .lg-cap.is-leg {
   position: absolute;
   top: -0.9em;
-  font-size: 0.7em;
+  font-size: var(--step--2);
   color: var(--ink-900);
   text-shadow: 0 1px 0 color-mix(in srgb, white 60%, transparent);
 }
@@ -1958,13 +2053,13 @@
 
 .lg-chart .cl-tab-short {
   font-family: var(--font-mono);
-  font-size: 0.95em;
+  font-size: var(--step--1);
   letter-spacing: 0.06em;
   color: var(--accent-dim);
 }
 
 .lg-chart .cl-tab-title {
-  font-size: 0.74em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--text-muted);
 }
@@ -2037,7 +2132,7 @@
 
 .lg-chart .cl-knob-read {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: var(--step--2);
   color: var(--accent-strong);
 }
 
@@ -2051,7 +2146,7 @@
   grid-template-columns: minmax(0, 1fr) 4.5em 2.2em;
   align-items: center;
   gap: 0.4em;
-  font-size: 0.78em;
+  font-size: var(--step--2);
   color: var(--text-muted);
 }
 
@@ -2094,7 +2189,7 @@
 .lg-chart .cl-div-read {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 1em;
+  font-size: var(--step--1);
   color: var(--accent-strong);
 }
 
@@ -2156,7 +2251,7 @@
   border: 0;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   font: inherit;
-  font-size: 0.72em;
+  font-size: var(--step--2);
   letter-spacing: 0.04em;
   cursor: pointer;
   color: var(--lg-ink-faded);
@@ -2174,13 +2269,13 @@
 .lg-recon .rc-book-title {
   margin: 0.2em 0 0;
   font-family: var(--font-display);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   letter-spacing: 0.04em;
 }
 
 .lg-recon .rc-book-kept {
   margin: 0 0 0.3em;
-  font-size: 0.74em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -2205,7 +2300,7 @@
   align-items: baseline;
   gap: 0.3em;
   height: 1.6em;
-  font-size: 0.8em;
+  font-size: var(--step--2);
 }
 
 .lg-recon .rc-line-date {
@@ -2215,14 +2310,14 @@
 
 .lg-recon .rc-line-val {
   font-family: var(--font-mono);
-  font-size: 0.95em;
+  font-size: var(--step--2);
   color: var(--lg-ink);
 }
 
 .lg-recon .rc-line-note {
   grid-column: 1 / -1;
   margin-top: -0.4em;
-  font-size: 0.82em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -2230,7 +2325,7 @@
 .lg-recon .rc-empty {
   margin: 1.2em 0.4em;
   font-family: var(--font-body);
-  font-size: 0.92em;
+  font-size: var(--step--1);
   font-style: italic;
   line-height: var(--leading-body);
   color: var(--lg-ink-faded);
@@ -2244,7 +2339,7 @@
 }
 
 .lg-recon .rc-page-read {
-  font-size: 0.74em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-faded);
 }
@@ -2271,9 +2366,13 @@
   border-bottom: 1px solid color-mix(in srgb, var(--amethyst) 26%, transparent);
 }
 
+/* No size of its own. `0.66em` here multiplied the `0.76em` on every `.rc-cell`
+   inside it and struck WEEK ENDING / DUES COLLECTED / WAGES PAID at 7px, which
+   is the worst instance of the compounding this sheet used to do. A column head
+   is told apart from its column by the red rule under it, the tracking and the
+   colour — not by being smaller than the figures it heads. */
 .lg-recon .rc-row.is-head {
   border-bottom: 2px solid var(--lg-ink-red);
-  font-size: 0.66em;
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-faded);
 }
@@ -2293,7 +2392,7 @@
   padding: 0.05em 0.35em;
   border-right: 1px solid color-mix(in srgb, var(--blood) 26%, transparent);
   font-family: var(--font-mono);
-  font-size: 0.76em;
+  font-size: var(--step--2);
   color: var(--lg-ink-faded);
 }
 
@@ -2318,13 +2417,13 @@
 /* Anything transferred is written, in ink, by hand. */
 .lg-recon .rc-cell.is-written {
   font-family: var(--font-hand);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   color: var(--lg-ink-blue);
 }
 
 .lg-recon .rc-sub {
   font-family: var(--font-ui);
-  font-size: 0.66em;
+  font-size: var(--step--2);
   letter-spacing: 0.02em;
   color: color-mix(in srgb, var(--lg-ink-faded) 70%, transparent);
 }
@@ -2339,7 +2438,7 @@
   cursor: default;
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.76em;
+  font-size: var(--step--2);
   color: var(--lg-ink-faded);
 }
 
@@ -2362,7 +2461,7 @@
 /* nil is a word and a rule through the cell, never a colour on its own. */
 .lg-recon button.rc-cell.is-nil {
   font-family: var(--font-hand);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   color: var(--lg-ink-red);
   background: linear-gradient(
     to bottom,
@@ -2386,7 +2485,7 @@
   grid-column: 1 / -1;
   padding: 0 0.35em 0.1em;
   font-family: var(--font-ui);
-  font-size: 0.6em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-red);
 }
@@ -2419,7 +2518,7 @@
 
 .lg-recon .rc-row.is-foot .lg-key {
   width: 100%;
-  font-size: 0.72em;
+  font-size: var(--step--2);
   padding: 0.3em 0.2em;
 }
 
@@ -2439,14 +2538,14 @@
 }
 
 .lg-recon .rc-total-term {
-  font-size: 0.76em;
+  font-size: var(--step--2);
   color: var(--text-muted);
 }
 
 .lg-recon .rc-total-value {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.84em;
+  font-size: var(--step--2);
   text-align: right;
   color: var(--accent-strong);
 }
@@ -2479,7 +2578,7 @@
 .lg-recon .rc-finding-head {
   margin: 0;
   font-family: var(--font-ui);
-  font-size: 0.78em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-red);
 }
@@ -2487,7 +2586,7 @@
 .lg-recon .rc-finding-lede {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.95em;
+  font-size: var(--step--1);
   line-height: var(--leading-body);
 }
 
@@ -2498,7 +2597,7 @@
 
 .lg-recon .rc-field-label {
   margin: 0;
-  font-size: 0.78em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -2546,13 +2645,13 @@
 .lg-recon .rc-sum-val {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 1.35em;
+  font-size: var(--step-0);
   color: var(--lg-ink);
 }
 
 .lg-recon .rc-sum-sub {
   margin: 0;
-  font-size: 0.78em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -2620,7 +2719,7 @@
 .lg-board .bd-member-name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 34%, transparent);
@@ -2640,7 +2739,7 @@
 .lg-board .bd-tally {
   margin: 0;
   flex: none;
-  font-size: 0.85em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--accent-strong);
 }
@@ -2677,7 +2776,7 @@
   height: 1.7em;
   border-radius: 50%;
   font-family: var(--font-mono);
-  font-size: 0.85em;
+  font-size: var(--step--2);
   color: var(--paper-100);
   background: linear-gradient(158deg, var(--ink-700), var(--ink-900));
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
@@ -2687,7 +2786,7 @@
   flex: 1 1 auto;
   margin: 0;
   font-family: var(--font-ui);
-  font-size: 0.85em;
+  font-size: var(--step--2);
   font-weight: 600;
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink);
@@ -2696,7 +2795,7 @@
 .lg-board .bd-assertion {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 1em;
+  font-size: var(--step--1);
   line-height: var(--leading-body);
   color: var(--lg-ink);
 }
@@ -2731,12 +2830,12 @@
 
 .lg-board .bd-slot-acc {
   font-family: var(--font-mono);
-  font-size: 0.78em;
+  font-size: var(--step--2);
   color: var(--lg-ink-red);
 }
 
 .lg-board .bd-slot-name {
-  font-size: 0.8em;
+  font-size: var(--step--2);
   font-style: italic;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2769,7 +2868,7 @@
 
 .lg-board .bd-stamp {
   font-family: var(--font-ui);
-  font-size: 0.7em;
+  font-size: var(--step--2);
   font-weight: 600;
   letter-spacing: 0.14em;
   padding: 0.1em 0.4em;
@@ -2829,7 +2928,7 @@
 
 .lg-board .bd-counter-who {
   margin: 0;
-  font-size: 0.7em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-red);
 }
@@ -2837,7 +2936,7 @@
 .lg-board .bd-counter-text {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.96em;
+  font-size: var(--step--1);
   font-style: italic;
   line-height: var(--leading-body);
   color: var(--lg-ink);
@@ -2874,12 +2973,12 @@
 
 .lg-board .bd-answer-acc {
   font-family: var(--font-mono);
-  font-size: 0.76em;
+  font-size: var(--step--2);
   color: var(--lg-ink-red);
 }
 
 .lg-board .bd-answer-name {
-  font-size: 0.82em;
+  font-size: var(--step--2);
 }
 
 .lg-board .bd-answer.is-quiet {
@@ -2911,7 +3010,7 @@
   padding: 0.3em 0.4em;
   border-radius: 1px;
   font-family: var(--font-body);
-  font-size: 0.94em;
+  font-size: var(--step--2);
   line-height: var(--leading-body);
 }
 
@@ -2992,12 +3091,12 @@
 
 .lg-board .bd-chip-acc {
   font-family: var(--font-mono);
-  font-size: 0.74em;
+  font-size: var(--step--2);
   color: var(--lg-ink-red);
 }
 
 .lg-board .bd-chip-name {
-  font-size: 0.8em;
+  font-size: var(--step--2);
 }
 
 .lg-board .bd-chip:hover:not(:disabled) {
@@ -3052,7 +3151,7 @@
 .lg-board .bd-clause-intro {
   margin: 0 0 0.3em;
   font-family: var(--font-ui);
-  font-size: 0.78em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-red);
 }
@@ -3064,7 +3163,7 @@
 
 .lg-board .bd-clause-head {
   margin: 0.2em 0 0;
-  font-size: 0.72em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
   color: var(--lg-ink-faded);
 }
@@ -3079,7 +3178,7 @@
   background: color-mix(in srgb, var(--paper-300) 20%, transparent);
   font: inherit;
   font-family: var(--font-body);
-  font-size: 0.95em;
+  font-size: var(--step--1);
   text-align: left;
   color: var(--lg-ink-faded);
   cursor: pointer;
@@ -3183,7 +3282,7 @@
   min-width: 1.1em;
   padding: 0.1em 0.12em;
   font-family: var(--font-mono);
-  font-size: 1.5em;
+  font-size: var(--step-1);
   color: var(--paper-ink);
   background: linear-gradient(
     92deg,
@@ -3351,7 +3450,7 @@
 
 .lg-post .pm-entry-label {
   min-width: 13em;
-  font-size: 0.82em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--text-secondary);
 }
@@ -3406,7 +3505,7 @@
   border-bottom: 1px dotted color-mix(in srgb, var(--paper-400) 70%, transparent);
   background: transparent;
   font: inherit;
-  font-size: 0.8em;
+  font-size: var(--step--2);
   text-align: left;
   color: var(--lg-ink);
   cursor: pointer;
@@ -3421,12 +3520,12 @@
 .lg-post .pm-entry-n,
 .lg-post .pm-column-n {
   font-family: var(--font-mono);
-  font-size: 0.85em;
+  font-size: var(--step--2);
   color: var(--lg-ink-faded);
 }
 
 .lg-post .pm-entry-service {
-  font-size: 0.85em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -3469,7 +3568,7 @@
   height: 1.5em;
   align-items: baseline;
   font-family: var(--font-hand);
-  font-size: 0.9em;
+  font-size: var(--step--2);
   color: var(--lg-ink-blue);
 }
 
@@ -3490,7 +3589,7 @@
   padding-top: 0.2em;
   border-top: 2px solid var(--lg-ink-red);
   font-family: var(--font-mono);
-  font-size: 0.95em;
+  font-size: var(--step--1);
   text-align: right;
   color: var(--lg-ink);
 }
@@ -3534,12 +3633,12 @@
 .lg-post .pm-gap-val {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 1.5em;
+  font-size: var(--step-1);
 }
 
 .lg-post .pm-gap-sub {
   margin: 0;
-  font-size: 0.78em;
+  font-size: var(--step--2);
   font-style: italic;
   color: var(--lg-ink-faded);
 }
@@ -3574,7 +3673,7 @@
   border: 0;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   font: inherit;
-  font-size: 0.66em;
+  font-size: var(--step--2);
   letter-spacing: 0.04em;
   cursor: pointer;
   color: var(--text-muted);
@@ -3603,7 +3702,7 @@
 .lg-post .pm-shelf-title {
   margin: 0 0 0.35em;
   font-family: var(--font-display);
-  font-size: 1.05em;
+  font-size: var(--step--1);
   letter-spacing: 0.05em;
 }
 
@@ -3617,7 +3716,7 @@
 
 .lg-post .pm-rule {
   font-family: var(--font-mono);
-  font-size: 0.76em;
+  font-size: var(--step--2);
   line-height: 1.45;
   color: var(--lg-ink-faded);
 }
@@ -3654,20 +3753,20 @@
 
 .lg-post .pm-card-text {
   font-family: var(--font-mono);
-  font-size: 0.74em;
+  font-size: var(--step--2);
   color: var(--lg-ink);
 }
 
 .lg-post .pm-card-line .lg-key.is-carry {
   flex: none;
-  font-size: 0.66em;
+  font-size: var(--step--2);
   padding: 0.25em 0.45em;
 }
 
 .lg-post .pm-shelf-note {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.92em;
+  font-size: var(--step--1);
   line-height: var(--leading-body);
   font-style: italic;
   color: var(--lg-ink-faded);
@@ -3782,13 +3881,13 @@
 
 :root[data-cb-safe='on'] .lg-board .bd-counter-answer.is-good .bd-counter-mark::after {
   content: ' STANDS';
-  font-size: 0.7em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
 }
 
 :root[data-cb-safe='on'] .lg-board .bd-counter-answer.is-bad .bd-counter-mark::after {
   content: ' NOT ANSWERED';
-  font-size: 0.7em;
+  font-size: var(--step--2);
   letter-spacing: var(--tracking-ui);
 }
 
