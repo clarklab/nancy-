@@ -26,3 +26,8 @@ dist-smoke/
 
 # Screenshot output from tools/shoot.mjs — regenerable build artifacts.
 /shots/
+
+# Scratch directories review agents create to re-shoot and sample a single
+# screen while they work. Regenerable, and often several megabytes of PNG.
+/.tmpshot/
+/.tmp*/
