@@ -75,10 +75,11 @@ restyling the whole game is a single edit.
 
 ### Audio
 
-There are no audio files. Every ambience bed, music cue and sound effect is
-synthesised at runtime in `src/engine/audio.ts` — filtered noise for rain and
-wind, Poisson-distributed transients for fire, oscillator beds for music, all
-sharing one synthesised convolution reverb so the game sounds like one room.
+Nothing but the voice cast is a file. Every ambience bed, music cue and sound
+effect is synthesised at runtime in `src/engine/audio.ts` — filtered noise for
+rain and wind, Poisson-distributed transients for fire, oscillator beds for
+music, all sharing one synthesised convolution reverb so the game sounds like
+one room.
 
 Because "it compiles" says nothing about whether it makes a sound, there is a
 real check that boots the engine, taps the output, and asserts each bed and
@@ -88,6 +89,32 @@ one-shot moves the signal:
 npm run dev            # in one terminal
 npm run check:audio    # in another
 ```
+
+### Voice
+
+98 lines are performed by a twelve-strong British cast, rendered with ElevenLabs
+and committed as mp3. The selection is deliberate rather than exhaustive: every
+character's greeting per act, every lie-trap reply, and every cutscene beat —
+the lines that carry a performance. Incidental follow-ups stay as text, which is
+also how the Nancy Drew games handle barks.
+
+Casting lives in `docs/design/voice-cast.json`, and each entry records *why* that
+voice, so a recast can be argued against intent rather than taste. Unattributed
+cutscene prose is Wren's, because the cutscene register is hers — she is the
+camera, not a detached narrator.
+
+```bash
+npm run voice:manifest                     # pick the lines -> tools/voice-manifest.json
+ELEVENLABS_API_KEY=... npm run voice       # render everything missing
+```
+
+Both steps are resumable and hash-aware, so a re-run costs nothing for unchanged
+dialogue. The renderer resolves every cast voice before spending a character: a
+shared-library voice has to be added to the account's own library first, and
+until it is, requests for it 404 in a way that looks like a tier problem and is
+not. `src/game/cinematic-voice.test.ts` holds the id contract between the
+manifest and the player, because when those two disagree the game does not fail
+— it just goes quiet.
 
 ### Checks
 
