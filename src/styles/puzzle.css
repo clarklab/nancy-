@@ -94,6 +94,19 @@
     transparent 88%
   );
 
+  /* The same source, damped, for the few materials that are nearly black.
+     `--pz-key-spec` is authored for brass and paper; screened over ebonite or
+     vulcanite near the lamp it does not brighten the material, it erases it —
+     the near spool hub on the cipher deck sampled to a warm neutral with no
+     black left in it while its twin 1600px away stayed ebonite. A dead-matte
+     black object near a lamp gets a sheen, not a highlight. */
+  --pz-key-spec-soft: radial-gradient(
+    var(--pz-key-w) var(--pz-key-h) at var(--pz-key-x) var(--pz-key-y),
+    color-mix(in srgb, var(--pz-specular) 10%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-300) 6%, transparent) 40%,
+    transparent 82%
+  );
+
   /* The same lamp landing on a matte surface — leather, paper, cast iron.
      A specular is a mirror image of the source; a diffuse wash is the source
      scattered. Using `--pz-key-spec` on hide is how a bench ends up looking
@@ -128,6 +141,9 @@
      indents, never seven. */
   --pz-gutter: clamp(var(--sp-4), 2vw, var(--sp-6));
   --pz-inset: clamp(var(--sp-3), 1.2vw, var(--sp-4));
+  /* The frame's own vertical padding, named because the head band has to bleed
+     back out through it to reach the top edge of the panel. */
+  --pz-pad-y: clamp(var(--sp-3), 2vh, var(--sp-5));
 
   /* Tracked-caps rhythm, in two sizes and no more. `--tracking-ui` (0.14em) is
      right for 11–13px caps; anything smaller needs more air or it sets as a
@@ -256,7 +272,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 66%);
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
-  padding: clamp(var(--sp-3), 2vh, var(--sp-5)) var(--pz-gutter);
+  padding: var(--pz-pad-y) var(--pz-gutter);
   pointer-events: auto;
   overflow: hidden;
   border-radius: var(--radius-lg);
@@ -296,8 +312,13 @@
   outline: none;
 }
 
-/* Raking key light: a soft warm wash across the top-left of the frame that
-   sits under the content, so the whole bench reads as lit rather than tinted. */
+/* Raking key light: a soft warm wash across the top-left of the frame, so the
+   whole bench reads as lit rather than tinted.
+
+   It is a `z-index: auto` positioned box painted before the head, the placard
+   and the recess in tree order, which means it lands on the frame and *under*
+   every object standing on it — including the head fascia, which carries its
+   own opaque plate precisely so the title is not read against this. */
 .puzzle-rake {
   position: absolute;
   inset: 0;
@@ -349,6 +370,9 @@
 
 .puzzle-corner {
   position: absolute;
+  /* Above the head fascia (z-index 2). The brackets are bolted to the outside
+     of the frame; the fascia is a plate screwed to its face. */
+  z-index: 3;
   width: clamp(1.5rem, 2.4vw, 2.4rem);
   height: clamp(1.5rem, 2.4vw, 2.4rem);
   pointer-events: none;
@@ -412,11 +436,26 @@
 
 /* -- Head ------------------------------------------------------------------- */
 
-/* The head sits on the frame's own content edge — no extra horizontal padding.
-   With padding, the `border-bottom` drew across the full box while the title
-   was inset by it, so the heading looked like it had slid 80px right off its
-   own baseline mark. Rule and type now share one origin, and that origin is
-   the same `--pz-gutter` the recess and the footer resolve to. */
+/**
+ * The head is a *plate*, not a region of the frame.
+ *
+ * `.puzzle-rake` is the room's key light and it is brightest at the upper left
+ * — which is exactly where the title sets. Screened over the frame it took the
+ * band under the title to L 0.41–0.43 and left `--lamp-100` glyphs reading at
+ * 1.98–2.08:1: a title card nobody can read. The rake is not the problem and is
+ * not being turned down; the band simply has to be something the light lands
+ * *on* rather than something it shines through. So the head carries its own
+ * opaque fascia, painted above the rake (z-index 2, against the rake's
+ * `z-index: auto`), bled back out through the frame's padding to the panel
+ * edge. It keeps the lamp's direction — warm at the left, out at the right —
+ * at a level type can live on: the title measures ~12:1 across its whole run.
+ *
+ * Padding in and margin out by the same amount, so the title keeps the exact x
+ * it had on the frame's content edge — rule and type still share one origin,
+ * and that origin is still the `--pz-gutter` the recess and the footer resolve
+ * to. The rule now runs the full width of the fascia rather than stopping at
+ * the content edge, because it is the bottom of a plate and not an underline.
+ */
 .puzzle-head {
   grid-row: 1;
   /* Spans both tracks so the rule under the band runs the full width of the
@@ -424,12 +463,27 @@
      the bottom of the whole head band, not the bottom of the title. */
   grid-column: 1 / -1;
   position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
-  padding: 0 0 var(--sp-2);
+  padding: var(--pz-pad-y) var(--pz-gutter) var(--sp-2);
+  margin: calc(var(--pz-pad-y) * -1) calc(var(--pz-gutter) * -1) 0;
   border-bottom: var(--border-hairline);
+  background-image:
+    var(--pz-grain-brass),
+    linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--ink-700) 82%, var(--lamp-600)) 0%,
+      var(--ink-800) 46%,
+      var(--ink-900) 100%
+    );
+  background-blend-mode: soft-light, normal;
+  /* The lit top arris of a plate screwed to the face of the frame. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    0 6px 14px -8px color-mix(in srgb, var(--ink-abyss) 88%, transparent);
 }
 
 .puzzle-title {

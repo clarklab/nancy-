@@ -2213,13 +2213,30 @@
   height: 42%;
   pointer-events: none;
   border-radius: 2px;
-  background: linear-gradient(168deg, rgb(255 255 255 / 0.045), rgb(0 0 0 / 0.16));
+  /* It was there, and nobody could see it. The lit arris was
+     `rgb(255 214 180 / 0.11)` over a base at L≈0.014 — a luminance delta under
+     0.005, which is below the level at which relief is perceived at all, so
+     620x165px of the kiosk read as bare paint. Two things fix it: the arris is
+     taken to a strength that measures (>3:1 against its own field even under
+     the falloff plate), and the raised field is *beaded* rather than plain,
+     because cast-iron panelling is beaded and because a flat field at this size
+     is a flat field however well it is lit. */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 214 180 / 0.14) 0 1px,
+      rgb(255 214 180 / 0.06) 1px 3px,
+      transparent 3px 10px,
+      rgb(0 0 0 / 0.36) 10px 12px,
+      transparent 12px 16px
+    ),
+    linear-gradient(168deg, rgb(255 255 255 / 0.08), rgb(0 0 0 / 0.3));
   box-shadow:
-    inset 1px 1px 0 rgb(255 214 180 / 0.11),
-    inset -1px -1px 0 rgb(0 0 0 / 0.55),
-    inset 0 0 0 4px rgb(0 0 0 / 0.1),
-    inset 4px 4px 0 4px rgb(255 214 180 / 0.06),
-    inset -4px -4px 0 4px rgb(0 0 0 / 0.3);
+    inset 1px 1px 0 rgb(255 214 180 / 0.55),
+    inset -1px -1px 0 rgb(0 0 0 / 0.8),
+    inset 0 0 0 4px rgb(0 0 0 / 0.14),
+    inset 4px 4px 0 4px rgb(255 214 180 / 0.2),
+    inset -4px -4px 0 4px rgb(0 0 0 / 0.5);
 }
 
 /* The one source in the box, and its falloff. Everything in the kiosk is lit by
@@ -2233,7 +2250,10 @@
   background:
     radial-gradient(46% 30% at 22% 2%, rgb(255 214 160 / 0.24), transparent 100%),
     radial-gradient(120% 90% at 24% -6%, rgb(255 150 110 / 0.14), transparent 72%),
-    linear-gradient(158deg, transparent 40%, rgb(0 0 0 / 0.34) 100%);
+    /* 0.26, not 0.34. The falloff has to leave the panelling under it still
+       readable as relief in the far corner; below this the ironwork goes out
+       and the lower kiosk is bare paint again. */
+    linear-gradient(158deg, transparent 40%, rgb(0 0 0 / 0.26) 100%);
 }
 
 .sx-cl .sx-cl-boxleft > * {
@@ -2613,6 +2633,10 @@
 .sx-cl .sx-cl-boxright .sx-book { flex: 1 1 auto; }
 
 .sx-cl .sx-cl-chip {
+  /* It is carried from the watch across to the Admiralty list, so it has to
+     stay on top of everything it is dragged over. */
+  position: relative;
+  z-index: 6;
   display: grid;
   gap: 0.05rem;
   padding: 0.3rem 0.55rem;

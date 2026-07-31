@@ -404,44 +404,25 @@ function threeMovements(): PuzzleModule {
         ),
       );
       const bookBody = h('div', 'tl-book-body');
-      const bookFoot = h('div', 'tl-book-foot');
-      const prev = h('button', 'tl-page-btn', '◀');
-      const next = h('button', 'tl-page-btn', '▶');
-      prev.type = 'button';
-      next.type = 'button';
-      prev.setAttribute('aria-label', 'Previous page of the Order Book');
-      next.setAttribute('aria-label', 'Next page of the Order Book');
-      const pageCount = h('span', 'tl-page-count');
-      bookFoot.append(prev, pageCount, next);
-      book.append(bookHead, bookBody, bookFoot);
+      book.append(bookHead, bookBody);
       left.appendChild(book);
 
-      let page = clamp(readNum(ctx.state, 'page', 0), 0, ORDER_BOOK.length - 1);
-
-      const drawPage = () => {
-        const p = ORDER_BOOK[page];
-        bookBody.textContent = '';
-        bookBody.append(h('h4', 'tl-page-head', p.heading), h('p', 'tl-page-strap', p.strap));
+      /* All three weeks, on the one open page.
+         The book used to paginate, which put two thirds of the evidence behind
+         a '1 / 3' pager inside a 280px box while 412px of empty bench sat under
+         it. The three movements have to be read against each other — ordinary
+         days, Saturdays, and the last day anybody wrote in it — so they are set
+         one under the next and the column holds all of them. */
+      for (const p of ORDER_BOOK) {
+        const leaf = h('section', 'tl-leaf');
+        leaf.append(h('h4', 'tl-page-head', p.heading), h('p', 'tl-page-strap', p.strap));
         const dl = h('dl', 'tl-entries');
         for (const [when, what] of p.lines) {
           dl.append(h('dt', 'tl-entry-when', when), h('dd', 'tl-entry-what', what));
         }
-        bookBody.appendChild(dl);
-        pageCount.textContent = `${page + 1} / ${ORDER_BOOK.length}`;
-        prev.disabled = page === 0;
-        next.disabled = page === ORDER_BOOK.length - 1;
-      };
-
-      const turnTo = (n: number) => {
-        page = clamp(n, 0, ORDER_BOOK.length - 1);
-        drawPage();
-        ctx.feedback('tick');
-        ctx.state.page = page;
-        ctx.save();
-      };
-      prev.addEventListener('click', () => turnTo(page - 1), { signal: rig.signal });
-      next.addEventListener('click', () => turnTo(page + 1), { signal: rig.signal });
-      drawPage();
+        leaf.appendChild(dl);
+        bookBody.appendChild(leaf);
+      }
 
       // -- right column: three movements, then the handle -------------------
       const right = h('div', 'tl-column tl-column--work');

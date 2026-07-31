@@ -100,9 +100,17 @@
         )
         0%,
       color-mix(in srgb, var(--lamp-400) 65%, var(--dlg-brass-dim)) 58%,
+      /* The foot of the ramp used to bottom out around L=0.12, and the *role*
+         line — the smaller of the two engravings — sits on it. Measured, the
+         name cleared 5.82:1 on face L=0.271 while the role reached 3.88:1 at
+         its darkest cut on face L=0.197: the plate's own 2.0x top-to-bottom
+         falloff was landing the smaller type on the dimmest metal. The terminal
+         stop comes up a step so the face under the role holds ~L 0.23. The
+         plate's peak is untouched, so it still sits under the lamp rather than
+         over it; only the shadow side stops swallowing its own engraving. */
       color-mix(
           in srgb,
-          color-mix(in srgb, var(--lamp-500) 78%, var(--lamp-600)) 65%,
+          color-mix(in srgb, var(--lamp-500) 78%, var(--lamp-600)) 75%,
           var(--dlg-brass-dim)
         )
         100%
@@ -677,7 +685,12 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink-abyss) 78%, var(--lamp-600));
+  /* The cut goes to the bottom of the scale rather than the plate coming up to
+     meet it. Mixed 22% toward --lamp-600 the engraving measured L=0.0137 and
+     3.88:1 against the face beneath it; --ink-abyss is L=0.0043, which with the
+     lifted foot of the brass ramp puts the role line near 5:1 without touching
+     the metal's material read. */
+  color: var(--ink-abyss);
   text-shadow: var(--dlg-engraved-bevel);
 }
 
@@ -762,13 +775,35 @@
    * at 62. So: the hot corner moves to the lamp, the white point comes down a
    * step off `--paper-100`, and the far corner is allowed to fall away.
    */
+  /**
+   * The falloff has a floor, because the reader's own sentence lands in it.
+   *
+   * The recipe above was right about direction and wrong about range. Measured
+   * on the shipped frame the paper ran L=0.4835 at the top-right of the
+   * paragraph to L=0.1910 at the bottom-left — 2.7x across the most-read
+   * surface in the game — while the ink stays fixed at --paper-ink. Contrast
+   * therefore decayed monotonically in the exact direction the eye reads:
+   * 5.99:1 on the first line's right end, 3.64:1 on the second line's left end,
+   * and ~3.1:1 on the last line of the 17 speeches that wrap to three. Normal
+   * text at 22.4px: the floor is 4.5:1 and half of every two-line speech was
+   * under it.
+   *
+   * The radial alone was never the problem — paper-200 → paper-400 is only a
+   * 2.07x nominal ramp. The 0.24 dark overlay stacked on top of it is what
+   * turned that into 2.7x delivered and dropped the floor to 0.191. So the
+   * lamp keeps its corner and keeps its direction; the far corner simply is
+   * not allowed below the value that still carries ink. Nominal floor is now
+   * ~paper-300 and the overlay is halved, which puts the darkest text-bearing
+   * paper near L=0.38 — about 5.1:1 against the rendered ink — while the
+   * top-right stays where it was. Lit sheet, readable sheet.
+   */
   background:
-    linear-gradient(200deg, transparent 30%, rgb(20 12 6 / 0.24) 100%),
+    linear-gradient(200deg, transparent 30%, rgb(20 12 6 / 0.12) 100%),
     radial-gradient(
       140% 110% at 78% -10%,
       var(--paper-200) 0%,
-      var(--paper-300) 52%,
-      var(--paper-400) 100%
+      color-mix(in srgb, var(--paper-200) 40%, var(--paper-300)) 52%,
+      color-mix(in srgb, var(--paper-300) 85%, var(--paper-400)) 100%
     );
   /* Only the inset half is drawn here; the cast shadow lives on the parent. */
   box-shadow: inset 0 -14px 22px -18px rgb(0 0 0 / 0.55);
@@ -1198,6 +1233,10 @@
  * on the same gesture.
  */
 .dialogue-continue {
+  position: relative;
+  /* Contains the shade pool below: it must sit under the two labels and over
+     nothing else in the overlay. */
+  isolation: isolate;
   display: none;
   align-items: baseline;
   justify-content: space-between;
@@ -1207,6 +1246,32 @@
   padding: var(--sp-2) clamp(var(--sp-4), 1.6vw, var(--sp-5)) var(--sp-2) 0;
   opacity: 0;
   transition: opacity var(--dur-med) var(--ease-out);
+}
+
+/* The strip's own pool of shade — the same device the title menu uses, for the
+   same reason. Nine hundred pixels of the desk painting run under these two
+   labels and its value is not ours to choose; the pool narrows what they have
+   to survive so one opaque colour holds one ratio across the whole span. The
+   falloff reaches zero inside the box on both axes, so it stays a pool and
+   never becomes a bar. */
+.dialogue-continue::before {
+  content: '';
+  position: absolute;
+  /* Held inside the stage's own `overflow: hidden` on every side — a pool with
+     a clipped shoulder is a bar, which is the thing this must not become. */
+  inset: -1.5rem -3.25rem;
+  z-index: -1;
+  pointer-events: none;
+  /* The two labels sit at the far ends of the span, so the plateau runs almost
+     the full width and only the last quarter falls away. Zero is reached inside
+     the box in both axes. */
+  background: radial-gradient(
+    50% 46% at 50% 50%,
+    color-mix(in srgb, var(--scrim-cool) 62%, transparent) 0%,
+    color-mix(in srgb, var(--scrim-cool) 62%, transparent) 72%,
+    color-mix(in srgb, var(--scrim-cool) 34%, transparent) 88%,
+    transparent 100%
+  );
 }
 
 .dialogue-root[data-mode='speaking'] .dialogue-continue,
@@ -1220,15 +1285,23 @@
   opacity: 1;
 }
 
-/* Unlit type on the room, not ink on metal. The dark throw is doing the work a
-   plate used to do: the strip sits over whatever the painting happens to be, so
-   it carries its own substrate in a shadow rather than in a rectangle. At 72%
-   of --moon-200 the word holds ~6.2:1 over the dim desk behind it. */
+/**
+ * Unlit type on the room, not ink on metal — but with a known substrate.
+ *
+ * No alpha, for the reason the title screen's own CSS spells out at length: a
+ * single alpha value laid on a painting cannot hold a ratio, it can only
+ * average one. Measured, these two halves of one strip landed 1.48x apart —
+ * CONTINUE at 5.02:1 over a lighter patch of desk, CLICK OR PRESS ENTER at
+ * 3.40:1 over a darker one carrying a dimmer colour — and the right half missed
+ * the 4.5:1 floor by 24%. Both colours are opaque now, and the strip carries
+ * its own pool (see ::before) so the substrate is something we set rather than
+ * something the painting happens to be doing under it.
+ */
 .dialogue-continue__word,
 .dialogue-continue__key {
   font-family: var(--font-front);
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--moon-200) 72%, transparent);
+  color: color-mix(in srgb, var(--moon-200) 88%, var(--moon-400));
   text-shadow:
     0 1px 2px rgb(0 0 0 / 0.9),
     0 0 10px rgb(0 0 0 / 0.75);
@@ -1241,10 +1314,12 @@
 }
 
 .dialogue-continue__key {
+  /* Hierarchy is carried by size and tracking, not by a 1.48x contrast drop:
+     the key hint is the smaller, wider-tracked half and that is enough to read
+     as secondary. It inherits the word's colour deliberately. */
   font-size: var(--step--2);
   font-weight: 600;
   letter-spacing: 0.1em;
-  color: color-mix(in srgb, var(--moon-300) 78%, transparent);
 }
 
 /* -- Key hint -------------------------------------------------------------- */

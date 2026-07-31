@@ -40,6 +40,21 @@
     color-mix(in srgb, var(--pz-brass-mid) 76%, var(--ink-800)) 48%,
     var(--pz-brass-lo) 100%
   );
+  /* Polished, not worn. `--lg-brass-worn` is a *worn* alloy — it is mixed down
+     into `--ink-700/800` and lands at L 0.31 → 0.16 → 0.06. That is correct for
+     a rail or a bezel, and it is fatal under engraving: near-black ink filled
+     into a trench at L 0.024 can only read if the plate around it is bright, and
+     on worn brass it measured 2.15–2.41:1 on the IMP/UND/OLI/REM/PRE key the
+     whole puzzle turns on. A maker's plate is the one casting on a machine that
+     gets kept polished, so it is cut from live brass: L 0.61 → 0.40 → 0.375,
+     which puts the same ink past 5:1 everywhere on the plate without touching
+     the ink, the trench or the lamp. */
+  --lg-brass-plate: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--pz-brass-hi) 72%, var(--pz-brass-mid)) 0%,
+    color-mix(in srgb, var(--pz-brass-hi) 34%, var(--pz-brass-mid)) 50%,
+    color-mix(in srgb, var(--pz-brass-mid) 72%, var(--pz-brass-hi)) 100%
+  );
   --lg-paper: linear-gradient(
     172deg,
     var(--paper-100) 0%,
@@ -165,18 +180,13 @@
       transparent 0.235em
     ),
     var(--pz-grain-brass),
-    /* The engraved field, darkened. The plate's brass measures L 0.19-0.26 and
-       the ink sat on top of it at 3.4-3.7:1 — on the IMP/UND/OLI/REM/PRE key
-       the whole puzzle turns on. A cast plate's lettered panel is recessed and
-       holds more oxide than its raised border does, so dropping it a stop is
-       both the fix and the correct object. */
-    linear-gradient(
-      176deg,
-      color-mix(in srgb, var(--ink-abyss) 15%, transparent) 0%,
-      color-mix(in srgb, var(--ink-abyss) 21%, transparent) 100%
-    ),
-    var(--lg-brass-worn);
-  background-blend-mode: normal, normal, normal, normal, overlay, multiply, normal;
+    /* Was an ink-abyss field layer at `overlay`, put here to "fix" the key's
+       contrast. Darkening the substrate under near-black ink cannot raise
+       contrast and did not: it took the three key lines from 2.24/2.55/2.39 to
+       2.34/2.41/2.15. The plate is what was wrong, not the field — see
+       `--lg-brass-plate`. */
+    var(--lg-brass-plate);
+  background-blend-mode: normal, normal, normal, normal, soft-light, normal;
   /* A casting bolted proud of the frame throws its shadow down and to the
      right, because that is where the lamp is not. */
   box-shadow: var(--lg-edge), var(--pz-cast-2);
@@ -311,7 +321,11 @@
   border-radius: 99px;
   background: color-mix(in srgb, var(--ink-900) 70%, transparent);
   box-shadow: var(--lg-sunk);
-  color: var(--text-muted);
+  /* `--text-muted` (`--ink-400`) measured 2.37:1 on this pill — below even the
+     large-text floor, at 11px, tracked, on the widget that tells the player
+     where they are in a two-stage puzzle. Subordinate is a *step* down from the
+     live step's 10.3:1, not a step out of legibility: this lands near 7.9:1. */
+  color: color-mix(in srgb, var(--moon-200) 88%, transparent);
   transition: color var(--dur-med) var(--ease-out);
 }
 

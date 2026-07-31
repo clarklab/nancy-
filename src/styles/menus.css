@@ -83,11 +83,32 @@
 .menu-scrim {
   position: absolute;
   inset: 0;
+  /**
+   * The shade goes where the panel is, not where it isn't.
+   *
+   * The ramp ran the wrong way: its *weakest* tint (34%) sat at `50% 40%` —
+   * dead centre, which is exactly where every card in this file is placed —
+   * and its strongest in the corners, where there is nothing to separate. So
+   * the backdrop directly outside a panel's edge was whatever the painting
+   * happened to be doing there, and `brightness(0.7)` is multiplicative, so it
+   * could not flatten a backdrop with a 10:1 range of its own. Measured around
+   * the settings panel: upper-right the backdrop was 3.2x *brighter* than the
+   * plate (the modal read as a hole), lower-right the plate was brighter, and
+   * on the longest edge the two matched to within 0/255. The sign of the
+   * elevation flipped twice walking one perimeter.
+   *
+   * Inverted, this is a flat alpha floor under the plate rather than a
+   * multiplier: the bright upper-right region comes down to a known value no
+   * matter what art is behind it, and the corners — which nothing sits on —
+   * are allowed to keep more of the room than they used to. The player still
+   * sees where they are; the panel is simply the only thing above it.
+   */
   background:
     radial-gradient(
       120% 90% at 50% 40%,
-      color-mix(in srgb, var(--ink-900) 34%, transparent) 0%,
-      color-mix(in srgb, var(--ink-abyss) 62%, transparent) 100%
+      color-mix(in srgb, var(--ink-abyss) 84%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 78%, transparent) 52%,
+      color-mix(in srgb, var(--ink-abyss) 52%, transparent) 100%
     );
   backdrop-filter: blur(7px) saturate(0.8) brightness(0.7);
   -webkit-backdrop-filter: blur(7px) saturate(0.8) brightness(0.7);
@@ -127,13 +148,20 @@
    * delta, which is not elevation, it is a hole. It stops at ink-800 now and
    * the lamp wash is thrown further, so the footer sits on a surface rather
    * than dissolving into the backdrop it is supposed to be floating above.
+   *
+   * Second pass: ink-800 at the foot still measured 21/255 against a backdrop
+   * of 23/255 — the hole had moved, not closed. The whole body now sits a
+   * notch up the shell ramp (ink-700 carried toward ink-600 at the top, plain
+   * ink-700 at the foot) so that every point on the plate is measurably above
+   * the scrim beneath it. The plate is what should be lit here; darkening the
+   * room further to fake the same delta is how the frame became 96% black.
    */
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ink-700) 97%, transparent) 0%,
-      color-mix(in srgb, var(--ink-700) 96%, transparent) 46%,
-      color-mix(in srgb, var(--ink-800) 97%, transparent) 100%
+      color-mix(in srgb, color-mix(in srgb, var(--ink-700) 70%, var(--ink-600)) 97%, transparent) 0%,
+      color-mix(in srgb, color-mix(in srgb, var(--ink-700) 78%, var(--ink-600)) 96%, transparent) 46%,
+      color-mix(in srgb, var(--ink-700) 97%, transparent) 100%
     ),
     radial-gradient(
       132% 96% at 16% -4%,
@@ -312,14 +340,28 @@
     0 0 24px -6px color-mix(in srgb, var(--blood-bright) 70%, transparent);
 }
 
+/**
+ * Secondary, not absent.
+ *
+ * A legible word inside an invisible box is a text link, and in the settings
+ * footer that is exactly how RESTORE DEFAULTS read next to DONE: its label
+ * measured 6.27:1 while its own border measured 1.24-1.25:1 against the panel
+ * behind it — 42% of the 3:1 that WCAG 1.4.11 asks of a control's boundary.
+ * The rim is now brass at a value that actually clears the plate, and there is
+ * a faint face behind it so the control has a surface as well as an outline.
+ * It is still obviously the quiet one: no brass fill, no specular, no glow.
+ */
 .menu-btn--ghost {
-  background: none;
+  background: color-mix(in srgb, var(--ink-600) 45%, transparent);
   box-shadow: none;
-  border-color: color-mix(in srgb, var(--lamp-500) 18%, transparent);
+  border-color: color-mix(in srgb, var(--lamp-400) 60%, transparent);
 }
 
+/* The rest state now carries a visible rim, so hover has to move further than
+   the shared `.menu-btn:hover` does or it reads as no response at all. */
 .menu-btn--ghost:hover {
-  background: color-mix(in srgb, var(--ink-600) 55%, transparent);
+  background: color-mix(in srgb, var(--ink-600) 88%, transparent);
+  border-color: color-mix(in srgb, var(--lamp-300) 72%, transparent);
   box-shadow: none;
 }
 
@@ -1079,10 +1121,29 @@
   );
 }
 
+/* SETTINGS is the only *live* row in the lower column, and it has to look it.
+   On `--text-secondary` (= `--moon-300`, L=0.3176) it measured 6.59:1 while the
+   two dead rows above it measured 6.57 and 6.73 — a 1.025:1 spread with the
+   disabled rows on the bright side of it. The indicator bar and the hover lift
+   are not painted at rest, so value is the only cue left, and it was saying the
+   wrong thing. Lifted to an opaque `--moon-200` mix: rgb(163,189,207), L=0.4856,
+   ~9.3:1 against the menu pool (ground L=0.0075) and 1.65x over the disabled
+   label below — a step the eye reads as "this one works" without pulling the row
+   up to the primary's weight. It stays minor by size (--step-0) and tracking. */
 .title-item--minor .title-item__label {
   font-size: var(--step-0);
   letter-spacing: 0.17em;
-  color: var(--text-secondary);
+  color: color-mix(in srgb, var(--moon-200) 70%, var(--moon-300));
+}
+
+/* The shared hint colour (`--moon-200` at 86%, L=0.5108) is tuned to sit under
+   the *primary* label at L=0.789. Under the minor label it was 1.05x brighter
+   than the 15px caps it belongs to — the same inversion the disabled-hint
+   comment above refuses to make. Scoped down for this variant only, so the
+   shared rule stays correct for the three rows it was written for:
+   rgb(139,169,188), L=0.3749 → 7.4:1, 1.26x under its own label. */
+.title-item--minor .title-item__hint {
+  color: color-mix(in srgb, var(--moon-300) 75%, var(--moon-200));
 }
 
 /**
@@ -1108,10 +1169,16 @@
      carried by. It should never have been carried by taking the row below the
      legibility floor. */
   /* Opaque, for the same reason the hints are: an alpha mix over a photograph
-     ranging L 0.008-0.26 has no single ratio. rgb(128,159,180) holds
-     5.07-6.17:1 against the menu's pool and stays well under the enabled
-     label's --moon-200. */
-  color: color-mix(in srgb, var(--moon-300) 96%, var(--moon-200));
+     ranging L 0.008-0.26 has no single ratio.
+
+     The previous value here was `--moon-300` at 96% toward `--moon-200` —
+     rgb(128,159,180), L=0.3268. That cleared AA, but it also put the two dead
+     rows *above* the one enabled row beneath them (SETTINGS on `--moon-300`,
+     L=0.3176): a 1.025:1 spread, disabled brighter. Fixing a floor by walking
+     past the ceiling is not a fix. rgb(116,147,169), L=0.2743 → 5.6:1 against
+     the pool, comfortably over the 4.5:1 body floor and 1.65x under the enabled
+     SETTINGS label. */
+  color: color-mix(in srgb, var(--moon-300) 75%, var(--moon-400));
   cursor: default;
 }
 
@@ -1135,8 +1202,11 @@
    the shipped frame because these two rows fall on the dark headland. Opaque,
    against the deepened pool in `.title-menu::before`, it holds 4.67-5.69:1
    across the column and stays a step under the disabled label. */
+/* Follows the disabled label down by the same amount, so the row keeps its
+   internal order: rgb(108,139,161), L=0.2418 → 5.1:1 against the pool, sitting
+   1.11x under the label above it (it was 1.09x before either moved). */
 .title-item:disabled .title-item__hint {
-  color: color-mix(in srgb, var(--moon-300) 88%, var(--moon-400));
+  color: color-mix(in srgb, var(--moon-300) 55%, var(--moon-400));
 }
 
 /**
@@ -1381,7 +1451,12 @@
   place-items: center;
   font-size: var(--step-2);
   line-height: 1;
-  color: var(--text-muted);
+  /* `--text-muted` is `--ink-400` — a *shell* token used as a glyph colour. On
+     the sunk disc (L=0.0142) the X measured L=0.1094, i.e. 2.48:1: the only way
+     out of this modal besides DONE sat under the 3:1 non-text floor. A moon
+     reads as engraved on the same metal and clears it with room to spare
+     (L=0.3177 → ~5.2:1). */
+  color: var(--moon-300);
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--ink-600) 80%, transparent),
@@ -1636,10 +1711,15 @@
   gap: var(--sp-4);
   padding: var(--sp-4) var(--sp-6);
   border-top: var(--border-hairline);
+  /* A shelf, not a trapdoor. At 42% ink-abyss this wash took the last 60px of
+     the panel down to 21/255 — below the backdrop outside the bottom edge, so
+     the plate ended by dissolving into the thing it is floating above. Enough
+     tint to read as a separate register under the hairline, not enough to sink
+     it. */
   background: linear-gradient(
     180deg,
     transparent,
-    color-mix(in srgb, var(--ink-abyss) 42%, transparent)
+    color-mix(in srgb, var(--ink-abyss) 18%, transparent)
   );
 }
 
@@ -1770,12 +1850,24 @@
    * 12px numeral seventy pixels away. A fader whose travel you cannot see is a
    * broken control. The channel now has walls: a lamp-tinted rim all the way
    * round and a lit bottom lip.
+   *
+   * Except it did not, because of paint order. Shadows in a `box-shadow` list
+   * paint front-to-back, so the `inset 0 2px 4px` black listed *first* was
+   * covering the rim it was written to sit under: measured down the unfilled
+   * Master track, the channel's top rim came out at L=0.0058 — 3.3x darker than
+   * the plate it is cut into, no lamp in it at all — and the brightest pixel in
+   * the whole empty track was the bottom lip at 2.33:1, under the 3:1 a control
+   * needs. Two dark surfaces cannot reach 3:1 by getting darker (the plate is
+   * only L=0.026; pure black is 1.5:1 against it), so the light has to do it.
+   * The walls are listed first so they survive, and the far wall — the one the
+   * lamp above the plate would actually catch — is lit to 4.2:1. The near wall
+   * stays in shadow, which is what makes it read as a groove and not a pill.
    */
   background: linear-gradient(180deg, var(--ink-abyss), var(--ink-700));
   box-shadow:
-    inset 0 2px 4px rgb(0 0 0 / 0.85),
-    inset 0 0 0 1px color-mix(in srgb, var(--lamp-400) 22%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 30%, transparent);
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 55%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-400) 55%, transparent),
+    inset 0 2px 4px rgb(0 0 0 / 0.85);
   overflow: hidden;
 }
 
@@ -2607,6 +2699,18 @@
    rather than atmospheric. */
 :root[data-contrast-boost='on'] .title-version,
 :root[data-contrast-boost='on'] .title-credit {
+  color: var(--moon-200);
+}
+
+/* The SETTINGS row used to ride `--text-secondary` and so got lifted by the
+   token override above for free. It now carries its own value, to keep it clear
+   of the disabled rows at rest, so the boost has to be restated here — same
+   destination as before, and the hint stays a step under the label. */
+:root[data-contrast-boost='on'] .title-item--minor .title-item__label {
+  color: var(--moon-100);
+}
+
+:root[data-contrast-boost='on'] .title-item--minor .title-item__hint {
   color: var(--moon-200);
 }
 

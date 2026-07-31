@@ -1933,7 +1933,14 @@
 .cx-spool .cx-spool-hub {
   --pz-el-x: 0.5;
   --pz-el-y: 0.38;
-  --pz-spec-x: calc(50% + (var(--pz-key-fx) - var(--pz-el-x)) * 66%);
+  /* 34%, not 66%. The two hubs stand at the extreme ends of the deck
+     (`--pz-el-x` 0.073 and 0.927) and at 66% the far one resolved its highlight
+     origin to x≈0% — hard against the limb, where a ball highlight clips flat
+     and the luminance profile falls monotonically across the whole disc with no
+     roll-off on the lit side. At 34% both highlights stay inside the limb and
+     still sit on the lamp side of their own centre, which is the point of
+     placing them at all. */
+  --pz-spec-x: calc(50% + (var(--pz-key-fx) - var(--pz-el-x)) * 34%);
   --pz-spec-y: calc(50% + (var(--pz-key-fy) - var(--pz-el-y)) * 46%);
 
   position: relative;
@@ -1941,7 +1948,12 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    var(--pz-key-spec),
+    /* Damped. `--pz-key-spec` is authored for brass and paper; on the near hub
+       it screened the ebonite up to rgb(131,123,107) — L 0.202, a warm neutral
+       with no ebonite left in it — against L 0.088 on its twin at the far end:
+       one pair of spools rendered as two different materials. Vulcanite takes a
+       sheen, not a specular. */
+    var(--pz-key-spec-soft),
     repeating-conic-gradient(from 0deg, rgb(255 255 255 / 0.05) 0deg 6deg, transparent 6deg 12deg),
     radial-gradient(
       circle at var(--pz-spec-x) var(--pz-spec-y),
@@ -1957,6 +1969,12 @@
 .cx-spool .cx-spool-hub.is-left { --pz-el-x: 0.073; }
 .cx-spool .cx-spool-hub.is-right { --pz-el-x: 0.927; }
 
+/* One flange, one inset. This used to be overridden to `inset: 30%` on the left
+   spool — a 32px gold boss on one spindle and a 47px one on the other, a 47%
+   size difference hard-coded into a matched pair of parts off the same shelf.
+   If the pay-off spool should ever look fuller than the feed spool, that is
+   ribbon state and belongs on a `--pack` custom property that moves with the
+   crank, not on a static eight-point difference in the casting. */
 .cx-spool .cx-spool-flange {
   position: absolute;
   inset: 22%;
@@ -1973,7 +1991,6 @@
   background-blend-mode: screen, normal;
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5), var(--pz-cast-1);
 }
-.cx-spool .cx-spool-hub.is-left .cx-spool-flange { inset: 30%; }
 
 /* -- the gate: the ribbon under the magnifier --------------------------------- */
 
@@ -2296,7 +2313,15 @@
   justify-self: stretch;
   inline-size: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(11rem, 26rem);
+  /* The question column was `1fr`, so it took ~1320px to hold content that
+     stopped at x=812 and left a 590x95 block of blank cream — p50 L 0.5405,
+     CR(p50,p95) 1.11:1, zero ink — between the third verdict button and the
+     ruled margin, on the second-lightest shape on the screen. The column is
+     sized to its content and the margin takes the slack, so the rule sits
+     immediately right of the last button and the gating note sets across the
+     rest. `minmax(0, max-content)` rather than bare `max-content` so a long
+     question still wraps instead of forcing the slip wider than the rail. */
+  grid-template-columns: minmax(0, max-content) minmax(16rem, 1fr);
   align-items: start;
   gap: 0.4rem clamp(0.7rem, 2.4cqw, 1.6rem);
   padding: clamp(0.45rem, 1.8cqh, 0.8rem) clamp(0.6rem, 2cqw, 1.1rem);
@@ -2330,13 +2355,23 @@
    fuse — and italic was doing no semantic work here: it is a rule of the
    puzzle, not an aside. */
 .cx-spool .cx-assert-note {
-  /* The margin of the docket, ruled off the main column. */
+  /* The margin of the docket — and a docket's margin is *ruled*. It carries one
+     sentence, so left as bare paper it simply moved the empty cream from one
+     side of the slip to the other. The feint is pitched to the note's own
+     `line-height`, so the sentence sits on a rule and the rules carry on down
+     the margin the way they do on the pad it was torn from. */
   grid-column: 2;
   grid-row: 1 / span 2;
-  align-self: center;
+  align-self: stretch;
   margin: 0;
-  padding-left: clamp(0.7rem, 2.4cqw, 1.6rem);
+  padding: 0.1em 0 0.35em clamp(0.7rem, 2.4cqw, 1.6rem);
   border-left: 1px solid color-mix(in srgb, var(--paper-400) 72%, transparent);
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0 calc(1.45em - 1px),
+    color-mix(in srgb, var(--paper-400) 52%, transparent) calc(1.45em - 1px) 1.45em
+  );
+  background-position: 0 0.1em;
   font-family: var(--font-body);
   font-size: clamp(0.78rem, 1.62cqh, 0.88rem);
   line-height: 1.45;

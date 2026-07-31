@@ -3583,10 +3583,13 @@ function chartLoft(): PuzzleModule {
       });
       bin.own(listBook);
 
+      /* The chip reads out what the stopwatch measured, so it belongs on the
+         side of the box the stopwatch is on — not filed at the head of the
+         Admiralty list, which is the thing it has to be compared *against*. */
       const boxLeft = h('div', 'sx-cl-boxleft');
-      boxLeft.append(set, ring, watch, visible);
+      boxLeft.append(set, ring, watch, visible, chip);
       const boxRight = h('div', 'sx-cl-boxright');
-      boxRight.append(chip, listBook.el);
+      boxRight.append(listBook.el);
       callbox.append(boxLeft, boxRight);
 
       // -- the call ----------------------------------------------------------

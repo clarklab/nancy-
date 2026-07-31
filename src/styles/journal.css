@@ -998,7 +998,12 @@
      leaf pushes its ledger totals hard against the bottom of the type block and
      a long dissolve would eat them on a page that does not even scroll. */
   --page-fade: clamp(0.9rem, 2.4cqh, 2rem);
-  --page-ramp: clamp(0.8rem, 1.9cqh, 1.3rem);
+  /* "Shorter than one line of body copy" is a measurement, not a sentiment:
+     body pitch on the leaf is 20px and 1.9cqh resolved to 28px, so a line could
+     and did sit at a uniform 2:1 across its whole x-height. At 1.0cqh the ramp
+     is 9-14px — half a line box — so the line meeting the edge is torn through
+     its own strokes and the one under it is simply not there. */
+  --page-ramp: clamp(0.45rem, 1cqh, 0.75rem);
   mask-image: linear-gradient(
     to bottom,
     black 0,
@@ -1042,10 +1047,17 @@
  * `is-ended` is set by `syncCatchword` in src/ui/journal.ts.
  */
 .journal-spread--wide:not(.is-ended) .journal-scroll {
-  --page-fade: clamp(4rem, 10cqh, 7rem);
-  /* Deeper dissolve, same short ramp: the extra depth buys clear paper between
-     the last legible line and the catchword, not extra lines held at 2:1. */
-  --page-ramp: clamp(0.8rem, 1.9cqh, 1.3rem);
+  /* Deeper than the prose default, because this leaf genuinely has more under
+     it — but the depth was raised in each of the last two rounds and by r2 it
+     was buying nothing and costing lines. Measured on the bottom-left card the
+     last strong-ink row walked 1039 -> 964 -> 920 while the leaf foot stayed at
+     1055, so 10cqh had eaten roughly six body lines and 125px of the card's own
+     paper substrate, leaving blank gradient between the tear and the catchword.
+     At 4.5cqh (~42-52px) the tear still clears the catchword at y1039 and the
+     cards keep their copy. It was always the depth that was wrong; the ramp
+     below is what makes the tear read. */
+  --page-fade: clamp(2rem, 4.5cqh, 3.25rem);
+  --page-ramp: clamp(0.45rem, 1cqh, 0.75rem);
 }
 
 /**
@@ -1321,7 +1333,10 @@
   display: grid;
   justify-items: end;
   gap: 0.1em;
-  margin-top: auto;
+  /* No auto margin here: the plate owns the leaf's free space now and splits it
+     above and below itself. A second auto on this side of the same gap would
+     take a share of it back and reopen the hole. */
+  margin-top: 0;
   padding-bottom: var(--sp-5);
   text-align: right;
   color: var(--ink-hand);
@@ -1365,9 +1380,17 @@
 }
 
 /* Half the slack sits above the dateline and half below the commission, so
-   the leaf breathes evenly instead of pooling one hole in its middle. */
+   the leaf breathes evenly instead of pooling one hole in its middle.
+
+   That needs auto margins on *both* sides of the plate. Setting one on the
+   plate's foot and one on the dateline's head put two auto margins on the two
+   sides of the same gap, where they share it — every pixel of slack collected
+   into a single 242px hole between the commission and the dateline, 26% of the
+   leaf, exactly the pooling this comment says it prevents. Auto above and below
+   the plate splits the free space into two even gaps, which is the three-beat
+   head / centred document / foot signature a printed frontispiece is set in. */
 .plate {
-  margin-bottom: auto;
+  margin-block: auto;
 }
 
 /**
@@ -1387,7 +1410,10 @@
    the commission stops pushing and the slack collects once below it rather than
    opening a second hole above it. */
 .jp-col--flyleaf:not(:has(.jp-margin)) .plate {
-  margin-bottom: 0;
+  /* Both autos have to go, not just the lower one — with nothing under it the
+     plate is the last block on the leaf, and an auto above it alone would drive
+     it to the foot instead of letting the slack fall below it. */
+  margin-block: var(--sp-4) 0;
 }
 
 /**
@@ -2781,17 +2807,27 @@
  */
 .ded__tray-scroll,
 .ded__suspects {
-  --board-fade: clamp(2.5rem, 6cqh, 4rem);
+  /* Depth and ramp are separated here for the same reason they are on the leaf
+     (see `--page-fade` / `--page-ramp`). The old single-stop fade was 56px of
+     linear alpha, which is deeper than the gutter between two rows: whatever
+     the row arithmetic did, something always rendered between 0 and 1 alpha.
+     The dissolve is now exactly one gutter deep, and the ramp inside it is
+     shorter than a line of card copy, so the foot of the board is torn rather
+     than faded and nothing legible is ever held at half strength. */
+  --board-fade: var(--sp-4);
+  --board-ramp: clamp(0.5rem, 1.2cqh, 0.9rem);
   mask-image: linear-gradient(
     to bottom,
     black 0,
     black calc(100% - var(--board-fade)),
+    transparent calc(100% - var(--board-fade) + var(--board-ramp)),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     black 0,
     black calc(100% - var(--board-fade)),
+    transparent calc(100% - var(--board-fade) + var(--board-ramp)),
     transparent 100%
   );
   scroll-snap-type: y proximity;
@@ -3034,11 +3070,21 @@
  * never through a card; the snap is mandatory so a row cannot park half inside
  * it; and the deeper card gives each charge slot room for more than one chip,
  * which is what the mechanic actually needs.
+ *
+ * The fraction has to be written against the *padding* box, and it wasn't. A
+ * scroll container's viewport is its padding box, but a percentage in
+ * `grid-auto-rows` resolves against the content box — which is shorter by the
+ * foot padding this thing reserves for its own dissolve. Two rows therefore
+ * ended a whole `--board-fade` above the fold and the third started inside the
+ * ramp: a name, a role and half a portrait rendering at 2.5:1, which is the
+ * "this is a scrolling div" tell the paragraph above claims to have removed.
+ * Adding the foot padding back lands row 2's bottom edge exactly on the
+ * viewport foot and row 3's top edge a full gutter below it.
  */
 .ded__suspects {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(clamp(9rem, 16cqw, 13rem), 1fr));
-  grid-auto-rows: calc((100% - var(--sp-4)) / 2);
+  grid-auto-rows: calc((100% - var(--sp-4) + var(--board-fade)) / 2);
   align-content: start;
   gap: var(--sp-4);
   padding: var(--sp-3) var(--sp-2) var(--board-fade);

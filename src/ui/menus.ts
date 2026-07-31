@@ -1022,7 +1022,11 @@ export class Menus {
     return this.present<void>(
       'settings',
       (finish, layer) => {
-        layer.appendChild(el('div', 'menu-scrim'));
+        // Settings is a modal over the world like pause and confirm are, and
+        // gets the same deeper blur: the plain scrim left the title art sharp
+        // enough behind the panel that the panel's own edge had to compete with
+        // it. Depth of field, not extra darkness.
+        layer.appendChild(el('div', 'menu-scrim menu-scrim--deep'));
 
         const panel = el('div', 'mset');
         const head = el('header', 'mset__head');
