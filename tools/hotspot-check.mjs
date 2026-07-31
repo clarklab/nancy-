@@ -39,6 +39,15 @@ const flag = (n, d) => {
 };
 const OUT = path.join(ROOT, flag('out', 'shots/hotspots'));
 const ONLY = flag('only') ? String(flag('only')).split(',').map((s) => s.trim()) : null;
+/**
+ * Which act to review at.
+ *
+ * Defaults to the last, because that is the only state in which every room can
+ * be entered. But eleven hotspots are gated with `untilAct` and do not exist by
+ * then, so a complete audit means sweeping: `--act 1` through `--act 5`. The
+ * out directory should differ per act or the later pass overwrites the earlier.
+ */
+const ACT = flag('act') ? Number(flag('act')) : null;
 
 const MIME = {
   '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
@@ -114,25 +123,45 @@ async function main() {
 
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle', timeout: 60_000 });
 
-  // Every clue granted, so hotspots gated behind progress are drawn too — an
-  // unreachable hotspot is exactly the kind that never gets looked at.
-  const ids = await page.evaluate(async () => {
+  // Everything unlocked, not just clues. Thirteen scenes carry an `enterIf`
+  // that wants a later act or a solved puzzle, and `goto` returns silently when
+  // it fails — see the landing check below, which is the half of this that
+  // actually matters.
+  const ids = await page.evaluate(async (act) => {
     const g = window.game;
     await g.__test.startNewGameSkippingIntro();
-    g.__test.grantAllClues?.();
+    g.__test.unlockEverything(act ?? undefined);
     return g.__test.sceneIds ? g.__test.sceneIds() : [];
-  });
+  }, ACT);
 
   const scenes = (ONLY ?? ids).filter(Boolean);
   await mkdir(OUT, { recursive: true });
-  console.log(`${scenes.length} scenes -> ${path.relative(ROOT, OUT)}\n`);
+  console.log(`${scenes.length} scenes at act ${ACT ?? 'max'} -> ${path.relative(ROOT, OUT)}\n`);
 
   const report = [];
+  const stuck = [];
   for (const id of scenes) {
     try {
-      await page.evaluate(async (s) => {
+      // Prove the navigation landed before believing anything on screen.
+      //
+      // This is the whole reason the tool is trustworthy. `goto` is a no-op when
+      // a scene's `enterIf` is unmet, so without this check the page still shows
+      // the PREVIOUS room and the screenshot gets written under this room's
+      // name — a picture of the wrong scene, captioned with the right one, which
+      // is worse than no picture at all. Thirteen scenes were audited that way
+      // once. A capture that cannot be proved is not written.
+      const landed = await page.evaluate(async (s) => {
         await window.game.goto(s, 'none');
+        return window.game.__test.currentScene?.() ?? null;
       }, id);
+
+      if (landed !== id) {
+        stuck.push({ scene: id, landed });
+        report.push({ scene: id, error: `goto did not land (still on "${landed}")` });
+        console.error(`  ${id.padEnd(26)} NOT ENTERED — still on "${landed}"`);
+        continue;
+      }
+
       await page.waitForTimeout(700);
       const info = await page.evaluate(OVERLAY);
       await page.screenshot({ path: path.join(OUT, `${id}.png`) });
@@ -149,8 +178,20 @@ async function main() {
   await browser.close();
   server.close();
 
+  const captured = report.filter((r) => r.boxes).length;
   const bad = report.filter((r) => r.aligned === false).length;
-  console.log(`\n${report.length} captured · ${bad} with a misaligned layer`);
+  console.log(`\n${captured}/${scenes.length} captured · ${bad} with a misaligned layer`);
+
+  if (stuck.length) {
+    console.error(`\n${stuck.length} scene(s) could not be entered and were NOT captured:`);
+    for (const s of stuck) console.error(`  ${s.scene} (stayed on "${s.landed}")`);
+    console.error('\nThese are gated by `enterIf`. The harness already unlocks every act,');
+    console.error('clue, item and puzzle, so a scene still refusing entry has a condition');
+    console.error('nothing satisfies — which is worth knowing on its own.');
+    process.exitCode = 1;
+    return;
+  }
+
   console.log('Layer geometry is only half the check — LOOK at the PNGs. A box in');
   console.log('the right layer can still be on the wrong object, and that is the');
   console.log('failure this tool exists to make visible.');

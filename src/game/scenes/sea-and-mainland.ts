@@ -70,7 +70,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'satchel',
         label: "Wren's soaked satchel",
-        shape: at(0.3, 0.55, 0.29, 0.25),
+        shape: at(0.13, 0.44, 0.29, 0.27),
         cursor: 'puzzle',
         huntable: true,
         onInteract: [
@@ -97,7 +97,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'spatula-kit',
         label: 'Conservation roll: spatula, membrane, blotters',
-        shape: at(0.08, 0.6, 0.2, 0.19),
+        shape: at(0.1, 0.71, 0.16, 0.1),
         cursor: 'take',
         huntable: true,
         onInteract: [
@@ -221,7 +221,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'call-box',
         label: 'GPO call box',
-        shape: at(0.4, 0.24, 0.21, 0.56),
+        shape: at(0.665, 0.075, 0.19, 0.68),
         cursor: 'talk',
         huntable: true,
         onInteract: [
@@ -239,7 +239,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'ferry-office',
         label: 'Ferry office booking book',
-        shape: at(0.63, 0.42, 0.2, 0.22),
+        shape: at(0.5, 0.29, 0.13, 0.16),
         cursor: 'look',
         onInteract: [
           when(
@@ -267,7 +267,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'tide-board',
         label: 'Causeway tide board',
-        shape: at(0.08, 0.34, 0.15, 0.24),
+        shape: at(0.415, 0.31, 0.085, 0.13),
         cursor: 'look',
         onInteract: [
           when(
@@ -290,7 +290,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'phone-money',
         label: 'Pocketful of ten-pence pieces',
-        shape: at(0.24, 0.62, 0.13, 0.14),
+        shape: at(0.33, 0.58, 0.13, 0.14),
         cursor: 'take',
         onInteract: [
           when(
@@ -328,7 +328,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'enid-bench',
         label: 'The bench by the ferry ramp',
-        shape: at(0.63, 0.65, 0.24, 0.2),
+        shape: at(0.6, 0.78, 0.26, 0.18),
         cursor: 'talk',
         visibleIf: inAct(4),
         onInteract: [
@@ -384,7 +384,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'iveson',
         label: 'DS Marren Iveson',
-        shape: at(0.34, 0.2, 0.3, 0.48),
+        shape: at(0.62, 0.47, 0.19, 0.28),
         cursor: 'talk',
         huntable: true,
         onInteract: [speakTo('marren-iveson')],
@@ -392,7 +392,12 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'custody-record',
         label: 'Custody record, 31 October, 17.15',
-        shape: at(0.05, 0.36, 0.19, 0.2),
+        // Left half of the bare table. This and `referral-form` were briefly
+        // given the same rect, which is only invisible until Act V — `inAct(3)`
+        // is a floor, not a window, so from Act V both are live, the later
+        // declaration wins every click and the custody record becomes
+        // unreachable. Kept apart, and both clear of the exhibits folder at 0.38.
+        shape: at(0.1, 0.72, 0.13, 0.2),
         cursor: 'look',
         visibleIf: inAct(3),
         onInteract: [
@@ -409,7 +414,8 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'referral-form',
         label: 'Homicide referral form',
-        shape: at(0.28, 0.68, 0.28, 0.16),
+        /** Right of the custody record, still left of the exhibits folder. */
+        shape: at(0.245, 0.72, 0.13, 0.2),
         cursor: 'use',
         visibleIf: inAct(5),
         onInteract: [
@@ -424,7 +430,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'exhibits-schedule',
         label: 'Schedule of exhibits',
-        shape: at(0.6, 0.66, 0.26, 0.18),
+        shape: at(0.38, 0.76, 0.3, 0.22),
         cursor: 'use',
         enabledIf: has('casebook'),
         blockedEffects: [think('Not without the casebook. The citations are the exhibit.')],
@@ -488,7 +494,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'ardent-mooring',
         label: 'The Ardent on her mooring',
-        shape: at(0.3, 0.34, 0.24, 0.2),
+        shape: at(0.12, 0.34, 0.22, 0.15),
         cursor: 'walk',
         enabledIf: any(untilAct(2), inAct(4)),
         blockedEffects: [
@@ -563,7 +569,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'davit-scar',
         label: 'The broken davit',
-        shape: at(0.13, 0.28, 0.14, 0.24),
+        shape: at(0.0, 0.5, 0.22, 0.36),
         cursor: 'look',
         onInteract: [
           think(
@@ -576,7 +582,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       // under for the whole of the Act IV gale, and open again on the morning
       // of the third once the wind has gone round and the sea has dropped —
       // which is the in-world route Act V uses to get back to Cardew.
-      exit('causeway-head', 'Head of the causeway', at(0.02, 0.52, 0.16, 0.3), 'cardew-village', {
+      exit('causeway-head', 'Head of the causeway', at(0.23, 0.6, 0.17, 0.24), 'cardew-village', {
         cursor: 'walk-left',
         visibleIf: inAct(3),
         enabledIf: any(untilAct(3), inAct(5)),
@@ -636,7 +642,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'call-box-4471',
         label: 'The call box, Cardew 4471',
-        shape: at(0.11, 0.42, 0.16, 0.4),
+        shape: at(0.1, 0.06, 0.18, 0.63),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -661,7 +667,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'post-office',
         label: 'Cardew sorting office counter',
-        shape: at(0.42, 0.36, 0.22, 0.28),
+        shape: at(0.48, 0.28, 0.12, 0.27),
         cursor: 'look',
         onInteract: [
           tell(
@@ -691,7 +697,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'ship-inn',
         label: 'The Ship Inn',
-        shape: at(0.75, 0.24, 0.2, 0.26),
+        shape: at(0.645, 0.13, 0.14, 0.36),
         cursor: 'look',
         onInteract: [
           think(
@@ -717,7 +723,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
           ),
         ],
       },
-      exit('hill-road', 'The hill road to Pike’s cottage', at(0.3, 0.14, 0.16, 0.24), 'pikes-cottage', {
+      exit('hill-road', 'The hill road to Pike’s cottage', at(0.28, 0.34, 0.11, 0.2), 'pikes-cottage', {
         cursor: 'walk',
         visibleIf: inAct(3),
         before: [
@@ -814,7 +820,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'kitchen-table',
         label: 'The kitchen table under the bare bulb',
-        shape: at(0.28, 0.56, 0.4, 0.3),
+        shape: at(0.28, 0.38, 0.43, 0.2),
         cursor: 'puzzle',
         huntable: true,
         visibleIf: untilAct(4),
@@ -915,7 +921,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'tide-table-catalogue',
         label: 'Catalogue on the backs of tide-table covers',
-        shape: at(0.72, 0.6, 0.2, 0.2),
+        shape: at(0.67, 0.71, 0.23, 0.22),
         cursor: 'look',
         visibleIf: untilAct(4),
         onInteract: [
@@ -929,7 +935,7 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
       {
         id: 'pike',
         label: 'Halvard Pike',
-        shape: at(0.45, 0.26, 0.2, 0.34),
+        shape: at(0.44, 0.16, 0.19, 0.22),
         cursor: 'talk',
         visibleIf: untilAct(4),
         onInteract: [speakTo('halvard-pike')],

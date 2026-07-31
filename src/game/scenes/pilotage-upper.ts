@@ -61,7 +61,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'drawers-214-216',
         label: 'Card index drawers 214–216',
-        shape: at(0.3, 0.4, 0.24, 0.2),
+        shape: at(0.35, 0.36, 0.27, 0.22),
         cursor: 'puzzle',
         huntable: true,
         onInteract: [
@@ -102,7 +102,10 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'drawer-388',
         label: 'Drawer 388',
-        shape: at(0.16, 0.34, 0.12, 0.14),
+        // A closed drawer in the cabinet, upper left of the pulled-out 214–216
+        // group. It briefly sat at (0.08, 0.7) — the foreground tea table — so
+        // a drawer hotspot was on the kettle, the slippers and the biscuit tin.
+        shape: at(0.22, 0.21, 0.12, 0.13),
         cursor: 'look',
         onInteract: [
           think(
@@ -174,7 +177,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'specimen-bundle',
         label: 'The specimen bundle: nine documents of 1974',
-        shape: at(0.3, 0.56, 0.24, 0.2),
+        shape: at(0.41, 0.72, 0.17, 0.15),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -197,7 +200,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'imperial-66',
         label: 'Imperial 66, 1961',
-        shape: at(0.56, 0.5, 0.2, 0.2),
+        shape: at(0.42, 0.5, 0.21, 0.22),
         cursor: 'use',
         onInteract: [
           when(lacks('specimen-sheets'), [take('specimen-sheets')]),
@@ -225,14 +228,14 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'sabine',
         label: 'Sabine Ferrier-Kyne',
-        shape: at(0.08, 0.24, 0.2, 0.5),
+        shape: at(0.08, 0.24, 0.2, 0.31),
         cursor: 'talk',
         onInteract: [speakTo('sabine-ferrier-kyne')],
       },
       {
         id: 'in-tray',
         label: 'The in-tray and countersignature pigeonhole',
-        shape: at(0.76, 0.5, 0.16, 0.16),
+        shape: at(0.14, 0.56, 0.23, 0.18),
         cursor: 'look',
         onInteract: [
           when(
@@ -280,7 +283,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'board-working-file',
         label: 'Board of Dissolution working file',
-        shape: at(0.44, 0.7, 0.18, 0.16),
+        shape: at(0.16, 0.75, 0.2, 0.13),
         cursor: 'look',
         visibleIf: inAct(4),
         onInteract: [
@@ -305,7 +308,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'ribbon-well',
         label: 'The ribbon well and platen knob',
-        shape: at(0.58, 0.42, 0.12, 0.1),
+        shape: at(0.45, 0.51, 0.14, 0.07),
         cursor: 'look',
         visibleIf: inAct(2),
         onInteract: [
@@ -383,7 +386,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'cash-books',
         label: 'Cash books and the Sundry Adjustments column',
-        shape: at(0.08, 0.46, 0.2, 0.22),
+        shape: at(0.53, 0.46, 0.19, 0.16),
         cursor: 'look',
         onInteract: [
           when(
@@ -416,7 +419,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'ribbon-shelf',
         label: 'Rule 4 shelf: two hundred and forty used ribbon spools',
-        shape: at(0.56, 0.3, 0.28, 0.26),
+        shape: at(0.72, 0.1, 0.27, 0.36),
         cursor: 'puzzle',
         visibleIf: inAct(2),
         onInteract: [
@@ -457,7 +460,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'remington',
         label: 'Remington Noiseless, 1938',
-        shape: at(0.34, 0.68, 0.16, 0.16),
+        shape: at(0.0, 0.4, 0.11, 0.13),
         cursor: 'use',
         onInteract: [
           when(lacks('specimen-sheets'), [take('specimen-sheets')]),
@@ -588,7 +591,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'call-logs',
         label: 'Call-log books 1946–1991',
-        shape: at(0.06, 0.44, 0.18, 0.22),
+        shape: at(0.46, 0.76, 0.34, 0.22),
         cursor: 'look',
         onInteract: [
           think(
@@ -641,7 +644,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'headset',
         label: "Operator's headset",
-        shape: at(0.36, 0.72, 0.18, 0.16),
+        shape: at(0.21, 0.76, 0.22, 0.22),
         cursor: 'use',
         onInteract: [
           sound('click-brass'),
@@ -688,7 +691,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'casebook',
         label: 'The casebook',
-        shape: at(0.28, 0.62, 0.22, 0.2),
+        shape: at(0.01, 0.65, 0.33, 0.25),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -718,7 +721,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'specimen-album',
         label: 'Typewriter specimen sheets',
-        shape: at(0.54, 0.56, 0.2, 0.2),
+        shape: at(0.54, 0.68, 0.2, 0.18),
         cursor: 'puzzle',
         onInteract: [
           when(
@@ -756,7 +759,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'drying-blotters',
         label: 'Fragments drying between blotters',
-        shape: at(0.08, 0.5, 0.2, 0.24),
+        shape: at(0.32, 0.37, 0.44, 0.3),
         cursor: 'puzzle',
         enabledIf: has('ash-fragments'),
         blockedEffects: [
@@ -797,7 +800,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'raking-lamp',
         label: 'Raking light lamp and shaving mirror',
-        shape: at(0.62, 0.34, 0.16, 0.18),
+        shape: at(0.77, 0.65, 0.11, 0.17),
         cursor: 'use',
         onInteract: [
           when(lacks('shaving-mirror'), [take('shaving-mirror')]),
@@ -810,7 +813,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'deakin-bench',
         label: 'The Deakin letter, laid out under glass',
-        shape: at(0.33, 0.42, 0.2, 0.16),
+        shape: at(0.34, 0.68, 0.17, 0.18),
         cursor: 'puzzle',
         huntable: true,
         visibleIf: inAct(3),
@@ -856,7 +859,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'dust-jars',
         label: 'Dust reference jars',
-        shape: at(0.78, 0.56, 0.16, 0.18),
+        shape: at(0.05, 0.28, 0.24, 0.36),
         cursor: 'look',
         onInteract: [
           when(
@@ -882,7 +885,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'nipping-press',
         label: 'The nipping press and sewing frame',
-        shape: at(0.06, 0.24, 0.18, 0.24),
+        shape: at(0.28, 0.02, 0.16, 0.28),
         cursor: 'use',
         onInteract: [
           sound('lock-click'),
@@ -970,7 +973,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'feaver-deposition',
         label: 'Deposition of Norah Feaver, 1975',
-        shape: at(0.7, 0.64, 0.16, 0.16),
+        shape: at(0.64, 0.62, 0.12, 0.14),
         cursor: 'look',
         onInteract: [
           tell(
@@ -1000,7 +1003,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'survey-drawer',
         label: 'The survey drawer',
-        shape: at(0.06, 0.56, 0.16, 0.2),
+        shape: at(0.6, 0.17, 0.17, 0.26),
         cursor: 'take',
         // Two separate objects in one drawer, so they are taken separately.
         // Keying the tide tables on `lacks('approach-surveys')` meant that a
@@ -1025,7 +1028,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'dividers',
         label: 'Dividers and parallel rule',
-        shape: at(0.4, 0.8, 0.14, 0.13),
+        shape: at(0.1, 0.45, 0.14, 0.42),
         cursor: 'take',
         onInteract: [
           when(
@@ -1140,7 +1143,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'spectacles',
         label: 'Folded spectacles on an open ledger',
-        shape: at(0.44, 0.5, 0.16, 0.14),
+        shape: at(0.46, 0.3, 0.15, 0.1),
         cursor: 'look',
         huntable: true,
         enabledIf: flagged('gallery-lit'),
@@ -1280,7 +1283,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'charter-case',
         label: 'The Charter of 1811, Article 9',
-        shape: at(0.42, 0.28, 0.2, 0.24),
+        shape: at(0.53, 0.19, 0.15, 0.25),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -1298,7 +1301,7 @@ export const pilotageUpperScenes: Record<SceneId, Scene> = {
       {
         id: 'case-file',
         label: 'The case file',
-        shape: at(0.28, 0.62, 0.24, 0.18),
+        shape: at(0.37, 0.78, 0.21, 0.17),
         cursor: 'puzzle',
         visibleIf: inAct(5),
         enabledIf: has('case-file'),

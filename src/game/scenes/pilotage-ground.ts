@@ -64,7 +64,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'visitors-book',
         label: "The visitors' book",
-        shape: at(0.32, 0.52, 0.22, 0.16),
+        shape: at(0.5, 0.61, 0.21, 0.14),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -91,7 +91,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'hook-board',
         label: 'The hook board',
-        shape: at(0.62, 0.36, 0.16, 0.24),
+        shape: at(0.78, 0.26, 0.21, 0.32),
         cursor: 'take',
         huntable: true,
         onInteract: [
@@ -127,7 +127,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'tube-head',
         label: 'The pneumatic tube head',
-        shape: at(0.08, 0.12, 0.2, 0.26),
+        shape: at(0.25, 0.0, 0.24, 0.21),
         cursor: 'use',
         onInteract: [
           when(
@@ -166,14 +166,14 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'aylward',
         label: "Bram Aylward, 'Ministry liaison'",
-        shape: at(0.46, 0.24, 0.16, 0.4),
+        shape: at(0.46, 0.24, 0.16, 0.36),
         cursor: 'talk',
         onInteract: [speakTo('bram-aylward')],
       },
       {
         id: 'strip-out-notice',
         label: "Contractor's notice by the door",
-        shape: at(0.8, 0.4, 0.14, 0.2),
+        shape: at(0.17, 0.58, 0.11, 0.13),
         cursor: 'look',
         onInteract: [
           tell(
@@ -199,7 +199,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       exit('front-door', 'Out to the cliff path', at(0.0, 0.34, 0.08, 0.5), 'cliff-path-churchyard', {
         cursor: 'walk-left',
       }),
-      exit('to-stair', 'The great stair', at(0.86, 0.16, 0.14, 0.46), 'great-stair', {
+      exit('to-stair', 'The great stair', at(0.8, 0.02, 0.2, 0.21), 'great-stair', {
         cursor: 'walk-right',
       }),
       exit('to-registry', 'The registry counter', at(0.28, 0.28, 0.14, 0.2), 'registry-counter', {
@@ -257,7 +257,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'portrait-row',
         label: 'Twenty-two Wardens',
-        shape: at(0.16, 0.22, 0.24, 0.32),
+        shape: at(0.23, 0.22, 0.18, 0.3),
         cursor: 'look',
         onInteract: [
           think(
@@ -269,7 +269,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'vent-trunk',
         label: 'Galvanised ventilation trunk',
-        shape: at(0.74, 0.08, 0.16, 0.14),
+        shape: at(0.22, 0.0, 0.22, 0.11),
         cursor: 'look',
         onInteract: [
           when(
@@ -303,7 +303,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'landing-window',
         label: 'The half-landing window',
-        shape: at(0.02, 0.14, 0.13, 0.5),
+        shape: at(0.11, 0.19, 0.11, 0.38),
         cursor: 'look',
         onInteract: [
           when(
@@ -380,7 +380,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'slip-lesson',
         label: 'Requisition slips and stub book',
-        shape: at(0.3, 0.58, 0.22, 0.18),
+        shape: at(0.36, 0.56, 0.15, 0.2),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -409,7 +409,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'standing-order-7',
         label: 'Standing Order 7, printed on the slip back',
-        shape: at(0.54, 0.62, 0.16, 0.14),
+        shape: at(0.36, 0.8, 0.14, 0.1),
         cursor: 'look',
         onInteract: [
           tell(
@@ -435,7 +435,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'pike-grievance',
         label: 'Halvard Pike at the counter',
-        shape: at(0.58, 0.28, 0.2, 0.34),
+        shape: at(0.58, 0.28, 0.2, 0.26),
         cursor: 'talk',
         // Keyed on the clue, not on the treasury tag. It used to be
         // `lacks('treasury-tag')`, which meant that a player who squared a tag
@@ -465,7 +465,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'olivetti',
         label: 'Olivetti Lettera 32',
-        shape: at(0.68, 0.52, 0.16, 0.16),
+        shape: at(0.52, 0.55, 0.2, 0.22),
         cursor: 'use',
         onInteract: [
           when(lacks('specimen-sheets'), [take('specimen-sheets')]),
@@ -480,7 +480,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'stub-book-r982211',
         label: 'Stub book, pink carbons, September 1998',
-        shape: at(0.08, 0.5, 0.18, 0.2),
+        shape: at(0.17, 0.62, 0.18, 0.19),
         cursor: 'look',
         onInteract: [
           when(
@@ -509,7 +509,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'treasury-tags',
         label: 'Bundle of treasury tags',
-        shape: at(0.24, 0.72, 0.14, 0.14),
+        shape: at(0.54, 0.8, 0.12, 0.1),
         cursor: 'take',
         onInteract: [
           when(
@@ -597,7 +597,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'inquiry-transcripts',
         label: 'Bound Rossport Inquiry transcripts',
-        shape: at(0.5, 0.44, 0.16, 0.2),
+        shape: at(0.6, 0.28, 0.16, 0.15),
         cursor: 'look',
         onInteract: [
           clue('clue-sallow-1975-transcript'),
@@ -773,7 +773,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'coroners-file',
         label: "Coroner's file: Cormac Sallow",
-        shape: at(0.34, 0.6, 0.24, 0.2),
+        shape: at(0.33, 0.72, 0.34, 0.23),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -802,7 +802,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'iveson-slip',
         label: 'Request slip stapled inside the back cover',
-        shape: at(0.6, 0.62, 0.14, 0.14),
+        shape: at(0.23, 0.77, 0.09, 0.18),
         cursor: 'look',
         onInteract: [
           clue('clue-iveson-request-slip'),
@@ -816,7 +816,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'delivery-hatch',
         label: 'The delivery hatch',
-        shape: at(0.78, 0.36, 0.16, 0.2),
+        shape: at(0.63, 0.32, 0.11, 0.17),
         cursor: 'use',
         onInteract: [
           sound('latch'),
@@ -858,7 +858,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'wrens-table',
         label: "Wren's table and casebook",
-        shape: at(0.1, 0.62, 0.22, 0.24),
+        shape: at(0.7, 0.76, 0.19, 0.2),
         cursor: 'look',
         onInteract: [
           when(lacks('casebook'), [take('casebook')]),
@@ -890,7 +890,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'banker-lamps',
         label: "Green banker's lamps",
-        shape: at(0.56, 0.42, 0.16, 0.14),
+        shape: at(0.4, 0.33, 0.2, 0.24),
         cursor: 'use',
         onInteract: [
           sound('click-soft'),
@@ -929,7 +929,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'docket-fold',
         label: 'Folders on the returns trolley',
-        shape: at(0.66, 0.72, 0.18, 0.18),
+        shape: at(0.6, 0.55, 0.16, 0.14),
         cursor: 'look',
         onInteract: [
           think(
@@ -966,7 +966,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'franking-meter',
         label: 'Pitney Postmaster franking meter',
-        shape: at(0.36, 0.46, 0.26, 0.26),
+        shape: at(0.2, 0.28, 0.34, 0.42),
         cursor: 'puzzle',
         huntable: true,
         onInteract: [
@@ -1007,7 +1007,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'post-book',
         label: 'Post book',
-        shape: at(0.14, 0.54, 0.18, 0.18),
+        shape: at(0.72, 0.57, 0.17, 0.27),
         cursor: 'look',
         onInteract: [
           when(
@@ -1035,7 +1035,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'address-plates',
         label: 'Address-plate cabinet',
-        shape: at(0.66, 0.5, 0.2, 0.22),
+        shape: at(0.47, 0.69, 0.25, 0.27),
         cursor: 'look',
         onInteract: [
           when(lacks('schedule-d-plates'), [take('schedule-d-plates')]),
@@ -1090,7 +1090,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'sack-rack',
         label: 'Mail sacks and the collection rack',
-        shape: at(0.86, 0.3, 0.13, 0.3),
+        shape: at(0.44, 0.04, 0.32, 0.22),
         cursor: 'look',
         onInteract: [
           think(
@@ -1105,7 +1105,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       exit('to-duplicating', 'Through to the duplicating room', at(0.9, 0.6, 0.1, 0.3), 'duplicating-room', {
         cursor: 'walk-right',
       }),
-      exit('to-courtyard', 'The courtyard door', at(0.46, 0.2, 0.14, 0.24), 'courtyard-and-site-hut', {
+      exit('to-courtyard', 'The courtyard door', at(0.8, 0.24, 0.19, 0.3), 'courtyard-and-site-hut', {
         cursor: 'walk',
       }),
     ],
@@ -1185,7 +1185,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'microfilm-reader',
         label: 'Microfilm reader',
-        shape: at(0.06, 0.34, 0.18, 0.28),
+        shape: at(0.7, 0.06, 0.22, 0.37),
         cursor: 'use',
         onInteract: [
           tell('MICROFILM ACCESSION REGISTER: FILMED 1994 — SERIES 1/A, 2/C, 9/E.'),
@@ -1198,7 +1198,7 @@ export const pilotageGroundScenes: Record<SceneId, Scene> = {
       {
         id: 'ink-drums',
         label: 'Drum ink and stencil skins',
-        shape: at(0.62, 0.72, 0.18, 0.16),
+        shape: at(0.08, 0.74, 0.12, 0.22),
         cursor: 'look',
         onInteract: [
           think(

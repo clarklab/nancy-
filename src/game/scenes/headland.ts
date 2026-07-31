@@ -66,7 +66,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'thirty-one-slates',
         label: 'Thirty-one slate markers',
-        shape: at(0.16, 0.5, 0.34, 0.24),
+        shape: at(0.36, 0.42, 0.22, 0.2),
         cursor: 'look',
         huntable: true,
         onInteract: [
@@ -93,7 +93,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'tain-marker',
         label: 'The marker with no dates',
-        shape: at(0.05, 0.58, 0.12, 0.24),
+        shape: at(0.18, 0.46, 0.17, 0.38),
         cursor: 'look',
         onInteract: [
           tell('EMRYS TAIN. PILOT.'),
@@ -152,7 +152,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'lychgate',
         label: 'The lychgate and burial register',
-        shape: at(0.36, 0.34, 0.16, 0.24),
+        shape: at(0.08, 0.1, 0.14, 0.26),
         cursor: 'look',
         onInteract: [
           tell(
@@ -207,7 +207,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'nurse-ledger',
         label: "Nurse Kilbride's visit ledger, 1974",
-        shape: at(0.58, 0.6, 0.2, 0.18),
+        shape: at(0.59, 0.7, 0.13, 0.13),
         cursor: 'take',
         huntable: true,
         onInteract: [
@@ -248,7 +248,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'paint-store',
         label: "Contractor's paint and dust sheets",
-        shape: at(0.06, 0.5, 0.2, 0.3),
+        shape: at(0.74, 0.55, 0.25, 0.4),
         cursor: 'look',
         onInteract: [
           think(
@@ -260,7 +260,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'commode-chair',
         label: 'Invalid chair under a sheet',
-        shape: at(0.66, 0.34, 0.18, 0.26),
+        shape: at(0.11, 0.52, 0.09, 0.36),
         cursor: 'look',
         onInteract: [
           think(
@@ -320,7 +320,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'biscuit-tin',
         label: 'The biscuit tin on the dresser',
-        shape: at(0.62, 0.3, 0.16, 0.16),
+        shape: at(0.52, 0.32, 0.09, 0.09),
         cursor: 'take',
         huntable: true,
         onInteract: [
@@ -355,14 +355,14 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'ottoline',
         label: 'Ottoline Verge',
-        shape: at(0.24, 0.28, 0.24, 0.44),
+        shape: at(0.86, 0.64, 0.14, 0.34),
         cursor: 'talk',
         onInteract: [speakTo('ottoline-verge')],
       },
       {
         id: 'wedding-photograph',
         label: 'Photograph on the mantelpiece, 1968',
-        shape: at(0.44, 0.24, 0.14, 0.14),
+        shape: at(0.36, 0.03, 0.06, 0.25),
         cursor: 'look',
         onInteract: [
           think(
@@ -389,7 +389,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'knitting-chair',
         label: 'The chair by the range',
-        shape: at(0.1, 0.54, 0.18, 0.26),
+        shape: at(0.78, 0.32, 0.15, 0.3),
         cursor: 'look',
         onInteract: [
           think(
@@ -500,14 +500,14 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'sandbach',
         label: 'Ivo Sandbach',
-        shape: at(0.52, 0.36, 0.16, 0.34),
+        shape: at(0.5, 0.38, 0.11, 0.34),
         cursor: 'talk',
         onInteract: [speakTo('ivo-sandbach')],
       },
       {
         id: 'scaffold-lift',
         label: 'Scaffold deck and crowbar',
-        shape: at(0.04, 0.24, 0.16, 0.5),
+        shape: at(0.62, 0.4, 0.06, 0.33),
         cursor: 'take',
         onInteract: [
           when(
@@ -597,7 +597,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'deakin-letter',
         label: "Rita's campaign file",
-        shape: at(0.72, 0.52, 0.2, 0.2),
+        shape: at(0.64, 0.42, 0.13, 0.16),
         cursor: 'take',
         huntable: true,
         onInteract: [
@@ -627,7 +627,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'adler-locker',
         label: "Rita's locker",
-        shape: at(0.88, 0.3, 0.11, 0.34),
+        shape: at(0.17, 0.35, 0.09, 0.28),
         cursor: 'look',
         visibleIf: inAct(3),
         onInteract: [
@@ -643,7 +643,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'dismounted-optics',
         label: 'Dismounted Fresnel panels',
-        shape: at(0.24, 0.3, 0.3, 0.42),
+        shape: at(0.42, 0.2, 0.2, 0.5),
         cursor: 'look',
         onInteract: [
           think(
@@ -655,7 +655,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'sandbach-crate',
         label: 'Packing crate addressed to Antwerp',
-        shape: at(0.56, 0.56, 0.22, 0.24),
+        shape: at(0.78, 0.56, 0.21, 0.36),
         cursor: 'look',
         visibleIf: inAct(3),
         onInteract: [
@@ -688,7 +688,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'superintendents-frame',
         label: "The Lamp Superintendents' frame",
-        shape: at(0.06, 0.12, 0.14, 0.22),
+        shape: at(0.75, 0.02, 0.11, 0.24),
         cursor: 'look',
         onInteract: [
           think(
@@ -752,7 +752,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'aldis-lamp',
         label: 'Aldis lamp under a tarpaulin',
-        shape: at(0.5, 0.5, 0.24, 0.28),
+        shape: at(0.64, 0.49, 0.13, 0.29),
         cursor: 'use',
         huntable: true,
         enabledIf: has('signal-book'),
@@ -779,7 +779,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'signal-book',
         label: 'The Signal Book',
-        shape: at(0.74, 0.58, 0.16, 0.18),
+        shape: at(0.655, 0.79, 0.13, 0.15),
         cursor: 'take',
         onInteract: [
           when(
@@ -798,7 +798,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'signal-mast',
         label: 'The signal mast and halyards',
-        shape: at(0.36, 0.06, 0.14, 0.66),
+        shape: at(0.66, 0.0, 0.11, 0.45),
         cursor: 'use',
         onInteract: [
           sound('latch'),
@@ -811,7 +811,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'parapet-view',
         label: 'The parapet',
-        shape: at(0.06, 0.4, 0.24, 0.3),
+        shape: at(0.22, 0.62, 0.27, 0.28),
         cursor: 'look',
         onInteract: [
           think(
@@ -823,7 +823,7 @@ export const headlandScenes: Record<SceneId, Scene> = {
       {
         id: 'lead-flashing',
         label: 'Lifted lead flashing',
-        shape: at(0.78, 0.28, 0.18, 0.2),
+        shape: at(0.53, 0.8, 0.12, 0.17),
         cursor: 'look',
         onInteract: [
           think(

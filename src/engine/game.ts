@@ -607,6 +607,39 @@ export class Game implements Presenter {
       },
 
       /**
+       * Opens every gate in the game.
+       *
+       * `grantAllClues` covers clues, items and met-flags, which is enough to
+       * reveal most conditional hotspots but not enough to *enter* a room:
+       * thirteen scenes carry an `enterIf` that also wants a later act or a
+       * solved puzzle. `goto` returns silently when that check fails, so a
+       * harness that only grants clues will quietly stay where it is — and a
+       * capture tool will then screenshot the previous room under the new
+       * room's filename. That is exactly how thirteen scenes, including all
+       * four on the beacon, went through a visual audit without ever being
+       * looked at.
+       *
+       * Anything driving the game for review wants this, not `grantAllClues`.
+       */
+      unlockEverything: (act?: number) => {
+        // The act is settable because eleven hotspots are gated with `untilAct`
+        // and simply do not exist at Act V. A review pass that only ever looks
+        // at the fully-unlocked game never sees them, so a sweep needs to be
+        // able to ask for an earlier act while still holding every key.
+        this.state.act = act ?? this.content.acts.length;
+        for (const id of Object.keys(this.content.clues)) this.state.clues.add(id);
+        for (const id of Object.keys(this.content.items)) this.state.items.add(id);
+        for (const id of Object.keys(this.content.puzzles)) this.state.solvedPuzzles.add(id);
+        for (const c of Object.keys(this.content.characters)) {
+          this.state.flags[`met.${c}`] = true;
+        }
+        this.state.notify();
+      },
+
+      /** Where the game actually is, so a harness can prove a `goto` landed. */
+      currentScene: () => this.state.scene,
+
+      /**
        * Opens a conversation and returns once it is on screen.
        *
        * Deliberately does NOT await `talk()`. A conversation resolves only when

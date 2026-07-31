@@ -63,7 +63,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'timelock',
         label: 'Chubb three-movement timelock',
-        shape: at(0.02, 0.2, 0.2, 0.6),
+        shape: at(0.205, 0.12, 0.145, 0.66),
         cursor: 'look',
         onInteract: [
           when(
@@ -128,7 +128,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'box-17',
         label: 'Series 14/B box 17',
-        shape: at(0.38, 0.5, 0.18, 0.16),
+        shape: at(0.455, 0.52, 0.145, 0.11),
         cursor: 'look',
         onInteract: [
           when(
@@ -153,7 +153,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'bottom-shelf',
         label: 'The bottom shelf, 1974',
-        shape: at(0.26, 0.66, 0.34, 0.2),
+        shape: at(0.62, 0.74, 0.34, 0.24),
         cursor: 'puzzle',
         huntable: true,
         onInteract: [
@@ -178,7 +178,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'vent-grille',
         label: 'Ventilation grille',
-        shape: at(0.78, 0.14, 0.14, 0.14),
+        shape: at(0.7, 0.05, 0.14, 0.12),
         cursor: 'look',
         onInteract: [
           when(
@@ -300,7 +300,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'mortar-sample',
         label: 'Mortar sample',
-        shape: at(0.28, 0.6, 0.12, 0.14),
+        shape: at(0.685, 0.54, 0.075, 0.17),
         cursor: 'take',
         onInteract: [
           when(
@@ -400,7 +400,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'marigraph',
         label: 'Kelvin & White stilling-well marigraph',
-        shape: at(0.32, 0.24, 0.26, 0.5),
+        shape: at(0.41, 0.09, 0.22, 0.65),
         cursor: 'use',
         huntable: true,
         onInteract: [
@@ -414,7 +414,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
       {
         id: 'drum-1974-44',
         label: 'Drum 1974/44',
-        shape: at(0.66, 0.44, 0.16, 0.18),
+        shape: at(0.72, 0.73, 0.15, 0.14),
         cursor: 'take',
         onInteract: [
           when(
@@ -488,7 +488,7 @@ export const vaultScenes: Record<SceneId, Scene> = {
           ),
         ],
       },
-      exit('breach', 'Back through the breach', at(0.02, 0.34, 0.12, 0.44), 'undercroft', {
+      exit('breach', 'Back through the breach', at(0.06, 0.08, 0.18, 0.3), 'undercroft', {
         cursor: 'walk-back',
       }),
     ],
