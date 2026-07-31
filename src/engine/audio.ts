@@ -115,6 +115,9 @@ const STORE_KEY = 'lamplight.audio';
 const AMBIENCE_XFADE = 2.6;
 /** Music breathes even slower — a cue should arrive before you notice it did. */
 const MUSIC_XFADE = 4.2;
+
+/** Where `tools/generate-music.mjs` writes the composed score. */
+const MUSIC_BASE = './audio/music';
 /** Fader moves are ramped, not stepped, so sliders never zipper. */
 const FADER_RAMP = 0.05;
 
@@ -1781,6 +1784,16 @@ export class AudioEngine {
 
   private ambienceRig: Rig | null = null;
   private musicRig: Rig | null = null;
+  /** Cue names with a composed recording, from the generated music index. */
+  private composed: Set<string> | null = null;
+  /** The subset of those that are seamless beds and should loop. */
+  private composedLoops = new Set<string>();
+  /** The composed track currently playing, and the nodes carrying it. */
+  private composedRig: {
+    el: HTMLAudioElement;
+    src: MediaElementAudioSourceNode;
+    gain: GainNode;
+  } | null = null;
 
   /**
    * What the *game* has asked for, versus what is *actually sounding*.
@@ -2102,10 +2115,30 @@ export class AudioEngine {
     return this.wantMusic;
   }
 
+  /**
+   * Registers which cue names have a composed recording.
+   *
+   * Called once at boot from the generated `music-index.json`. Names not in the
+   * set keep their synthesised plan, so the score can be rendered a track at a
+   * time and the game is never silent for a cue that has not been composed yet.
+   */
+  setComposedMusic(index: Record<string, { loop?: boolean }>): void {
+    this.composed = new Set(Object.keys(index));
+    this.composedLoops = new Set(
+      Object.entries(index)
+        .filter(([, v]) => v.loop)
+        .map(([k]) => k),
+    );
+  }
+
   private startMusic(name: string | null, xfade: number): void {
     this.retire(this.musicRig, xfade);
     this.musicRig = null;
+    this.retireComposed(xfade);
     this.liveMusic = name;
+
+    if (name !== null && this.composed?.has(name) && this.startComposed(name, xfade)) return;
+
     const plan = name === null ? undefined : lookup(MUSIC, name);
     if (!plan || !this.ctx || !this.kit || !this.strips) return;
     const strip = this.strips.music;
@@ -2118,6 +2151,84 @@ export class AudioEngine {
     }
     rig.fadeIn(xfade, fromDb(MUSIC_TRIM_DB[name as MusicName] ?? 0));
     this.musicRig = rig;
+  }
+
+  /**
+   * Plays a composed track through the music strip.
+   *
+   * Routed into the graph rather than played as a bare `<audio>` element, which
+   * matters for one specific reason: `voice.ts` ducks the beds by name while a
+   * line plays. An element playing straight to the speakers would keep its level
+   * through every word of dialogue in the game, so the one thing the score must
+   * never do — talk over the cast — is exactly what bypassing the strip would
+   * cause. Everything else follows from that too: the master fader, the mute
+   * toggle and the settings slider are all upstream of here.
+   *
+   * Returns false if the graph is not up, so the caller can fall back to the
+   * synthesised plan rather than leaving the cue silent.
+   */
+  private startComposed(name: string, xfade: number): boolean {
+    if (!this.ctx || !this.strips) return false;
+
+    const el = new Audio(`${MUSIC_BASE}/${name}.mp3`);
+    el.preload = 'auto';
+    // The zone beds are cooked into seamless loops by tools/generate-music.mjs —
+    // the tail is already folded over the head — so this is a plain loop with no
+    // scheduling needed. Cues are one-shots and stop at their end.
+    el.loop = this.composedLoops.has(name);
+    el.crossOrigin = 'anonymous';
+
+    let src: MediaElementAudioSourceNode;
+    try {
+      src = this.ctx.createMediaElementSource(el);
+    } catch {
+      return false;
+    }
+
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0;
+    src.connect(gain);
+    gain.connect(this.strips.music.dry);
+
+    // No per-cue trim here. `MUSIC_TRIM_DB` balances the *synthesised* rigs
+    // against each other, and a composed track has already been normalised to a
+    // fixed LUFS target by tools/generate-music.mjs — beds to one number, cues
+    // to another. Applying the procedural trim on top would re-introduce exactly
+    // the per-track level spread the normalisation pass exists to remove.
+    const now = this.ctx.currentTime;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(1, now + xfade);
+
+    // Autoplay can still be refused if the gesture has not landed; treat that
+    // as "no composed track" and let the synthesised plan have it.
+    void el.play().catch(() => {
+      gain.disconnect();
+      src.disconnect();
+    });
+
+    this.composedRig = { el, src, gain };
+    return true;
+  }
+
+  /** Fades a composed track out and tears down its nodes. */
+  private retireComposed(xfade: number): void {
+    const rig = this.composedRig;
+    if (!rig || !this.ctx) return;
+    this.composedRig = null;
+
+    const now = this.ctx.currentTime;
+    rig.gain.gain.cancelScheduledValues(now);
+    rig.gain.gain.setValueAtTime(rig.gain.gain.value, now);
+    rig.gain.gain.linearRampToValueAtTime(0, now + xfade);
+    window.setTimeout(
+      () => {
+        rig.el.pause();
+        rig.el.src = '';
+        rig.gain.disconnect();
+        rig.src.disconnect();
+      },
+      Math.ceil(xfade * 1000) + 120,
+    );
   }
 
   // -- one-shots -----------------------------------------------------------

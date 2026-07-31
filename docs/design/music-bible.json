@@ -1,0 +1,76 @@
+{
+  "_comment": "Score for The Lamplight Cipher. Six zone beds for exploration and five dramatic cues, rendered with ElevenLabs Music. Zones follow the geography the scenes are already authored in — a bed belongs to a PLACE, so it persists as the player moves around one and only changes when the place does. Per-room music would cut every time you walked through a door.",
+
+  "model": "eleven_music",
+  "outputFormat": "mp3_44100_64",
+
+  "_styleComment": "Appended to every prompt. The brief is 'barely there': the player should notice it when it stops, not when it starts. Everything here exists to stop the model writing a piece of music — no arrival, no resolution, no groove, nothing that competes with dialogue that is doing the actual work.",
+  "masterStyle": "Extremely sparse, quiet, sub-audible ambient underscore for a slow detective game. Almost nothing happens. Long sustained low tones with several seconds of near-silence between events. Acoustic and period: bowed double bass and cello played senza vibrato, a single felted upright piano note left to decay, low harmonium, bowed metal. Cold, damp, North Atlantic. Absolutely no percussion, no drums, no drum machine, no beat, no pulse, no vocals, no choir, no synth pads, no strings swell, no cinematic build, no crescendo, no resolution. No melody you could hum. Even dynamics throughout with no arrival point and no ending — it must be able to start anywhere and stop anywhere. Mixed dark and distant, as if heard through a wall in another room.",
+
+  "zones": {
+    "pilotage-ground": {
+      "scenes": ["entrance-hall", "great-stair", "registry-counter", "long-registry", "reading-room", "post-room", "duplicating-room"],
+      "lengthMs": 90000,
+      "prompt": "A working government building on a wet Monday: counters, rubber stamps, pneumatic tubes, a hundred and eighty-seven years of procedure. Weary and institutional rather than sinister. A low sustained cello note, a felted piano note every eight or ten seconds, the faint resonance of a large tiled room.",
+      "why": "The ground floor is where Wren is still a visitor being processed. The bed is tired bureaucracy, not threat — the building has not started lying to her yet."
+    },
+    "pilotage-upper": {
+      "scenes": ["rolls-room", "wardens-office", "accounts-office", "switchboard-room", "binding-room", "chart-loft", "muniment-gallery", "board-room"],
+      "lengthMs": 90000,
+      "prompt": "Upper floors of an archive: rolled deeds, ledgers, a switchboard nobody answers. Thinner and higher than the floor below, with a quiet unease under it. Sustained high bowed cello harmonics, a very occasional low piano note, long silences between.",
+      "why": "This is where the record starts contradicting itself. Same building, a semitone more suspicious — thinner and higher so the two floors are audibly different places without being different pieces."
+    },
+    "vaults": {
+      "scenes": ["strongroom", "undercroft", "tide-room"],
+      "lengthMs": 90000,
+      "prompt": "Deep underground, below the water table, four inches of standing cold water on a stone floor in the dark. Oppressive and airless. Very low sustained double bass, bowed metal, long dripping resonance, almost no movement at all. Deeper and darker than anything above ground.",
+      "why": "The lowest and heaviest bed in the game. The vaults are where the evidence and the flooding both are, and the player should feel the building above them."
+    },
+    "beacon": {
+      "scenes": ["beacon-landing", "beacon-oil-store", "beacon-service-room", "beacon-lantern-room"],
+      "lengthMs": 90000,
+      "prompt": "A granite lighthouse tower on a rock nine miles offshore in a rising gale. Exposed, vast and hollow. Wind-like sustained bowed tones, the resonance of a tall stone shaft, a slow low pulse like a swell against masonry. Lonely rather than frightening.",
+      "why": "The most exposed place in the game and where it ends. Vertical and hollow, so the room itself is audible."
+    },
+    "headland": {
+      "scenes": ["cliff-path-churchyard", "brannock-house", "ottolines-cottage", "courtyard-and-site-hut", "lamp-room", "pilotage-roof"],
+      "lengthMs": 90000,
+      "prompt": "Open cliff-top air above the sea in late autumn: a churchyard, wet grass, a cottage with one lit window. Grief held quietly at a distance. A single sustained cello line moving very slowly, air and space around it, a felted piano note now and then.",
+      "why": "The exteriors carry the thirty-one dead. This is the one bed allowed anything approaching a line, because it is the only place the game lets anyone be sad out loud."
+    },
+    "sea-and-mainland": {
+      "scenes": ["the-ardent", "rossport-quay", "rossport-police", "slipway-and-ritas-shed", "cardew-village", "pikes-cottage"],
+      "lengthMs": 90000,
+      "prompt": "Salt, diesel and distance: a pilot cutter under way, a ferry slip, a small coastal village out of season. Slightly warmer and more human than the archive, but still cold and spare. Low sustained bass, a slow rocking motion in the sustain, occasional muted piano.",
+      "why": "Everywhere that is not the Authority. Marginally warmer, because these are places where people actually live."
+    }
+  },
+
+  "cues": {
+    "main-theme": {
+      "lengthMs": 75000,
+      "prompt": "The title theme for a restrained literary detective game set at an English lighthouse in 1998. Quiet and unresolved, but this is the one piece with a recognisable shape: a slow, spare cello line over a low sustained drone, a felted piano answering it. Melancholy and patient. Still no percussion, no swell and no triumphant resolution — it should feel like waiting in the rain for a boat.",
+      "why": "The only cue permitted an actual theme, because it plays under the title screen with nothing else competing. Everything else in the score is a colour; this is the tune the colours came from."
+    },
+    "tension": {
+      "lengthMs": 60000,
+      "prompt": "Slowly tightening unease under a scene where a record has just contradicted itself. A low sustained tone creeping upward by semitones, bowed metal, long silences. No percussion, no build to a hit, no release — the tension must never pay off, only accumulate.",
+      "why": "Act turns two and three. Both are moments where the player learns the paperwork is lying, not moments of danger."
+    },
+    "confrontation": {
+      "lengthMs": 60000,
+      "prompt": "Two people alone in a stone tower in a force ten, finally telling each other the truth. Cold, still and enormous. Very low sustained double bass, distant wind-like harmonics, one repeated piano note. Tense but completely without action-music energy — nobody is fighting, they are talking.",
+      "why": "Act five at the beacon. The most dramatic scene in the game contains no violence, and the cue must not promise any."
+    },
+    "discovery": {
+      "lengthMs": 60000,
+      "prompt": "Hard blue winter light through a window after a long night: the moment a proof holds. Clear and cold rather than warm or triumphant. A sustained cello note resolving upward, sparse piano, air and space. Restrained vindication, not victory.",
+      "why": "The solved ending. Wren is proved right at a cost, in front of a Board, and the music must not celebrate."
+    },
+    "sorrow": {
+      "lengthMs": 60000,
+      "prompt": "The truth is known and cannot be proved. Low, slow and defeated, with a long unresolved fall. Single cello, very sparse felted piano, wide silence between phrases. Grief that stays quiet.",
+      "why": "The wrong ending. Not a failure sting — the player did the work and it was not enough, which is sadder than getting it wrong."
+    }
+  }
+}

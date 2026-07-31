@@ -44,8 +44,38 @@ page.on('pageerror', (e) => errors.push(String(e).slice(0, 300)));
 await page.goto('http://localhost:5173/tools/checks/audio-probe.html', {
   waitUntil: 'domcontentloaded',
 });
-await page.waitForFunction(() => window.__r?.done === true, { timeout: 90_000 });
-const r = await page.evaluate(() => window.__r);
+/**
+ * Poll on a timer, not on animation frames.
+ *
+ * `waitForFunction` defaults to `polling: 'raf'`, and a headless page that is
+ * never composited can go long stretches without producing a frame — which
+ * shows up here as a timeout whose reported limit is not the one in this call,
+ * and sends you hunting for a bug in the probe that is not there. The probe runs
+ * for the better part of a minute (three composed tracks, each fetched, faded up
+ * and faded down), so it is worth being explicit about both the interval and the
+ * budget.
+ */
+const PROBE_BUDGET_MS = 150_000;
+let r = null;
+for (const deadline = Date.now() + PROBE_BUDGET_MS; Date.now() < deadline; ) {
+  const snap = await page.evaluate(() => window.__r).catch(() => null);
+  if (snap?.done) {
+    r = snap;
+    break;
+  }
+  await page.waitForTimeout(500);
+}
+
+if (!r) {
+  // A partial result names the last step that completed, which is the one that
+  // hung — far more use than a bare timeout.
+  const partial = await page.evaluate(() => window.__r).catch(() => null);
+  console.error(`probe did not finish within ${PROBE_BUDGET_MS / 1000}s`);
+  console.error('  last steps:', (partial?.steps ?? []).map((s) => s[0]).join(', ') || '(none)');
+  if (partial?.err) console.error('  probe error:', partial.err);
+  await browser.close();
+  process.exit(1);
+}
 await browser.close();
 
 const failures = [];
@@ -64,6 +94,26 @@ for (const [name, lvl] of r.steps ?? []) {
 for (const [name, peak] of r.sfx ?? []) {
   if (peak < MIN_SFX_PEAK) failures.push(`sfx "${name}" produced no transient (peak ${peak})`);
   console.log(`  sfx ${name.padEnd(14)} peak=${peak}`);
+}
+
+/**
+ * The composed score is deliberately quiet — beds are normalised to -32 LUFS,
+ * which is roughly a tenth of the level of a procedural bed — so it gets its own
+ * floor. The point of the assertion is not loudness but routing: a track that
+ * reached the speakers without going through the music strip would be inaudible
+ * to this tap while still being audible to the player, and would silently stop
+ * ducking under dialogue.
+ */
+const MIN_MUSIC_RMS = 0.0004;
+
+if (r.composed) {
+  console.log(`\n  composed score (${(r.composedNames ?? []).length} tracks indexed)`);
+  for (const [name, lvl] of r.composed) {
+    if (lvl.rms < MIN_MUSIC_RMS) {
+      failures.push(`composed track "${name}" produced no signal through the music strip (rms ${lvl.rms})`);
+    }
+    console.log(`  ${name.padEnd(18)} rms=${lvl.rms} peak=${lvl.peak}`);
+  }
 }
 
 if (errors.length) console.log('page errors:', errors);

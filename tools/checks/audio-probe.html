@@ -1,4 +1,10 @@
-<!doctype html><html><body><script type="module">
+<!doctype html><html><head>
+<!-- The engine addresses its recorded audio relatively (`./audio/music/…`),
+     which resolves correctly from the game's index.html at the site root. This
+     probe lives two directories down, so without a base the composed-music step
+     would ask for /tools/checks/audio/music/… and 404. -->
+<base href="/">
+</head><body><script type="module">
 // Intercept every connection to ctx.destination so we can tap real output.
 const RealAC = window.AudioContext;
 let tapped = null;
@@ -54,6 +60,7 @@ try {
   await wait(3500);
   r.steps.push(['faded-out', level()]);
 
+
   const sfxPeaks = [];
   for (const s of ['click-brass', 'page-turn', 'lock-click', 'puzzle-solved', 'thunder']) {
     audio.playSound(s);
@@ -64,6 +71,28 @@ try {
     await wait(400);
   }
   r.sfx = sfxPeaks;
+
+  // Composed score. A recorded track reaches the speakers through the music
+  // strip rather than straight from its element, which is what keeps the
+  // settings fader and — the part that actually matters — voice ducking working
+  // over it. If the routing ever breaks, the tap below hears nothing, because
+  // the tap is on the graph.
+  // Fetched rather than imported: an import assertion for JSON is not supported
+  // uniformly across the dev server and the built bundle, and this only needs
+  // the data.
+  const musicIndex = await (await fetch('/src/game/music-index.json')).json();
+  audio.setComposedMusic(musicIndex);
+  const composed = [];
+  for (const name of ['vaults', 'headland', 'main-theme']) {
+    audio.setMusic(name);
+    // Long enough to fetch, decode and complete the 4.2s crossfade.
+    await wait(7000);
+    composed.push([name, level()]);
+    audio.setMusic(null);
+    await wait(4600);
+  }
+  r.composed = composed;
+  r.composedNames = Object.keys(musicIndex);
   r.ok = true;
 } catch (e) {
   r.err = String(e && e.stack ? e.stack : e).slice(0, 500);

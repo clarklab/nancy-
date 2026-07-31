@@ -90,6 +90,45 @@ npm run dev            # in one terminal
 npm run check:audio    # in another
 ```
 
+### Score
+
+Six zone beds and five dramatic cues, composed with ElevenLabs Music and cooked
+by `tools/generate-music.mjs`. A bed belongs to a **place**, not a room — the
+zones follow the geography the scenes are already authored in, so the music
+persists while you move around the pilotage building and only changes when you
+actually go somewhere else. Scored per room, it would cut every time a door
+opened.
+
+```bash
+ELEVENLABS_API_KEY=... npm run music     # render what is missing
+npm run music -- --relevel               # re-level to new LUFS targets, no regeneration
+```
+
+Two things the pipeline does that matter more than the generation:
+
+**Loops are made on disk, not in the engine.** A generated track has a beginning
+and an end. Each bed has its tail folded back over its head with an equal-power
+crossfade, so the file is already circular when it reaches the browser and the
+engine just sets `loop = true`. Measured at the wrap point, the sample delta is
+**1**, against 2,600–3,800 elsewhere in the same audio.
+
+**Everything is normalised to a fixed LUFS target** — beds to −32, cues to −27.
+The model returns tracks mastered at commercial level, between −11 and −16 LUFS
+and up to 4.6 LU apart, which is far too loud for a bed and would make crossing
+from one zone to the next read as a volume jump rather than a change of place.
+The gain is flat rather than `loudnorm`, because dynamic compression applied
+after the loop fold would pull the two halves of the join to different gains and
+put the seam back.
+
+Composed tracks play **through the music strip**, not straight from their
+element. That is what keeps the settings fader and, more importantly, voice
+ducking working over them — a track wired to the speakers directly would talk
+over every line in the game. `npm run check:audio` asserts it by tapping the
+graph, so if the routing ever breaks the check hears silence.
+
+Any cue without a composed track falls back to its synthesised plan, so the
+score can be rendered a track at a time and the game is never silent.
+
 ### Voice
 
 98 lines are performed by a twelve-strong British cast, rendered with ElevenLabs

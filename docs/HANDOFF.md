@@ -15,7 +15,8 @@ shape of the work, so it has been rewritten rather than appended to.
 | Puzzles | 16 defined, implemented and registered | `src/puzzles/index.ts` |
 | Art | 34 scenes at 2560×1600, 10 portraits, 85 items, 12 UI | `public/art/` |
 | Voice | 98 lines, 12-strong British cast, 19.5 min | `public/audio/vo/`, `src/game/vo-index.json` |
-| Audio | procedural, calibrated | `npm run check:audio` |
+| Score | 6 zone beds + 5 cues, composed | `public/audio/music/`, `src/game/music-index.json` |
+| Audio | procedural beds and SFX, calibrated | `npm run check:audio` |
 | Progression | provably completable | `docs/critical-path.md` — 73 steps |
 | Harness | 11/11 shots, 0 console errors | `node tools/shoot.mjs` |
 | Visual | scored 8.3–8.7 against the Nancy Drew bar | four independent critics, measured |
@@ -107,6 +108,22 @@ rendered fine. `tools/generate-voice.mjs` now preflights the whole cast before
 spending a character, and `src/game/cinematic-voice.test.ts` holds the id
 contract between the manifest and the player, because when those disagree the
 game does not fail, it just goes quiet.
+
+**Composed music must stay routed through the music strip.** `startComposed` in
+`audio.ts` wires the track's element into the graph rather than letting it play
+to the speakers. That is not tidiness: `voice.ts` ducks the beds by name while a
+line plays, so an element wired straight out would keep its level through every
+word of dialogue in the game. `npm run check:audio` taps the graph and asserts
+each composed track produces signal there, which is exactly the assertion that
+fails if someone "simplifies" the routing.
+
+**Levels are set in the pipeline, not the engine.** Beds are normalised to
+−32 LUFS and cues to −27 by `tools/generate-music.mjs`. The per-cue
+`MUSIC_TRIM_DB` table balances the *synthesised* rigs against each other and is
+deliberately not applied to composed tracks — doing so would reintroduce the
+per-track spread the normalisation removes. To change the mix, edit
+`LUFS_TARGET` and run `npm run music -- --relevel`; the target is intentionally
+not part of the cache signature, so changing it never costs a regeneration.
 
 **Blocking surfaces hang automation.** `narration.say/think` and
 `dialogue.converse` only resolve on player input. The harness uses

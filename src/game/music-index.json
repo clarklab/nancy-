@@ -1,0 +1,92 @@
+{
+  "pilotage-ground": {
+    "loop": true,
+    "bytes": 673375,
+    "scenes": [
+      "entrance-hall",
+      "great-stair",
+      "registry-counter",
+      "long-registry",
+      "reading-room",
+      "post-room",
+      "duplicating-room"
+    ]
+  },
+  "pilotage-upper": {
+    "loop": true,
+    "bytes": 673584,
+    "scenes": [
+      "rolls-room",
+      "wardens-office",
+      "accounts-office",
+      "switchboard-room",
+      "binding-room",
+      "chart-loft",
+      "muniment-gallery",
+      "board-room"
+    ]
+  },
+  "vaults": {
+    "loop": true,
+    "bytes": 673375,
+    "scenes": [
+      "strongroom",
+      "undercroft",
+      "tide-room"
+    ]
+  },
+  "beacon": {
+    "loop": true,
+    "bytes": 672957,
+    "scenes": [
+      "beacon-landing",
+      "beacon-oil-store",
+      "beacon-service-room",
+      "beacon-lantern-room"
+    ]
+  },
+  "headland": {
+    "loop": true,
+    "bytes": 672957,
+    "scenes": [
+      "cliff-path-churchyard",
+      "brannock-house",
+      "ottolines-cottage",
+      "courtyard-and-site-hut",
+      "lamp-room",
+      "pilotage-roof"
+    ]
+  },
+  "sea-and-mainland": {
+    "loop": true,
+    "bytes": 672957,
+    "scenes": [
+      "the-ardent",
+      "rossport-quay",
+      "rossport-police",
+      "slipway-and-ritas-shed",
+      "cardew-village",
+      "pikes-cottage"
+    ]
+  },
+  "main-theme": {
+    "loop": false,
+    "bytes": 600443
+  },
+  "tension": {
+    "loop": false,
+    "bytes": 480071
+  },
+  "confrontation": {
+    "loop": false,
+    "bytes": 480280
+  },
+  "discovery": {
+    "loop": false,
+    "bytes": 480280
+  },
+  "sorrow": {
+    "loop": false,
+    "bytes": 480280
+  }
+}

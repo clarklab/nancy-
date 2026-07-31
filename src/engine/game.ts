@@ -21,6 +21,27 @@ import type {
 import { audio } from './audio';
 import { voice } from './voice';
 import voIndex from '@/game/vo-index.json';
+import musicIndex from '@/game/music-index.json';
+
+/**
+ * Scene id -> zone bed, inverted from the generated music index.
+ *
+ * Built from the index rather than restated here so the mapping cannot drift
+ * from `docs/design/music-bible.json`: adding a room to a zone is one edit in
+ * the bible, and re-running the pipeline carries it through. Memoised because
+ * this is read on every scene change.
+ */
+let zoneIndex: Map<string, string> | null = null;
+function zoneOfScene(): Map<string, string> {
+  if (zoneIndex) return zoneIndex;
+  zoneIndex = new Map();
+  for (const [zone, entry] of Object.entries(
+    musicIndex as Record<string, { scenes?: string[] }>,
+  )) {
+    for (const scene of entry.scenes ?? []) zoneIndex.set(scene, zone);
+  }
+  return zoneIndex;
+}
 import { Hud } from '@/ui/hud';
 import { Journal } from '@/ui/journal';
 import { DialogueView } from '@/ui/dialogue';
@@ -72,6 +93,7 @@ export class Game implements Presenter {
     // Only ids present in the generated index have audio; everything else
     // stays text-only and must not produce a 404 per line.
     voice.setAvailable(Object.keys(voIndex));
+    audio.setComposedMusic(musicIndex);
 
     this.root.classList.add('app-shell');
     this.root.innerHTML = `
@@ -356,6 +378,7 @@ export class Game implements Presenter {
     await this.sceneView.show(scene, transition);
     this.hud.announceLocation(scene.name, scene.subtitle);
     if (scene.ambience) audio.setAmbience(scene.ambience);
+    this.setZoneMusic(sceneId);
 
     const first = !this.state.visitedScenes.has(sceneId);
     this.state.visitedScenes.add(sceneId);
@@ -443,6 +466,29 @@ export class Game implements Presenter {
 
   setAmbience(ambience: string) {
     audio.setAmbience(ambience);
+  }
+
+  /**
+   * Puts the right bed under the room.
+   *
+   * Music belongs to a PLACE, not a room. The zones in `music-index.json` follow
+   * the geography the scenes are already authored in — the ground floor, the
+   * upper floors, the vaults, the beacon, the headland, the sea and the
+   * mainland — so a bed persists while the player moves around one building and
+   * only changes when they actually go somewhere else. Scored per room, the
+   * score would cut every time a door opened.
+   *
+   * `setMusic` is a no-op when the name has not changed, so walking seven rooms
+   * of the same zone never restarts anything; crossing to another zone gets the
+   * standard 4.2s crossfade for free.
+   *
+   * A scene in no zone leaves the music alone rather than stopping it. That is
+   * deliberate: the only scenes without one are reached from inside a cutscene,
+   * and cutting the bed there would punch a hole in the cutscene's own cue.
+   */
+  private setZoneMusic(sceneId: string): void {
+    const zone = zoneOfScene().get(sceneId);
+    if (zone) audio.setMusic(zone);
   }
 
   shake(intensity: number) {
