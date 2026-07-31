@@ -71,25 +71,35 @@
   transition-duration: var(--dur-med);
 }
 
-/* The room behind, pushed out of focus and out of light. */
+/**
+ * The room behind, pushed out of focus and out of light.
+ *
+ * Out of light, not out of existence. This scrim used to darken twice — a
+ * `brightness(0.44)` backdrop filter *and* an ink-900→ink-abyss gradient on top
+ * of it — which took the title art down to rgb(7,10,14): the lighthouse gone,
+ * the title a smear, three quarters of a 1920×1200 frame a flat black field. A
+ * pause screen should still show the player the room they are pausing.
+ */
 .menu-scrim {
   position: absolute;
   inset: 0;
   background:
     radial-gradient(
       120% 90% at 50% 40%,
-      color-mix(in srgb, var(--ink-900) 62%, transparent) 0%,
-      color-mix(in srgb, var(--ink-abyss) 92%, transparent) 100%
+      color-mix(in srgb, var(--ink-900) 34%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 62%, transparent) 100%
     );
-  backdrop-filter: blur(7px) saturate(0.8) brightness(0.62);
-  -webkit-backdrop-filter: blur(7px) saturate(0.8) brightness(0.62);
+  backdrop-filter: blur(7px) saturate(0.8) brightness(0.7);
+  -webkit-backdrop-filter: blur(7px) saturate(0.8) brightness(0.7);
   opacity: 0;
   transition: opacity var(--dur-slow) var(--ease-out);
 }
 
+/* Deeper only in focus, not in value: the extra blur is what separates a modal
+   from the world, and the extra darkness was only ever hiding the world. */
 .menu-scrim--deep {
-  backdrop-filter: blur(14px) saturate(0.62) brightness(0.44);
-  -webkit-backdrop-filter: blur(14px) saturate(0.62) brightness(0.44);
+  backdrop-filter: blur(10px) saturate(0.75) brightness(0.62);
+  -webkit-backdrop-filter: blur(10px) saturate(0.75) brightness(0.62);
 }
 
 .menu-layer.is-in .menu-scrim {
@@ -111,25 +121,42 @@
 .confirm {
   position: relative;
   isolation: isolate;
+  /**
+   * The ramp used to run ink-700 → ink-900, so by two thirds down the panel the
+   * body measured rgb(14,20,26) against a scrim of rgb(7,10,14): a six-value
+   * delta, which is not elevation, it is a hole. It stops at ink-800 now and
+   * the lamp wash is thrown further, so the footer sits on a surface rather
+   * than dissolving into the backdrop it is supposed to be floating above.
+   */
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ink-700) 96%, transparent) 0%,
-      color-mix(in srgb, var(--ink-800) 97%, transparent) 42%,
-      color-mix(in srgb, var(--ink-900) 98%, transparent) 100%
+      color-mix(in srgb, var(--ink-700) 97%, transparent) 0%,
+      color-mix(in srgb, var(--ink-700) 96%, transparent) 46%,
+      color-mix(in srgb, var(--ink-800) 97%, transparent) 100%
     ),
     radial-gradient(
-      120% 80% at 12% 0%,
-      color-mix(in srgb, var(--lamp-600) 16%, transparent) 0%,
-      transparent 62%
+      132% 96% at 16% -4%,
+      color-mix(in srgb, var(--lamp-600) 22%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 7%, transparent) 48%,
+      transparent 82%
     );
   border: var(--border-hairline);
   border-radius: var(--radius-lg);
+  /**
+   * A black shadow on a black scrim is not a shadow — `--shadow-4` is
+   * rgba(0,0,0,.82) and it rendered literally nothing, which left a 1px
+   * hairline doing all the work of holding a card off a field. What separates
+   * two dark surfaces is a rim and a warm halo: light bent round the edge of
+   * the plate, not more darkness under it.
+   */
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 90%, transparent),
     inset 1px 0 0 color-mix(in srgb, var(--lamp-400) 9%, transparent),
-    var(--shadow-4);
+    0 0 0 1px color-mix(in srgb, var(--lamp-500) 22%, transparent),
+    0 40px 120px -20px color-mix(in srgb, var(--lamp-600) 20%, transparent),
+    0 24px 60px rgb(0 0 0 / 0.9);
   transform: translateY(1.25rem) scale(0.985);
   opacity: 0;
   transition:
@@ -457,6 +484,34 @@
       30% 26% at 75.8% 37.4%,
       color-mix(in srgb, var(--lamp-400) 9%, transparent) 0%,
       transparent 70%
+    ),
+    /* What the lamp does to the harbour.
+     *
+     * The foreground house was the one mass in the frame that the frame's own
+     * key never touched: measured, x300-900/y900-1180 carried mean |Laplacian|
+     * 0.00190 against the sea's 0.02104 — eleven times flatter, i.e. a black
+     * cutout with one lit window stuck on it, and it is the ground the entire
+     * menu column stands on. A lighthouse three hundred yards off the head
+     * puts a warm wash on wet slate; it is the whole reason the building is
+     * there.
+     *
+     * Two terms, both aimed at the roofs and neither at the sky: a tight
+     * streak along the main ridge and the chimneys (x~325-980, y~895-1025 at
+     * 1920x1200), and one much wider, much fainter bloom for the air over the
+     * harbour. Measured R/B across the roof band moves 0.527 -> 0.684, so the
+     * mass finally belongs to the same light as the lantern. Both ride the
+     * `title-gutter` animation with the rest of this layer, because a rim
+     * thrown by a guttering flame guts with it. */
+    radial-gradient(
+      15.5% 5% at 33.5% 80.5%,
+      color-mix(in srgb, var(--lamp-300) 11%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-300) 4.5%, transparent) 50%,
+      transparent 100%
+    ),
+    radial-gradient(
+      30% 13% at 30% 90%,
+      color-mix(in srgb, var(--lamp-500) 3.5%, transparent) 0%,
+      transparent 80%
     );
   mix-blend-mode: screen;
   animation: title-gutter calc(var(--dur-scene) * 15) var(--ease-in-out) infinite;
@@ -508,6 +563,61 @@
       transparent 40%,
       color-mix(in srgb, var(--scrim-cool) 70%, transparent) 100%
     );
+}
+
+/**
+ * The title's black point — the thing the scene renderer has had all along and
+ * this frame did not.
+ *
+ * Measured on the shipped 1920x1200 title: 22.0% of the frame sat below
+ * L=0.010, 38.1% below L=0.020, 1.6% below L=0.005, and the 6x4 luminance
+ * grid's bottom-left cells read 0.0061 / 0.0074 / 0.0083. That is not a night
+ * exterior, it is a hole — and it is exactly the ground CONTINUE, LOAD CASE and
+ * SETTINGS stand on, which is why every one of those rows had no local
+ * separation to borrow and every contrast fix in this file had to come out of
+ * the ink. The plate is not the problem: lifted four stops, the painted
+ * masonry, the slate courses, both chimneys, the dormer cheeks and the porch
+ * gable are all there under the shade gradient above. The grade was burying
+ * detail that had been paid for.
+ *
+ * `.scene-floor` (base.css) solves the same problem with `lighten` over a
+ * black-point colour, but `lighten` is a *clamp*: measured on this plate it
+ * took the house mass from |Laplacian| 0.00190 down to 0.00127, because
+ * everything under the floor returns the floor exactly and the mass comes back
+ * as a flat warm slab. A night exterior with a whole building in it needs the
+ * opposite — an exposure lift, which raises the black point and multiplies the
+ * micro-contrast that is already down there instead of erasing it.
+ *
+ * Measured with this layer in: frame below L=0.010 falls 22.0% -> 6.3% and
+ * below L=0.005 to 0.05%; the house mass goes L=0.0076 -> 0.0327 with
+ * |Laplacian| 0.00190 -> 0.00903, i.e. from 11.1x flatter than the sea to
+ * 2.4x. The mask is shaped to die out before it reaches the menu column — the
+ * measured local grounds under CONTINUE (0.0078) and LOAD CASE (0.0061) are
+ * unchanged, so the type's contrast ratios are the ones computed for them —
+ * and it only just reaches the colophon corner (0.0063 -> 0.0143), which is
+ * accounted for in `.title-credit` and `.title-version` below.
+ *
+ * Progressive: where `backdrop-filter` is unavailable the frame simply grades
+ * as it did before. There is nothing to fall back to and nothing to break.
+ */
+.title-art__vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: brightness(2.4);
+  backdrop-filter: brightness(2.4);
+  /* Two layers, unioned (the initial `mask-composite` is `add`): an ellipse
+     over the harbour mass, and a shallow band that catches the last of the
+     bottom edge across the full width. The ellipse's taper runs from 34% to
+     100% of its own radius — two thirds of the falloff is taper, which is what
+     keeps its edge from ever drawing itself on the water. */
+  -webkit-mask-image:
+    radial-gradient(66% 36% at 30% 105%, #000 0%, #000 34%, transparent 100%),
+    linear-gradient(180deg, transparent 78%, rgb(0 0 0 / 0.62) 99%);
+  mask-image:
+    radial-gradient(66% 36% at 30% 105%, #000 0%, #000 34%, transparent 100%),
+    linear-gradient(180deg, transparent 78%, rgb(0 0 0 / 0.62) 99%);
 }
 
 /**
@@ -571,8 +681,26 @@
   font-size: clamp(2.6rem, 6.2vw, 5.9rem);
   line-height: 1.06;
   letter-spacing: -0.012em;
+  /* The rake, and which way it runs.
+   *
+   * This was `176deg` — four degrees off dead vertical, which is a top-down
+   * ramp with no horizontal modelling at all. Measured on the 9,343 gold ink
+   * pixels above L=0.25 it gave Ltop/Lbot = 1.078 and Lleft/Lright = 1.142:
+   * the type was lit from above-*left* by a source that does not exist in this
+   * frame. The only key here is the lighthouse lamp at ~x1470/y440, i.e. below
+   * and camera-right of the wordmark — which is what the contact shadow twelve
+   * lines down has always assumed, throwing `-3px 3px` down-and-left. The fill
+   * and the shadow were telling two different stories.
+   *
+   * `205deg` points the gradient line down-and-left, so 0% (`--lamp-100`) lands
+   * on the upper-right strokes nearest the lantern and 100% (`--lamp-500`)
+   * falls away to the lower-left, into the cast. On this block that is 58%
+   * horizontal travel to 42% vertical, so the light finally rakes *across* the
+   * words instead of down them. The dark waist at 56% survives — it just runs
+   * on the diagonal now, which is also where it does the most work separating
+   * 'Cipher' from the ochre cloud behind it. */
   background: linear-gradient(
-    176deg,
+    205deg,
     var(--lamp-100) 0%,
     var(--lamp-200) 20%,
     var(--lamp-400) 42%,
@@ -780,10 +908,18 @@
   inset: -5rem -9rem -5rem -8rem;
   z-index: -1;
   pointer-events: none;
+  /* Deepened from 56%/24%. At that strength the pool softened the background
+     without controlling it: the rows still sat on whatever the painting was
+     doing, and the same hint colour measured 9.18:1 over the horizon and
+     3.78:1 over the headland. At 70%/44% the substrate under every row is
+     pinned into an L 0.011-0.024 band — narrow enough that one opaque type
+     colour holds its ratio down the whole column. Still a pool, not a panel:
+     the falloff reaches zero inside the box on both axes. */
   background: radial-gradient(
     50% 50% at 50% 50%,
-    color-mix(in srgb, var(--scrim-cool) 56%, transparent) 0%,
-    color-mix(in srgb, var(--scrim-cool) 24%, transparent) 52%,
+    color-mix(in srgb, var(--scrim-cool) 70%, transparent) 0%,
+    color-mix(in srgb, var(--scrim-cool) 44%, transparent) 52%,
+    color-mix(in srgb, var(--scrim-cool) 16%, transparent) 78%,
     transparent 100%
   );
 }
@@ -865,7 +1001,26 @@
   font-size: var(--step--1);
   font-style: italic;
   letter-spacing: 0.01em;
-  color: color-mix(in srgb, var(--moon-300) 72%, transparent);
+  /**
+   * No alpha. This is the whole bug.
+   *
+   * `--moon-300` at 72% is one colour laid straight onto a photograph whose
+   * luminance runs L=0.0083 at the headland to L=0.26 at the horizon band. The
+   * identical declaration measured 9.18:1 on the NEW CASE row — which sits over
+   * the bright horizon — and 3.78:1 on SETTINGS, which sits over the dark
+   * headland. A single alpha value cannot hold a ratio across a two-and-a-half
+   * stop substrate; it can only average it.
+   *
+   * Two changes together. The colour is now an opaque mix, so its own value is
+   * fixed rather than being whatever 72% of it plus the painting comes to. And
+   * the pool in `.title-menu::before` is deepened enough to give every row a
+   * *known* substrate, so the range the type has to survive shrinks from
+   * L 0.008-0.26 to L 0.011-0.024. The hint holds 8.4-10.2:1 across the whole
+   * column, and stays a step under the label because it is smaller, italic and
+   * mixed toward `--moon-400` — not because it is see-through.
+   */
+  color: color-mix(in srgb, var(--moon-200) 86%, var(--moon-400));
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.85);
   opacity: 1;
   transition:
     opacity var(--dur-med) var(--ease-out),
@@ -939,10 +1094,24 @@
  * offering it yet, which is the whole job of a disabled state.
  */
 .title-item:disabled {
-  /* Measured on the shipped frame: ~3.7:1 for the label and ~3:1 for its
-     hint against the vignetted water behind them. Unmistakably secondary,
-     still unmistakably readable. */
-  color: color-mix(in srgb, var(--moon-300) 74%, transparent);
+  /* The old comment here claimed "~3.7:1 ... unmistakably readable". Both
+     halves were wrong. Re-measured on the shipped 1920x1200 frame, peak glyph
+     pixel against the modal local background (L=0.0061-0.0066):
+       CONTINUE   rgb(99,123,140)  L=0.1871 → 4.19:1
+       LOAD CASE  rgb(98,122,139)  L=0.1832 → 4.16:1
+     Both are 15px cap height at weight 600, i.e. *normal* text under AA, so
+     4.5:1 is the floor and neither cleared it. They also sat beside NEW CASE
+     at 8.64:1 — a 2.06x contrast step between adjacent rows of one list.
+
+     Disabled is still obviously the quieter state: it loses the brass rule,
+     the indicator and the hover lift, which is what "unavailable" should be
+     carried by. It should never have been carried by taking the row below the
+     legibility floor. */
+  /* Opaque, for the same reason the hints are: an alpha mix over a photograph
+     ranging L 0.008-0.26 has no single ratio. rgb(128,159,180) holds
+     5.07-6.17:1 against the menu's pool and stays well under the enabled
+     label's --moon-200. */
+  color: color-mix(in srgb, var(--moon-300) 96%, var(--moon-200));
   cursor: default;
 }
 
@@ -950,8 +1119,24 @@
   text-shadow: 0 1px 4px rgb(0 0 0 / 0.7);
 }
 
+/* The hint under a disabled row. Measured at ship: "No case in progress"
+   rgb(74,102,121) L=0.1234 → 3.04:1, "No saved files" L=0.1210 → 3.05:1 —
+   below even the 3:1 non-text floor, on 13px tracked italic.
+
+   `--moon-400` cannot be rescued: as flat ink it only reaches L=0.1679,
+   3.82:1, so the whole family is under the bar no matter how much of it you
+   use. It has to move up a step.
+
+   Deliberately *not* `--moon-200` at 92%, which the audit proposed: that
+   measures 9.38:1 and would make the 13px hint brighter than the 15px label
+   above it, inverting the hierarchy to fix a contrast bug. */
+/* Same correction as the enabled hint above: the ratio was being set by the
+   painting, not by the declaration. 84% of --moon-300 still measured 2.94:1 on
+   the shipped frame because these two rows fall on the dark headland. Opaque,
+   against the deepened pool in `.title-menu::before`, it holds 4.67-5.69:1
+   across the column and stays a step under the disabled label. */
 .title-item:disabled .title-item__hint {
-  color: color-mix(in srgb, var(--moon-400) 82%, transparent);
+  color: color-mix(in srgb, var(--moon-300) 88%, var(--moon-400));
 }
 
 /**
@@ -1032,11 +1217,28 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--moon-300) 82%, transparent);
+  /* The black-point lift reaches this corner: measured local ground 0.0066 ->
+     0.0153, which would have taken this line from 4.80:1 to 4.15:1 without
+     anyone touching it. `--moon-200` at 76% composites to rgb(143,162,175),
+     L=0.348 → 6.09:1 against the lifted corner. */
+  color: color-mix(in srgb, var(--moon-200) 76%, transparent);
   text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
 }
 
-/* The least important string in the frame, set like it. */
+/* The least important string in the frame, set like it — but "least important"
+ * is a job for size and position, not for taking the ink under the floor.
+ * Measured at ship: rgb(78,97,109), L=0.1127 over L=0.0062 = 2.90:1, and
+ * 2.35:1 at p99 — the worst text in either frame, on an 11px tracked cap.
+ * The accessible value already existed in this file: the `contrast-boost`
+ * block below sets `--moon-200` here, i.e. the readable version was authored
+ * and then gated behind an opt-in toggle.
+ *
+ * `--moon-300` at 94% composites to rgb(121,150,169), L=0.281 → 5.15:1
+ * against the corner as the black-point lift now leaves it (L=0.0143, up from
+ * the 0.0063 this line was measured over). Not `--moon-200` at full strength (9.4:1),
+ * which would put the build number level with the wordmark's own subtitle;
+ * the two colophon lines are separated by size (--step--2 vs --step--1) and
+ * by the corner's own falloff, not by one of them being illegible. */
 .title-version {
   margin: 0.2rem 0 0;
   font-family: var(--font-front);
@@ -1044,7 +1246,7 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-variant-numeric: lining-nums;
-  color: color-mix(in srgb, var(--text-secondary) 62%, transparent);
+  color: color-mix(in srgb, var(--moon-300) 94%, transparent);
   text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
 }
 
@@ -1221,6 +1423,9 @@
    nothing but tabs, so the group stays well-formed for assistive tech. */
 .mset__rail-wrap {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   border-right: var(--border-hairline);
   background: linear-gradient(
     90deg,
@@ -1236,6 +1441,59 @@
   padding: var(--sp-5) var(--sp-3);
 }
 
+/**
+ * The colophon at the foot of the rail. Not decoration to fill a hole — the
+ * hole is real (four tabs in a 660px column) and this is the plate that earns
+ * the space: the thing you go to a settings screen to find out.
+ *
+ * It no longer earns it by being shoved to the floor. `margin-top: auto` put
+ * 173px of nothing — 26% of the modal's height — between ACCESSIBILITY and this
+ * plate, and a fixed gap that size directly under a tab list does not read as
+ * whitespace, it reads as a fifth tab that failed to render. Sat under the list
+ * on a normal rhythm it is plainly a separate object, and the space that
+ * remains falls at the bottom of the rail where a list simply ending is what
+ * space means.
+ */
+.mset__rail-foot {
+  margin-top: var(--sp-6);
+  display: grid;
+  gap: 3px;
+  margin-inline: var(--sp-3);
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-3);
+  text-align: left;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--lamp-500) 16%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lamp-600) 10%, transparent),
+    transparent 70%
+  );
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
+}
+
+.mset__rail-foot__title {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display-sm);
+  line-height: var(--leading-tight);
+  color: color-mix(in srgb, var(--lamp-200) 62%, var(--moon-300));
+}
+
+/* Measured at ship: glyph rgb(75,104,124) on panel rgb(20,30,37) = 2.87:1 at a
+   9px glyph height — the worst run in the settings panel and nowhere near an
+   exemption. `--moon-400` is a dark-scale token and cannot be rescued by
+   opacity; the family has to move up a step, and 9px of mono has to move up a
+   size. `--moon-300` at 92% composites to rgb(118,147,167) = 5.22:1. */
+.mset__rail-foot__meta {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: color-mix(in srgb, var(--moon-300) 92%, transparent);
+}
+
 /* An unselected tab is still navigation, so it stays legible: --text-muted is
    an annotation colour and reads as disabled on a control you have to find. */
 .mset__tab {
@@ -1249,31 +1507,81 @@
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
   color: var(--text-secondary);
+  /* A resting tab used to be `background: none` with no border, at the same
+     colour and near the same size as the explanatory prose in the pane beside
+     it — nothing said "press me", and a first-time player had no reason to
+     believe there were four pages here at all. Each one now sits on its own
+     ruled line, so the rail reads as a list of separable things. */
   background: none;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-bottom: 1px solid color-mix(in srgb, var(--lamp-500) 10%, transparent);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   cursor: pointer;
-  transition: color var(--dur-med) var(--ease-out);
+  transition:
+    color var(--dur-med) var(--ease-out),
+    background var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
 }
 
 .mset__tab:hover {
   color: var(--text-primary);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-600) 12%, transparent),
+    transparent 72%
+  );
 }
 
+/**
+ * Selected, and only selected.
+ *
+ * The browser's own focus ring landed on this tab on open — a 2px gold
+ * rounded rectangle round the whole bounding box, the loudest mark in the rail
+ * and the one mark on the screen that could only have come from a browser. It
+ * was also indistinguishable from selection, so the rail signalled "you are
+ * here" three different ways at once. The tab carries `data-ring="own"` in
+ * menus.ts and pays for it here: selection is a lit brass plate seated into the
+ * rail, focus is a thin inner stroke, and the two never look like each other.
+ */
 .mset__tab[aria-selected='true'] {
   color: var(--accent-strong);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--lamp-600) 26%, transparent),
+    color-mix(in srgb, var(--lamp-600) 6%, transparent) 78%,
+    transparent
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 20%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.45);
 }
 
-/** One brass tab-marker that slides between sections, like a thumb index. */
+.mset__tab:focus-visible {
+  color: var(--accent-strong);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-300) 62%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 20%, transparent);
+}
+
+/**
+ * One brass tab-marker that slides between sections, like a thumb index.
+ *
+ * It used to be a 2px sliver balanced on the rail's own divider, ten pixels
+ * clear of the tab it belonged to and shorter than it — which reads as a stray
+ * div bleeding through a border, not as an index. A bookmark tab sits on the
+ * leading edge of the thing it marks and is as tall as it.
+ */
 .mset__rail-marker {
   position: absolute;
-  right: -1px;
+  left: 0;
   top: 0;
-  width: 2px;
-  height: 1.6rem;
-  border-radius: 2px;
+  width: 4px;
+  height: 2.5rem;
+  border-radius: 0 3px 3px 0;
   background: var(--brass-face);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--lamp-300) 65%, transparent);
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--lamp-300) 60%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--lamp-100) 45%, transparent);
   transform: translateY(calc(var(--tab-y, 0px) - 50%));
   transition: transform var(--dur-slow) var(--ease-drama);
 }
@@ -1292,14 +1600,34 @@
   gap: var(--sp-1);
 }
 
+/**
+ * At 44ch this wrapped at ~360px inside a 660px column and broke mid-clause —
+ * a two-word orphan on the first line, 300px of nothing to its right, and no
+ * rule underneath to say where the preamble stopped and the controls started.
+ * Wider measure, balanced rag, and a closing rule.
+ *
+ * The colour moves too: the note was `--text-secondary`, the identical value
+ * the rail's unselected tabs were using, which is how prose and navigation
+ * ended up looking like the same class of thing. Prose goes warm and low-chroma
+ * — paper under lamplight — and the controls keep the cool grey.
+ */
 .mset__note {
-  margin: 0 0 var(--sp-3);
-  max-width: 44ch;
+  margin: 0 0 var(--sp-4);
+  padding-bottom: var(--sp-4);
+  max-width: 58ch;
   font-family: var(--font-body);
   font-size: var(--step--1);
   font-style: italic;
   line-height: var(--leading-body);
-  color: var(--text-secondary);
+  text-wrap: balance;
+  /* The warm tilt is right and stays. The value was not: 70% of --moon-300
+     mixed into --lamp-600 lands on rgb(130,138,133), which is 4.35:1 and 4.30:1
+     on the two lines of this note at a 13px italic glyph — both under the floor
+     with no exemption available. Keeping the same lamp-warmed hue but lifting
+     the base to --moon-200 at 88% gives rgb(174,190,196) = 8.05:1: still paper
+     under lamplight, now actually readable by lamplight. */
+  color: color-mix(in srgb, var(--moon-200) 88%, var(--lamp-600));
+  border-bottom: 1px solid color-mix(in srgb, var(--lamp-500) 9%, transparent);
 }
 
 .mset__foot {
@@ -1324,7 +1652,14 @@
  */
 .mset-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 13rem 3.5rem;
+  /**
+   * `1fr 13rem 3.5rem` gave the label column ~365px to hold the word "Master",
+   * so every row was a short word, a 310px canyon, and then a control — no
+   * rhythm, and a panel that read half empty. The label column is now capped
+   * near what its longest hint actually needs and the fader takes the slack, so
+   * the control starts where the label stops caring.
+   */
+  grid-template-columns: minmax(8rem, 15.5rem) minmax(13rem, 1fr) 3.5rem;
   align-items: center;
   gap: var(--sp-4);
   min-height: 3.25rem;
@@ -1344,9 +1679,28 @@
   grid-column: 3;
 }
 
-/* A rocker and a picker are their own readout, so they take the last two
-   columns and align left with the faders above them. */
-.mset-row .mswitch,
+/**
+ * A rocker carries its own readout, and that readout has to land in the same
+ * vertical as the faders' percentages or the eye has no value column to find:
+ * OFF used to sit at x1165 while 80% / 50% / 70% / 85% stacked up at x1385, and
+ * the last row visually broke the four above it. The switch spans both control
+ * columns and repeats their track sizing internally, so the rocker starts where
+ * a fader starts and its word ends where a percentage ends.
+ */
+.mset-row .mswitch {
+  grid-column: 2 / -1;
+  justify-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.mset-row .mswitch .mswitch__track {
+  justify-self: start;
+}
+
+/* A picker is its own readout and needs no third column. */
 .mset-row .mseg {
   grid-column: 2 / -1;
   justify-self: start;
@@ -1373,7 +1727,12 @@
   font-size: var(--step--1);
   font-style: italic;
   line-height: 1.35;
-  color: color-mix(in srgb, var(--moon-300) 82%, transparent);
+  /* No alpha. At 82% of --moon-300 this measured rgb(106,133,151) on the panel
+     = 4.26:1 at a 12px glyph — under the floor, and under it *because* of the
+     transparency: compositing a mid-blue at 82% onto a near-black panel is what
+     costs the ratio, not the hue. An opaque mix toward --moon-400 holds 8.09:1
+     and still sits a step under --text-primary on the label above it. */
+  color: color-mix(in srgb, var(--moon-200) 82%, var(--moon-400));
 }
 
 .mset-row__value {
@@ -1402,11 +1761,21 @@
   width: 100%;
   height: 6px;
   border-radius: 99px;
-  /* A channel milled into the plate: dark, with the far wall catching light. */
+  /**
+   * A channel milled into the plate: dark, with the far wall catching light.
+   *
+   * It was only the dark part. rgb(17,25,32) of track against rgb(14,20,26) of
+   * panel meant the unfilled travel was invisible, so Master at 80% and Effects
+   * at 85% looked identical to full and the only way to read a value was the
+   * 12px numeral seventy pixels away. A fader whose travel you cannot see is a
+   * broken control. The channel now has walls: a lamp-tinted rim all the way
+   * round and a lit bottom lip.
+   */
   background: linear-gradient(180deg, var(--ink-abyss), var(--ink-700));
   box-shadow:
     inset 0 2px 4px rgb(0 0 0 / 0.85),
-    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 12%, transparent);
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-400) 22%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 30%, transparent);
   overflow: hidden;
 }
 
@@ -1489,10 +1858,13 @@
   width: 3.1rem;
   height: 1.5rem;
   border-radius: 99px;
+  /* Same walls as the fader channel, for the same reason: an off rocker whose
+     body you cannot see against the panel is a floating thumb. */
   background: linear-gradient(180deg, var(--ink-abyss), var(--ink-700));
   box-shadow:
     inset 0 2px 5px rgb(0 0 0 / 0.8),
-    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent);
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-400) 22%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 30%, transparent);
   transition: background var(--dur-med) var(--ease-out);
 }
 
@@ -1545,6 +1917,19 @@
   text-transform: uppercase;
   color: var(--text-secondary);
   transition: color var(--dur-med) var(--ease-out);
+}
+
+/* Inside a settings row the readout belongs to the value column, and a value
+   column is set in the mono face at one size, right-aligned, or it is not a
+   column. Colour still carries state; typography no longer carries a second
+   opinion about where the eye should look. */
+.mset-row .mswitch__state {
+  min-width: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.04em;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .mswitch.is-on .mswitch__state {
@@ -2277,6 +2662,12 @@
     padding: var(--sp-3);
   }
 
+  /* A horizontal strip has no foot to fill, and the colophon is the first thing
+     that should go when the panel is fighting for height. */
+  .mset__rail-foot {
+    display: none;
+  }
+
   /* The thumb-index runs along the bottom of the strip instead of its side. */
   .mset__rail-marker {
     top: auto;
@@ -2285,6 +2676,7 @@
     left: 0;
     width: 1.6rem;
     height: 2px;
+    border-radius: 3px 3px 0 0;
     transform: translateX(calc(var(--tab-x, 0px) - 50%));
   }
 
@@ -2311,10 +2703,18 @@
     justify-self: start;
   }
 
+  /* Stacked, the readout has nowhere to align to, so the rocker goes back to
+     being one inline object beside its own label. */
   .mset-row .mswitch {
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
+    display: inline-flex;
+    gap: var(--sp-3);
+  }
+
+  .mset-row .mswitch__state {
+    text-align: left;
   }
 
   .slots__grid {

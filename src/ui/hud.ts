@@ -829,49 +829,110 @@ export class Hud {
  *      Feather/Lucide signature; a tool engraved in metal has a heavy outline
  *      and light interior scribing, so structure is set at 1.7 and detail at
  *      1.05-1.2. That contrast is what reads as *cut* rather than *drawn*.
+ *   3. …and it is doubled in opacity, because weight alone does not survive.
+ *      Measured on the shipped frame, 1.7 against 1.05 rendered as 1.7px
+ *      against 1.05px — a 0.65px delta that antialiasing flattens into one
+ *      weight. The cells are now large enough that the delta is real (see
+ *      `--btn-size` in hud.css), but the hierarchy is *also* encoded as
+ *      `stroke-opacity`: structure at full, mid detail ~0.8, interior scribing
+ *      ~0.58. Two channels agreeing is what makes a mark read as recessed.
  */
+/**
+ * The engraving rig every mark on the rail is stroked with.
+ *
+ * A mark cut into a lit plate cannot be one flat colour. The rail it sits on
+ * already knows where the room's key hangs — `--key-at` in hud.css puts it at
+ * `-4% 112%`, i.e. inboard and below — and measured off the shipped frame the
+ * plate genuinely falls from luminance 78 on that side to 32 on the far one.
+ * The glyphs did not participate: uniform `--accent` end to end, which is what
+ * turns five pieces of engraving back into five decals.
+ *
+ * So the stroke paint is a ramp of `currentColor` running lower-left (full) to
+ * upper-right (74%), matching the plate under it. `currentColor` rather than a
+ * literal, so hover, focus and the disabled state all still drive it from one
+ * place, and so the house rule about literal colour survives.
+ *
+ * The gradient is in `userSpaceOnUse` on the 24-unit box: object bounding-box
+ * units would re-aim the ramp per glyph according to that glyph's own extents,
+ * so a wide mark and a tall one would be lit from different directions.
+ */
+function mark(id: string, body: string): string {
+  return (
+    `<svg viewBox="0 0 24 24" fill="none" stroke="url(#${id}-key)" ` +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    `<defs><linearGradient id="${id}-key" gradientUnits="userSpaceOnUse" x1="0" y1="24" x2="24" y2="0">` +
+    '<stop offset="0" stop-color="currentColor" stop-opacity="1"/>' +
+    '<stop offset="1" stop-color="currentColor" stop-opacity="0.74"/>' +
+    '</linearGradient></defs>' +
+    body +
+    '</svg>'
+  );
+}
+
 const ICON = {
-  journal:
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  journal: mark(
+    'journal',
     '<path d="M6.6 3.5h11a1 1 0 0 1 1 1v16H8.1a1.5 1.5 0 0 1-1.5-1.5Z" stroke-width="1.7"/>' +
-    '<path d="M6.6 17.6a1.5 1.5 0 0 1 1.5-1.4h10.5" stroke-width="1.2"/>' +
-    '<path d="M13 3.5v6l2-1.4 2 1.4v-6" stroke-width="1.35"/>' +
-    '<path d="M9.4 8h1.8M9.4 11h1.8" stroke-width="1.05"/></svg>',
-  /* A buckled dispatch satchel: body, storm flap, two keeper straps into their
-     buckles, and a carry handle. What the player is actually carrying. */
-  inventory:
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M4.4 9.2h15.2v9.3a1.7 1.7 0 0 1-1.7 1.7H6.1a1.7 1.7 0 0 1-1.7-1.7Z" stroke-width="1.7"/>' +
-    '<path d="M4.4 9.2 6.3 4.9a1.3 1.3 0 0 1 1.2-.8h9a1.3 1.3 0 0 1 1.2.8l1.9 4.3" stroke-width="1.7"/>' +
-    '<path d="M4.4 13.4h15.2" stroke-width="1.2"/>' +
-    '<path d="M12 13.4v1.5" stroke-width="1.2"/>' +
-    '<path d="M10.5 14.9h3v2.6h-3Z" stroke-width="1.2"/>' +
-    '<path d="M9.7 4.1a2.3 2.3 0 0 1 4.6 0" stroke-width="1.2"/></svg>',
-  map:
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M3.2 6.6 9 4.6l6 2 5.8-2v12.8l-5.8 2-6-2-5.8 2Z" stroke-width="1.7"/>' +
-    '<path d="M9 4.6v12.8M15 6.6v12.8" stroke-width="1.15"/>' +
-    '<path d="m12.4 10.6-.9 1.6 1.7.5" stroke-width="1.05"/></svg>',
-  hints:
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M6.6 17.6a1.5 1.5 0 0 1 1.5-1.4h10.5" stroke-width="1.2" stroke-opacity=".76"/>' +
+      '<path d="M13 3.5v6l2-1.4 2 1.4v-6" stroke-width="1.35" stroke-opacity=".82"/>' +
+      '<path d="M9.4 8h1.8M9.4 11h1.8" stroke-width="1.05" stroke-opacity=".58"/>',
+  ),
+  /* A flat gusseted dispatch wallet: body, gusset, a storm flap sagging under
+     its own weight, one strap over that flap, and a single buckle with the
+     tongue through it.
+
+     What it replaces had a rounded top handle and a front patch pocket, and at
+     24px that silhouette is a modern backpack no matter what the comment above
+     it claimed — a 2020s icon-library mark sitting under a Cormorant Garamond
+     title. The tells to keep out of it are exactly those two: no handle, no
+     applied pocket. A dispatch wallet is flat, it hangs from a shoulder strap
+     you cannot see at this size, and it fastens with one buckle. */
+  inventory: mark(
+    'inventory',
+    '<path d="M3.9 7.2h16.2v11a1.5 1.5 0 0 1-1.5 1.5H5.4a1.5 1.5 0 0 1-1.5-1.5Z" stroke-width="1.7"/>' +
+      '<path d="M5.9 5.4h12.2l2 1.8H3.9Z" stroke-width="1.7"/>' +
+      '<path d="M3.9 12.7q8.1 1.3 16.2 0" stroke-width="1.7"/>' +
+      '<path d="M10.6 5.4v9M13.4 5.4v9" stroke-width="1.2" stroke-opacity=".76"/>' +
+      '<path d="M10.1 14.2h4.4a.6.6 0 0 1 .6.6v1.7a.6.6 0 0 1-.6.6h-4.4Z" stroke-width="1.3" stroke-opacity=".82"/>' +
+      '<path d="M12.5 15.7h2.2" stroke-width="1.05" stroke-opacity=".58"/>',
+  ),
+  /* A chart rolled at one end with a parallel rule laid across it. The mark it
+     replaces was the stock folded-road-map glyph — four panels and a crease —
+     which is a 1960s petrol-station object and, worse, is the shape every icon
+     library ships. A pilot cutter in 1893 carries rolled Admiralty charts and
+     walks a course off them with a parallel rule; that pair is unambiguous and
+     it is period. */
+  map: mark(
+    'map',
+    '<path d="M7.6 6.2h11.5v11.6H7.6Z" stroke-width="1.7"/>' +
+      '<path d="M7.6 6.2a2.2 5.8 0 0 0 0 11.6" stroke-width="1.7"/>' +
+      '<path d="M7.6 8.9a1.1 3 0 0 0 0 6" stroke-width="1.05" stroke-opacity=".58"/>' +
+      '<path d="M10.2 11.2q1.6-1.9 3.2-.7t3.4-.9" stroke-width="1.05" stroke-opacity=".55"/>' +
+      '<path d="m9.9 15.4 7.4-4.4M11 17.3l7.4-4.4" stroke-width="1.35" stroke-opacity=".84"/>' +
+      '<path d="m11.5 14.5 1.1 1.9M15.6 12.1l1.1 1.9" stroke-width="1.05" stroke-opacity=".58"/>',
+  ),
+  hints: mark(
+    'hints',
     '<path d="M8.6 6.8 7.6 16.6h8.8l-1-9.8" stroke-width="1.7"/>' +
-    '<path d="M6.6 16.6h10.8l-.6 3.6H7.2Z" stroke-width="1.7"/>' +
-    '<path d="M9 5.2a3 3 0 0 1 6 0" stroke-width="1.2"/>' +
-    '<path d="M7.4 6.8h9.2" stroke-width="1.35"/>' +
-    '<path d="M12 9.6c1.5 1.4 1.5 2.9 0 4.3-1.5-1.4-1.5-2.9 0-4.3Z" stroke-width="1.05"/></svg>',
+      '<path d="M6.6 16.6h10.8l-.6 3.6H7.2Z" stroke-width="1.7"/>' +
+      '<path d="M9 5.2a3 3 0 0 1 6 0" stroke-width="1.2" stroke-opacity=".76"/>' +
+      '<path d="M7.4 6.8h9.2" stroke-width="1.35" stroke-opacity=".82"/>' +
+      '<path d="M12 9.6c1.5 1.4 1.5 2.9 0 4.3-1.5-1.4-1.5-2.9 0-4.3Z" stroke-width="1.2" stroke-opacity=".7"/>',
+  ),
   /* The ship's own mark, and the last cell on the rail. Three bars with a
      diamond on them is 2015 web chrome and reads as such next to a Cormorant
      title; a fouled anchor is the emblem an 1890s pilot cutter would actually
      have stamped on its fittings, and as the terminal mark it says "this
      vessel / this game" rather than "a list". */
-  menu:
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  menu: mark(
+    'menu',
     '<path d="M6.1 12.9c0 4 2.6 6.6 5.9 7.3 3.3-.7 5.9-3.3 5.9-7.3" stroke-width="1.7"/>' +
-    '<path d="M12 6.1v14.1" stroke-width="1.7"/>' +
-    '<path d="M8.3 8.5h7.4" stroke-width="1.35"/>' +
-    '<path d="M4.4 13.4h3.4l-1.7-2.4ZM16.2 13.4h3.4l-1.7-2.4Z" stroke-width="1.2"/>' +
-    '<circle cx="12" cy="4.4" r="1.7" stroke-width="1.35"/>' +
-    '<path d="M8.9 11.4c1.4 1.7 4.8 1.1 6.2 3.1" stroke-width="1.05"/></svg>',
+      '<path d="M12 6.1v14.1" stroke-width="1.7"/>' +
+      '<path d="M8.3 8.5h7.4" stroke-width="1.35" stroke-opacity=".84"/>' +
+      '<path d="M4.4 13.4h3.4l-1.7-2.4ZM16.2 13.4h3.4l-1.7-2.4Z" stroke-width="1.2" stroke-opacity=".72"/>' +
+      '<circle cx="12" cy="4.4" r="1.7" stroke-width="1.35" stroke-opacity=".84"/>' +
+      '<path d="M8.9 11.4c1.4 1.7 4.8 1.1 6.2 3.1" stroke-width="1.05" stroke-opacity=".56"/>',
+  ),
 } as const;
 
 /** A pinned index card — the visual shorthand for evidence in the journal. */
@@ -889,6 +950,15 @@ const CLUE_MARK =
  * which is tall and narrow, at identical bounds. These bring all five to
  * roughly the same ink coverage of their cell, so the rail has an even visual
  * rhythm to go with its even button pitch.
+ *
+ * The first cut of these numbers was eyeballed off bounding boxes and did not
+ * work: measured gold-ink area per cell on the shipped frame came out at
+ * 259 / 243 / 214 / 187 / 170 px², a 34% swing that made the rail sag visibly
+ * from left to right. Corrected against that measurement instead — ink scales
+ * with the square of the scale factor, so each value is the old one times
+ * sqrt(target / measured), normalised on a target of ~212 px². The journal
+ * comes down; the anchor, which was the thinnest mark on the rail, comes up
+ * hardest. Re-measure, do not re-guess, if a mark is ever redrawn.
  */
 const TOOLS: {
   id: HudTool;
@@ -898,11 +968,11 @@ const TOOLS: {
   icon: string;
   optic: number;
 }[] = [
-  { id: 'journal', label: 'Journal', key: 'J', shortcut: 'J', icon: ICON.journal, optic: 1.06 },
-  { id: 'inventory', label: 'Inventory', key: 'I', shortcut: 'I', icon: ICON.inventory, optic: 0.98 },
-  { id: 'map', label: 'Map', key: 'M', shortcut: 'M', icon: ICON.map, optic: 0.96 },
-  { id: 'hints', label: 'Hints', key: 'H', shortcut: 'H', icon: ICON.hints, optic: 1.02 },
-  { id: 'menu', label: 'Menu', key: 'Esc', shortcut: 'Escape', icon: ICON.menu, optic: 1.02 },
+  { id: 'journal', label: 'Journal', key: 'J', shortcut: 'J', icon: ICON.journal, optic: 0.95 },
+  { id: 'inventory', label: 'Inventory', key: 'I', shortcut: 'I', icon: ICON.inventory, optic: 0.92 },
+  { id: 'map', label: 'Map', key: 'M', shortcut: 'M', icon: ICON.map, optic: 0.98 },
+  { id: 'hints', label: 'Hints', key: 'H', shortcut: 'H', icon: ICON.hints, optic: 1.09 },
+  { id: 'menu', label: 'Menu', key: 'Esc', shortcut: 'Escape', icon: ICON.menu, optic: 1.15 },
 ];
 
 const TEMPLATE = `

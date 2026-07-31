@@ -70,21 +70,51 @@
 
 /* -- the running instruction line ------------------------------------------ */
 
+/**
+ * The running instruction: the one line that tells the player what to do.
+ *
+ * It was 13px of dim grey set as a single 913px line — about 155 characters,
+ * more than twice the maximum readable measure — sitting under a decorative
+ * cream placard that was larger, brighter and dead centre. That is the reading
+ * order exactly upside down. This is the brief: paper-bright, at a measure a
+ * person can track, with a lamp mark so it reads as an instruction rather than
+ * as a caption.
+ */
 .sx .sx-step {
   flex: 0 0 auto;
+  position: relative;
   margin: 0;
+  max-inline-size: 62ch;
+  padding-left: 1.1em;
   font-family: var(--font-body);
-  font-size: clamp(0.64rem, 1.85cqh, 0.92rem);
-  line-height: 1.4;
-  color: var(--moon-200);
+  font-size: clamp(0.95rem, 2.55cqh, 1.29rem);
+  line-height: var(--leading-body);
+  text-wrap: pretty;
+  color: color-mix(in srgb, var(--paper-100) 88%, var(--moon-200));
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
+}
+
+.sx .sx-step::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 0.42em;
+  height: 0.42em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, var(--lamp-100) 0%, var(--lamp-400) 62%, transparent 100%);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--lamp-300) 60%, transparent);
+}
+
+.sx .sx-step:empty::before {
+  display: none;
 }
 
 /* -- printed card headings -------------------------------------------------- */
 
 .sx .sx-card-title {
   margin: 0;
-  font-size: clamp(0.56rem, 1.5cqh, 0.74rem);
+  font-size: clamp(0.76rem, 2.07cqh, 1.04rem);
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
   color: var(--lamp-200);
@@ -93,7 +123,7 @@
 .sx .sx-card-sub {
   margin: 0 0 0.35rem;
   font-family: var(--font-body);
-  font-size: clamp(0.55rem, 1.42cqh, 0.72rem);
+  font-size: clamp(0.74rem, 1.96cqh, 1.01rem);
   line-height: 1.35;
   color: var(--moon-300);
 }
@@ -118,6 +148,34 @@
     var(--shadow-2);
   border: 1px solid color-mix(in srgb, var(--paper-400) 70%, var(--ink-900));
   overflow: hidden;
+}
+
+/**
+ * The lamp reaching the page.
+ *
+ * An open book is the largest light surface on this bench, and a large light
+ * surface at one flat value is the fastest way to make a screen look like a
+ * container waiting for content. The head of the page is nearly white where the
+ * lamp lands, the foot is two stops down and warmer, and the fore-edge takes
+ * the shadow of the boards — so the part of the page nobody has written on
+ * recedes instead of glaring.
+ */
+.sx .sx-book::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    linear-gradient(
+      166deg,
+      transparent 0%,
+      transparent 26%,
+      color-mix(in srgb, var(--paper-400) 30%, transparent) 68%,
+      color-mix(in srgb, var(--paper-400) 62%, transparent) 100%
+    ),
+    linear-gradient(270deg, color-mix(in srgb, var(--paper-400) 42%, transparent) 0%, transparent 9%);
 }
 
 /* All three parts share row 1. Without the explicit row the auto-placement
@@ -148,7 +206,7 @@
 .sx .sx-book-head {
   margin: 0 0 0.35rem;
   font-family: var(--font-display);
-  font-size: clamp(0.6rem, 1.6cqh, 0.82rem);
+  font-size: clamp(0.81rem, 2.21cqh, 1.15rem);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--sx-ink);
@@ -191,7 +249,7 @@
 .sx .sx-book-term {
   grid-area: term;
   font-family: var(--font-mono);
-  font-size: clamp(0.52rem, 1.38cqh, 0.68rem);
+  font-size: clamp(0.72rem, 1.9cqh, 0.95rem);
   letter-spacing: 0.04em;
   color: var(--sx-ink);
 }
@@ -199,7 +257,7 @@
 .sx .sx-book-gloss {
   grid-area: gloss;
   font-family: var(--font-body);
-  font-size: clamp(0.5rem, 1.3cqh, 0.66rem);
+  font-size: clamp(0.72rem, 1.79cqh, 0.92rem);
   line-height: 1.3;
   color: var(--sx-ink-soft);
 }
@@ -208,7 +266,7 @@
   grid-area: tail;
   align-self: center;
   font-family: var(--font-mono);
-  font-size: clamp(0.5rem, 1.32cqh, 0.66rem);
+  font-size: clamp(0.72rem, 1.82cqh, 0.92rem);
   white-space: nowrap;
   color: color-mix(in srgb, var(--blood) 78%, var(--paper-ink));
   border-bottom: 1px solid color-mix(in srgb, var(--blood) 40%, transparent);
@@ -218,7 +276,7 @@
   margin: 0.4rem 0 0;
   font-family: var(--font-body);
   font-style: italic;
-  font-size: clamp(0.48rem, 1.24cqh, 0.62rem);
+  font-size: clamp(0.72rem, 1.71cqh, 0.87rem);
   color: var(--sx-ink-soft);
   border-top: 1px solid color-mix(in srgb, var(--paper-400) 60%, transparent);
   padding-top: 0.25rem;
@@ -240,10 +298,18 @@
   border-right: 0;
   border-radius: 3px 0 0 3px;
   background-image: linear-gradient(90deg, var(--paper-300), var(--paper-200));
-  color: var(--sx-ink-soft);
-  font-family: var(--font-ui);
-  font-size: clamp(0.42rem, 1.1cqh, 0.56rem);
-  letter-spacing: 0.1em;
+  /* `--sx-ink-soft` is `--paper-ink-faded`, which is correct on `--paper-100`
+     and measured 3.98:1 here on the darker `--paper-300` of the tab stock. A
+     thumb index on a 1974 Admiralty publication is printed, not rendered — and
+     it is printed in the same ink as the page. */
+  color: var(--paper-ink);
+  /* A card tab glued to the fore-edge of a printed volume is a diegetic object.
+     Inter Tight on it is the anachronism tokens.css:130 names outright. */
+  font-family: var(--font-label);
+  font-variant-caps: all-small-caps;
+  font-weight: 600;
+  font-size: clamp(0.84rem, 1.78cqh, 0.94rem);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
@@ -336,7 +402,7 @@
 
 .sx .sx-lever-label {
   grid-area: label;
-  font-size: clamp(0.55rem, 1.44cqh, 0.72rem);
+  font-size: clamp(0.74rem, 1.99cqh, 1.01rem);
   text-transform: uppercase;
   letter-spacing: var(--tracking-ui);
 }
@@ -344,27 +410,47 @@
 .sx .sx-lever-sub {
   grid-area: sub;
   font-family: var(--font-body);
-  font-size: clamp(0.48rem, 1.24cqh, 0.62rem);
+  font-size: clamp(0.72rem, 1.71cqh, 0.87rem);
   color: var(--moon-400);
 }
 
 /* -- a quiet secondary control ---------------------------------------------- */
 
+/**
+ * The secondary control.
+ *
+ * Sentence-case, serif-adjacent, 2px radius and a flat fill, standing in the
+ * same 200px panel as a tracked-uppercase pill and two tracked-uppercase well
+ * labels: three button registers in one panel, and this was the one that read
+ * as an unstyled browser default. It is now made of the same stuff as
+ * everything else on the bench — tracked caps, brass hairline, a lit top edge —
+ * and only its weight says it is secondary.
+ */
 .sx .sx-dk-minor {
-  padding: 0.24rem 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--lamp-500) 34%, transparent);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--ink-700) 80%, transparent);
+  padding: 0.34rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--lamp-500) 46%, transparent);
+  border-radius: var(--radius-md);
+  background-image: linear-gradient(168deg, var(--ink-600) 0%, var(--ink-800) 100%);
   color: var(--moon-200);
   font-family: var(--font-ui);
-  font-size: clamp(0.48rem, 1.24cqh, 0.62rem);
-  letter-spacing: 0.06em;
+  font-size: clamp(0.72rem, 1.55cqh, 0.82rem);
+  text-transform: uppercase;
+  letter-spacing: var(--pz-tracking-ui);
   cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 24%, transparent),
+    inset 0 -2px 4px rgb(0 0 0 / 0.55),
+    var(--shadow-1);
+  transition: color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .sx .sx-dk-minor:hover {
-  background: color-mix(in srgb, var(--ink-600) 88%, transparent);
   color: var(--lamp-100);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 36%, transparent),
+    inset 0 -2px 4px rgb(0 0 0 / 0.55),
+    var(--shadow-1),
+    var(--glow-lamp-soft);
 }
 
 .sx .sx-dk-minor:focus-visible {
@@ -441,12 +527,12 @@
 
 .sx-tw .sx-tw-album-name {
   font-family: var(--font-display);
-  font-size: clamp(0.6rem, 1.62cqh, 0.82rem);
+  font-size: clamp(0.81rem, 2.24cqh, 1.15rem);
   font-weight: 600;
 }
 
 .sx-tw .sx-tw-album-room {
-  font-size: clamp(0.44rem, 1.14cqh, 0.56rem);
+  font-size: clamp(0.72rem, 1.57cqh, 0.8rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--sx-ink-soft);
@@ -455,13 +541,13 @@
 .sx-tw .sx-tw-album-fault {
   margin-top: 0.14rem;
   font-family: var(--font-mono);
-  font-size: clamp(0.44rem, 1.16cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.6cqh, 0.81rem);
   line-height: 1.28;
   color: color-mix(in srgb, var(--blood) 72%, var(--paper-ink));
 }
 
 .sx-tw .sx-tw-album-state {
-  font-size: clamp(0.4rem, 1.04cqh, 0.52rem);
+  font-size: clamp(0.72rem, 1.44cqh, 0.8rem);
   letter-spacing: 0.16em;
   color: var(--sx-ink-soft);
 }
@@ -498,20 +584,20 @@
 .sx-tw .sx-tw-orphan.is-placed { border-style: solid; border-color: var(--verdigris); }
 
 .sx-tw .sx-tw-orphan-mark {
-  font-size: clamp(0.4rem, 1.02cqh, 0.5rem);
+  font-size: clamp(0.72rem, 1.41cqh, 0.8rem);
   letter-spacing: 0.2em;
   color: var(--blood);
 }
 
 .sx-tw .sx-tw-orphan-name {
   font-family: var(--font-display);
-  font-size: clamp(0.55rem, 1.48cqh, 0.72rem);
+  font-size: clamp(0.74rem, 2.04cqh, 1.01rem);
   font-weight: 600;
 }
 
 .sx-tw .sx-tw-orphan-note {
   font-family: var(--font-body);
-  font-size: clamp(0.46rem, 1.2cqh, 0.6rem);
+  font-size: clamp(0.72rem, 1.66cqh, 0.84rem);
   line-height: 1.28;
   color: var(--sx-ink-soft);
 }
@@ -584,14 +670,14 @@
   padding: 0 0.3rem;
   border: 1px solid color-mix(in srgb, var(--blood) 55%, transparent);
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 1.06cqh, 0.52rem);
+  font-size: clamp(0.72rem, 1.46cqh, 0.8rem);
   letter-spacing: 0.16em;
   color: var(--blood);
 }
 
 .sx-tw .sx-tw-sheet-what {
   font-family: var(--font-mono);
-  font-size: clamp(0.44rem, 1.18cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.63cqh, 0.81rem);
   letter-spacing: 0.06em;
   color: var(--paper-ink-faded);
 }
@@ -599,14 +685,14 @@
 .sx-tw .sx-tw-sheet-foot {
   margin: clamp(0.4rem, 1.8cqh, 0.9rem) 0 0;
   font-family: var(--font-hand);
-  font-size: clamp(0.6rem, 1.7cqh, 0.86rem);
+  font-size: clamp(0.81rem, 2.35cqh, 1.2rem);
   color: #2b3a56;
   transform: rotate(-0.5deg);
 }
 
 .sx-tw .sx-tw-lines {
   font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 2.6cqh, 1.32rem);
+  font-size: clamp(0.97rem, 3.59cqh, 1.85rem);
   line-height: 1.85;
   color: var(--paper-ink);
   white-space: nowrap;
@@ -731,7 +817,7 @@
   margin: 0;
   min-height: 2.2em;
   font-family: var(--font-body);
-  font-size: clamp(0.55rem, 1.5cqh, 0.74rem);
+  font-size: clamp(0.74rem, 2.07cqh, 1.04rem);
   line-height: 1.35;
   color: var(--lamp-100);
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.8);
@@ -757,7 +843,7 @@
 .sx-tw .sx-tw-rule {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.48rem, 1.26cqh, 0.63rem);
+  font-size: clamp(0.72rem, 1.74cqh, 0.88rem);
   line-height: 1.34;
   color: var(--moon-200);
   padding: 0.3rem 0.4rem;
@@ -826,14 +912,14 @@
 
 .sx-tw .sx-tw-tag-name {
   font-family: var(--font-mono);
-  font-size: clamp(0.46rem, 1.22cqh, 0.6rem);
+  font-size: clamp(0.72rem, 1.68cqh, 0.84rem);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .sx-tw .sx-tw-tag-gloss {
   font-family: var(--font-body);
-  font-size: clamp(0.42rem, 1.12cqh, 0.55rem);
+  font-size: clamp(0.72rem, 1.55cqh, 0.8rem);
   line-height: 1.26;
   color: var(--sx-ink-soft);
 }
@@ -911,13 +997,13 @@
 .sx-bs .sx-bs-stencil.is-order { right: 1%; top: 4%; max-width: 34%; text-align: right; }
 
 .sx-bs .sx-bs-stencil-head {
-  font-size: clamp(0.36rem, 1cqh, 0.48rem);
+  font-size: clamp(0.72rem, 1.38cqh, 0.8rem);
   letter-spacing: 0.14em;
   color: #7c8a93;
 }
 
 .sx-bs .sx-bs-stencil-body {
-  font-size: clamp(0.44rem, 1.24cqh, 0.6rem);
+  font-size: clamp(0.72rem, 1.71cqh, 0.84rem);
   letter-spacing: 0.06em;
   color: #d7e0e5;
 }
@@ -1008,13 +1094,13 @@
 
 .sx-bs .sx-bs-box-series {
   top: 32%;
-  font-size: clamp(0.32rem, 1.1cqh, 0.54rem);
+  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
   opacity: 0.78;
 }
 
 .sx-bs .sx-bs-box-number {
   top: 50%;
-  font-size: clamp(0.42rem, 1.5cqh, 0.74rem);
+  font-size: clamp(0.72rem, 2.07cqh, 1.04rem);
   color: #14100b;
 }
 
@@ -1152,7 +1238,7 @@
   background-image: var(--sx-brass);
   color: var(--ink-900);
   font-family: var(--font-ui);
-  font-size: clamp(0.55rem, 1.5cqh, 0.72rem);
+  font-size: clamp(0.74rem, 2.07cqh, 1.01rem);
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
   cursor: pointer;
@@ -1164,7 +1250,7 @@
   margin: 0;
   min-height: 2.2em;
   font-family: var(--font-body);
-  font-size: clamp(0.55rem, 1.5cqh, 0.74rem);
+  font-size: clamp(0.74rem, 2.07cqh, 1.04rem);
   line-height: 1.35;
   color: var(--lamp-100);
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.85);
@@ -1195,7 +1281,7 @@
 
 .sx-bs .sx-bs-duct-head {
   margin: 0;
-  font-size: clamp(0.5rem, 1.34cqh, 0.66rem);
+  font-size: clamp(0.72rem, 1.85cqh, 0.92rem);
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
   color: var(--lamp-200);
@@ -1239,7 +1325,7 @@
 .sx-bs .sx-bs-frag-line {
   margin: 0;
   font-family: var(--font-hand);
-  font-size: clamp(0.72rem, 2cqh, 1.05rem);
+  font-size: clamp(0.97rem, 2.76cqh, 1.47rem);
   line-height: 1.5;
   color: #223049;
 }
@@ -1265,7 +1351,7 @@
   border-radius: 999px;
   background-image: linear-gradient(168deg, var(--ink-700), var(--ink-900));
   color: var(--lamp-100);
-  font-size: clamp(0.44rem, 1.18cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.63cqh, 0.81rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1301,7 +1387,7 @@
   background: linear-gradient(168deg, var(--paper-200), var(--paper-300));
   color: var(--sx-ink);
   font-family: var(--font-ui);
-  font-size: clamp(0.42rem, 1.1cqh, 0.55rem);
+  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1384,20 +1470,20 @@
 
 .sx-dk .sx-dk-tab-n {
   font-family: var(--font-display);
-  font-size: clamp(0.7rem, 1.9cqh, 0.95rem);
+  font-size: clamp(0.95rem, 2.62cqh, 1.33rem);
   text-align: center;
   color: var(--lamp-300);
 }
 
 .sx-dk .sx-dk-tab-name {
-  font-size: clamp(0.46rem, 1.24cqh, 0.6rem);
+  font-size: clamp(0.72rem, 1.71cqh, 0.84rem);
   letter-spacing: 0.04em;
   line-height: 1.2;
 }
 
 .sx-dk .sx-dk-tab-state {
   text-align: center;
-  font-size: clamp(0.46rem, 1.2cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.66cqh, 0.81rem);
   color: var(--ink-400);
 }
 
@@ -1436,7 +1522,7 @@
 .sx-dk .sx-dk-plate-line {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.48rem, 1.3cqh, 0.64rem);
+  font-size: clamp(0.72rem, 1.79cqh, 0.9rem);
   line-height: 1.32;
   color: var(--moon-300);
 }
@@ -1457,7 +1543,7 @@
   margin: 0.25rem 0 0;
   min-height: 2.4em;
   font-family: var(--font-body);
-  font-size: clamp(0.52rem, 1.42cqh, 0.7rem);
+  font-size: clamp(0.72rem, 1.96cqh, 0.98rem);
   line-height: 1.32;
   color: var(--lamp-100);
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.8);
@@ -1482,7 +1568,7 @@
   display: block;
   text-align: right;
   font-family: var(--font-mono);
-  font-size: clamp(0.44rem, 1.2cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.66cqh, 0.81rem);
   color: var(--paper-ink-faded);
   margin-bottom: 0.3rem;
 }
@@ -1490,7 +1576,7 @@
 .sx-dk .sx-dk-typeline {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 1.24cqh, 0.6rem);
+  font-size: clamp(0.72rem, 1.71cqh, 0.84rem);
   line-height: 1.62;
   letter-spacing: 0.01em;
 }
@@ -1526,7 +1612,7 @@
   top: 30%;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(0.9rem, 3.4cqh, 1.8rem);
+  font-size: clamp(1.22rem, 4.69cqh, 2.52rem);
   letter-spacing: 0.16em;
   color: transparent;
   opacity: var(--rake);
@@ -1635,7 +1721,7 @@
   left: 50%;
   top: -0.1rem;
   transform: translateX(-50%);
-  font-size: clamp(0.4rem, 1.1cqh, 0.52rem);
+  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
   color: var(--blood);
 }
 
@@ -1667,7 +1753,7 @@
   background: rgb(40 60 74 / 0.85);
   color: #e6f0f6;
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 1.06cqh, 0.5rem);
+  font-size: clamp(0.72rem, 1.46cqh, 0.8rem);
   letter-spacing: 0.08em;
 }
 
@@ -1685,7 +1771,7 @@
 .sx-dk .sx-dk-tally {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.48rem, 1.28cqh, 0.62rem);
+  font-size: clamp(0.72rem, 1.77cqh, 0.87rem);
   color: var(--lamp-200);
 }
 
@@ -1734,7 +1820,7 @@
   margin: 0;
   padding-left: 1.1rem;
   font-family: var(--font-body);
-  font-size: clamp(0.48rem, 1.28cqh, 0.62rem);
+  font-size: clamp(0.72rem, 1.77cqh, 0.87rem);
   line-height: 1.34;
   color: var(--moon-200);
 }
@@ -1841,7 +1927,7 @@
 
 .sx-dk .sx-dk-strip-name {
   font-family: var(--font-mono);
-  font-size: clamp(0.42rem, 1.12cqh, 0.55rem);
+  font-size: clamp(0.72rem, 1.55cqh, 0.8rem);
   letter-spacing: 0.03em;
 }
 
@@ -1879,7 +1965,7 @@
 .sx-dk .sx-dk-annexe-head {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.5rem, 1.32cqh, 0.65rem);
+  font-size: clamp(0.72rem, 1.82cqh, 0.91rem);
   color: var(--moon-100);
 }
 
@@ -1887,7 +1973,7 @@
   margin: 0 0 0.28rem;
   font-family: var(--font-body);
   font-style: italic;
-  font-size: clamp(0.44rem, 1.2cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.66cqh, 0.81rem);
   color: var(--moon-300);
 }
 
@@ -1933,19 +2019,19 @@
 .sx-dk .sx-dk-rn {
   grid-area: n;
   font-family: var(--font-display);
-  font-size: clamp(0.6rem, 1.6cqh, 0.8rem);
+  font-size: clamp(0.81rem, 2.21cqh, 1.12rem);
   color: var(--sx-ink-soft);
 }
 
 .sx-dk .sx-dk-rname {
   grid-area: name;
   font-family: var(--font-body);
-  font-size: clamp(0.5rem, 1.32cqh, 0.66rem);
+  font-size: clamp(0.72rem, 1.82cqh, 0.92rem);
 }
 
 .sx-dk .sx-dk-rstate {
   grid-area: state;
-  font-size: clamp(0.4rem, 1.06cqh, 0.52rem);
+  font-size: clamp(0.72rem, 1.46cqh, 0.8rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--blood) 70%, var(--paper-ink));
@@ -1960,7 +2046,7 @@
   border-radius: 2px;
   background: color-mix(in srgb, var(--paper-300) 70%, transparent);
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 1.08cqh, 0.52rem);
+  font-size: clamp(0.72rem, 1.49cqh, 0.8rem);
   letter-spacing: 0.12em;
   color: var(--sx-ink-soft);
   cursor: pointer;
@@ -1987,7 +2073,7 @@
   padding: 0.24rem 0.32rem;
   border-left: 2px solid var(--amethyst);
   font-family: var(--font-body);
-  font-size: clamp(0.44rem, 1.2cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.66cqh, 0.81rem);
   line-height: 1.3;
   color: var(--sx-ink-soft);
   background: color-mix(in srgb, var(--amethyst) 12%, transparent);
@@ -1995,7 +2081,7 @@
 
 .sx-dk .sx-dk-findhead {
   margin: 0.4rem 0 0.1rem;
-  font-size: clamp(0.48rem, 1.28cqh, 0.62rem);
+  font-size: clamp(0.72rem, 1.77cqh, 0.87rem);
   letter-spacing: var(--tracking-ui);
   text-transform: uppercase;
   color: var(--sx-ink-soft);
@@ -2011,7 +2097,7 @@
   border-radius: 2px;
   background: transparent;
   font-family: var(--font-body);
-  font-size: clamp(0.46rem, 1.24cqh, 0.6rem);
+  font-size: clamp(0.72rem, 1.71cqh, 0.84rem);
   line-height: 1.28;
   color: var(--sx-ink);
   cursor: pointer;
@@ -2051,7 +2137,7 @@
   margin: 0;
   min-height: 2.3em;
   font-family: var(--font-body);
-  font-size: clamp(0.54rem, 1.46cqh, 0.72rem);
+  font-size: clamp(0.73rem, 2.01cqh, 1.01rem);
   line-height: 1.34;
   color: var(--lamp-100);
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.8);
@@ -2068,75 +2154,206 @@
   gap: clamp(0.4rem, 1.6cqw, 0.9rem);
 }
 
+/**
+ * The inside of a K6 kiosk: cast iron painted red, and a lot of it.
+ *
+ * Two things had to change for that sentence to be true on screen.
+ *
+ * (1) `background-blend-mode: overlay` against a *neutral* grain pulls a
+ *     saturated base toward the grain's own grey, so the authored #4a1c1a
+ *     sampled as (51,46,42) — a warm neutral with no red in it at all. The
+ *     blend is `soft-light`, which keeps chroma while still reading as cast
+ *     texture, and the base is pushed up so the red survives to about 20–25%
+ *     saturation in the shadows rather than to zero.
+ * (2) `justify-content: center` centred a short stack in a tall box, which is
+ *     not a composition — it is 195px of blank paint above the phone and 198px
+ *     below. The stack runs from the top and the panel carries the rest as
+ *     enamel: a lit crown where the kiosk window would be, and the falloff of
+ *     the one lamp in the box.
+ */
 .sx-cl .sx-cl-boxleft {
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  gap: clamp(0.5rem, 2cqh, 1rem);
   min-height: 0;
-  padding: clamp(0.4rem, 1.6cqh, 0.9rem);
+  padding: clamp(0.5rem, 2cqh, 1.1rem);
   border-radius: var(--radius-sm);
-  /* The inside of a K6 kiosk: cast iron painted red, and a lot of it. */
   background-image:
     var(--pz-grain-hide),
-    linear-gradient(168deg, #4a1c1a 0%, #331312 48%, #1c0c0c 100%);
-  background-blend-mode: overlay, normal;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.7), inset 0 2px 14px rgb(0 0 0 / 0.5);
+    linear-gradient(168deg, #6b241f 0%, #451614 46%, #240d0c 100%);
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.7),
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 2px 14px rgb(0 0 0 / 0.5);
 }
 
+/**
+ * Cast-iron panel moulding, below the controls.
+ *
+ * The stack no longer floats in the middle of the box, which leaves the lower
+ * part of the kiosk as bare paint — and bare paint is the thing that reads as
+ * an unfinished layout. A K6's interior is framed panelling, so that is what
+ * fills it: a raised field with a lit arris along its top-left edge and an
+ * undercut along its bottom-right, agreeing with the one lamp in the box.
+ *
+ * This is `::before` and the light is `::after` deliberately: both are
+ * `z-index: auto` positioned children, so tree order is what decides which one
+ * is on top, and the ironwork has to be *under* the falloff or the lower half
+ * of the panel never goes dark.
+ */
+.sx-cl .sx-cl-boxleft::before {
+  content: '';
+  position: absolute;
+  left: clamp(0.5rem, 2cqh, 1.1rem);
+  right: clamp(0.5rem, 2cqh, 1.1rem);
+  bottom: clamp(0.5rem, 2cqh, 1.1rem);
+  height: 42%;
+  pointer-events: none;
+  border-radius: 2px;
+  background: linear-gradient(168deg, rgb(255 255 255 / 0.045), rgb(0 0 0 / 0.16));
+  box-shadow:
+    inset 1px 1px 0 rgb(255 214 180 / 0.11),
+    inset -1px -1px 0 rgb(0 0 0 / 0.55),
+    inset 0 0 0 4px rgb(0 0 0 / 0.1),
+    inset 4px 4px 0 4px rgb(255 214 180 / 0.06),
+    inset -4px -4px 0 4px rgb(0 0 0 / 0.3);
+}
+
+/* The one source in the box, and its falloff. Everything in the kiosk is lit by
+   it, and the corner furthest from it goes out. */
+.sx-cl .sx-cl-boxleft::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(46% 30% at 22% 2%, rgb(255 214 160 / 0.24), transparent 100%),
+    radial-gradient(120% 90% at 24% -6%, rgb(255 150 110 / 0.14), transparent 72%),
+    linear-gradient(158deg, transparent 40%, rgb(0 0 0 / 0.34) 100%);
+}
+
+.sx-cl .sx-cl-boxleft > * {
+  position: relative;
+  z-index: 1;
+}
+
+/**
+ * The Bakelite set on its shelf.
+ *
+ * This is the hero prop of the screen and it was a 96px near-black bar with a
+ * gold circle on it. It cannot be a photograph from CSS, but it can at least be
+ * an *object*: a moulded body with a handset lying in its cradle, a pressed
+ * steel shelf under it, the bell dome, the A-button plate and the line lamp. It
+ * is also twice the height it was, which it can afford now that the panel is
+ * not 400px of nothing.
+ */
 .sx-cl .sx-cl-set {
   position: relative;
-  height: clamp(3.4rem, 15cqh, 6rem);
-  border-radius: 3px;
+  height: clamp(6.5rem, 26cqh, 11rem);
+  border-radius: 3px 3px 4px 4px;
   background-image:
-    var(--pz-grain-brass),
-    linear-gradient(168deg, #2b2a27 0%, #1a1917 60%, #0d0d0c 100%);
-  background-blend-mode: overlay, normal;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), var(--shadow-2);
+    var(--pz-grain-hide),
+    radial-gradient(52% 40% at 24% 4%, rgb(255 226 180 / 0.16), transparent 100%),
+    linear-gradient(168deg, #34322d 0%, #1f1e1b 54%, #0c0c0b 100%);
+  background-blend-mode: soft-light, screen, normal;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 -3px 8px rgb(0 0 0 / 0.6),
+    var(--shadow-3);
 }
 
+/* Pressed-steel shelf: the set is standing on something. */
+.sx-cl .sx-cl-set::before {
+  content: '';
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  bottom: -0.42rem;
+  height: 0.42rem;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #4a4640 0%, #23211d 60%, #0c0b0a 100%);
+  box-shadow: 0 4px 9px -2px rgb(0 0 0 / 0.75);
+}
+
+/**
+ * The handset in its cradle.
+ *
+ * A rounded rectangle is a rounded rectangle at any size. The `clip-path` is a
+ * handset silhouette — earpiece bell, tapered grip, mouthpiece bell — laid
+ * across the top of the body, with a shadow beneath it so it reads as lying in
+ * a cradle rather than as printed on the front.
+ */
 .sx-cl .sx-cl-set-body {
   position: absolute;
-  left: 8%;
-  top: 16%;
-  width: 30%;
-  height: 68%;
-  border-radius: 0.3rem;
-  background: linear-gradient(160deg, #37352f, #171614);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 2px 3px 6px rgb(0 0 0 / 0.6);
+  left: 6%;
+  top: 12%;
+  width: 52%;
+  height: 30%;
+  border-radius: 0;
+  clip-path: polygon(
+    0% 34%, 4% 8%, 13% 0%, 22% 8%, 25% 34%,
+    32% 44%, 68% 44%, 75% 34%,
+    78% 8%, 87% 0%, 96% 8%, 100% 34%,
+    100% 62%, 96% 88%, 87% 100%, 78% 88%, 75% 62%,
+    68% 56%, 32% 56%, 25% 62%,
+    22% 88%, 13% 100%, 4% 88%, 0% 62%
+  );
+  background: linear-gradient(168deg, #43413a 0%, #2a2824 46%, #121110 100%);
+  /* `drop-shadow` and not `box-shadow`: box-shadow follows the border box and
+     would draw a rectangle around a handset-shaped clip. This follows the
+     silhouette, which is what makes it read as lying in a cradle. */
+  filter: drop-shadow(2px 4px 4px rgb(0 0 0 / 0.72));
 }
 
+/* The bell dome. A brass hemisphere takes a rim highlight along the lit arc and
+   a contact shadow under it — a radial gradient on its own is a flat disc. */
 .sx-cl .sx-cl-set-bell {
   position: absolute;
   right: 9%;
-  top: 20%;
-  width: clamp(1rem, 4.4cqh, 1.8rem);
+  top: 13%;
+  width: clamp(1.6rem, 7cqh, 2.8rem);
   aspect-ratio: 1;
   border-radius: 50%;
   background-image: radial-gradient(circle at 34% 28%, var(--pz-brass-hi), var(--pz-brass-mid) 48%, var(--pz-brass-lo) 100%);
-  box-shadow: inset 0 -2px 4px rgb(0 0 0 / 0.5), 0 2px 5px rgb(0 0 0 / 0.6);
+  box-shadow:
+    inset 0 2px 3px rgb(255 243 214 / 0.42),
+    inset -2px -3px 7px rgb(0 0 0 / 0.5),
+    0 4px 9px -1px rgb(0 0 0 / 0.68);
 }
 
+/* The enamel A-button plate, screwed to the front of the moulding. */
 .sx-cl .sx-cl-set-plate {
   position: absolute;
-  left: 44%;
-  bottom: 14%;
+  left: 6%;
+  bottom: 11%;
+  padding: 0.2em 0.5em;
+  border-radius: 1px;
   font-family: var(--font-mono);
-  font-size: clamp(0.38rem, 1.06cqh, 0.5rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(0.72rem, 1.6cqh, 0.86rem);
+  letter-spacing: 0.1em;
   color: var(--lamp-200);
-  opacity: 0.8;
+  background: linear-gradient(170deg, rgb(255 255 255 / 0.07), rgb(0 0 0 / 0.35));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 -1px 0 rgb(0 0 0 / 0.6);
 }
 
+/* The line lamp: dark glass in a bezel until the call is live. */
 .sx-cl .sx-cl-line {
   position: absolute;
-  left: 44%;
-  top: 22%;
-  width: 0.55rem;
-  height: 0.55rem;
+  right: 13%;
+  top: 52%;
+  width: 0.7rem;
+  height: 0.7rem;
   border-radius: 50%;
-  background: #201f1c;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.8);
+  background: radial-gradient(circle at 36% 30%, #2c2a26, #171613 70%);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.8),
+    0 0 0 2px rgb(255 255 255 / 0.06);
 }
 
 .sx-cl .sx-cl-line.is-live {
@@ -2159,7 +2376,7 @@
   border-radius: var(--radius-sm);
   background-image: linear-gradient(168deg, #2a2926, #131211);
   color: var(--lamp-100);
-  font-size: clamp(0.5rem, 1.34cqh, 0.66rem);
+  font-size: clamp(0.72rem, 1.85cqh, 0.92rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -2188,19 +2405,26 @@
 /* -- the stopwatch ---------------------------------------------------------- */
 
 .sx-cl .sx-cl-watch {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas: 'plunger tape' 'plunger dials' 'plunger rewind';
   align-items: center;
-  gap: 0.3rem 0.5rem;
-  padding: 0.45rem 0.5rem;
+  gap: 0.45rem 0.7rem;
+  padding: 0.7rem 0.75rem;
   border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--lamp-500) 34%, transparent);
+  /* The instrument is a lit object on a lit shelf: a hot corner where the lamp
+     falls, a warm wash behind it, and the far corner two stops down. */
   background-image:
     var(--pz-grain-brass),
-    linear-gradient(168deg, #262d33, #12171c);
-  background-blend-mode: overlay, normal;
-  box-shadow: var(--shadow-2);
+    radial-gradient(44% 60% at 16% 0%, rgb(255 226 168 / 0.2), transparent 100%),
+    linear-gradient(168deg, #2c343b 0%, #1a2026 58%, #0d1216 100%);
+  background-blend-mode: overlay, screen, normal;
+  box-shadow:
+    inset 0 1px 0 rgb(255 243 214 / 0.14),
+    inset 0 -2px 8px rgb(0 0 0 / 0.5),
+    var(--shadow-2);
 }
 
 .sx-cl .sx-cl-plunger {
@@ -2222,10 +2446,16 @@
     var(--pz-grain-brass),
     radial-gradient(circle at 34% 26%, var(--pz-brass-hi) 0%, var(--pz-brass-mid) 46%, var(--pz-brass-lo) 100%);
   background-blend-mode: overlay, normal;
+  /* A sphere, lit: a warm specular on the near-upper-left, the terminator
+     falling away to the lower right, and a real cast shadow on the panel
+     beneath. Two radial gradients with the same hotspot and no bezel is a
+     circle, not a crown. */
   box-shadow:
-    inset 0 -3px 6px rgb(0 0 0 / 0.45),
-    inset 0 2px 3px rgb(255 255 255 / 0.28),
-    0 5px 10px -2px rgb(0 0 0 / 0.7);
+    inset 2px 2px 3px rgb(255 243 214 / 0.5),
+    inset -2px -3px 7px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(0 0 0 / 0.35),
+    0 3px 7px rgb(0 0 0 / 0.6),
+    0 7px 14px -3px rgb(0 0 0 / 0.55);
   transition: transform 70ms var(--ease-out), box-shadow 70ms var(--ease-out);
 }
 
@@ -2286,15 +2516,18 @@
   background: var(--blood);
 }
 
+/* The empty state is the line that tells the player why nothing is happening.
+   It was #a6926d on #e9e1cd — 2.32:1, effectively invisible. Ink on the tape,
+   not a watermark. */
 .sx-cl .sx-cl-tape-empty {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: clamp(0.4rem, 1.06cqh, 0.5rem);
-  letter-spacing: 0.1em;
+  font-size: clamp(0.74rem, 1.55cqh, 0.84rem);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper-400) 90%, var(--paper-ink));
+  color: color-mix(in srgb, var(--paper-ink) 68%, var(--paper-200));
 }
 
 .sx-cl .sx-cl-dials { grid-area: dials; display: flex; gap: 0.5rem; }
@@ -2308,16 +2541,19 @@
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
 }
 
+/* These two are the readouts the player watches while timing flashes, so they
+   are the last labels in the frame that can afford to be 7px of --moon-400 at
+   2.89:1. Letterspaced all-caps has a size floor regardless of contrast. */
 .sx-cl .sx-cl-dial-cap {
-  font-size: clamp(0.36rem, 1cqh, 0.46rem);
-  letter-spacing: 0.12em;
+  font-size: clamp(0.74rem, 1.6cqh, 0.86rem);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--moon-400);
+  color: var(--moon-200);
 }
 
 .sx-cl .sx-cl-dial-val {
   font-family: var(--font-mono);
-  font-size: clamp(0.66rem, 1.9cqh, 0.95rem);
+  font-size: clamp(0.89rem, 2.62cqh, 1.33rem);
   color: var(--lamp-200);
 }
 
@@ -2333,7 +2569,7 @@
   border-radius: 999px;
   background: rgb(0 0 0 / 0.3);
   color: var(--moon-200);
-  font-size: clamp(0.4rem, 1.08cqh, 0.52rem);
+  font-size: clamp(0.72rem, 1.49cqh, 0.8rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -2394,7 +2630,7 @@
 .sx-cl .sx-cl-chip.is-good { box-shadow: var(--shadow-2), 0 0 0 2px color-mix(in srgb, var(--lamp-300) 70%, transparent); }
 
 .sx-cl .sx-cl-chip-head {
-  font-size: clamp(0.38rem, 1.02cqh, 0.48rem);
+  font-size: clamp(0.72rem, 1.41cqh, 0.8rem);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--sx-ink-soft);
@@ -2402,7 +2638,7 @@
 
 .sx-cl .sx-cl-chip-val {
   font-family: var(--font-mono);
-  font-size: clamp(0.66rem, 1.9cqh, 0.95rem);
+  font-size: clamp(0.89rem, 2.62cqh, 1.33rem);
   letter-spacing: 0.04em;
 }
 
@@ -2611,26 +2847,26 @@
 
 .sx-cl .sx-cl-layertab-name {
   font-family: var(--font-display);
-  font-size: clamp(0.6rem, 1.6cqh, 0.8rem);
+  font-size: clamp(0.81rem, 2.21cqh, 1.12rem);
   font-weight: 600;
 }
 
 .sx-cl .sx-cl-layertab-sub {
   font-family: var(--font-body);
-  font-size: clamp(0.42rem, 1.1cqh, 0.54rem);
+  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
   color: var(--moon-400);
 }
 
 .sx-cl .sx-cl-layertab-state {
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 1.04cqh, 0.5rem);
+  font-size: clamp(0.72rem, 1.44cqh, 0.8rem);
   letter-spacing: 0.06em;
   color: var(--moon-300);
 }
 
 .sx-cl .sx-cl-ctl-cap {
   margin: 0.2rem 0 0;
-  font-size: clamp(0.4rem, 1.06cqh, 0.5rem);
+  font-size: clamp(0.72rem, 1.46cqh, 0.8rem);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--moon-400);
@@ -2651,7 +2887,7 @@
   padding: 0.1rem 0.28rem;
   border-left: 3px solid var(--blood);
   background: rgb(0 0 0 / 0.28);
-  font-size: clamp(0.42rem, 1.1cqh, 0.54rem);
+  font-size: clamp(0.72rem, 1.52cqh, 0.8rem);
   color: var(--moon-200);
 }
 
@@ -2668,7 +2904,7 @@
 .sx-cl .sx-cl-divread {
   margin: 0.2rem 0 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.44rem, 1.18cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.63cqh, 0.81rem);
   color: var(--lamp-200);
 }
 
@@ -2686,7 +2922,7 @@
   padding: 0.2rem 0.3rem;
   border-left: 2px dotted var(--ink-400);
   font-family: var(--font-body);
-  font-size: clamp(0.44rem, 1.18cqh, 0.58rem);
+  font-size: clamp(0.72rem, 1.63cqh, 0.81rem);
   line-height: 1.28;
   color: var(--moon-400);
 }
@@ -2695,7 +2931,7 @@
   border-left: 2px solid var(--verdigris);
   color: var(--moon-100);
   font-family: var(--font-hand);
-  font-size: clamp(0.58rem, 1.55cqh, 0.78rem);
+  font-size: clamp(0.78rem, 2.14cqh, 1.09rem);
 }
 
 /* -- the chart itself ------------------------------------------------------- */

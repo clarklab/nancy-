@@ -89,19 +89,30 @@
   gap: 0.6em;
   padding: 0.2em;
   font-family: var(--font-ui);
-  font-size: clamp(0.62rem, 1.5cqh, 0.78rem);
+  /* The em root for the whole bench: every `em` below resolves against it, so
+     it is the one number deciding whether the archive reads at arm's length.
+     At a 0.78rem ceiling the card codes came out at 7–8px and the engraved
+     captions at 10px — a spreadsheet, not a set. */
+  font-size: clamp(0.78rem, 1.65cqh, 0.94rem);
   line-height: 1.35;
   color: var(--text-primary);
 }
 
 /* -- engraved caption ------------------------------------------------------ */
 
+/* A caption cut into an instrument, not a label in a settings panel. Inter
+   Tight at 0.14em on a Conservancy casting is the combination tokens.css calls
+   out by name; `--font-label` is Cormorant in all-small-caps, which is what a
+   ledger and a maker's plate actually set their column heads in, and it wants
+   about half the tracking because small caps are already open. */
 .lg-cap {
   display: block;
-  font-family: var(--font-ui);
-  font-size: 0.78em;
+  font-family: var(--font-label);
+  font-variant-caps: all-small-caps;
+  font-weight: 600;
+  font-size: 0.94em;
   text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--lamp-300) 70%, var(--moon-300));
   text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent);
   white-space: nowrap;
@@ -109,49 +120,90 @@
 
 /* -- the cast instruction plate -------------------------------------------- */
 
+/**
+ * The cast instruction plate.
+ *
+ * A diegetic object, not chrome, so it does not inherit `--font-ui` — a 2020s
+ * neo-grotesk on a Conservancy brass casting is the single loudest anachronism
+ * available. Four countersunk screws, painted as background stops because two
+ * pseudo-elements can only ever give two and a plate hanging off two nails at
+ * the top is what that looks like.
+ */
 .lg-plate {
   position: relative;
   flex: none;
-  padding: 0.65em 1.6em 0.7em;
+  padding: 0.8em 1.6em 0.85em;
   border-radius: var(--radius-sm);
-  background-image: var(--pz-grain-brass), var(--lg-brass-worn);
-  background-blend-mode: overlay, normal;
-  box-shadow: var(--lg-edge), var(--lg-lift);
-  color: color-mix(in srgb, var(--ink-abyss) 78%, var(--lamp-600));
+  font-family: var(--font-front);
+  background-image:
+    radial-gradient(
+      circle at 0.46em 0.46em,
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0,
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0.1em,
+      color-mix(in srgb, var(--ink-abyss) 72%, transparent) 0.21em,
+      transparent 0.235em
+    ),
+    radial-gradient(
+      circle at calc(100% - 0.46em) 0.46em,
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0,
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0.1em,
+      color-mix(in srgb, var(--ink-abyss) 72%, transparent) 0.21em,
+      transparent 0.235em
+    ),
+    radial-gradient(
+      circle at 0.46em calc(100% - 0.46em),
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0,
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0.1em,
+      color-mix(in srgb, var(--ink-abyss) 72%, transparent) 0.21em,
+      transparent 0.235em
+    ),
+    radial-gradient(
+      circle at calc(100% - 0.46em) calc(100% - 0.46em),
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0,
+      color-mix(in srgb, var(--pz-specular) 60%, transparent) 0.1em,
+      color-mix(in srgb, var(--ink-abyss) 72%, transparent) 0.21em,
+      transparent 0.235em
+    ),
+    var(--pz-grain-brass),
+    /* The engraved field, darkened. The plate's brass measures L 0.19-0.26 and
+       the ink sat on top of it at 3.4-3.7:1 — on the IMP/UND/OLI/REM/PRE key
+       the whole puzzle turns on. A cast plate's lettered panel is recessed and
+       holds more oxide than its raised border does, so dropping it a stop is
+       both the fix and the correct object. */
+    linear-gradient(
+      176deg,
+      color-mix(in srgb, var(--ink-abyss) 15%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 21%, transparent) 100%
+    ),
+    var(--lg-brass-worn);
+  background-blend-mode: normal, normal, normal, normal, overlay, multiply, normal;
+  /* A casting bolted proud of the frame throws its shadow down and to the
+     right, because that is where the lamp is not. */
+  box-shadow: var(--lg-edge), var(--pz-cast-2);
+  /* 96%, not 86%. `--lamp-600` at 14% was lifting the fill out of the trench:
+     an engraving is full of dirt, not of brass. */
+  color: color-mix(in srgb, var(--ink-abyss) 96%, var(--lamp-600));
 }
 
-.lg-plate::before,
-.lg-plate::after {
-  content: '';
-  position: absolute;
-  top: 0.44em;
-  width: 0.42em;
-  height: 0.42em;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 35% 30%,
-    color-mix(in srgb, var(--pz-specular) 60%, transparent),
-    color-mix(in srgb, var(--ink-abyss) 70%, transparent)
-  );
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-abyss) 40%, transparent);
-}
-
-.lg-plate::before {
-  left: 0.44em;
-}
-
-.lg-plate::after {
-  right: 0.44em;
+/* Cut in, not raised. A lit edge below the glyph on its own is the emboss
+   recipe; a filled engraving is dark at the top of the trench and catches the
+   light coming back off its lower wall. */
+.lg-plate-head,
+.lg-plate-line {
+  text-shadow:
+    0 -1px 0 color-mix(in srgb, var(--ink-abyss) 52%, transparent),
+    0 1px 0 color-mix(in srgb, var(--pz-specular) 40%, transparent);
 }
 
 .lg-plate-head {
-  margin: 0 0 0.4em;
-  font-size: 0.82em;
+  margin: 0 0 0.5em;
+  padding-bottom: 0.4em;
+  font-size: 0.94em;
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 34%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink-abyss) 28%, transparent);
 }
 
 .lg-plate-list {
@@ -159,13 +211,20 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 0.18em;
+  justify-items: center;
+  gap: 0.3em;
 }
 
+/* One axis and one tracking value for the whole casting: a centred, tracked cap
+   head over left-aligned sentence-case body lines is two typographic decisions
+   arguing on one object. */
 .lg-plate-line {
-  font-size: 0.85em;
-  letter-spacing: 0.03em;
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 24%, transparent);
+  font-size: 0.82em;
+  line-height: 1.3;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-wrap: balance;
 }
 
 /* -- brass key ------------------------------------------------------------- */
@@ -427,11 +486,14 @@
     var(--lg-lift);
 }
 
+/* A record of what is in the drawer, so it is typed rather than set in chrome. */
 .lg-cards .fc-drawer-mark {
-  margin: 0 0 0.4em;
-  font-size: 0.76em;
-  letter-spacing: var(--tracking-ui);
-  color: color-mix(in srgb, var(--lamp-300) 62%, var(--moon-400));
+  margin: 0 0 0.45em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82em;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--lamp-300) 74%, var(--moon-200));
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.7);
 }
 
@@ -453,6 +515,16 @@
   opacity: 0.85;
 }
 
+/**
+ * The drawer.
+ *
+ * `padding-top` is load-bearing and not decoration: a drawn card lifts 6px and
+ * carries its pencil tick at `top: 1px`, so in row 1 both the lift and the tick
+ * were being clipped by this box's own `overflow: auto`. The result read as a
+ * rendering inconsistency — every row but the first had a red tick — rather
+ * than as a state, which is the worst possible thing for the one mark that
+ * tells the player which cards the frame has drawn.
+ */
 .lg-cards .fc-grid {
   flex: 1 1 auto;
   min-height: 0;
@@ -460,7 +532,8 @@
   scrollbar-width: thin;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 2px;
+  gap: 3px;
+  padding-top: 0.7em;
   padding-bottom: 0.7em;
 }
 
@@ -505,13 +578,29 @@
   background-image: var(--pz-grain-paper), var(--lg-card-wove);
 }
 
+/**
+ * The reference code, and the scrim under it.
+ *
+ * Laid stock is ribbed at a 4px pitch and the digits are struck at roughly the
+ * same stroke pitch, so at 1:1 the two beat against each other and 0, 6 and 8
+ * become genuinely indistinguishable. A band of clean stock under the type
+ * gives the glyphs something to sit on without hiding the ribbing on the rest
+ * of the card — which is the tell the puzzle is about, so it cannot simply be
+ * turned down.
+ */
 .lg-cards .fc-card-acc {
+  position: relative;
+  padding: 0.08em 0.24em;
+  border-radius: 1px;
   font-family: var(--font-mono);
-  font-size: 0.9em;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  font-size: 0.98em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
+  color: color-mix(in srgb, var(--paper-ink) 92%, transparent);
+  background: color-mix(in srgb, var(--paper-100) 62%, transparent);
 }
 
 .lg-cards .fc-card:hover {
@@ -525,9 +614,14 @@
   z-index: 3;
 }
 
+/* The card under the loupe. Signalled by a hard rule and a lift, not by being
+   pale: roughly 40% of the drawer is wove stock and therefore just as pale, so
+   a fill change signalled nothing at all. */
 .lg-cards .fc-card.is-lifted {
   transform: translateY(-4px) rotate(-1.2deg);
-  box-shadow: var(--lg-lift-hi);
+  box-shadow:
+    0 0 0 2px var(--lamp-200),
+    var(--lg-lift-hi);
   z-index: 2;
 }
 
@@ -669,78 +763,180 @@
   letter-spacing: 0.06em;
 }
 
-.lg-cards .fc-loupe-rule,
+/* A drawn rule across the full measure of the card, not a run of typed dashes
+   that stops at an arbitrary 40%. */
+.lg-cards .fc-loupe-rule {
+  margin: 0.5em 0 0;
+  height: 0;
+  border-top: 1px solid color-mix(in srgb, var(--paper-400) 70%, transparent);
+}
+
 .lg-cards .fc-loupe-body {
-  margin: 0.35em 0 0;
+  margin: 0.5em 0 0;
   font-family: var(--font-mono);
-  font-size: 0.78em;
-  color: color-mix(in srgb, var(--lg-ink-faded) 76%, transparent);
+  font-size: 0.82em;
+  color: color-mix(in srgb, var(--lg-ink-faded) 88%, transparent);
   overflow: hidden;
   white-space: nowrap;
 }
 
 .lg-cards .fc-read {
-  margin: 0.5em 0 0;
+  margin: 0.6em 0 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.18em 0.5em;
+  gap: 0.45em 0.6em;
 }
 
+/* A record label, cut from the same typewriter as the index card it describes.
+   `--font-ui` is a 2020s grotesk and is right for genuine system chrome; on a
+   mid-century municipal archive's own vocabulary it is the loudest "web page
+   in a costume" signal in the frame. */
 .lg-cards .fc-read-term {
-  font-size: 0.76em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.8em;
   text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
-  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
 }
 
 .lg-cards .fc-read-value {
   margin: 0;
-  display: flex;
-  gap: 0.4em;
-  font-size: 0.84em;
-  color: var(--text-secondary);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.15em 0.55em;
+  /* 46ch and it wraps. A 110-character line running the full panel width beside
+     two rows that stop at 40% is not a measure, it is a ragged right. */
+  max-width: 46ch;
+  font-size: 0.88em;
+  color: var(--text-primary);
 }
 
+/* One badge shape for all three rows. */
 .lg-cards .fc-read-mark {
-  flex: none;
-  min-width: 2.2em;
+  grid-column: 1;
+  align-self: start;
+  min-width: 3.4em;
+  padding: 0.05em 0.3em;
+  border-radius: 1px;
   font-family: var(--font-mono);
-  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9em;
+  text-align: center;
+  color: var(--ink-900);
+  background-image: var(--lg-brass-worn);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 40%, transparent);
+}
+
+.lg-cards .fc-read-text {
+  grid-column: 2;
+}
+
+/* The forensic observation: subordinate to the datum above it, and set in the
+   body face so it reads as a sentence rather than as a second datum. */
+.lg-cards .fc-read-note {
+  grid-column: 2;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.94em;
+  line-height: 1.4;
+  text-wrap: pretty;
+  color: var(--text-secondary);
 }
 
 /* -- the sorting frame ----------------------------------------------------- */
 
+/**
+ * The sorting frame.
+ *
+ * `justify-content: space-evenly` on a `flex: 1 1 auto` column put a ~75px band
+ * of empty panel *above* the plate — a dark rounded rectangle with a 1px light
+ * stroke and nothing in it, which reads as a slot that failed to populate. The
+ * plate is bolted to the top of the instrument where a plate belongs, the dials
+ * take the slack, and the tray sits on the bottom rail.
+ */
 .lg-cards .fc-frame {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  gap: 0.5em;
+  justify-content: flex-start;
+  gap: 0.6em;
   padding: 0.55em;
   border-radius: var(--radius-sm);
-  background: linear-gradient(162deg, var(--ink-700), var(--ink-900));
+  background:
+    radial-gradient(46% 34% at 18% 0%, color-mix(in srgb, var(--lamp-400) 18%, transparent), transparent 100%),
+    linear-gradient(162deg, var(--ink-700), var(--ink-900) 74%, var(--ink-abyss) 100%);
   box-shadow: var(--lg-edge), var(--lg-lift);
 }
 
 .lg-cards .fc-dials {
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: center;
   gap: 0.3em;
   justify-items: center;
 }
 
+/* STOCK / RIBBON / TYPE are the archive's own vocabulary — the same three words
+   printed on the loupe rows and cut into the dial legends — so all three are
+   struck by the same typewriter rather than set in the UI grotesque. */
 .lg-cards .fc-dial-well {
   display: grid;
   justify-items: center;
-  gap: 0.2em;
+  gap: 0.35em;
 }
 
+.lg-cards .fc-dial-well > .lg-cap {
+  font-family: var(--font-mono);
+  /* A typewriter face has no small-cap set; leaving `all-small-caps` on it just
+     asks the engine to synthesise one, which comes out as scaled capitals with
+     the wrong stem weight. */
+  font-variant-caps: normal;
+  font-weight: 500;
+  font-size: 0.84em;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--lamp-300) 80%, var(--moon-200));
+}
+
+/* One lamp, three dials, three different amounts of it. `--pz-el-x` is where
+   each dial stands across the frame in 0..1 — measured off the capture at
+   x=1257 / 1487 / 1717 of 1920 — and `puzzle.css` turns that offset into the
+   highlight origin, the conic orientation of the turned brass and the strength
+   of the bloom on the index notch. Before this, all three carried their
+   brightest pixel at (0,-55) from their own centre: 460px of separation
+   producing 2px of lateral drift, which is the signature of a repeated CSS
+   gradient rather than of a room with a light in it. */
+/* The dials are the instrument; everything else in the frame is a label for
+   them. At the size the module asks for they sat as three 102px faces in a
+   690x250 band, which is what put ~70px of empty panel above and below the row.
+   `!important` because the size arrives as an inline custom property from
+   `makeDial`, and the right size for a control is a function of the panel it is
+   bolted to, which the sheet knows and the constructor does not. */
+.lg-cards .fc-dial-well > .pz-dial {
+  --dial-size: clamp(5rem, 13cqw, 8.5rem) !important;
+}
+
+.lg-cards .fc-dials > .fc-dial-well:nth-child(1) .pz-dial { --pz-el-x: 0.655; --pz-el-y: 0.70; }
+.lg-cards .fc-dials > .fc-dial-well:nth-child(2) .pz-dial { --pz-el-x: 0.775; --pz-el-y: 0.70; }
+.lg-cards .fc-dials > .fc-dial-well:nth-child(3) .pz-dial { --pz-el-x: 0.895; --pz-el-y: 0.70; }
+
+/**
+ * The DRAWN OFF tray.
+ *
+ * The count used to sit in the third of four `auto 1fr auto auto` columns with
+ * the striped stack expanding underneath it, so the numeral was drawn over the
+ * right end of the bar and the stack's hairlines ran visibly through the
+ * digits. The reading order is now label → count → unit → stack, so the number
+ * has clear brass under it and the stack takes whatever is left.
+ */
 .lg-cards .fc-tray {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto auto auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.4em;
-  padding: 0.4em 0.6em;
+  gap: 0.5em 0.7em;
+  padding: 0.45em 0.7em;
   border-radius: var(--radius-sm);
   background-image: var(--pz-grain-brass), var(--lg-brass-worn);
   background-blend-mode: overlay, normal;
@@ -748,18 +944,31 @@
   color: color-mix(in srgb, var(--ink-abyss) 76%, var(--lamp-600));
 }
 
+.lg-cards .fc-tray .lg-cap.is-tray { order: 1; }
+.lg-cards .fc-tray-count { order: 2; }
+.lg-cards .fc-tray .lg-cap.is-unit { order: 3; }
+.lg-cards .fc-tray-stack { order: 4; }
+.lg-cards .fc-tray-note { order: 5; }
+
+/* Engraved into brass, so it needs the ink of engraving. `ink-abyss 66%` on a
+   saturated brass ground measured about 2:1 — the word CARDS was not readable
+   at all. */
 .lg-cards .fc-tray .lg-cap.is-tray,
 .lg-cards .fc-tray .lg-cap.is-unit {
-  color: color-mix(in srgb, var(--ink-abyss) 66%, var(--lamp-600));
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 30%, transparent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--ink-abyss) 88%, var(--lamp-600));
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 34%, transparent);
 }
 
 .lg-cards .fc-tray-count {
   font-family: var(--font-mono);
-  font-size: 1.6em;
+  font-size: 1.7em;
   font-weight: 600;
   line-height: 1;
-  color: color-mix(in srgb, var(--ink-abyss) 84%, var(--lamp-600));
+  font-variant-numeric: lining-nums tabular-nums;
+  color: color-mix(in srgb, var(--ink-abyss) 90%, var(--lamp-600));
   text-shadow: 0 1px 0 color-mix(in srgb, var(--pz-specular) 34%, transparent);
 }
 
@@ -789,7 +998,10 @@
   margin: 0;
   font-size: 0.8em;
   font-style: italic;
-  color: color-mix(in srgb, var(--ink-abyss) 62%, var(--lamp-600));
+  /* 84%, not 62%. At 62% this measured 3.31:1 on the tray's brass, and it is
+     the line that tells the player the frame is currently passing everything —
+     i.e. that they have not started. */
+  color: color-mix(in srgb, var(--ink-abyss) 84%, var(--lamp-600));
 }
 
 /* -- stage II: the collation ----------------------------------------------- */

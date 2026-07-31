@@ -596,7 +596,12 @@ function threeMovements(): PuzzleModule {
       lever.type = 'button';
       lever.disabled = true;
       lever.append(h('span', 'tl-lever-arm'), h('span', 'tl-lever-label', 'Lift'));
-      lever.setAttribute('aria-label', 'Lift the releasing lever');
+      /* A control that refuses in silence is a control the player writes off as
+         broken. The lever says *why* it will not move, in the tooltip and in
+         its own name, and stops saying it the moment it can. */
+      const LEVER_HELD = 'The releasing lever is held until the handle has drawn the dogs back.';
+      lever.setAttribute('aria-label', `Lift the releasing lever. ${LEVER_HELD}`);
+      lever.title = LEVER_HELD;
 
       const verdict = h('p', 'tl-verdict');
       verdict.setAttribute('role', 'status');
@@ -609,6 +614,13 @@ function threeMovements(): PuzzleModule {
       const armLever = (on: boolean) => {
         lever.disabled = !on;
         lever.classList.toggle('is-live', on);
+        if (on) {
+          lever.removeAttribute('title');
+          lever.setAttribute('aria-label', 'Lift the releasing lever');
+        } else {
+          lever.title = LEVER_HELD;
+          lever.setAttribute('aria-label', `Lift the releasing lever. ${LEVER_HELD}`);
+        }
       };
 
       const handleCtl = rig.keep(

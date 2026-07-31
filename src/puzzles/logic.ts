@@ -694,22 +694,40 @@ function fortySevenCards(): PuzzleModule {
         const subject = h('p', `fc-loupe-subject is-${card.face}`, card.subject);
         subject.dataset.ribbon = card.ribbon;
         sheet.append(subject);
-        sheet.append(h('p', 'fc-loupe-rule', '— — — — — — — — — — — — — — — —'));
+        /* A rule is a rule. This used to be a literal run of em dashes typed in
+           IBM Plex Mono, which stops at whatever fraction of the card width the
+           mono advance happens to reach and sits on the baseline grid, so it
+           read as a line of broken text rather than as a division. */
+        sheet.append(h('p', 'fc-loupe-rule'));
         sheet.append(
           h('p', 'fc-loupe-body', 'Cross-refer: shelf list, box contents sheet. Cond. good.'),
         );
         loupe.append(sheet);
 
         const read = h('dl', 'fc-read');
-        const row = (term: string, value: string, mark: string) => {
+        /**
+         * One signal vocabulary, not three.
+         *
+         * The rows used to carry a small amber triangle, an amber diamond and a
+         * bold amber three-letter badge — the first two read as debug glyphs,
+         * and nothing tied them to each other. Every row now gets the same
+         * three-letter mono badge, which is also the abbreviation stamped on
+         * the sorting-frame plate and cut into the dial legends, so the loupe,
+         * the plate and the dials all speak one shorthand.
+         */
+        const row = (term: string, badge: string, value: string, note?: string) => {
           const dt = h('dt', 'fc-read-term', term);
           const dd = h('dd', 'fc-read-value');
-          dd.append(h('span', 'fc-read-mark', mark), h('span', 'fc-read-text', value));
+          dd.append(h('span', 'fc-read-mark', badge), h('span', 'fc-read-text', value));
+          if (note) dd.append(h('span', 'fc-read-note', note));
           read.append(dt, dd);
         };
-        row('Stock', STOCK_NAME[card.stock], card.stock === 'wove' ? '▲' : '▬');
-        row('Ribbon', RIBBON_NAME[card.ribbon], card.ribbon === 'nylon' ? '◆' : '◇');
-        row('Type', `${FACE_NAME[card.face]} — ${FACE_TELL[card.face]}`, FACE_SHORT[card.face]);
+        row('Stock', card.stock === 'wove' ? 'WOV' : 'LAI', STOCK_NAME[card.stock]);
+        row('Ribbon', card.ribbon === 'nylon' ? 'NYL' : 'SLK', RIBBON_NAME[card.ribbon]);
+        /* The datum and the forensic observation are two registers and were
+           being run together into one 110-character line with an em dash. The
+           observation is a subordinate line under the datum it belongs to. */
+        row('Type', FACE_SHORT[card.face], FACE_NAME[card.face], FACE_TELL[card.face]);
         loupe.append(read);
       };
 

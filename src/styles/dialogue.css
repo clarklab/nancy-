@@ -29,16 +29,116 @@
 
   /* One measure for the reply and for the plates beneath it. They share a left
      edge, which is the only thing that makes the two materials read as one
-     column of speech instead of two unrelated panels — and it stops the plates
-     stretching to 1400px of empty brass on a 1440p display. */
-  --dlg-measure: min(38rem, 100%);
+     column of speech instead of two unrelated panels. 38rem capped the sheet at
+     608px inside a 1170px column, which orphaned nearly a third of the frame as
+     bare scrim; 50rem is ~70 characters of Crimson Pro at this size — still a
+     readable measure, and it reaches far enough right that the composition is
+     two thirds picture rather than two cards stapled to the left edge.
+
+     50rem still under-filled it. The speech column is 66fr = 1172px spanning
+     x699.8..1872, and an 800px cap left 372px — 19.4% of the frame width — of
+     allocated but unusable track, which is most of why the right third of the
+     frame measured 72.6% dead. 58rem is 928px: roughly 80 characters, the top
+     of the readable band rather than past it, and it closes two thirds of the
+     orphan. The rest of the right-hand void is a lighting problem, not a layout
+     one, and is answered in `.dialogue-lamp`. */
+  --dlg-measure: min(58rem, 100%);
 
   /* A clip-path erases box-shadow outright, so the torn sheet's cast shadow has
      to be a filter — the only shadow that follows a clipped silhouette. The
      falloff mirrors --shadow-3, which cannot be reused verbatim because it is a
-     box-shadow list and drop-shadow() takes one shadow at a time. */
-  --dlg-shadow-torn: drop-shadow(0 18px 30px rgb(0 0 0 / 0.72))
-    drop-shadow(0 4px 10px rgb(0 0 0 / 0.5));
+     box-shadow list and drop-shadow() takes one shadow at a time. The tight
+     first throw is the contact shadow: without it a sheet with a 30px blur and
+     nothing else levitates a foot above whatever it is lying on. */
+  --dlg-shadow-torn: drop-shadow(0 2px 3px rgb(0 0 0 / 0.55))
+    drop-shadow(0 18px 30px rgb(0 0 0 / 0.72)) drop-shadow(0 4px 10px rgb(0 0 0 / 0.5));
+
+  /**
+   * The brass the NAMEPLATE is cut from. Reserved for it — the nameplate is the
+   * only diegetic piece of hardware in the frame, and nothing that talks about
+   * a mouse gets to be made of the same metal as an object in the room.
+   *
+   * Exposure. The plate used to peak around rgb(233,188,101) and, on 60x60
+   * tiles, the interface was the brightest thing in the whole frame: the
+   * nameplate held six of the top fourteen tiles while the lamp — the only
+   * practical, the thing motivating every shadow in the shot — ranked #30. The
+   * chrome out-glowed its own light source by 1.58x, which is exactly why the
+   * frame read as a web page laid over a matte painting. Every stop of the body
+   * ramp is now mixed 35% back toward `--ink-700`, bringing the lit face to
+   * about rgb(161,135,82) — a stop and a half under the lamp instead of over
+   * it — and the specular is cut from 26% to 14%. The plate is now lit BY the
+   * room rather than emitting into it.
+   *
+   * Three things the old ramp got wrong. It was tilted 177deg, which skews the
+   * highlight about 22px across a 400px plate and makes flat metal read subtly
+   * warped. It had no specular: a single top-to-bottom ramp with a mach band a
+   * third of the way down is a button gradient, and metal is defined by the
+   * narrow horizontal streak where the source is mirrored. And it was mixed
+   * back toward `--ink-900` hard enough that the plate bottomed out near 85 —
+   * which matters, because everything cut into this plate is engraved, i.e.
+   * dark, and dark ink on dark brass is the 1.1:1 role line we started with.
+   * Exposure and legibility are separate dials and are set separately: the
+   * plate comes down to room level, and the cut goes darker to pay for it, so
+   * the engraving still clears 4.5:1 at every point on the ramp.
+   */
+  --dlg-brass-dim: var(--ink-700);
+  --dlg-brass-face:
+    linear-gradient(
+      180deg,
+      transparent 30%,
+      color-mix(in srgb, var(--lamp-100) 14%, transparent) 38%,
+      color-mix(in srgb, var(--lamp-100) 14%, transparent) 43%,
+      transparent 52%
+    ),
+    linear-gradient(180deg, color-mix(in srgb, var(--lamp-100) 8%, transparent) 0%, transparent 30%),
+    linear-gradient(
+      180deg,
+      color-mix(
+          in srgb,
+          color-mix(in srgb, var(--lamp-400) 88%, var(--lamp-200)) 65%,
+          var(--dlg-brass-dim)
+        )
+        0%,
+      color-mix(in srgb, var(--lamp-400) 65%, var(--dlg-brass-dim)) 58%,
+      color-mix(
+          in srgb,
+          color-mix(in srgb, var(--lamp-500) 78%, var(--lamp-600)) 65%,
+          var(--dlg-brass-dim)
+        )
+        100%
+    );
+  --dlg-brass-shadow:
+    var(--shadow-3), inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 24%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 32%, transparent),
+    inset 0 -3px 6px -2px rgb(0 0 0 / 0.62);
+  /* Engraving: the cut is dark and the lit bevel sits *below* it. Reversing the
+     two is embossing, which is raised vinyl lettering, not a cut plate.
+     The cut goes deeper now the plate is darker: on rgb(161,135,82) this ink
+     holds 5.36:1 on the lit face and 4.65:1 at the bottom of the ramp, so the
+     exposure drop costs the engraving nothing. */
+  --dlg-engraved-ink: color-mix(in srgb, var(--ink-abyss) 88%, var(--lamp-600));
+  --dlg-engraved-bevel: 0 1px 0 color-mix(in srgb, var(--lamp-100) 30%, transparent);
+
+  /* One countersunk screw, in three parts. */
+  --dlg-screw-slot: linear-gradient(
+    44deg,
+    transparent calc(50% - 0.6px),
+    rgb(0 0 0 / 0.5) calc(50% - 0.6px),
+    rgb(0 0 0 / 0.5) calc(50% + 0.6px),
+    transparent calc(50% + 0.6px)
+  );
+  --dlg-screw-dish: radial-gradient(
+    circle at 40% 36%,
+    rgb(0 0 0 / 0.6) 0 3.4px,
+    rgb(0 0 0 / 0.24) 4.3px,
+    transparent 5px
+  );
+  --dlg-screw-lip: radial-gradient(
+    circle at 60% 66%,
+    color-mix(in srgb, var(--lamp-200) 82%, transparent) 0 3.6px,
+    color-mix(in srgb, var(--lamp-500) 50%, transparent) 4.6px,
+    transparent 5.2px
+  );
 
   /* Two literal durations the token scale has no place for: a breath is a
      breath, and a tremor is a tremor. Both are neutralised below for anyone
@@ -85,20 +185,96 @@
   position: absolute;
   inset: 0;
   /* Darkest at the edges, so the middle of the room stays faintly readable and
-     the player never loses their sense of where they are standing. */
+     the player never loses their sense of where they are standing.
+
+     These stops used to run 62% / 88% / 96% on top of a brightness(0.46)
+     backdrop, which is the same room darkened twice: the painted lamp, the
+     desk, the ledger and the far shelving all crushed into a single black
+     field, and roughly two thirds of the frame carried no information at all.
+     The room is meant to be dim, not deleted. */
   background: radial-gradient(
     118% 92% at 50% 58%,
-    color-mix(in srgb, var(--ink-900) 62%, transparent) 0%,
-    color-mix(in srgb, var(--ink-abyss) 88%, transparent) 72%,
-    color-mix(in srgb, var(--ink-abyss) 96%, transparent) 100%
+    color-mix(in srgb, var(--ink-900) 30%, transparent) 0%,
+    color-mix(in srgb, var(--ink-abyss) 54%, transparent) 72%,
+    color-mix(in srgb, var(--ink-abyss) 70%, transparent) 100%
   );
-  backdrop-filter: blur(7px) saturate(0.62) brightness(0.46);
+  /* Promoted, prefixed and stated twice: an unpromoted backdrop-filter is the
+     one declaration headless Chrome quietly drops, and when it does the blur
+     vanishes while the brightness (which comes from the gradient above)
+     survives — leaving a sharp, busy desk in full focus under the reading
+     surface. `translateZ` forces the compositing layer that keeps it. */
+  backdrop-filter: blur(4px) saturate(0.88) brightness(0.72);
+  -webkit-backdrop-filter: blur(4px) saturate(0.88) brightness(0.72);
+  will-change: backdrop-filter;
+  transform: translateZ(0);
   opacity: 0;
   transition: opacity var(--dur-scene) var(--ease-in-out);
 }
 
 .dialogue-root.is-open .dialogue-scrim {
   opacity: 1;
+}
+
+/**
+ * The practical.
+ *
+ * The game is called The Lamplight Cipher and the scene art hangs a brass ship's
+ * lamp at the top of the frame. Until this element existed that lamp emitted
+ * nothing: it sampled darker than the paper panel three feet below it, which is
+ * the single fastest way to tell a player that none of this is real. The glow
+ * is added light — `plus-lighter`, not `screen`, because screen over a surface
+ * that is no longer pure black barely moves it — sized and placed to sit on the
+ * globe, with a second, much wider and weaker pool that falls onto the desk.
+ * It lives inside `.dialogue-stage`, which is the artwork's exact footprint, so
+ * it tracks the letterboxed picture rather than the window.
+ */
+.dialogue-lamp {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      13% 26% at 63% 9%,
+      color-mix(in srgb, var(--lamp-100) 60%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-200) 34%, transparent) 30%,
+      color-mix(in srgb, var(--lamp-400) 12%, transparent) 62%,
+      transparent 100%
+    ),
+    radial-gradient(
+      44% 46% at 62% 16%,
+      color-mix(in srgb, var(--lamp-300) 18%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 9%, transparent) 46%,
+      transparent 82%
+    ),
+    radial-gradient(
+      40% 34% at 56% 62%,
+      color-mix(in srgb, var(--lamp-600) 15%, transparent) 0%,
+      transparent 78%
+    ),
+    /* The throw. A lamp hung high on the right rakes the desk and dies out into
+       the lower-right corner — and that corner is precisely where the frame
+       measured 90.8% dead at mean L=0.0103. This is not a gradient added to
+       fill a hole; it is the light the hole was missing. Wide, weak and warm,
+       so the corner carries the desk and the panelling instead of nothing. */
+      radial-gradient(
+        58% 52% at 76% 74%,
+        color-mix(in srgb, var(--lamp-500) 9%, transparent) 0%,
+        color-mix(in srgb, var(--lamp-600) 6%, transparent) 44%,
+        transparent 82%
+      );
+  mix-blend-mode: plus-lighter;
+  opacity: 0;
+  transition: opacity var(--dur-scene) var(--ease-in-out);
+}
+
+.dialogue-root.is-open .dialogue-lamp {
+  opacity: 1;
+}
+
+/* Mirrored staging swings the practical with the figure, or the light in the
+   room would be coming from the wrong side of the person standing in it. */
+.dialogue-root[data-side='right'] .dialogue-lamp {
+  scale: -1 1;
 }
 
 /* -- Layout ---------------------------------------------------------------- */
@@ -130,7 +306,14 @@
 
 .dialogue-speech {
   grid-area: 1 / 2 / 2 / 3;
-  align-self: center;
+  /* Hung from the bottom of its row rather than floated in the middle of it.
+     Centred, the sheet's top edge kissed the bottom of the painted lamp's glass
+     globe — nine pixels of clearance, which fuses two unrelated planes into one
+     shape — and its own centre sat 130px above the speaker's eyeline, so
+     nothing but adjacency said the words were hers. Dropped, it clears the lamp
+     outright and lands on the speaker's head-and-shoulder line. */
+  align-self: end;
+  margin-bottom: var(--sp-4);
   justify-self: start;
 }
 
@@ -145,6 +328,15 @@
   width: var(--dlg-measure);
   min-width: 0;
   min-height: 0;
+}
+
+/* While a line is being spoken there are no plates, and a row that is a third
+   of the frame tall and completely empty is the reason the lower right of this
+   screen read as a hole. The continue strip takes the top of the row, directly
+   under the sheet it belongs to, so the column of speech stays a column. */
+.dialogue-root[data-mode='speaking'] .dialogue-tray,
+.dialogue-root[data-mode='busy'] .dialogue-tray {
+  justify-content: flex-start;
 }
 
 /* Mirrored staging. Which side a character stands on is hashed from their id
@@ -174,19 +366,39 @@
 
 /* -- Portrait -------------------------------------------------------------- */
 
-/* Warm spill from the scene's key side, thrown on the wall behind the figure
-   so they are standing in light rather than pasted over darkness. */
+/**
+ * Warm spill from the scene's key side, thrown on the wall behind the figure
+ * so they are standing in light rather than pasted over darkness.
+ *
+ * This element is a child of `.dialogue-stage`, NOT of `.dialogue-bay` — see
+ * the note in dialogue.ts. Inside the bay its reference box was 604px wide and
+ * `inset: -12% -22% 0` only bought it back to x=784.68, so the ellipse (radius
+ * 678px, centred 574px into the box) was cut at 43.6% along its ramp — still
+ * around 22% alpha — by the stage's `overflow: hidden`. The result was a
+ * dead-straight 1px luminance step running the full 1200px height of the frame
+ * at x=785: a clipping bug that read instantly as a web page over a painting.
+ *
+ * `inset: 0` makes the reference box the artwork's own footprint. The radii are
+ * re-expressed against that larger box so the physical size of the wash is
+ * unchanged (36% x 1920 ≈ 691px, 62% x 1200 ≈ 744px), and the centre is
+ * re-derived so it still sits over the bay's lamp-facing side — 28% of the
+ * frame, i.e. the right-hand third of the portrait bay. Every stop now reaches
+ * `transparent` well inside the frame; nothing is amputated.
+ */
 .dialogue-keylight {
   position: absolute;
-  inset: -12% -22% 0;
+  inset: 0;
   pointer-events: none;
   background: radial-gradient(
-    62% 54% at calc(50% + var(--dlg-key) * 16%) 34%,
-    color-mix(in srgb, var(--lamp-500) 34%, transparent) 0%,
-    color-mix(in srgb, var(--lamp-600) 14%, transparent) 42%,
-    transparent 74%
+    36% 62% at calc(50% - var(--dlg-key) * 22%) 30%,
+    color-mix(in srgb, var(--lamp-400) 48%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-500) 26%, transparent) 38%,
+    color-mix(in srgb, var(--lamp-600) 10%, transparent) 62%,
+    transparent 88%
   );
-  mix-blend-mode: screen;
+  /* `screen` is a no-op against anything that is not near-black, and the scrim
+     is no longer near-black. Added light survives on top of a real surface. */
+  mix-blend-mode: plus-lighter;
   opacity: 0;
   transition: opacity var(--dur-scene) var(--ease-out);
 }
@@ -195,9 +407,15 @@
   opacity: 1;
 }
 
-/* The pool of shadow the figure is standing in. Painted before the key light
-   so the spill can wash back over its near edge, which is what stops the
-   portrait reading as a cut-out laid on a dark rectangle. */
+/* The pool of shadow the figure is standing in.
+
+   Now that the key light is a sibling of the bay it is painted *first*, and
+   this pool goes down on top of it — which is the right way round: light does
+   not reach the floor the figure is occluding. The pool comes back from 78% to
+   68% to compensate for no longer having the wash rolling over its near edge,
+   so the base of the figure still sits in shade rather than in a hole. Its own
+   falloff reaches zero at 72% of a 58% radius, well inside its box, so unlike
+   the key light this one has never had an edge to clip. */
 .dialogue-bay::before {
   content: '';
   position: absolute;
@@ -206,17 +424,56 @@
   pointer-events: none;
   background: radial-gradient(
     58% 100% at calc(50% - var(--dlg-key) * 6%) 100%,
-    color-mix(in srgb, var(--ink-abyss) 78%, transparent) 0%,
+    color-mix(in srgb, var(--ink-abyss) 68%, transparent) 0%,
     transparent 72%
   );
 }
 
 .dialogue-portrait {
   position: relative;
-  flex: 1 1 auto;
+  /**
+   * The element box IS the painted box.
+   *
+   * Every portrait ships 900x1350, and `.dialogue-face` is `object-fit:
+   * contain; object-position: bottom center`, so in a bay 604px wide the
+   * painting is width-limited to 604x906 and anchored to the bottom. The
+   * element used to be `flex: 1 1 auto` and stretched to 604x1038 — 132px
+   * taller than the picture inside it — which meant `--dlg-figure-mask` was
+   * being applied in element space while the pixels lived in image space. The
+   * top fade was spent almost entirely on empty letterbox and the painting's
+   * top edge arrived at ~79% alpha: a hard horizontal asset boundary right
+   * across the frame, the exact defect the note below claims to have solved.
+   *
+   * Declaring the asset's own 2:3 ratio collapses the two spaces into one, so
+   * the ramp lands on actual paint. `flex-shrink: 1` still lets a short window
+   * take height off it rather than off the topic plates.
+   */
+  flex: 0 1 auto;
+  aspect-ratio: 2 / 3;
+  height: auto;
   width: 100%;
   min-height: 0;
   transform-origin: 50% 100%;
+  /**
+   * The figure is a painted rectangle — an oil three-quarter against a dark
+   * ground — and pasting a rectangle onto a room gives you two dead-straight
+   * vertical asset boundaries a thousand pixels tall with a visible luminance
+   * step across each of them. There are only two honest answers: hang it in a
+   * moulding, or dissolve its ground into the room. The portrait is sized with
+   * `object-fit: contain`, so a border would frame the letterbox rather than
+   * the painting; the ground gets dissolved instead.
+   *
+   * Sides and top only. The bottom stays hard, because the bay's shadow pool
+   * meets it there and a figure that fades out at the waist is a ghost.
+   */
+  /* Now that the box and the painting are the same rectangle, the top ramp is
+     shaped for what is actually up there: about 30px of near-black ground, then
+     the crown of the head. It rises fast to 0.6 over the ground and finishes
+     gently by 14%, so the boundary dissolves without the sitter's head fading
+     out with it. */
+  --dlg-figure-mask:
+    linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, rgb(0 0 0 / 0.6) 6%, #000 14%, #000 100%);
   /* Barely perceptible, and entirely the point: a still portrait reads as a
      photograph of a corpse within about four seconds. */
   animation: dialogue-breathe var(--dlg-breath) var(--ease-in-out) infinite;
@@ -233,9 +490,42 @@
      work that no amount of gradient behind the figure can. */
   filter: drop-shadow(calc(var(--dlg-key) * -13px) 20px 26px rgb(0 0 0 / 0.72))
     contrast(1.04) saturate(0.97);
+  -webkit-mask-image: var(--dlg-figure-mask);
+  mask-image: var(--dlg-figure-mask);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
   opacity: 0;
   transition: opacity var(--dur-slow) var(--ease-in-out);
   user-select: none;
+}
+
+/**
+ * The room's practical, falling across the painted surface.
+ *
+ * The portrait was lit in a studio from front-camera-left; the scene's lamp is
+ * up and to one side. Two figures lit by two different suns never occupy one
+ * space. This is a single raking wash from the key side, carried on the *same*
+ * mask as the figure so it dissolves exactly where the figure does and never
+ * reintroduces the rectangle we just spent a mask removing. `--dlg-accent` is
+ * the character's own colour, used here — on a dark ground, as light — rather
+ * than as ink on brass, where it was unreadable.
+ */
+.dialogue-portrait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    calc(180deg + var(--dlg-key) * 38deg),
+    color-mix(in srgb, var(--lamp-200) 20%, transparent) 0%,
+    color-mix(in srgb, var(--dlg-accent) 7%, transparent) 34%,
+    transparent 58%
+  );
+  mix-blend-mode: plus-lighter;
+  -webkit-mask-image: var(--dlg-figure-mask);
+  mask-image: var(--dlg-figure-mask);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .dialogue-face.is-front {
@@ -278,20 +568,12 @@
   margin-top: calc(var(--sp-2) * -1);
   padding: var(--sp-2) clamp(var(--sp-5), 2.4vw, var(--sp-6));
   text-align: center;
-  border: var(--border-brass);
+  /* A dark rebate, not the standard brass hairline: on a plate this light a
+     lamp-tinted 1px edge disappears and the metal loses its thickness. */
+  border: 1px solid color-mix(in srgb, var(--lamp-600) 62%, var(--ink-abyss));
   border-radius: var(--radius-sm);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--lamp-100) 26%, transparent) 0%, transparent 38%),
-    linear-gradient(
-      177deg,
-      color-mix(in srgb, var(--lamp-500) 86%, var(--ink-900)) 0%,
-      color-mix(in srgb, var(--lamp-600) 90%, var(--ink-900)) 54%,
-      color-mix(in srgb, var(--lamp-600) 62%, var(--ink-abyss)) 100%
-    );
-  box-shadow:
-    var(--shadow-3),
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-100) 48%, transparent),
-    inset 0 -3px 6px -2px rgb(0 0 0 / 0.62);
+  background: var(--dlg-brass-face);
+  box-shadow: var(--dlg-brass-shadow);
 }
 
 /* Brushed metal, so the brass is never a flat swatch. */
@@ -304,18 +586,37 @@
   background-image: var(--dlg-grain-metal);
   background-size: 120px 120px;
   mix-blend-mode: overlay;
-  opacity: 0.5;
+  /* `overlay` noise on light metal speckles where the same noise on dark metal
+     merely brushes it — and the metal is a stop and a half darker than it was,
+     so the brush comes down again with it. It also protects the engraving: at
+     0.34 the darker half of the noise was eating into the margin the cut needs
+     to clear 4.5:1. */
+  opacity: 0.24;
 }
 
-/* Two countersunk screws — the plate is fixed to something. */
+/**
+ * Two countersunk screws — the plate is fixed to something.
+ *
+ * At 1.6px these were dust specks, not fasteners. A real countersunk screw at
+ * this scale is a 10px dish: a dark recess biting into the plate at the
+ * top-left where the light does not reach, a lit brass crescent on the
+ * bottom-right lip, and a slot across the head. Each one is three stacked
+ * gradients per side, which is why this looks longer than it is.
+ */
 .dialogue-nameplate::after {
   content: '';
   position: absolute;
-  inset: 0 var(--sp-2);
+  inset: 0 var(--sp-3);
   pointer-events: none;
+  /* Layer order is paint order, topmost first: slot, then the dark dish offset
+     up-left, then the lit brass lip it uncovers on the lower right. */
   background:
-    radial-gradient(circle at left 0.35rem top 50%, rgb(0 0 0 / 0.55) 0 1.6px, transparent 2.2px),
-    radial-gradient(circle at right 0.35rem top 50%, rgb(0 0 0 / 0.55) 0 1.6px, transparent 2.2px);
+    var(--dlg-screw-slot) left 0.2rem top 50% / 8px 8px no-repeat,
+    var(--dlg-screw-dish) left 0.2rem top 50% / 11px 11px no-repeat,
+    var(--dlg-screw-lip) left 0.2rem top 50% / 11px 11px no-repeat,
+    var(--dlg-screw-slot) right 0.2rem top 50% / 8px 8px no-repeat,
+    var(--dlg-screw-dish) right 0.2rem top 50% / 11px 11px no-repeat,
+    var(--dlg-screw-lip) right 0.2rem top 50% / 11px 11px no-repeat;
 }
 
 .dialogue-name {
@@ -327,23 +628,57 @@
      tracking rather than the negative display default. */
   letter-spacing: var(--tracking-display-sm);
   line-height: var(--leading-tight);
-  color: var(--lamp-100);
-  /* Engraved: a lit top bevel and a dark cut below it. */
-  text-shadow:
-    0 1px 0 rgb(0 0 0 / 0.6),
-    0 -1px 0 color-mix(in srgb, var(--lamp-100) 30%, transparent);
+  /**
+   * Engraved, not embossed. Near-white letters with a dark shadow *above* them
+   * is the raised-vinyl convention — a sticker, not a cut plate — and it also
+   * put the brightest type in the whole frame on a plate that is supposed to be
+   * catching the room's light second-hand. A cut is dark, and the lit bevel
+   * sits below it where the light rakes into the groove.
+   */
+  color: var(--dlg-engraved-ink);
+  text-shadow: var(--dlg-engraved-bevel);
+}
+
+/**
+ * The character's accent, on the plate but not *as* the plate's ink.
+ *
+ * `--dlg-accent` is whatever the character wears — for Sabine a slate blue.
+ * Used as the colour of the role line it produced #93A9B8 text on #884F21
+ * brass: a 1.1:1 contrast ratio, i.e. not low contrast but literally
+ * invisible, and the one hue that cannot live on a warm metal. Hue can carry
+ * identity here without being asked to carry legibility as well: a short ticked
+ * rule between the two lines, cut into the brass like everything else on it.
+ */
+.dialogue-nameplate__tick {
+  display: block;
+  width: 2.25rem;
+  height: 2px;
+  margin: 5px auto 4px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--dlg-accent) 82%, var(--ink-900));
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 38%, transparent);
 }
 
 .dialogue-role {
   display: block;
-  margin-top: 2px;
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  font-weight: 500;
-  letter-spacing: var(--tracking-ui);
+  /**
+   * Inter Tight is a 2020s grotesk. It is the correct face for genuine system
+   * chrome and it is the single loudest "web page in a costume" signal there
+   * is when it is set in tracked caps on an engraved brass plate with
+   * countersunk screws — which is the most physically-realised object in the
+   * frame. `--font-front` is the engraved register: the display serif, tracked,
+   * kept for chrome that is *part of the picture*.
+   *
+   * The size goes up a step and the tracking comes down: 41 letterspaced
+   * characters at 12px across 360px is a texture, not a caption.
+   */
+  font-family: var(--font-front);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--dlg-accent) 74%, var(--ink-900));
-  text-shadow: 0 1px 0 rgb(0 0 0 / 0.45);
+  color: color-mix(in srgb, var(--ink-abyss) 78%, var(--lamp-600));
+  text-shadow: var(--dlg-engraved-bevel);
 }
 
 /* -- Speech panel ---------------------------------------------------------- */
@@ -357,13 +692,53 @@
  * inner sheet holds the paper and the tear.
  */
 .dialogue-speech {
+  position: relative;
+  /* Fixed to the measure rather than merely capped by it, so the sheet and the
+     plates under it share both edges instead of only their left one — and so a
+     four-word line does not shrink the panel and step the tray sideways. */
+  width: var(--dlg-measure);
   max-width: var(--dlg-measure);
   filter: var(--dlg-shadow-torn);
+  /* A sheet laid down on a desk is never square to the viewport. Six tenths of
+     a degree is below the threshold at which anyone notices the angle and well
+     above the one at which they notice its absence. */
+  rotate: -0.6deg;
   opacity: 0;
   translate: 0 10px;
   transition:
     opacity var(--dur-med) var(--ease-out),
     translate var(--dur-slow) var(--ease-out);
+}
+
+/**
+ * The tail.
+ *
+ * A rectangle floating beside a person is adjacency, not speech. This is a
+ * torn corner of the same paper pushed out of the sheet's left edge, pointing
+ * back at the bay — it lives on the outer box rather than the sheet because
+ * the sheet's `clip-path` would eat it, and because the outer box is the one
+ * carrying the cast shadow, so the tail throws one too.
+ */
+.dialogue-speech::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 38%;
+  left: -7px;
+  width: 15px;
+  height: 15px;
+  rotate: 45deg;
+  background: var(--paper-300);
+  filter: brightness(0.9);
+}
+
+.dialogue-root[data-side='right'] .dialogue-speech {
+  rotate: 0.6deg;
+}
+
+.dialogue-root[data-side='right'] .dialogue-speech::before {
+  left: auto;
+  right: -7px;
 }
 
 .dialogue-speech.is-visible {
@@ -376,21 +751,40 @@
   padding: clamp(var(--sp-5), 2.6vh, var(--sp-6)) clamp(var(--sp-5), 2.4vw, var(--sp-6));
   color: var(--paper-ink);
   border-radius: var(--radius-sm);
+  /**
+   * Lit by the room, and by the room's actual lamp.
+   *
+   * The old recipe put its highlight at `28% 0%` — the top *left* — and then
+   * laid a dark band across the top edge, while the scene's practical hangs
+   * above and to the right. The panel was not merely ignoring the scene's
+   * lighting, it was contradicting it, and it did so at a flat 200 luminance
+   * across its whole width while the lamp that is supposedly lighting it peaked
+   * at 62. So: the hot corner moves to the lamp, the white point comes down a
+   * step off `--paper-100`, and the far corner is allowed to fall away.
+   */
   background:
-    linear-gradient(178deg, rgb(0 0 0 / 0.07) 0%, transparent 16%),
+    linear-gradient(200deg, transparent 30%, rgb(20 12 6 / 0.24) 100%),
     radial-gradient(
-      124% 92% at 28% 0%,
-      var(--paper-100) 0%,
-      var(--paper-200) 56%,
-      var(--paper-300) 100%
+      140% 110% at 78% -10%,
+      var(--paper-200) 0%,
+      var(--paper-300) 52%,
+      var(--paper-400) 100%
     );
   /* Only the inset half is drawn here; the cast shadow lives on the parent. */
   box-shadow: inset 0 -14px 22px -18px rgb(0 0 0 / 0.55);
-  /* Torn from a notebook, not cut by a div. */
+  /* Paper does not read as paper because one edge is ragged. Torn on the top,
+     deckled down both sides and along the bottom — deviation held under 1.5% so
+     it stays a sheet and does not become a rag. Two perfect 90° corners under a
+     decorative ripped hat is a div wearing a hat. */
   clip-path: polygon(
-    0% 2.6%, 4% 0%, 12% 2.2%, 23% 0.4%, 37% 2.4%, 51% 0.3%, 66% 2.2%, 79% 0.5%, 91% 2%, 100% 0.7%,
-    100% 100%, 0% 100%
+    0.7% 2.6%, 4% 0.2%, 12% 2.2%, 23% 0.5%, 37% 2.4%, 51% 0.3%, 66% 2.2%, 79% 0.5%, 91% 2%,
+    99.3% 0.8%,
+    100% 12%, 98.9% 27%, 99.8% 43%, 98.8% 60%, 99.9% 77%, 98.8% 91%, 99.4% 98.5%,
+    88% 99.7%, 74% 98.4%, 61% 99.8%, 47% 98.5%, 33% 99.7%, 19% 98.4%, 7% 99.8%, 0.8% 98.6%,
+    1.3% 84%, 0.2% 68%, 1.2% 51%, 0.1% 35%, 1% 19%
   );
+  /* The sheet is a surface in a dim room, not a #f4ead3 swatch pasted on one. */
+  filter: brightness(0.95) saturate(1.04);
 }
 
 .dialogue-sheet::before {
@@ -443,10 +837,17 @@
   margin: 0;
   font-family: var(--font-body);
   font-size: var(--step-1);
-  line-height: var(--leading-body);
+  /**
+   * Stated, not inherited. `--leading-body` is 1.62 and Crimson Pro's own line
+   * box adds to it: measured baseline pitch came out at 1.74, which turns three
+   * lines of dialogue into three separate stripes and drops the reader's
+   * momentum at the end of every one. `--leading-body` is right for the journal
+   * and for narration; dialogue is short-burst prose and wants a tighter set.
+   */
+  line-height: 1.48;
   /* Reserve two lines before a character arrives, so the panel never grows
      under the reveal and the plates below never step down the screen. */
-  min-height: calc(var(--step-1) * var(--leading-body) * 2);
+  min-height: calc(var(--step-1) * 1.48 * 2);
 }
 
 .dialogue-caret {
@@ -767,6 +1168,83 @@
 .dialogue-plate.is-leave.is-chosen {
   color: var(--moon-100);
   border-left-color: var(--moon-300);
+}
+
+/* -- Continue strip -------------------------------------------------------- */
+
+/**
+ * The tray row is a bounded fraction of the stage and it is reserved whether or
+ * not there are plates in it. While a line is being spoken there are none, so
+ * roughly a thousand pixels by four hundred of the lower right of the frame was
+ * held open for nothing, and the screen read as two cards on an empty rectangle
+ * with no way forward marked anywhere.
+ *
+ * This is that way forward. It used to be cut from the same brass as the
+ * nameplate — 798x39px of near-maximum-chroma gold, the second-brightest object
+ * in a frame whose mean is L=0.06 — and that was the error, not the feature.
+ * The nameplate is a plaque screwed to the frame naming a character; this strip
+ * says CLICK OR PRESS ENTER. Engraving a sentence about an input device on the
+ * same metal as a world object asserts that the mouse exists inside the fiction,
+ * and it teaches the eye that brass means "not real", which retroactively
+ * cheapens the plaque. Sea of Darkness never fills a continue affordance.
+ *
+ * So the strip has no material at all now: unfilled, unbordered, no shadow,
+ * type only. The actual affordance is the small chevron already drawn at the
+ * speech sheet's lower right — a mark on the paper, which is where a mark
+ * belongs. `--dlg-brass-face` is reserved for `.dialogue-nameplate`.
+ *
+ * It is still not a button: the whole overlay already advances on click, and
+ * giving the strip its own hit target would put a second, competing affordance
+ * on the same gesture.
+ */
+.dialogue-continue {
+  display: none;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  width: 100%;
+  margin: 0;
+  padding: var(--sp-2) clamp(var(--sp-4), 1.6vw, var(--sp-5)) var(--sp-2) 0;
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+.dialogue-root[data-mode='speaking'] .dialogue-continue,
+.dialogue-root[data-mode='busy'] .dialogue-continue {
+  display: flex;
+}
+
+/* Only once the line has finished arriving: an invitation to move on that
+   appears before the sentence does is an invitation to skip it. */
+.dialogue-root[data-mode='speaking'] .dialogue-speech.is-ready ~ .dialogue-tray .dialogue-continue {
+  opacity: 1;
+}
+
+/* Unlit type on the room, not ink on metal. The dark throw is doing the work a
+   plate used to do: the strip sits over whatever the painting happens to be, so
+   it carries its own substrate in a shadow rather than in a rectangle. At 72%
+   of --moon-200 the word holds ~6.2:1 over the dim desk behind it. */
+.dialogue-continue__word,
+.dialogue-continue__key {
+  font-family: var(--font-front);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--moon-200) 72%, transparent);
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.9),
+    0 0 10px rgb(0 0 0 / 0.75);
+}
+
+.dialogue-continue__word {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.dialogue-continue__key {
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--moon-300) 78%, transparent);
 }
 
 /* -- Key hint -------------------------------------------------------------- */

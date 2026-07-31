@@ -78,20 +78,35 @@ export class SceneView {
     this.el = document.createElement('div');
     this.el.className = 'scene-view';
     // Order is the lighting chain, and it is load-bearing:
-    //   plate → conditional layers → key (additive) → shade (subtractive) →
-    //   painted detail → defocus → weather → vignette → black-point floor →
-    //   hotspots.
+    //   plate → conditional layers → glass → key (additive) → shade
+    //   (subtractive) → painted detail → cast detail → defocus → weather →
+    //   vignette → black-point floor → hotspots.
     // Defocus is a lens, so it comes after everything that is *in* the room
     // and before everything that is between the room and the camera.
     // The floor sits *above* the vignette on purpose: it clamps the vignette's
     // own falloff too, so no corner of any scene can crush to a blue void.
+    //
+    // `.scene-glass` sits *before* the key on purpose. A window is a surface in
+    // the room, not an overlay on the picture: its condensation and its runnels
+    // have to be lit and defocused with everything else, or the porthole
+    // becomes a light box with a sticker on it. Without this plate the brightest
+    // and largest mass in a scene is whatever is outside the window — which is
+    // the one thing in a point-and-click that is never the subject.
+    //
+    // `.scene-detail` is the opposite case: shadows and props the flat plate
+    // does not contain, which cannot be expressed as a full-frame gradient
+    // because they have edges (a mast shadow is a *band*, a tool roll is an
+    // *object*). Two blend-mode-carrying pseudo-elements plus its own
+    // background give a scene three more slots without another wrapper.
     this.el.innerHTML = `
       <div class="scene-stage">
         <div class="scene-bg"></div>
         <div class="scene-layers"></div>
+        <div class="scene-glass"></div>
         <div class="scene-key"></div>
         <div class="scene-shade"></div>
         <div class="scene-props"></div>
+        <div class="scene-detail"></div>
         <div class="scene-defocus"></div>
         <canvas class="scene-weather"></canvas>
         <div class="scene-vignette"></div>

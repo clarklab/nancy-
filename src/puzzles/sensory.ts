@@ -3274,6 +3274,48 @@ const LIGHT_PAGES: RefPage[] = [
         body: 'Isolated danger mark on the shoal, 22 ft. Unwatched.',
         tail: 'Q(6)+LFl W 15s',
       },
+      /* A real page of the List runs the whole approach, not the three lights
+         the puzzle cares about. Two of these repeat half of Cadran's
+         characteristic and one repeats the other half, which is the entire
+         lesson: the group alone identifies nothing and the period alone
+         identifies nothing. Any id but `cadran-point` falls through to the
+         general refusal in `matchLight`. */
+      {
+        id: 'carrick-rock',
+        head: 'CARRICK ROCK',
+        body: 'Concrete beacon on the drying rock, 18 ft. Range 6 M.',
+        tail: 'Fl(3) W 10s',
+      },
+      {
+        id: 'ardnamona',
+        head: 'ARDNAMONA',
+        body: 'White tower on the point, 74 ft. Range 14 M. Obscured 292°–015°.',
+        tail: 'Fl(2) W 15s',
+      },
+      {
+        id: 'the-sisters',
+        head: 'THE SISTERS',
+        body: 'Twin white towers, in line 118°. Front 31 ft, rear 58 ft.',
+        tail: 'Oc W 8s',
+      },
+      {
+        id: 'ivory-no3',
+        head: 'IVORY SOUND No. 3',
+        body: 'Starboard hand, conical, topmark cone. Watched by the Conservancy.',
+        tail: 'Fl G 5s',
+      },
+      {
+        id: 'brannock-low',
+        head: 'BRANNOCK LOW LIGHT',
+        body: 'Tower standing, 41 ft. Unlit since 1948; kept as a daymark.',
+        tail: '(disused)',
+      },
+      {
+        id: 'rossport-bar-lv',
+        head: 'ROSSPORT BAR LIGHT-VESSEL',
+        body: 'Red hull, name on sides. Station discontinued 1969.',
+        tail: '(withdrawn)',
+      },
     ],
   },
   {
@@ -3507,7 +3549,11 @@ function chartLoft(): PuzzleModule {
       const tape = h('div', 'sx-cl-tape', '', { 'aria-hidden': 'true' });
       const dials = h('div', 'sx-cl-dials');
       const dialGroup = h('div', 'sx-cl-dial');
-      dialGroup.append(h('span', 'sx-cl-dial-cap', 'Flashes in the group'), h('span', 'sx-cl-dial-val', '—'));
+      /* 'Flashes in the group' is a sentence pretending to be a label, and it
+         is what forced the caption down to 7px to fit the well. The dial is
+         named; the aria-label carries the sentence. */
+      dialGroup.setAttribute('aria-label', 'Flashes counted in the group');
+      dialGroup.append(h('span', 'sx-cl-dial-cap', 'Flashes'), h('span', 'sx-cl-dial-val', '—'));
       const dialPeriod = h('div', 'sx-cl-dial');
       dialPeriod.append(h('span', 'sx-cl-dial-cap', 'Period'), h('span', 'sx-cl-dial-val', '—'));
       dials.append(dialGroup, dialPeriod);

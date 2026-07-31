@@ -415,25 +415,40 @@ hr {
    where its own key light hangs, so it cannot throw one. These three plates
    are the lighting the artwork is missing, and they are physics, not polish.
 
+     .scene-glass  surfaces you see *through*. Condensation, runnels and the
+                   value knockdown that stops a window being the subject.
      .scene-key    additive. What each source actually emits — the bloom on a
                    flame, the pool it lays on the deckhead, the falloff cone.
      .scene-shade  subtractive. What is *far* from a source, and what is too
                    bright for its place in the hierarchy.
      .scene-props  painted detail the plate is missing at close range.
+     .scene-detail edged detail: cast shadows and objects. Everything above is
+                   a full-frame gradient, which can only ever describe things
+                   with no boundary. A mast shadow has a boundary.
 
    Every scene gets the frame (floor + vignette); a scene with a rig in
    `OPTICS` (src/engine/scene-view.ts) additionally gets its own sources.
    ------------------------------------------------------------------------ */
 
+.scene-glass,
 .scene-key,
 .scene-shade,
 .scene-props,
+.scene-detail,
 .scene-defocus,
 .scene-floor,
 .scene-vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+/* Neither of these may set `mix-blend-mode` on itself: that would open a
+   stacking context and trap its own pseudo-elements' blend modes, which are
+   the entire reason the elements exist. Blending is declared per pseudo. */
+.scene-glass,
+.scene-detail {
+  z-index: auto;
 }
 
 /**
@@ -563,7 +578,19 @@ hr {
     /* a last breath of it across the folded chart */
     radial-gradient(
       16% 12% at 54% 68%,
-      color-mix(in srgb, var(--lamp-500) 18%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 24%, transparent) 0%,
+      transparent 100%
+    ),
+    /* The commission itself, which is the subject of the scene and was losing
+       the frame to the storm window — a large, cool, narratively empty
+       rectangle that the eye landed on first. In a point-and-click the
+       brightest *small* area teaches the player where to look, so the sheaf
+       gets its own tight term on top of the table wash, and the wood beyond it
+       is left to fall away. */
+    radial-gradient(
+      9% 7.5% at 57.5% 65.5%,
+      color-mix(in srgb, var(--lamp-300) 20%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 11%, transparent) 54%,
       transparent 100%
     ),
     /* The pool the lamp actually lays on the desktop.
@@ -604,6 +631,72 @@ hr {
       38% 54% at 79% 36%,
       color-mix(in srgb, var(--lamp-500) 17%, transparent) 0%,
       color-mix(in srgb, var(--lamp-600) 9%, transparent) 46%,
+      transparent 100%
+    ),
+    /* --- The lamp resolves -------------------------------------------------
+       Everything above this describes light *arriving* somewhere. None of it
+       described the fitting, which is why the brightest object in the picture
+       had no evidence around it: no hot smoke-bell, no bloom off the chimney,
+       no caustic on the collar, and no pool on the sole. A key light with no
+       proof in the room is a graded painting, not a lit one — and the game is
+       called The Lamplight Cipher.
+       ---------------------------------------------------------------------- */
+    /* The underside of the brass smoke-bell. It sits directly in the flame's
+       updraught, so it has to be the hottest metal in the frame — it was
+       barely brighter than the cold brass a foot below it. */
+    radial-gradient(
+      3.4% 1.8% at 64% 9.2%,
+      color-mix(in srgb, var(--lamp-100) 58%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-200) 24%, transparent) 52%,
+      transparent 100%
+    ),
+    /* Bloom off the chimney glass: a wide, weak skirt *outside* the halo. This
+       is the term that makes the globe read as glass with something burning
+       inside it rather than as a lit disc. */
+    radial-gradient(
+      6.4% 9% at 64% 13.4%,
+      color-mix(in srgb, var(--lamp-200) 28%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-300) 10%, transparent) 55%,
+      transparent 100%
+    ),
+    /* The caustic the globe throws down onto the mast collar under it. */
+    radial-gradient(
+      2.2% 1.3% at 64.6% 21.8%,
+      color-mix(in srgb, var(--lamp-200) 44%, transparent) 0%,
+      transparent 100%
+    ),
+    /* The pool on the sole. Terminated rather than faded — an oil lamp in a
+       low cabin lays a defined ellipse on the planking, and the *edge* of that
+       ellipse is the single strongest piece of evidence that the source is in
+       the room rather than in the colour grade. */
+    radial-gradient(
+      19% 13% at 77% 76%,
+      color-mix(in srgb, var(--lamp-400) 19%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 15%, transparent) 58%,
+      color-mix(in srgb, var(--lamp-600) 7%, transparent) 74%,
+      transparent 82%
+    ),
+    /* The lamp-facing flank of the after stanchion, and of the column the lamp
+       is bolted to. The right third measured a mean of 40 with a standard
+       deviation of 20 — an even brown smear across 30% of the picture. What it
+       was missing was not brightness, it was *edges*. */
+    radial-gradient(
+      1.5% 20% at 80.6% 47%,
+      color-mix(in srgb, var(--lamp-400) 25%, transparent) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      1.3% 26% at 64.2% 42%,
+      color-mix(in srgb, var(--lamp-400) 21%, transparent) 0%,
+      transparent 100%
+    ),
+    /* The bounce reaching the conservation roll on the near-left of the table.
+       That roll is a mandatory pickup; it cannot live in the one patch of the
+       frame nothing lights. */
+    radial-gradient(
+      11% 6% at 16.6% 76%,
+      color-mix(in srgb, var(--lamp-500) 14%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 7%, transparent) 55%,
       transparent 100%
     );
 
@@ -651,7 +744,257 @@ hr {
       26% 22% at 6% 84%,
       color-mix(in srgb, var(--ink-700) 22%, var(--multiply-none)) 0%,
       transparent 84%
+    ),
+    /* The chain the lamp hangs on runs straight across the hottest part of the
+       frame and was painted at the value it carries against the dark
+       deckhead — i.e. it was not painted against the flame at all. Chain in
+       front of a source is a silhouette; this takes the links down so they
+       read as iron in front of light rather than iron beside it. */
+    radial-gradient(
+      3.2% 5.2% at 60.6% 4%,
+      color-mix(in srgb, var(--fit-800) 22%, var(--multiply-none)) 0%,
+      transparent 88%
+    ),
+    /* The extreme right edge carries an angled plank cropped by the frame into
+       an unreadable shape. Roll the last few percent of the picture off rather
+       than leave a hard, meaningless silhouette against the letterbox. */
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 93%,
+      color-mix(in srgb, var(--ink-700) 30%, var(--multiply-none)) 100%
     );
+}
+
+/* -- The scuttle ----------------------------------------------------------
+   The storm window was the largest and the brightest mass in the frame, and
+   it is scenery: a cool, clean, narratively empty rectangle that the eye
+   landed on before it ever found the commission. The answer is not to dim it
+   flat — a darker empty rectangle is still an empty rectangle. It needs to
+   stop being a light box and start being a *surface*: glass with weather on
+   the outside of it and the cabin's warmth fogging the inside. That costs the
+   window its 15-20% of mean luminance and pays it back in texture, and the
+   storm reads as movement rather than as fill.
+
+   Clipped on each pseudo rather than on the parent: `clip-path` opens a
+   stacking context, and on `.scene-glass` that would trap both blend modes.
+   ------------------------------------------------------------------------ */
+
+.scene-view[data-scene='the-ardent'] .scene-glass::before,
+.scene-view[data-scene='the-ardent'] .scene-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* The aperture polygon from `OPTICS` in src/engine/scene-view.ts, which is
+     the same trace the weather already falls through. One number, two uses. */
+  clip-path: polygon(11.3% 13.2%, 41.2% 16.6%, 39.6% 42.4%, 9.6% 44.8%);
+}
+
+.scene-view[data-scene='the-ardent'] .scene-glass::before {
+  mix-blend-mode: multiply;
+  background:
+    /* Runnels on the outside of the glass, at two periods so the tiling never
+       lands on itself, raked to the angle the wind is driving. */
+    repeating-linear-gradient(
+      96deg,
+      transparent 0 7px,
+      color-mix(in srgb, var(--moon-400) 24%, var(--multiply-none)) 7px 9px,
+      transparent 9px 21px
+    ),
+    repeating-linear-gradient(
+      93deg,
+      transparent 0 17px,
+      color-mix(in srgb, var(--moon-400) 14%, var(--multiply-none)) 17px 20px,
+      transparent 20px 53px
+    ),
+    /* Condensation. The cabin is warm and the North Atlantic is not, so the
+       pane fogs from its cold metal surround inwards — which is also, and not
+       by accident, exactly the falloff that takes the value knockdown. */
+    radial-gradient(
+      74% 78% at 44% 42%,
+      color-mix(in srgb, var(--moon-300) 11%, var(--multiply-none)) 0%,
+      color-mix(in srgb, var(--moon-400) 28%, var(--multiply-none)) 68%,
+      color-mix(in srgb, var(--fit-700) 40%, var(--multiply-none)) 100%
+    );
+}
+
+.scene-view[data-scene='the-ardent'] .scene-glass::after {
+  mix-blend-mode: screen;
+  /* Held right down. Beads are a two-pixel event; at full strength they become
+     a pattern, and a pattern on glass is a texture swatch. */
+  opacity: 0.5;
+  background-image:
+    radial-gradient(
+      circle at 30% 34%,
+      color-mix(in srgb, var(--lamp-100) 38%, transparent) 0 0.9px,
+      transparent 1.7px
+    ),
+    radial-gradient(
+      circle at 70% 66%,
+      color-mix(in srgb, var(--moon-100) 26%, transparent) 0 0.6px,
+      transparent 1.3px
+    ),
+    /* the water lens on a runnel, offset from the dark side of the same runnel
+       so the two read as one rope of water rather than two stripes */
+    repeating-linear-gradient(
+      96deg,
+      transparent 0 9px,
+      color-mix(in srgb, var(--moon-100) 16%, transparent) 9px 10px,
+      transparent 10px 21px
+    );
+  background-size:
+    23px 27px,
+    13px 17px,
+    auto;
+}
+
+/* -- Edged detail ---------------------------------------------------------
+   Two things the plate does not contain and a full-frame gradient cannot
+   describe, because both have boundaries. There used to be three; the third
+   was a prop, and a prop is exactly what this technique cannot do. See below.
+   ------------------------------------------------------------------------ */
+
+/* 1. The conservation roll — now in pigment, where it belongs.
+ *
+ * `spatula-kit` is a huntable hotspot at (0.08, 0.6, 0.2, 0.19) that grants the
+ * player's core tools, and the plate had bare desk under it: the opening asked
+ * for a pixel-hunt on an object that was never painted. The answer used to live
+ * here, as ten stacked `radial-gradient` ellipses "laid in in light instead of
+ * in pigment". It did not work, and it could not have worked. A radial gradient
+ * that ends in `transparent` has no silhouette and no interior frequency by
+ * construction, so what the frame actually carried was a 330x55 featureless
+ * smear with a blur halo bleeding onto the surrounding oak: measured, mean
+ * |Laplacian| of luminance 0.01176 in the blob core against 0.04589 for the
+ * bone paperknife 600px away on the same plane at the same focal distance, and
+ * 0.00811 in the halo — below the *bare desk wood* it was sitting on at
+ * 0.02030. Both of those are the signature of a generated image, in the one
+ * region of the frame that is also the composition's strongest leading line.
+ *
+ * The bundle is now painted into `public/art/scenes/the-ardent.webp` itself:
+ * canvas over a real cylinder, lit from the gimballed lamp at 64%/13.5% like
+ * everything else in the cabin, two tarred cords with the pinch they put in the
+ * canvas, the wound turns showing on the near end, a cast that falls down and
+ * camera-left away from the key, and the bone spatula lying out of it. Values
+ * are pinned to the plate rather than invented — the bone paperknife on this
+ * plane averages rgb(103,87,60), the oak immediately around this spot
+ * rgb(29,22,17), and the bundle lands between them. Re-measured on the shipped
+ * asset: the tile the audit called out (x200-440, y880-935 at stage scale)
+ * reads 0.02055 and the bundle's own body 0.02654 against the paperknife's
+ * 0.04314 — 1.6x, where it was 3.9x — and the halo is gone, that region now
+ * measuring 0.00279, the same as the unpainted dark oak beside it.
+ *
+ * Nothing replaces it here. `.scene-detail` still exists for the two things
+ * below, which are cast light and a stain — neither of which has a silhouette,
+ * which is why a gradient can describe them and could never describe a prop.
+ *
+ * The same pass re-authored the plate's geometry. It shipped 1536x1024 (3:2)
+ * into this 16:10 stage, so `background-size: cover` at `.scene-bg` above was
+ * scaling it 1.25x and silently eating 80px — 6.25% of the painting's height,
+ * 40 off the top and 40 off the bottom. It is now 2560x1600, authored at 16:10
+ * on exactly the centre crop `cover` was already showing, so the composition on
+ * screen is unchanged to the pixel and nothing is thrown away at render time;
+ * `@sm` follows at 1920x1200. Be honest about what that is: the master out of
+ * the art pipeline is still 1536x1024, so this is a finishing re-export —
+ * Lanczos plus a calibrated unsharp — not new information. It buys a correct
+ * aspect, a supersample instead of an upscale at DPR 1, and 1.5x instead of
+ * 2.5x at DPR 2. A genuinely native plate needs `tools/generate-art.mjs` to
+ * request 16:10 at size and re-render, which is the real fix and is not a
+ * change that can be made from here.
+ */
+
+/* 2. The mast shadow.
+ *
+ * The declared key hangs off the beam at 64%/13.4% and the room showed no
+ * evidence of it on the sole at all: no shadow anywhere, in a cabin full of
+ * standing timber. A band, not a blob, which is why it cannot live in
+ * `--scene-shade` — and it is masked along its length because a cast shadow
+ * softens and dies as it travels away from what threw it.
+ */
+.scene-view[data-scene='the-ardent'] .scene-detail::before {
+  content: '';
+  position: absolute;
+  /* Starts clear of the chart table's right edge and rakes aft-and-down across
+     the sole — which is also, and not by coincidence, the middle of the dead
+     right third. What that region was short of was not light, it was edges. */
+  left: 73%;
+  top: 62%;
+  width: 6%;
+  height: 34%;
+  transform-origin: 50% 0%;
+  transform: rotate(-27deg);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--fit-800) 26%, var(--multiply-none)) 24%,
+    color-mix(in srgb, var(--fit-900) 32%, var(--multiply-none)) 50%,
+    color-mix(in srgb, var(--fit-800) 26%, var(--multiply-none)) 76%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    var(--scene-black) 0%,
+    color-mix(in srgb, var(--scene-black) 52%, transparent) 60%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    var(--scene-black) 0%,
+    color-mix(in srgb, var(--scene-black) 52%, transparent) 60%,
+    transparent 100%
+  );
+  mix-blend-mode: multiply;
+  filter: blur(4px);
+}
+
+/* 3. The water damage the script promises.
+ *
+ * Leaves two and three have "gone over hard, like a biscuit" and are welded
+ * together; the painted sheet is flat, clean and dry. A tide line rising from
+ * the lower edge, the pale bloom above it, and a cockle ripple across the
+ * grain. Masked rather than clipped: a hard polygon edge traced onto someone
+ * else's brushwork is a decal, and a stain has no edge anyway.
+ */
+.scene-view[data-scene='the-ardent'] .scene-detail::after {
+  content: '';
+  position: absolute;
+  left: 44.5%;
+  top: 55.5%;
+  width: 26%;
+  height: 20.5%;
+  background:
+    /* cockling — the swell and trough of a sheet that has been wet and dried,
+       running across the grain of the laid paper */
+    repeating-linear-gradient(
+      101deg,
+      transparent 0 9px,
+      color-mix(in srgb, var(--paper-400) 13%, var(--multiply-none)) 9px 15px,
+      transparent 15px 26px
+    ),
+    /* the tide line: a defined brown edge where the water stopped rising, a
+       darker soak below it and a pale bloom above */
+    linear-gradient(
+      172deg,
+      transparent 0%,
+      transparent 44%,
+      color-mix(in srgb, var(--paper-400) 10%, var(--multiply-none)) 54%,
+      color-mix(in srgb, var(--paper-ink-faded) 22%, var(--multiply-none)) 60%,
+      color-mix(in srgb, var(--paper-400) 34%, var(--multiply-none)) 66%,
+      color-mix(in srgb, var(--paper-400) 26%, var(--multiply-none)) 100%
+    );
+  -webkit-mask-image: radial-gradient(
+    52% 48% at 48% 56%,
+    var(--scene-black) 0%,
+    color-mix(in srgb, var(--scene-black) 62%, transparent) 62%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    52% 48% at 48% 56%,
+    var(--scene-black) 0%,
+    color-mix(in srgb, var(--scene-black) 62%, transparent) 62%,
+    transparent 100%
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.85;
 }
 
 /* The document. A hero prop the whole act title points at cannot be a blank
@@ -669,7 +1012,27 @@ hr {
   /* The flat of the top leaf, traced off the plate; the writing's own plane
      rotation is baked into the mask so this clip stays true to the paper. */
   clip-path: polygon(0% 17.6%, 84% 1%, 93% 62%, 12.1% 100%);
-  background-color: color-mix(in srgb, var(--paper-ink-faded) 78%, transparent);
+  /* The ink is a *ramp*, not a flat fill, and that is the only recession cue
+   * available from here. The writing was composited flat onto a receding
+   * plane, so the row of hand at the far edge of the sheet carried exactly the
+   * presence of the row nearest camera — the surest tell that the text is a
+   * decal rather than something printed on that paper. Glyph height cannot be
+   * tapered through a mask, but ink density can, and a hand that gives up as
+   * it travels away from the lamp is what the eye actually reads as depth. It
+   * also pushes the heading block and the column rule, which sit low and near,
+   * forward of the body — so the sheet reads as a ruled commission rather than
+   * as an even field of marks.
+   *
+   * Deliberately not a second mask layer intersected with the first: the
+   * fallback when `mask-composite` is not honoured is *addition*, which would
+   * paint the whole clip solid and put an opaque slab on the hero prop. A
+   * gradient in the paint has no such failure mode. */
+  background-image: linear-gradient(
+    11deg,
+    color-mix(in srgb, var(--paper-ink) 84%, transparent) 0%,
+    color-mix(in srgb, var(--paper-ink) 78%, transparent) 38%,
+    color-mix(in srgb, var(--paper-ink) 36%, transparent) 100%
+  );
   -webkit-mask-image: var(--ink-copperplate);
   mask-image: var(--ink-copperplate);
   -webkit-mask-size: 100% 100%;
@@ -677,7 +1040,11 @@ hr {
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   mix-blend-mode: multiply;
-  opacity: 0.58;
+  /* Was 0.58 of `--paper-ink-faded`. Iron-gall on rag does not read as a grey
+     haze, and the ruled heading, the column rule and the seal carried in this
+     mask are the whole of what makes the sheet read as a *commission* rather
+     than as a field of marks. Darker pigment, only slightly more of it. */
+  opacity: 0.66;
 }
 
 /* A warm specular along the top spine of the bone paperknife, facing the

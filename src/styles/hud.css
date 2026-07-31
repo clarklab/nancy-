@@ -318,8 +318,27 @@
   max-width: 42cqw;
   pointer-events: none;
   isolation: isolate;
-  /* Resting state: legible if you look for it, invisible if you don't. */
-  opacity: 0.26;
+  /* Resting state.
+   *
+   * This was `0.26`, which is where the only wayfinding text in the game
+   * spends roughly 95% of its on-screen life — `.is-announcing` below holds
+   * opacity 1 for a beat on entry and then lets go. Every screenshot ever
+   * taken of this lockup was captured during that beat, which is why it has
+   * always measured fine and never been legible.
+   *
+   * Measured over the local ground on The Ardent, rgb(22.3,19.0,14.9) /
+   * L=0.0067, the three lines at full strength are 9.91:1, 14.77:1 and 7.57:1.
+   * Composited at alpha 0.26 they are 1.77:1, 2.09:1 and 1.61:1 — all three
+   * below the 3:1 floor for non-text, on the line that says where you are.
+   * Solved numerically: the subtitle, the weakest of the three, does not clear
+   * 4.5:1 until alpha 0.74. At 0.76 the block measures eyebrow 6.16:1,
+   * display line 8.87:1, subtitle 4.84:1.
+   *
+   * Carried on the element rather than on the three per-line colours because
+   * the two casts below are doing real work — at 0.26 they were being faded
+   * out along with the ink they exist to separate, so the stems lost their
+   * contact shadow over wood grain exactly when they most needed it. */
+  opacity: 0.76;
   /* Two casts, not one: a tight contact shadow that keeps the stems crisp
      against wood grain, and a wide soft one that separates the whole lockup
      from whatever value the scene puts behind it. A single 1px text-shadow
@@ -351,12 +370,30 @@
      old strength this wash was crushing the deckhead behind it below the
      scene's own black point, i.e. drawing the corner panel it exists to
      avoid. It should read as the shadow the corner of a cabin is already in,
-     never as a plate. */
+     never as a plate.
+
+     Raised from 46%/72% after measurement: the wash was dying at roughly the
+     mid-point of the base rule, so the right half of the lockup — and the
+     right end of the subtitle — were standing on whatever the artwork happened
+     to put there. On The Ardent that is the lit metal surround of the scuttle
+     at luminance ~90. The falloff is pulled in as it is strengthened, so the
+     block gets more ground under it without the gradient ever reaching far
+     enough out to draw its own edge.
+
+     Restated once more now that the block rests at opacity 0.76 instead of
+     0.26. The parent's opacity multiplies this wash too, so the same stops
+     that composited to an effective 0.15 alpha of `--fit-abyss` at rest now
+     composite to 0.44 — which is no longer a shadow the cabin corner is
+     already in, it is the corner panel. Held at 26%/12% the effective peak is
+     0.20: a little more ground than the lockup used to have, against ink that
+     is now three times stronger. Measured, the local background under the
+     type moves L=0.0067 -> ~0.0063, so every ratio quoted on `.hud__place`
+     stands. */
   background: radial-gradient(
-    58% 62% at 30% 38%,
-    color-mix(in srgb, var(--fit-abyss) 46%, transparent) 0%,
-    color-mix(in srgb, var(--fit-abyss) 21%, transparent) 46%,
-    transparent 72%
+    62% 64% at 30% 38%,
+    color-mix(in srgb, var(--fit-abyss) 26%, transparent) 0%,
+    color-mix(in srgb, var(--fit-abyss) 12%, transparent) 38%,
+    transparent 60%
   );
   pointer-events: none;
 }
@@ -442,17 +479,36 @@
    the card into two halves and made the eye read two objects; under the whole
    thing it is a base line, and the size jump from eyebrow to display does the
    separation work it was doing badly. */
+/* A fade is only a fade if you can see where it ends. This rule ran the full
+ * width of the lockup and faded to transparent at 100%, which meant its right
+ * terminus was not a designed taper at all — it was wherever the artwork
+ * happened to get bright enough to swallow it. Traced on The Ardent: solid
+ * gold survived from x=28 to x=35, and by x≈250, where the background steps up
+ * onto the lit scuttle surround, the line had evaporated. A stroke with a hard
+ * left end that dissolves into nothing reads as a rendering fault.
+ *
+ * So: a fixed length, a constant value along the whole of it, and its own
+ * contact shadow so it carries separation onto any background instead of
+ * borrowing it from the one behind it today. `align-self` matters — as a flex
+ * item this stretched to the widest line in the block, which is what made its
+ * length a function of the location name. */
 .hud__place::after {
   content: '';
   display: block;
+  align-self: start;
+  /* Sized off the stage like everything else here; ~220px on a 1920 frame,
+     which is the width of the lockup's shortest full line. */
+  width: clamp(8.5rem, 11.5cqw, 15rem);
   height: 1px;
   margin-top: 0.5rem;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--lamp-600) 62%, transparent) 0%,
-    color-mix(in srgb, var(--lamp-600) 34%, transparent) 55%,
-    transparent 100%
-  );
+  background: color-mix(in srgb, var(--lamp-600) 62%, transparent);
+  /* One hairline of its own dark under the gold. This is the whole reason the
+     rule can now be a constant: it no longer needs the scene to be dark.
+     `box-shadow`, not `drop-shadow` — `place-settle` animates `filter` on this
+     pseudo-element, and a filled keyframe out-ranks an ordinary declaration,
+     so a `filter` here would be wiped the moment the arrival finished. See the
+     house rules at the top of this file. */
+  box-shadow: 0 1px 1.5px var(--cast-3);
 }
 
 /* Arrival: the three lines rise and settle a beat apart, like a title card.
@@ -522,7 +578,14 @@
  * catching the lamp as your hand passes over it.
  */
 .brass-btn {
-  --btn-size: clamp(2.35rem, 3.1cqw, 3.2rem);
+  /* Up from clamp(2.35rem, 3.1cqw, 3.2rem), and the reason is legibility of
+     the *engraving*, not of the mark. The glyphs modulate their stroke between
+     1.7 (structure) and 1.05 (interior scribing) on a 24-unit box. At the old
+     cell the face rendered ~29px, which puts those two weights at 2.05px and
+     1.27px — a 0.78px delta that antialiasing erases, so all five marks read as
+     one flat weight and the whole "cut into metal" intent collapses. At ~37px
+     they are 2.6px and 1.6px, which is two visibly different tools. */
+  --btn-size: clamp(2.6rem, 3.6cqw, 3.7rem);
   position: relative;
   isolation: isolate;
   width: var(--btn-size);
@@ -560,16 +623,34 @@
   pointer-events: none;
 }
 
+/**
+ * The engraving.
+ *
+ * The rail underneath these marks is genuinely lit — measured, its interior
+ * falls from luminance 78 on the lamp-facing (lower-left) side to 32 on the
+ * right, because `--key-at` tells it where the room's key actually hangs. The
+ * icons ignored all of it: uniform `--accent`, no lit side, no dark side, no
+ * recess, i.e. five flat gold decals stuck onto a convincingly lit plate.
+ *
+ * Two corrections, and they are the same correction applied twice. The groove
+ * is offset *diagonally* rather than vertically, so the lip that catches the
+ * light and the lip that shades are both square to the rail's own key at
+ * `-4% 112%`: dark on the near (lower-left) side of the cut, warm on the far
+ * (upper-right) wall, which is what a chisel line lit from below-left does.
+ * The second half lives in the glyph itself — see `mark()` in src/ui/hud.ts,
+ * where every mark is stroked with a lower-left-to-upper-right ramp of
+ * `currentColor` so its left flank sits a real step above its right.
+ */
 .brass-btn__face {
   display: grid;
   place-items: center;
-  width: 56%;
-  height: 56%;
-  /* Stamped into the metal: a lit lower lip and a dark upper one, so the
-     stroke reads as a groove with the lamp falling into it. */
+  /* 56% left the mark small in its cell as well as soft; the rail's rhythm
+     wants the ink, not the air. */
+  width: 62%;
+  height: 62%;
   filter:
-    drop-shadow(0 1px 0 var(--lit-2))
-    drop-shadow(0 -1px 0 var(--cast-3));
+    drop-shadow(-1px 1px 0 var(--cast-3))
+    drop-shadow(1px -1px 0 color-mix(in srgb, var(--lamp-100) 42%, transparent));
   transition: filter var(--dur-med) var(--ease-out);
 }
 
@@ -596,8 +677,8 @@
 .brass-btn:hover .brass-btn__face,
 .brass-btn:focus-visible .brass-btn__face {
   filter:
-    drop-shadow(0 1px 0 var(--lit-2))
-    drop-shadow(0 -1px 0 var(--cast-3))
+    drop-shadow(-1px 1px 0 var(--cast-3))
+    drop-shadow(1px -1px 0 color-mix(in srgb, var(--lamp-100) 42%, transparent))
     drop-shadow(0 0 7px color-mix(in srgb, var(--lamp-300) 60%, transparent));
 }
 
@@ -608,10 +689,10 @@
 
 .brass-btn:active .brass-btn__face {
   /* Pressed: the groove flips, because the light has not moved but the metal
-     has. */
+     has. Same diagonal, opposite sense. */
   filter:
-    drop-shadow(0 -1px 0 var(--lit-1))
-    drop-shadow(0 1px 0 var(--cast-3));
+    drop-shadow(1px -1px 0 var(--lit-1))
+    drop-shadow(-1px 1px 0 var(--cast-3));
 }
 
 /* The shortcut letter is stamped into the plate below the glyph. */

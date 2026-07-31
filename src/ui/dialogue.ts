@@ -165,14 +165,22 @@ export class DialogueView {
     this.el.innerHTML = `
       <div class="dialogue-scrim" aria-hidden="true"></div>
       <div class="dialogue-stage stage-box">
+        <div class="dialogue-lamp" aria-hidden="true"></div>
+        <!-- The key light is a sibling of the bay, not a child of it. Inside the
+             bay its box was 34% of the stage wide, so the falloff was amputated
+             at the bay's right edge while still ~22% opaque and left a razor 1px
+             vertical seam down the full height of the frame. Out here its
+             reference box is the artwork's own footprint and the wash reaches
+             zero before anything clips it. -->
+        <div class="dialogue-keylight" aria-hidden="true"></div>
         <div class="dialogue-bay">
-          <div class="dialogue-keylight" aria-hidden="true"></div>
           <div class="dialogue-portrait">
             <img class="dialogue-face is-front" alt="" draggable="false" />
             <img class="dialogue-face" alt="" draggable="false" />
           </div>
           <div class="dialogue-nameplate">
             <span class="dialogue-name"></span>
+            <span class="dialogue-nameplate__tick" aria-hidden="true"></span>
             <span class="dialogue-role"></span>
           </div>
         </div>
@@ -189,6 +197,10 @@ export class DialogueView {
         </div>
 
         <div class="dialogue-tray">
+          <p class="dialogue-continue" aria-hidden="true">
+            <span class="dialogue-continue__word">Continue</span>
+            <span class="dialogue-continue__key">Click or press Enter</span>
+          </p>
           <div class="dialogue-choices scrollable" role="menu" aria-label="What to say"></div>
           <p class="dialogue-hint" aria-hidden="true">
             <span>1&ndash;9 choose</span><span>&uarr;&darr; move</span><span>Enter say it</span><span>Esc leave</span>

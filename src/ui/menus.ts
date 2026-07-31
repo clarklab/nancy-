@@ -1087,6 +1087,11 @@ export class Menus {
 
           const tab = el('button', 'mset__tab', section.label);
           tab.type = 'button';
+          // The tab paints its own focus and its own selected state, and the
+          // two are deliberately different marks. The global ring would land
+          // here on open — a browser rectangle round the loudest thing in the
+          // rail — and would be indistinguishable from selection besides.
+          tab.dataset.ring = 'own';
           tab.id = tabId;
           tab.setAttribute('role', 'tab');
           tab.setAttribute('aria-controls', panelId);
@@ -1147,6 +1152,16 @@ export class Menus {
         marker.setAttribute('aria-hidden', 'true');
         railWrap.appendChild(rail);
         railWrap.appendChild(marker);
+
+        // Four tabs leave the bottom two fifths of the rail empty, and an empty
+        // rail beside a half-filled page is an L-shaped hole in the corner of
+        // the panel. A colophon plate is the honest thing to put there: it is
+        // information the player may actually want from a settings screen, and
+        // it is the same engraved brass the rest of the fittings are cut from.
+        const railFoot = el('div', 'mset__rail-foot');
+        railFoot.appendChild(el('span', 'mset__rail-foot__title', 'The Lamplight Cipher'));
+        railFoot.appendChild(el('span', 'mset__rail-foot__meta', `Version ${BUILD_VERSION}`));
+        railWrap.appendChild(railFoot);
 
         body.appendChild(railWrap);
         body.appendChild(pages);

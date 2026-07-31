@@ -29,6 +29,15 @@
   --pz-grain-leather: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23l)' opacity='0.5'/%3E%3C/svg%3E");
   --pz-grain-brass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.05' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23b)' opacity='0.28'/%3E%3C/svg%3E");
   --pz-grain-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23p)' opacity='0.4'/%3E%3C/svg%3E");
+  /* Coarse hide/cast-iron mottle. Named `--pz-grain-hide` because eight
+     surfaces across the mechanism and sensory sheets already ask for it by
+     that name — and until this line existed, every one of those `var()` calls
+     was invalid at computed-value time, which does not fail loudly: it makes
+     the whole `background-image` list resolve to `none`. That is why the K6
+     kiosk authored as 'cast iron painted red' sampled as neutral grey on the
+     capture, and why several panels the sheets describe in loving detail were
+     rendering as flat fills. */
+  --pz-grain-hide: var(--grain-hide);
 
   /* Every brass fitting on the bench is cut from these three, so a dial, a
      lever and a frame corner are unmistakably the same alloy. */
@@ -39,6 +48,97 @@
   /* The specular edge every lamp-lit top face catches. Warm, never white:
      nothing in this game is lit by a fluorescent tube. */
   --pz-specular: var(--lamp-100);
+
+  /* -- The lamp -----------------------------------------------------------
+   * ONE light for the whole bench, declared once and sampled by every fitting.
+   *
+   * Everything below used to be a per-widget `radial-gradient(... at 34% 26%)`:
+   * three identical dials 460px apart carried three identical highlights, which
+   * is the signature of decoration rather than of illumination. Two mechanisms
+   * fix that, and they are meant to be used together.
+   *
+   *   1. `--pz-key-spec` / `--pz-key-shade` are painted with
+   *      `background-attachment: fixed`, so their gradient resolves against the
+   *      *viewport* rather than against the element. A fitting near the lamp
+   *      shows the hot core; a fitting 1600px away shows the tail. That is
+   *      falloff, and it costs one extra background layer.
+   *   2. `--pz-el-x` / `--pz-el-y` place a control on the bench in 0..1, and
+   *      `--pz-spec-x` / `--pz-spec-y` / `--pz-key-angle` below turn that offset
+   *      into a highlight origin. A control at the left of the frame carries its
+   *      specular near its centre; one at the right carries it hard against the
+   *      lamp-facing rim. Set `--pz-el-x` on any control a mechanism places and
+   *      it lights itself correctly; leave it and it falls back to the middle of
+   *      the bench, which is never wrong, only average.
+   *
+   * `--pz-key-fx/fy` is the lamp, hanging off the upper left, in the same 0..1
+   * frame coordinates. Move it and every specular, every cast shadow and every
+   * falloff plate on the bench moves with it. */
+  --pz-key-fx: 0.17;
+  --pz-key-fy: -0.08;
+  --pz-key-x: calc(var(--pz-key-fx) * 100vw);
+  --pz-key-y: calc(var(--pz-key-fy) * 100vh);
+  /* Big enough that the far corner of the frame is still inside the falloff
+     rather than clipped flat to zero — a light that has already gone out by
+     two thirds of the way across the room is a spotlight, not a lamp. At this
+     size the near knob on the cipher bench (x=140) sits at 0.31 of the radius
+     and the far one (x=1780) at 0.65, which is roughly a four-to-one
+     difference in what they catch. That ratio is the whole point. */
+  --pz-key-w: 130vw;
+  --pz-key-h: 155vh;
+
+  --pz-key-spec: radial-gradient(
+    var(--pz-key-w) var(--pz-key-h) at var(--pz-key-x) var(--pz-key-y),
+    color-mix(in srgb, var(--pz-specular) 88%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-200) 42%, transparent) 26%,
+    color-mix(in srgb, var(--lamp-400) 14%, transparent) 54%,
+    transparent 88%
+  );
+
+  /* The same lamp landing on a matte surface — leather, paper, cast iron.
+     A specular is a mirror image of the source; a diffuse wash is the source
+     scattered. Using `--pz-key-spec` on hide is how a bench ends up looking
+     laminated. */
+  --pz-key-diffuse: radial-gradient(
+    var(--pz-key-w) var(--pz-key-h) at var(--pz-key-x) var(--pz-key-y),
+    color-mix(in srgb, var(--lamp-300) 32%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-500) 15%, transparent) 40%,
+    transparent 82%
+  );
+
+  /* The other half of the same light. `screen` can only add, so the far side of
+     the room has to be its own plate or the lamp reads as a decal. */
+  --pz-key-shade: radial-gradient(
+    var(--pz-key-w) var(--pz-key-h) at var(--pz-key-x) var(--pz-key-y),
+    transparent 0%,
+    transparent 34%,
+    color-mix(in srgb, var(--ink-abyss) 22%, transparent) 74%,
+    color-mix(in srgb, var(--ink-abyss) 44%, transparent) 100%
+  );
+
+  /* The direction light travels across the bench, as the leading pair of a
+     `box-shadow`. Everything that stands proud of the leather casts *this* way
+     — down and to the right of the lamp — and nothing casts a halo. */
+  --pz-cast-1: 3px 4px 8px -2px rgb(0 0 0 / 0.55);
+  --pz-cast-2: 10px 14px 24px -6px rgb(0 0 0 / 0.62), 3px 4px 7px -2px rgb(0 0 0 / 0.45);
+  --pz-cast-3: 26px 34px 56px -14px rgb(0 0 0 / 0.72), 7px 10px 16px -4px rgb(0 0 0 / 0.5);
+
+  /* One content inset for the whole bench, so the title, the hairline under
+     it, the recess and the footer all resolve to the same x. Panels *inside*
+     the recess get exactly one further step of indent and no more: two
+     indents, never seven. */
+  --pz-gutter: clamp(var(--sp-4), 2vw, var(--sp-6));
+  --pz-inset: clamp(var(--sp-3), 1.2vw, var(--sp-4));
+
+  /* Tracked-caps rhythm, in two sizes and no more. `--tracking-ui` (0.14em) is
+     right for 11–13px caps; anything smaller needs more air or it sets as a
+     smear. Seven different hand-picked tracking values across one control row
+     is what makes a screen read as assembled rather than designed. */
+  --pz-tracking-ui: var(--tracking-ui);
+  --pz-tracking-ui-sm: 0.2em;
+
+  /* The floor. Nothing legible in a full-screen puzzle sets below this — a
+     game rule at 9px is a game rule the player does not read. */
+  --pz-type-floor: 0.74rem;
 }
 
 .puzzle-root {
@@ -117,16 +217,24 @@
 
 /* -- Bench layout ----------------------------------------------------------- */
 
-/* Two columns: the frame, and a rail of pinned notes beside it. The rail is
-   always in the layout even when empty, so the first hint cannot shove the
-   mechanism sideways mid-puzzle. */
+/* Two columns: the frame, and a rail of pinned notes beside it.
+ *
+ * The rail *collapses* while it is empty. Reserving 240px of black for notes
+ * that do not exist yet is the difference between a modal that is centred in
+ * the window and one that looks like it slid left and got stuck — and on the
+ * opening frame of every puzzle the rail is always empty, so that is the
+ * composition the player meets first. The width is animated on the track, so
+ * pinning the first hint slides the frame over as a beat rather than as a jump:
+ * the bench narrowing as evidence accumulates is the point, not a side effect.
+ */
 .puzzle-bench {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(9rem, 13vw, 15rem);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: stretch;
   gap: 0;
   padding: clamp(var(--sp-4), 3vh, var(--sp-6)) clamp(var(--sp-4), 2.5vw, var(--sp-6));
   pointer-events: none;
+  transition: grid-template-columns var(--dur-scene) var(--ease-drama);
 }
 
 .puzzle-panel {
@@ -134,13 +242,21 @@
   z-index: 1;
   min-width: 0;
   display: grid;
-  /* Head, placard, bench, foot. Placed explicitly below rather than left to
+  /* Head band, bench, foot. Placed explicitly below rather than left to
      auto-flow: a puzzle with no premise hides the placard, and auto-flow would
      silently slide the bench into the `auto` row and the foot into the `1fr`
-     one — a frame with a hairline of leather and an enormous footer. */
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+     one — a frame with a hairline of leather and an enormous footer.
+
+     The premise used to own a band of its own, dead-centred, 526px wide inside
+     an 1856px frame: 145,232px of empty leather to its left and 143,840px to
+     its right, measured at 99.9% and 100.0% empty. A title on one side of the
+     head and the case note filling the other is the same information in one
+     band instead of two, and it hands ~180px of height back to the instrument,
+     which is the thing the player came to look at. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 66%);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
-  padding: clamp(var(--sp-3), 2vh, var(--sp-5)) clamp(var(--sp-4), 2vw, var(--sp-6));
+  padding: clamp(var(--sp-3), 2vh, var(--sp-5)) var(--pz-gutter);
   pointer-events: auto;
   overflow: hidden;
   border-radius: var(--radius-lg);
@@ -186,20 +302,47 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* A source, not a tint — and *the* source. This used to be three gradients
+     positioned against the panel's own box, which meant the frame had one lamp
+     and every fitting standing on it had its own private one. It is now the
+     same two `fixed` layers every dial, knob and plate on the bench samples,
+     so moving `--pz-key-fx` moves the wash on the frame and the highlight on
+     every control together, as a light does.
+
+     The game is called The Lamplight Cipher; a bench that is evenly lit is a
+     bench nothing is standing on. */
   background:
+    var(--pz-key-spec),
+    var(--pz-key-diffuse),
     radial-gradient(
-      82% 62% at 12% -6%,
-      color-mix(in srgb, var(--lamp-300) 26%, transparent) 0%,
-      color-mix(in srgb, var(--lamp-600) 10%, transparent) 42%,
-      transparent 76%
-    ),
-    linear-gradient(
-      156deg,
-      transparent 46%,
-      color-mix(in srgb, var(--ink-abyss) 46%, transparent) 100%
+      70% 56% at 4% 96%,
+      color-mix(in srgb, var(--lamp-600) 9%, transparent) 0%,
+      transparent 74%
     );
+  background-attachment: fixed, fixed, scroll;
   mix-blend-mode: screen;
   opacity: 0.9;
+}
+
+/* The other half of a key light: the far corner going out. `.puzzle-rake` is a
+   `screen` layer and screen can only add, so the falloff has to be its own
+   plate underneath the content — otherwise the lamp reads as a decal stuck on
+   a uniformly grey board. Sits below everything the player reads (z-index 0
+   against the head/placard/surface, which are grid items in normal flow and
+   paint above it). */
+.puzzle-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    152deg,
+    transparent 26%,
+    color-mix(in srgb, var(--ink-abyss) 26%, transparent) 66%,
+    color-mix(in srgb, var(--ink-abyss) 54%, transparent) 100%
+  );
 }
 
 /* -- Brass corners ---------------------------------------------------------- */
@@ -269,14 +412,23 @@
 
 /* -- Head ------------------------------------------------------------------- */
 
+/* The head sits on the frame's own content edge — no extra horizontal padding.
+   With padding, the `border-bottom` drew across the full box while the title
+   was inset by it, so the heading looked like it had slid 80px right off its
+   own baseline mark. Rule and type now share one origin, and that origin is
+   the same `--pz-gutter` the recess and the footer resolve to. */
 .puzzle-head {
   grid-row: 1;
+  /* Spans both tracks so the rule under the band runs the full width of the
+     frame. The placard overlaps the second track on top of it — the rule is
+     the bottom of the whole head band, not the bottom of the title. */
+  grid-column: 1 / -1;
   position: relative;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
-  padding: 0 clamp(var(--sp-4), 3vw, var(--sp-7)) var(--sp-2);
+  padding: 0 0 var(--sp-2);
   border-bottom: var(--border-hairline);
 }
 
@@ -370,38 +522,114 @@
 
 /* -- Premise placard -------------------------------------------------------- */
 
+/**
+ * The premise, on a card of aged paper.
+ *
+ * Set flush left, not centred. Centred ragged-both-sides prose survives two or
+ * three short lines; at five lines and a 60-character measure every line start
+ * lands at a different x, the reader has no left edge to return to, and the
+ * block reads as a blog pull-quote rather than as a page of a casebook.
+ *
+ * It sits in the head band, filling everything to the right of the title,
+ * rather than dead-centred in a band of its own. Centred, it measured 526px
+ * inside an 1856px frame with 633px of empty leather on each side and the
+ * instrument's own edge-energy centroid 213px to its left — a small light
+ * rectangle floating in the middle of a large dark one, which is the layout a
+ * stranger reads as unfinished. Filling the band, the premise sets in two or
+ * three columns like the head of a printed docket, and the bench gets the
+ * height back.
+ */
 .puzzle-placard {
-  grid-row: 2;
-  justify-self: center;
-  max-width: min(62ch, 82%);
-  padding: clamp(var(--sp-2), 1.2vh, var(--sp-3)) clamp(var(--sp-4), 2vw, var(--sp-5));
+  grid-row: 1;
+  grid-column: 2;
+  /* Positioned so it paints above the frame's falloff plate; a card of paper
+     lies on the bench, it is not behind the shadow of it. */
+  position: relative;
+  z-index: 2;
+  justify-self: stretch;
+  align-self: center;
+  /* Clear of the close button at the far right of the head, and clear of the
+     hairline that closes the band underneath it — a card lying on the frame,
+     not a card welded to the rule. */
+  margin-right: calc(2.1rem + var(--sp-4));
+  margin-block: clamp(var(--sp-2), 1.4vh, var(--sp-4));
+  padding: clamp(var(--sp-2), 1.2vh, var(--sp-3)) clamp(var(--sp-4), 2vw, var(--sp-5))
+    clamp(var(--sp-3), 1.4vh, var(--sp-4));
   border-radius: var(--radius-sm);
   background-image:
     var(--pz-grain-paper),
     linear-gradient(168deg, var(--paper-100) 0%, var(--paper-200) 62%, var(--paper-300) 100%);
   background-blend-mode: multiply, normal;
-  /* Torn-ish card: the top edge catches the lamp, the underside is in shadow
-     and it sits a hair proud of the frame. */
+  /* Torn-ish card: the top edge catches the lamp, the underside is in shadow,
+     and the shadow it throws goes DOWN AND RIGHT, away from the lamp at the
+     upper left, because that is where the lamp is. The symmetric `--shadow-2`
+     that used to be here measured 5.0/1.9/1.8/3.8 luminance units on
+     left/right/top/bottom — a 1-2% ambient darkening on all four sides, which
+     is a box-shadow and not a cast shadow. This one lands on the leather. */
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--pz-specular) 62%, transparent),
     inset 0 -1px 3px color-mix(in srgb, var(--paper-400) 70%, transparent),
-    var(--shadow-2);
+    var(--pz-cast-3);
   transform: rotate(-0.35deg);
+}
+
+/* No premise, no card — and no empty second track holding the band open. */
+.puzzle-placard[hidden] {
+  display: none;
+}
+
+/* The entry point: a small-caps kicker with a rule under it, the way a filing
+   slip is headed. Decorative and inert — the premise itself is what
+   `aria-describedby` points at. */
+.puzzle-placard::before {
+  content: 'Case note';
+  display: block;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.35em;
+  font-family: var(--font-front);
+  font-size: 0.7em;
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.18em;
+  /* Composited against the sheet, 55% put this at L 0.255 on L 0.719 paper —
+     2.52:1, on the one word that tells the player what the card is. Mixed
+     toward the sheet's own shadow tone rather than toward transparency, it
+     lands near 5.5:1 and still sits a long way under the body's 10.3:1, which
+     is the whole job of a kicker. */
+  color: color-mix(in srgb, var(--paper-ink) 82%, var(--paper-400));
+  border-bottom: 1px solid color-mix(in srgb, var(--paper-400) 62%, transparent);
 }
 
 .puzzle-premise {
   font-family: var(--font-body);
   font-size: var(--step-0);
-  line-height: var(--leading-body);
-  text-align: center;
+  /* 1.62 is a body value for a 40ch column of continuous text. On a card of
+     five short lines it blows the block apart; this is a set paragraph, not a
+     magazine pull-quote. */
+  line-height: 1.42;
+  text-align: left;
   color: var(--paper-ink);
-  text-wrap: balance;
+  /* `balance` is what produced the symmetrical trapezoid rag. `pretty` keeps
+     the last line honest without squaring the block off. */
+  text-wrap: pretty;
+  hyphens: none;
+  /* Set in columns, capped at three, each at least 26ch. The card now spans
+     two thirds of the frame; one 120-character measure across that is not
+     reading, it is scanning. `columns` shorthand takes the count as a maximum
+     and the width as a floor, so the same declaration gives three columns on
+     the bench, two on a tablet and one on a phone with nothing to override. */
+  columns: 26ch 3;
+  column-gap: clamp(var(--sp-4), 2.4vw, var(--sp-6));
+  column-rule: 1px solid color-mix(in srgb, var(--paper-400) 55%, transparent);
+  orphans: 2;
+  widows: 2;
 }
 
 /* -- The bench top the mechanism lives on ----------------------------------- */
 
 .puzzle-surface {
-  grid-row: 3;
+  grid-row: 2;
+  grid-column: 1 / -1;
   position: relative;
   min-height: 0;
   /* A one-row grid, and not for alignment: it is what gives `.puzzle-stage` a
@@ -412,7 +640,9 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   border-radius: var(--radius-md);
-  padding: clamp(var(--sp-3), 2vh, var(--sp-5));
+  /* One step in from `--pz-gutter`, and the only further indent on the bench.
+     Everything a mechanism draws starts on this rail. */
+  padding: var(--pz-inset);
   /* The recess clips. A mechanism that overruns its bench should be cut off by
      the frame the way a real one would be, not printed over the status line and
      the hint lamp. */
@@ -420,8 +650,16 @@
   /* Sunk leather: dark, warm, and lit from the same upper-left as the frame.
      Two scales of mottle over the grain — hide at this size is blotchy long
      before it is grainy, and a single fine noise layer on a near-black fill is
-     indistinguishable from no texture at all. */
+     indistinguishable from no texture at all.
+
+     The top two layers are the room. They are painted `fixed`, so their origin
+     is the viewport and not this box: the bench, the placard on it and every
+     fitting standing on it are all reading the same gradient from the same
+     lamp, which is the difference between a lit scene and a page-wide vignette
+     that happens to be dark in the corner. */
   background-image:
+    var(--pz-key-diffuse),
+    var(--pz-key-shade),
     var(--pz-grain-leather),
     radial-gradient(
       42% 58% at 72% 78%,
@@ -433,13 +671,9 @@
       color-mix(in srgb, var(--ink-700) 34%, transparent) 0%,
       transparent 72%
     ),
-    radial-gradient(
-      120% 100% at 18% 4%,
-      color-mix(in srgb, var(--lamp-600) 26%, transparent) 0%,
-      transparent 62%
-    ),
     linear-gradient(158deg, var(--ink-800) 0%, var(--ink-900) 58%, var(--ink-abyss) 100%);
-  background-blend-mode: overlay, soft-light, soft-light, screen, normal;
+  background-attachment: fixed, fixed, scroll, scroll, scroll, scroll;
+  background-blend-mode: screen, multiply, overlay, soft-light, soft-light, normal;
   box-shadow:
     inset 0 2px 10px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent),
@@ -502,7 +736,10 @@
 /* -- Foot: lamp, status line, bail-out -------------------------------------- */
 
 .puzzle-foot {
-  grid-row: 4;
+  grid-row: 3;
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -633,10 +870,28 @@
   padding-top: 0.06em;
 }
 
+/**
+ * Hints remaining, as charges rather than as an ellipsis.
+ *
+ * The host writes one middot per hint left. At 11px in the label's own colour
+ * that read as a loading state or a truncation; struck up to pip size, given a
+ * lit core and fenced off from the word by a hairline, three of them read as
+ * three things you still have. (The literal string is `puzzle-host.ts`'s to
+ * write — this is as far as the stylesheet can take it.)
+ */
 .puzzle-lamp-count {
-  font-size: var(--step--2);
-  letter-spacing: 0.3em;
-  color: var(--lamp-400);
+  display: inline-block;
+  padding-left: 0.55em;
+  border-left: 1px solid color-mix(in srgb, var(--lamp-500) 40%, transparent);
+  font-size: 1.5em;
+  line-height: 0.6;
+  letter-spacing: 0.24em;
+  color: var(--lamp-300);
+  text-shadow: 0 0 7px color-mix(in srgb, var(--lamp-300) 65%, transparent);
+}
+
+.puzzle-lamp-count:empty {
+  display: none;
 }
 
 .puzzle-lamp.is-refused {
@@ -656,16 +911,48 @@
   }
 }
 
-/* Status line: the mechanism talking back. Reads as an aside, not a label. */
+/**
+ * Status line: the mechanism talking back.
+ *
+ * This is the line that tells a player why the thing in front of them will not
+ * move, so it cannot be the smallest, dimmest type in the frame — it was 13px
+ * of dim slate under a bright decorative placard, which is hierarchy exactly
+ * upside down. It reads as a system voice: a lamp mark, then the sentence,
+ * bracketed against the right end of the footer so HINT (left) and status
+ * (right) hold the bar between them instead of leaving it lopsided.
+ */
 .puzzle-status {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.6em;
   min-height: 1.2em;
   font-family: var(--font-body);
-  font-size: var(--step--1);
+  font-size: var(--step-0);
   font-style: italic;
-  text-align: center;
-  color: var(--text-secondary);
+  text-align: right;
+  text-wrap: pretty;
+  color: color-mix(in srgb, var(--text-secondary) 76%, var(--paper-100));
   opacity: 0;
   transform: translateY(2px);
+}
+
+/* A struck-match mark, so the sentence reads as the machine speaking rather
+   than as a caption someone forgot to delete. */
+.puzzle-status::before {
+  content: '';
+  flex: none;
+  align-self: center;
+  width: 0.42em;
+  height: 0.42em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, var(--lamp-100) 0%, var(--lamp-400) 62%, transparent 100%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--lamp-300) 60%, transparent);
+}
+
+/* An empty status line must not draw its own lamp. */
+.puzzle-status:empty::before {
+  display: none;
 }
 
 .puzzle-status.is-in {
@@ -726,6 +1013,7 @@
   /* Above the frame, not under it: a note pinned to a board that the board
      then paints over is not pinned to anything. */
   z-index: 2;
+  width: clamp(9rem, 13vw, 15rem);
   display: flex;
   flex-direction: column;
   gap: clamp(var(--sp-2), 1.4vh, var(--sp-4));
@@ -733,6 +1021,13 @@
   /* Overlaps the frame's right edge so the notes read as pinned *to* it. */
   margin-left: calc(-1 * clamp(var(--sp-3), 1.6vw, var(--sp-5)));
   pointer-events: none;
+}
+
+/* No notes, no rail. The `auto` track on `.puzzle-bench` then measures zero and
+   the frame is optically centred in the window, which is where a modal belongs
+   until the player has actually put something beside it. */
+.puzzle-rail:empty {
+  display: none;
 }
 
 .puzzle-hint-note {
@@ -928,6 +1223,30 @@
 .pz-dial {
   --dial-size: clamp(6rem, 14cqw, 9.5rem);
 
+  /* Where this control stands on the bench, 0..1. A mechanism that lays out
+     three of these in a row sets 0.68 / 0.80 / 0.93 and gets three differently
+     lit dials out of one stylesheet; leaving it unset parks the control in the
+     middle of the frame, which is the average of being lit rather than a
+     substitute for it. */
+  --pz-el-x: 0.5;
+  --pz-el-y: 0.5;
+
+  /* The lamp-facing side, as a background position. Everything round on the
+     bench feeds these two into its own radial-gradient instead of hard-coding
+     `at 34% 26%`. The coefficients are the parallax: a control level with the
+     lamp keeps its highlight centred, one at the far rim pushes it ~30% of its
+     own width toward the light. */
+  --pz-spec-x: calc(50% + (var(--pz-key-fx) - var(--pz-el-x)) * 66%);
+  --pz-spec-y: calc(50% + (var(--pz-key-fy) - var(--pz-el-y)) * 46%);
+  /* The same vector as an angle, for turned faces. Linear rather than
+     `atan2()` on purpose: the error against the true bearing is under 6deg
+     across the whole bench and it renders in every engine the game ships to. */
+  --pz-key-angle: calc(210deg - (var(--pz-el-x) - var(--pz-key-fx)) * 74deg);
+  /* How much of the lamp this control is actually getting, 0..96%. Used
+     wherever an intensity rather than a position has to fall off — the bloom
+     on the index notch, the strength of a knurl highlight. */
+  --pz-lit: clamp(6%, calc(96% - (var(--pz-el-x) - var(--pz-key-fx)) * 92%), 96%);
+
   position: relative;
   display: grid;
   grid-template-rows: auto auto;
@@ -948,14 +1267,22 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  /* Four layers, and the top two are the room rather than the object: the key
+     and its falloff are painted `fixed`, so they resolve against the viewport
+     and every bezel on the bench shows a different part of one gradient. The
+     conic below them is the *material* — turned brass — and it is oriented by
+     `--pz-key-angle` so the bright band on the turning always faces the lamp
+     instead of always facing 338deg. */
   background:
+    var(--pz-key-spec),
+    var(--pz-key-shade),
     var(--pz-grain-brass),
     /* First and last stop MUST be the same value. A conic gradient that ends on
        a different colour than it starts leaves a hard radial seam down the
        face — turned brass has no such line, and once you have seen it on a dial
        you cannot unsee it. */
     conic-gradient(
-      from 210deg,
+      from var(--pz-key-angle, 210deg),
       var(--pz-brass-lo) 0deg,
       var(--pz-brass-mid) 62deg,
       var(--pz-brass-hi) 128deg,
@@ -963,25 +1290,59 @@
       color-mix(in srgb, var(--pz-brass-lo) 70%, var(--pz-brass-mid)) 268deg,
       var(--pz-brass-lo) 360deg
     );
-  background-blend-mode: soft-light, normal;
+  background-attachment: fixed, fixed, scroll, scroll;
+  background-blend-mode: screen, multiply, soft-light, normal;
   box-shadow:
     inset 0 2px 2px color-mix(in srgb, var(--lamp-100) 45%, transparent),
     inset 0 -3px 6px color-mix(in srgb, var(--ink-abyss) 82%, transparent),
-    var(--shadow-2);
+    var(--pz-cast-2);
 }
 
-/* The index mark the value is read against, at twelve o'clock. */
+/**
+ * The engraved ring, and why the numbers below are what they are.
+ *
+ * A legend at radius R is not a point — it is a box, and the corner of that box
+ * nearest the hub is what the knob cap eats first. With the cap at 62% and the
+ * legends at top:12%, the inner corner of a four-letter legend at 4 and 8
+ * o'clock sat about 6px *inside* the cap, so 'LAID' read as 'ID' and 'WOVE' as
+ * 'WO'. Four numbers hold the ring clear, in this order in from the rim:
+ *
+ *   index notch   0 – 4%      the mark the value is read against
+ *   legend ring  11 – ~22%    set upright, counter-rotated
+ *   tick ring    23 – 27%     a hairline inboard of each legend
+ *   knob cap     32 – 68%     (width 36%, centred)
+ *
+ * Change the cap size and re-check the 4 and 8 o'clock legends, never the one
+ * at twelve — twelve is the only position where the box is narrow against the
+ * radius, and it will tell you everything is fine.
+ *
+ * The ring used to start at 4%, and that solved only the INNER collision. The
+ * OUTER corner was never checked: with the box centre at 0.82R and a half-width
+ * of 14px, the far corner of a four-letter legend at 4 o'clock lands at 1.11R —
+ * five columns of ink hanging off the brass and onto the panel, where
+ * `--ink-abyss` measures 1.15:1 and simply is not there. 'WOVE' read as 'OVE'.
+ * At 11% the same corner lands at 0.97R and stays on the metal, and the warm
+ * halo in the text-shadow below means an antialiased edge that does creep over
+ * the rim still separates from the ground instead of vanishing into it.
+ */
 .pz-dial-bezel::after {
   content: '';
   position: absolute;
-  top: 2%;
+  top: 0;
   left: 50%;
-  width: 2px;
-  height: 9%;
-  margin-left: -1px;
-  border-radius: 1px;
-  background: var(--lamp-100);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--lamp-200) 80%, transparent);
+  width: 3px;
+  height: 4%;
+  margin-left: -1.5px;
+  border-radius: 0 0 2px 2px;
+  /* The notch is machined at twelve on every dial — that is what it is for —
+     but the bloom coming off it is the lamp's, not the notch's, so it leans
+     toward the source and dims with distance from it. Pinning a fixed white
+     halo here on every dial in the row is what made three identical dials
+     look stamped out of the same PNG. */
+  background: color-mix(in srgb, var(--lamp-100) var(--pz-lit, 80%), var(--lamp-400));
+  box-shadow:
+    calc((var(--pz-key-fx) - var(--pz-el-x, 0.5)) * 5px) 0 7px
+      color-mix(in srgb, var(--lamp-200) var(--pz-lit, 80%), transparent);
 }
 
 .pz-dial-tick {
@@ -994,37 +1355,61 @@
 .pz-dial-tick::before {
   content: '';
   position: absolute;
-  top: 6%;
+  top: 23%;
   left: 50%;
   width: 1px;
-  height: 5%;
+  height: 4%;
   margin-left: -0.5px;
   background: color-mix(in srgb, var(--ink-abyss) 62%, transparent);
 }
 
+/* Cut from the record face, not from the chrome grotesque: a dial legend and
+   the index card it is set against are struck by the same typewriter. */
 .pz-dial-legend {
   position: absolute;
-  top: 12%;
+  top: 11%;
   left: 50%;
   translate: -50% 0;
   /* Counter-rotate so every legend stays upright on a turned face. */
   rotate: calc(-1 * var(--tick-angle, 0deg));
-  font-family: var(--font-ui);
+  font-family: var(--font-mono);
+  font-weight: 500;
   font-size: var(--step--2);
-  color: color-mix(in srgb, var(--ink-900) 78%, var(--lamp-600));
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-100) 30%, transparent);
+  line-height: 1;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  color: var(--ink-abyss);
+  /* Two shadows doing two jobs. The 1px warm edge below the glyph is the far
+     wall of the engraved trench. The soft warm halo around it is the insurance
+     policy: if a legend ever does clip the rim, the fragment lands on a lit
+     outline rather than on 1.15:1 of nothing. */
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--lamp-100) 42%, transparent),
+    0 0 2px color-mix(in srgb, var(--lamp-200) 58%, transparent),
+    0 0 5px color-mix(in srgb, var(--lamp-300) 30%, transparent);
 }
 
 .pz-dial-knob {
   position: relative;
   z-index: 1;
-  width: 62%;
-  height: 62%;
+  /* 36%, not 46% and never 62%. See the ring geometry note on
+     `.pz-dial-bezel::after`: the binding constraint is the inner corner of a
+     four-letter legend, and moving the legend ring inboard to 11% to keep it
+     off the rim moved that corner in with it. Do not take this back up without
+     re-measuring the 4 and 8 o'clock legends. */
+  width: 36%;
+  height: 36%;
   border-radius: 50%;
   transform: rotate(var(--rot, 0deg));
+  /* The highlight origin is the lamp's, not the widget's. `at 34% 26%` was the
+     same three pixels on every knob in the game regardless of where the knob
+     stood; `--pz-spec-x/y` is computed from this control's own offset to
+     `--pz-key-fx/fy`, so a knob at the left of the frame carries its specular
+     near its centre and one at the right carries it hard against the lamp-side
+     rim. Counter-rotated, because the light does not turn when the knob does. */
   background:
     radial-gradient(
-      64% 58% at 34% 26%,
+      64% 58% at var(--pz-spec-x, 34%) var(--pz-spec-y, 26%),
       color-mix(in srgb, var(--lamp-200) 46%, transparent) 0%,
       transparent 66%
     ),
@@ -1032,7 +1417,28 @@
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 34%, transparent),
     inset 0 -3px 8px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
-    0 6px 12px -2px rgb(0 0 0 / 0.62);
+    var(--pz-cast-2);
+}
+
+/* The lamp's own reflection in the cap, held level while the cap turns. It is
+   a sibling layer rather than another stop in the knob's gradient because the
+   knob carries `rotate(var(--rot))` and a specular that spins with the control
+   is a decal, not a reflection. */
+.pz-dial-face::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: 36%;
+  height: 36%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--pz-key-spec);
+  background-attachment: fixed;
+  mix-blend-mode: screen;
+  opacity: 0.5;
 }
 
 /* Knurling: twelve short flutes around the rim, lit from the same side. */
@@ -1446,14 +1852,19 @@
     grid-template-rows: minmax(0, 1fr) auto;
   }
 
-  .puzzle-rail {
+  .puzzle-rail,
+  .puzzle-rail:empty {
+    /* Folded under the frame the reservation costs nothing visible — it is a
+       thin band below the bench, not a slab of black beside it — so here the
+       rail *does* hold its place and the first hint shifts nothing. */
+    display: flex;
+    width: auto;
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
     gap: clamp(var(--sp-3), 2vw, var(--sp-5));
     padding: var(--sp-3) clamp(var(--sp-4), 2.5vw, var(--sp-6)) 0;
     margin-left: 0;
-    /* Reserved even when empty, so the first hint still shifts nothing. */
     min-height: clamp(4.4rem, 10vh, 6rem);
     overflow: hidden;
   }

@@ -496,6 +496,7 @@ export class Journal {
     requestAnimationFrame(() => {
       if (this.destroyed || !this.opened) return;
       this.settleTasks();
+      this.syncCatchword();
       this.layoutOverlays();
     });
   }
@@ -594,23 +595,42 @@ export class Journal {
           ${act?.epigraph ? `<p class="jp-epigraph">${escapeHtml(act.epigraph)}</p>` : ''}
           ${COMMISSION_PLATE}
           ${here ? `<p class="jp-margin"><span class="jp-margin__label">Written at</span><span class="jp-margin__place">${escapeHtml(here.name)}</span>${here.subtitle ? `<span class="jp-margin__sub">${escapeHtml(here.subtitle)}</span>` : ''}<span class="jp-margin__pen" aria-hidden="true">${FLOURISH}</span></p>` : ''}
-          <dl class="case-stats">
-            <div class="case-stat"><dt>Clues recorded</dt><dd>${this.state.clues.size}</dd></div>
-            <div class="case-stat"><dt>Places seen</dt><dd>${this.state.visitedScenes.size}</dd></div>
-            <div class="case-stat"><dt>Requisitioned</dt><dd>${this.state.items.size}</dd></div>
-            <div class="case-stat"><dt>Puzzles solved</dt><dd>${this.state.solvedPuzzles.size}</dd></div>
-          </dl>
         </section>
         <section
           class="jp-col jp-col--ruled scrollable"
           data-scroll="right"
           aria-label="Standing order and open tasks"
         >
-          <p class="jp-kicker">Standing order</p>
-          ${order}
-          ${closed}
-          <p class="jp-kicker jp-kicker--mid">To do</p>
-          ${list}
+          <div class="jp-ruled__field">
+            <p class="jp-kicker">Standing order</p>
+            ${order}
+            ${closed}
+            <p class="jp-kicker jp-kicker--mid">To do</p>
+            ${list}
+          </div>
+          <div class="jp-tail" aria-hidden="true">
+            <span class="jp-sign">${FLOURISH}</span>
+            <span class="jp-clip">${PAPERCLIP}</span>
+          </div>
+          ${/*
+            The reckoning used to be jammed at the foot of the *verso*, under a
+            leaf that already carried the act title, the epigraph, the
+            commission slip and the dateline — five blocks on one leaf, and a
+            recto that was 82.9% blank paper with one contiguous void of
+            373,870px (16.2% of the whole frame) sitting under a single line of
+            handwriting. A bound spread balances across the gutter: the left
+            leaf states the case, the right leaf keeps the account of it. Set
+            last, it takes the foot of the working page — which is where a clerk
+            totals a column anyway — and the tail furniture above it now has
+            something to sit between rather than an open half-leaf to close off
+            on its own.
+          */ ''}
+          <dl class="case-stats case-stats--ledger">
+            <div class="case-stat"><dt>Clues recorded</dt><dd>${this.state.clues.size}</dd></div>
+            <div class="case-stat"><dt>Places seen</dt><dd>${this.state.visitedScenes.size}</dd></div>
+            <div class="case-stat"><dt>Requisitioned</dt><dd>${this.state.items.size}</dd></div>
+            <div class="case-stat"><dt>Puzzles solved</dt><dd>${this.state.solvedPuzzles.size}</dd></div>
+          </dl>
         </section>
         ${this.footFor('case', 'Casebook · W. Adare', `Act ${roman(this.state.act)} · ${act?.title ?? 'The case so far'}`)}
       </div>`;
@@ -693,7 +713,7 @@ export class Journal {
       const inGroup = clues.filter((c) => c.category === group.id);
       if (!inGroup.length) return '';
       return `
-        <section class="clue-group" aria-label="${escapeHtml(group.title)}">
+        <section class="clue-group" data-cat="${escapeHtml(group.id)}" aria-label="${escapeHtml(group.title)}">
           <header class="clue-group__head">
             <h4 class="clue-group__title">${escapeHtml(group.title)}</h4>
             <p class="clue-group__blurb">${escapeHtml(group.blurb)}</p>
@@ -709,9 +729,10 @@ export class Journal {
   private clueCard(clue: Clue): string {
     const fresh = this.freshClues.has(clue.id);
     return `
-      <article class="clue-card${fresh ? ' is-fresh' : ''}" style="--tilt:${tiltOf(clue.id)}deg">
+      <article class="clue-card${fresh ? ' is-fresh' : ''}"
+               style="--tilt:${tiltOf(clue.id)}deg;--pin-x:${pinOf(clue.id)}%">
         <span class="clue-card__pin" aria-hidden="true"></span>
-        <h5 class="clue-card__name">${escapeHtml(clue.name)}</h5>
+        <h5 class="clue-card__name">${escapeHtml(bindDates(clue.name))}</h5>
         <p class="clue-card__summary">${escapeHtml(clue.summary)}</p>
         <footer class="clue-card__foot">
           <span class="clue-card__act">Act ${escapeHtml(roman(clue.act))}</span>
@@ -811,21 +832,31 @@ export class Journal {
         const id = escapeHtml(c.id);
         return `
           <button type="button" class="ded-card${pinned ? ' is-pinned' : ''}"
-                  data-clue="${id}" data-fk="card:${id}" style="--tilt:${tiltOf(c.id)}deg"
+                  data-clue="${id}" data-fk="card:${id}" data-cat="${escapeHtml(c.category)}"
+                  style="--tilt:${tiltOf(c.id)}deg;--pin-x:${pinOf(c.id)}%"
                   aria-pressed="false" aria-describedby="journal-ded-hint"
                   aria-label="${escapeHtml(c.name)}. ${escapeHtml(c.category)}.${pinned ? ' Already pinned.' : ''}">
             <span class="ded-card__pin" aria-hidden="true"></span>
-            <span class="ded-card__name">${escapeHtml(c.name)}</span>
+            <span class="ded-card__name">${escapeHtml(bindDates(c.name))}</span>
             <span class="ded-card__cat">${escapeHtml(c.category)}</span>
           </button>`;
       })
       .join('');
 
     const columns = suspects.map((s) => this.suspectColumn(s)).join('');
+    const act = (this.state.content.acts ?? []).find((a) => a.number === this.state.act);
 
+    // The board is a physical object screwed to the inside of the book, so its
+    // title is a plate on the cork rather than a heading floating above it —
+    // and both columns get the same eyebrow, because a spread with a label on
+    // one half and a cold start on the other has no entry point at all.
     return `
       <div class="ded" role="group" aria-label="Deduction board">
         <div class="ded__board">
+          <header class="ded__head">
+            <h3 class="ded__title">Deduction board</h3>
+            <p class="ded__case" aria-hidden="true">Act ${escapeHtml(roman(this.state.act))} · ${escapeHtml(act?.title ?? 'The case so far')}</p>
+          </header>
           <section class="ded__tray" aria-label="Evidence">
             <p class="jp-kicker jp-kicker--cork">Evidence</p>
             <div class="ded__tray-scroll scrollable" data-scroll="tray">${tray}</div>
@@ -833,7 +864,14 @@ export class Journal {
               Drag a card onto a suspect — or press Enter to pick it up.
             </p>
           </section>
-          <section class="ded__suspects scrollable" data-scroll="suspects" aria-label="Suspects">${columns}</section>
+          <section class="ded__col" aria-label="Persons of interest">
+            <p class="jp-kicker jp-kicker--cork">Persons of interest</p>
+            <div class="ded__suspects scrollable" data-scroll="suspects">${columns}</div>
+            <p class="journal-more ded__more" aria-hidden="true">
+              <span>More of the board below</span>
+              <span class="journal-more__arrow"></span>
+            </p>
+          </section>
           <svg class="ded__strings" aria-hidden="true" focusable="false"></svg>
         </div>
       </div>`;
@@ -864,7 +902,7 @@ export class Journal {
       return `
         <div class="ded-band" data-suspect="${escapeHtml(s.id)}" data-charge="${charge}">
           <span class="ded-band__label">${charge}</span>
-          <div class="ded-band__chips">${chips || '<span class="ded-band__empty" aria-hidden="true">—</span>'}</div>
+          <div class="ded-band__chips">${chips || '<span class="ded-band__empty" aria-hidden="true"></span>'}</div>
           <button type="button" class="ded-band__drop" data-drop-suspect="${escapeHtml(s.id)}"
                   data-drop-charge="${charge}" data-fk="drop:${escapeHtml(s.id)}:${charge}" tabindex="-1"
                   aria-label="Pin the carried clue to ${escapeHtml(s.name)} as ${charge}"
@@ -873,7 +911,7 @@ export class Journal {
     }).join('');
 
     return `
-      <article class="ded-suspect" data-suspect="${escapeHtml(s.id)}">
+      <article class="ded-suspect" data-suspect="${escapeHtml(s.id)}" style="--pin-x:${pinOf(s.id)}%">
         <header class="ded-suspect__head">
           <span class="ded-suspect__pin" aria-hidden="true"></span>
           <span class="ded-suspect__portrait">${portraitFor(s)}</span>
@@ -1207,6 +1245,7 @@ export class Journal {
 
   private onPanelScroll = () => {
     this.rememberScroll();
+    this.syncCatchword();
     // Strings are drawn in board space, so scrolling either column moves an
     // end — but a scroll fires far faster than a frame, and every redraw
     // measures live geometry. One redraw per frame, no more.
@@ -1427,9 +1466,49 @@ export class Journal {
 
   // -- small helpers ---------------------------------------------------------
 
-  /** Wraps content that ignores the two-page split and runs across the gutter. */
+  /**
+   * Wraps content that ignores the two-page split and runs across the gutter.
+   *
+   * The catchword under it is the affordance the leaf was missing. A page that
+   * dissolves at the foot is honest about ending but silent about whether
+   * anything follows, and the scrollbar is not a reliable answer — on a trackpad
+   * it is not there to see. A printed catchword is: it says there is more book,
+   * it belongs to the object rather than to the browser, and `syncCatchword`
+   * retires it the moment there is nothing left to turn to.
+   */
   private spread(inner: string): string {
-    return `<div class="journal-spread journal-spread--wide"><div class="journal-scroll scrollable" data-scroll="page">${inner}</div></div>`;
+    return `
+      <div class="journal-spread journal-spread--wide">
+        <div class="journal-scroll scrollable" data-scroll="page">${inner}</div>
+        <p class="journal-more" aria-hidden="true">
+          <span>Continued overleaf</span>
+          <span class="journal-more__arrow"></span>
+        </p>
+      </div>`;
+  }
+
+  /**
+   * Hides the catchword on any leaf that is already showing its last line.
+   * Runs after every render (the page may not overflow at all) and on every
+   * scroll, which is cheap: two reads on one element, no layout written.
+   */
+  private syncCatchword() {
+    for (const wide of this.panelEl.querySelectorAll<HTMLElement>('.journal-spread--wide')) {
+      const scroller = wide.querySelector<HTMLElement>('.journal-scroll');
+      if (!scroller) continue;
+      const ended = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
+      wide.classList.toggle('is-ended', ended);
+    }
+    // The deduction board's persons column is the same problem in a different
+    // material: it scrolls, it has no scrollbar worth seeing, and without a
+    // catchword its first off-board row read as a card that had been cut in
+    // half rather than as a card that is further down.
+    for (const col of this.panelEl.querySelectorAll<HTMLElement>('.ded__col')) {
+      const scroller = col.querySelector<HTMLElement>('.ded__suspects');
+      if (!scroller) continue;
+      const ended = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
+      col.classList.toggle('is-ended', ended);
+    }
   }
 
   /**
@@ -1514,6 +1593,21 @@ const COMMISSION_PLATE = `
     <p class="plate__stamp" aria-hidden="true"><span>Commissioned</span><span>3 Oct 1998</span></p>
   </aside>`;
 
+/**
+ * The gem clip holding this section of the block together, drawn on the fore
+ * edge of the working page.
+ *
+ * The recto used to be eighty percent empty ruling — twenty-two blank lines
+ * under a single handwritten sentence, and the largest continuous area in the
+ * whole frame was nothing at all. The ruling is now cut to the depth of the
+ * entry block; what fills the plain stock below it is the pen stroke that
+ * closes the entries and a piece of stationery, so the free space reads as a
+ * page in use rather than as a page abandoned.
+ */
+const PAPERCLIP =
+  '<svg viewBox="0 0 34 92" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M9.5 70.5V19.5a8.5 8.5 0 0 1 17 0v53a13 13 0 0 1-26 0V27"/></svg>';
+
 /** Pen flourish used to sign off an empty page. */
 const FLOURISH =
   '<svg viewBox="0 0 120 34" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true">' +
@@ -1533,6 +1627,7 @@ const TEMPLATE = `
         <div class="journal__gutter" aria-hidden="true"></div>
         <div class="journal__panel" id="journal-panel" role="tabpanel" tabindex="-1"></div>
         <div class="journal__vignette" aria-hidden="true"></div>
+        <div class="journal__pool" aria-hidden="true"></div>
       </div>
       <div class="journal__tabs" role="tablist" aria-orientation="vertical" aria-label="Journal sections"></div>
       <button type="button" class="journal__close" aria-label="Close journal" aria-keyshortcuts="Escape">
@@ -1595,6 +1690,44 @@ function tiltOf(id: string): string {
     h = Math.imul(h, 16777619);
   }
   return (((h >>> 0) % 400) / 100 - 2).toFixed(2);
+}
+
+/**
+ * Where the pin went in, as a percentage of the card's width.
+ *
+ * Nine cards had their pin mathematically dead centre on the top edge, nine
+ * times out of nine, which is the one thing a hand pinning things to a page
+ * never manages. Derived from the same hash as the tilt so a card leans and is
+ * pinned the same way on every render — a pin that moved when an unrelated
+ * clue arrived would read as the board twitching.
+ */
+function pinOf(id: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  // 38%-62%: far enough off centre to be visible, near enough that the card
+  // still hangs plausibly from it. `>>> 7` rather than `>>`, because the signed
+  // shift turns any hash above 2^31 negative and would pin a card off the
+  // left-hand edge of itself; the offset also decorrelates this from `tiltOf`,
+  // which reads the low bits of the same hash.
+  return (38 + ((h >>> 7) % 240) / 10).toFixed(1);
+}
+
+/**
+ * Binds a day-month-year date into one unbreakable token.
+ *
+ * "The Deakin Letter, 4 March 1975" broke after the 4 and "Duplicating Book, 15
+ * August 1974" after the 15, so half the card titles on the clues spread had a
+ * numeral stranded at the end of a line. Presentation only — the clue's own
+ * `name` is never altered, so anything matching on the string still matches.
+ */
+function bindDates(text: string): string {
+  return text.replace(
+    /(\d{1,2}) (January|February|March|April|May|June|July|August|September|October|November|December) (\d{4})/g,
+    '$1\u00A0$2\u00A0$3',
+  );
 }
 
 function monogram(name: string): string {

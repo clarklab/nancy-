@@ -64,6 +64,35 @@
   --rule-pitch: calc(var(--step-1) * 1.42);
   --rule-ink: color-mix(in srgb, var(--paper-ink) 13%, transparent);
 
+  /**
+   * How far the baseline of a line of running copy sits *above* the bottom of
+   * its own line box — half the leading, plus the descender.
+   *
+   * The ruling used to be painted at the bottom of each line box, which put
+   * every printed line eleven pixels under the writing it was supposed to be
+   * carrying: type orbiting the ruling rather than written on it, and the one
+   * tell that reads instantly as "text layer over wallpaper layer". Everything
+   * that draws a rule on this page — the page ruling itself and the rule under
+   * a page label — is offset by this single figure, so they cannot drift apart.
+   *
+   * Written against `--step-0` rather than `1em` on purpose: the ruled column
+   * mixes printing at `--step-0` with handwriting at `--step-1`, and one grid
+   * has to serve both.
+   */
+  --rule-drop: calc(0.5 * (var(--rule-pitch) - var(--step-0)) + 0.21 * var(--step-0));
+
+  /**
+   * One lamp, off the top-left corner of the book, expressed once.
+   *
+   * Three surfaces used to disagree about where the light was: the page key
+   * sat at 18%/-6%, the cover highlight peaked dead centre on the spine, and
+   * the room's bounce came from bottom-centre. No single lamp produces that,
+   * and the eye registers the incoherence even when it cannot name it. Every
+   * gradient below is now driven from these two numbers.
+   */
+  --key-x: 26%;
+  --key-y: -6%;
+
   /* Foxing is iron in the fibre going rusty, not a smudge on the lens. */
   --foxing: color-mix(in srgb, var(--lamp-600) 55%, var(--blood));
 
@@ -71,9 +100,11 @@
   --leather-hi: color-mix(in srgb, var(--lamp-600) 46%, var(--ink-700));
   --leather-mid: color-mix(in srgb, var(--lamp-600) 26%, var(--ink-900));
   --leather-lo: color-mix(in srgb, var(--lamp-600) 12%, var(--ink-abyss));
-  /* A stitch is a lit thread lying in a dark needle hole, not a dash. */
-  --thread-lit: color-mix(in srgb, var(--paper-300) 58%, transparent);
-  --thread-hole: color-mix(in srgb, var(--ink-abyss) 74%, transparent);
+  /* A stitch is a lit thread lying in a dark needle hole, not a dash. The
+     cover tops out around value 73, so a thread at 116 barely separated from
+     the hide it is worked into; linen catching a lamp sits well clear of it. */
+  --thread-lit: color-mix(in srgb, var(--paper-200) 72%, transparent);
+  --thread-hole: color-mix(in srgb, var(--ink-abyss) 92%, transparent);
   /* Cork is the one warm mid-tone in the game that is neither paper nor
      leather: baked tan pulled toward the lamp key, then knocked back into the
      room so the dark suspect cards still read as objects sitting on it. Mixed
@@ -83,6 +114,47 @@
     color-mix(in srgb, var(--lamp-600) 60%, var(--paper-400)) 80%,
     var(--ink-900)
   );
+
+  /**
+   * Index-card stock, as distinct from the ledger leaf it lies on.
+   *
+   * The cards used to be cut from the same ramp as the page — two levels of
+   * difference between card body and leaf — so the only thing separating them
+   * was a generic drop shadow, which is exactly why they read as CSS boxes.
+   * A bought card is bleached and sized; the ledger leaf is warm rag that has
+   * been in a damp building since 1911. Same value, different hue: the card is
+   * pulled a few percent toward moonlight so the step reads as *stock* rather
+   * than as a lighting accident.
+   */
+  --card-stock: color-mix(in srgb, var(--paper-100) 76%, var(--moon-100));
+  --card-stock-lo: color-mix(in srgb, var(--paper-200) 78%, var(--moon-200));
+  --card-edge-lit: color-mix(in srgb, var(--lamp-100) 62%, var(--card-stock));
+  --card-edge-dark: color-mix(in srgb, var(--paper-400) 78%, var(--paper-ink));
+
+  /**
+   * The suspect card: a dark leather mount on a lit cork board.
+   *
+   * At `--ink-800/--ink-900` these were near-black slabs (10% luminance) on a
+   * 45% ochre board — a four-and-a-half stop break with nothing in between, no
+   * bounce from the board and no rim off the lamp, which is what made the whole
+   * right half of the deduction spread read as a dashboard. Mid-value warm hide
+   * puts them back inside the scene's own light.
+   */
+  --suspect-hi: color-mix(in srgb, var(--lamp-600) 30%, var(--fit-600));
+  --suspect-lo: color-mix(in srgb, var(--lamp-600) 13%, var(--fit-800));
+  /* Type on hide. `--text-secondary` is moonlight and correct on the game's own
+     dark panels; on a lamplit board it is the one cool hue in the frame and it
+     is what makes a suspect card look like a web component. */
+  --hide-ink: color-mix(in srgb, var(--paper-100) 58%, transparent);
+  --hide-ink-dim: color-mix(in srgb, var(--paper-200) 40%, transparent);
+
+  /**
+   * Paper tooth. A leaf whose only ageing is a handful of soft ellipses has no
+   * fibre at all: the stains read as smudges on the monitor rather than as
+   * anything in the sheet. This is the fibre those stains are supposed to be
+   * sitting in, tiled small enough to register at 1x.
+   */
+  --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.62 1.15' numOctaves='4' seed='19' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23f)'/%3E%3C/svg%3E");
 
   --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   --grain-hide: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='h'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.045 .06' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23h)'/%3E%3C/svg%3E");
@@ -110,30 +182,45 @@
   cursor: pointer;
   opacity: 0;
   background:
-    /* Bounce: the lamp coming back off whatever the book is lying on. */
+    /* The lamp itself, off-frame past the upper-left corner. This is the source
+       the whole spread is lit by, so it has to be *in the picture*: a defocused
+       pool with real falloff, not an even wash. Corner samples used to read
+       22,18,14 against 25,24,18 — three levels across the entire top half of
+       the frame, which is not a dim room, it is a deleted one. */
     radial-gradient(
-      74% 42% at 50% 99%,
-      color-mix(in srgb, var(--lamp-500) 26%, transparent) 0%,
-      transparent 76%
+      58% 52% at var(--key-x) -4%,
+      color-mix(in srgb, var(--lamp-300) 30%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 15%, transparent) 34%,
+      transparent 78%
+    ),
+    /* Bounce: the same lamp coming back off whatever the book is lying on,
+       thrown from the near corner rather than from dead centre. */
+    radial-gradient(
+      82% 44% at 26% 96%,
+      color-mix(in srgb, var(--lamp-500) 30%, transparent) 0%,
+      transparent 78%
     ),
     /* Ambient. The blacks bottomed out at value 7 with no tonal information
        anywhere in them; a lamplit room has no such thing as an empty black. */
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--lamp-600) 7%, transparent) 0%,
-      color-mix(in srgb, var(--lamp-600) 12%, transparent) 100%
+      color-mix(in srgb, var(--lamp-600) 20%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-600) 26%, transparent) 100%
     ),
+    /* Shade, kept off the corner the lamp is in and deepest diagonally
+       opposite it, so the room has a direction rather than a centre. */
     radial-gradient(
-      78% 66% at 46% 42%,
-      color-mix(in srgb, var(--ink-abyss) 34%, transparent) 0%,
-      color-mix(in srgb, var(--ink-abyss) 58%, transparent) 100%
+      88% 76% at var(--key-x) 8%,
+      color-mix(in srgb, var(--ink-abyss) 16%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 44%, transparent) 62%,
+      color-mix(in srgb, var(--ink-abyss) 56%, transparent) 100%
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ink-900) 34%, transparent),
-      color-mix(in srgb, var(--ink-abyss) 52%, transparent)
+      color-mix(in srgb, var(--ink-900) 26%, transparent),
+      color-mix(in srgb, var(--ink-abyss) 40%, transparent)
     );
-  backdrop-filter: blur(10px) saturate(0.94);
+  backdrop-filter: blur(9px) saturate(1.02);
   transition: opacity var(--dur-slow) var(--ease-out);
 }
 
@@ -156,14 +243,28 @@
 
 .journal__book {
   position: absolute;
-  /* Asymmetric only by the width of the thumb index: the book *plus* its tabs
-     is what has to sit centred in the frame, not the boards on their own.
-     The vertical inset is deliberately close to the horizontal one. At 4.4cqh
-     the boards cleared the head and foot of the frame by 53px while sitting in
-     130px side gutters — a spread that kisses two edges and floats off the
-     other two, which reads as a modal stretched to fit rather than an object
-     lying on a desk. Matched margins make it an object. */
-  inset: 6.6cqh 9.5cqw 6.6cqh 6.8cqw;
+  /*
+   * The book is centred. The tabs hang off it.
+   *
+   * This used to be inset asymmetrically — 9.5cqw right against 6.8cqw left —
+   * on the theory that the book *plus* its thumb index was the thing to centre.
+   * Measured, that theory centres nothing: the cream page block landed at 933.0
+   * and the cover at 930.5 against a canvas centre of 959.5, while the active
+   * tab's outer edge put the book-plus-rail centre at 977.5. Twenty-six pixels
+   * left and eighteen right at the same time, off margins of 156 and 214 — a
+   * 37% asymmetry that reads as a slump rather than as a decision.
+   *
+   * A thumb index is furniture attached to an object, not part of its measure;
+   * a reader centres the book and lets the tabs stick out into the margin, the
+   * same way the fore-edge tabs of a real ledger do. So the horizontal inset is
+   * symmetrical and the cover centre lands on 959.5 exactly. The vertical inset
+   * was already clean and is unchanged: at 4.4cqh the boards cleared the head
+   * and foot by 53px while sitting in 130px side gutters — a spread that kisses
+   * two edges and floats off the other two, which reads as a modal stretched to
+   * fit rather than an object lying on a desk. Matched margins make it an
+   * object.
+   */
+  inset: 6.6cqh 8.15cqw;
   border-radius: calc(var(--leaf-radius) * 2);
   padding: clamp(0.75rem, 1.85cqw, 2rem);
   transform-style: preserve-3d;
@@ -172,24 +273,33 @@
   transform: rotateY(-74deg) rotateX(5deg) scale(0.92);
   opacity: 0;
   background-color: var(--leather-mid);
+  /* The hide is lit by the same lamp as the page: the highlight rolls across
+     the board from the upper-left key and falls away to the far corner. It
+     used to peak dead centre on the spine, which put a third light source in a
+     frame that can only honestly have one. */
   background-image:
     linear-gradient(
-      100deg,
-      var(--leather-lo) 0%,
-      var(--leather-mid) 22%,
-      var(--leather-hi) 49%,
-      var(--leather-mid) 51%,
+      112deg,
+      color-mix(in srgb, var(--leather-hi) 60%, var(--leather-mid)) 0%,
+      var(--leather-hi) 22%,
+      var(--leather-mid) 52%,
       var(--leather-lo) 100%
     ),
     radial-gradient(
-      120% 90% at 50% -10%,
-      color-mix(in srgb, var(--lamp-300) 14%, transparent) 0%,
-      transparent 62%
+      110% 86% at var(--key-x) -12%,
+      color-mix(in srgb, var(--lamp-300) 17%, transparent) 0%,
+      transparent 64%
     );
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
     inset 0 -2px 0 color-mix(in srgb, var(--ink-abyss) 88%, transparent),
     inset 0 -18px 26px -22px var(--ink-abyss),
+    /* Contact. A book lying on a desk touches it: a tight dark seam directly
+       under the boards, then a long soft cast thrown away from the key — so
+       down and to the right, matching every other shadow in the frame. The
+       object used to float with nothing but the ambient elevation ramp. */
+    0 6px 12px -2px color-mix(in srgb, var(--fit-abyss) 72%, transparent),
+    18px 46px 96px -22px color-mix(in srgb, var(--fit-abyss) 82%, transparent),
     var(--shadow-4);
   transition:
     transform calc(var(--dur-slow) * 1.08) var(--ease-drama),
@@ -218,45 +328,55 @@
  * The saddle stitch running just inside the cover edge.
  *
  * `border: 1px dashed` is unmistakable at any zoom: perfectly even dashes with
- * no thread thickness and no needle hole under them. Each run here is two
- * strips a pixel apart — the lit top of the thread and the dark indentation it
- * lies in — with an uneven 7-on/5-off rhythm, because a hand-worked saddle
- * stitch is not a 50% duty cycle.
+ * no thread thickness and no needle hole under them. So each run is two strips
+ * — a two-pixel lit crown of thread and, a pixel below it, the dark needle hole
+ * it is pulled down into — and no two runs agree. The period differs per edge
+ * (11, 12, 13, 14px) and each one starts at a different phase, so opposite
+ * sides cannot phase-lock into the machine rhythm that gave the old version
+ * away even after it stopped being a literal dashed border.
+ *
+ * Inset well clear of the corner radius as well: a run that dies into a curve
+ * breaks phase there, and a broken phase at a corner is the first thing the
+ * eye finds on the outermost silhouette of the object.
  */
 .journal__stitch {
   position: absolute;
-  inset: clamp(0.4rem, 0.95cqw, 1.05rem);
-  border-radius: calc(var(--leaf-radius) * 1.6);
+  inset: clamp(0.7rem, 1.5cqw, 1.6rem);
+  border-radius: calc(var(--leaf-radius) * 1.2);
   pointer-events: none;
-  opacity: 0.72;
+  opacity: 0.82;
   background-repeat: repeat-x, repeat-x, repeat-x, repeat-x, repeat-y, repeat-y, repeat-y, repeat-y;
   background-image:
     repeating-linear-gradient(90deg, var(--thread-lit) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(90deg, var(--thread-hole) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(90deg, var(--thread-lit) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(90deg, var(--thread-hole) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(180deg, var(--thread-lit) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(180deg, var(--thread-hole) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(180deg, var(--thread-lit) 0 7px, transparent 7px 12px),
-    repeating-linear-gradient(180deg, var(--thread-hole) 0 7px, transparent 7px 12px);
+    repeating-linear-gradient(90deg, var(--thread-hole) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(90deg, var(--thread-lit) 0 8px, transparent 8px 14px),
+    repeating-linear-gradient(90deg, var(--thread-hole) 0 7px, transparent 7px 14px),
+    repeating-linear-gradient(180deg, var(--thread-lit) 0 6px, transparent 6px 11px),
+    repeating-linear-gradient(180deg, var(--thread-hole) 0 5px, transparent 5px 11px),
+    repeating-linear-gradient(180deg, var(--thread-lit) 0 7px, transparent 7px 13px),
+    repeating-linear-gradient(180deg, var(--thread-hole) 0 6px, transparent 6px 13px);
   background-size:
+    100% 2px,
     100% 1px,
+    100% 2px,
     100% 1px,
-    100% 1px,
-    100% 1px,
+    2px 100%,
     1px 100%,
-    1px 100%,
-    1px 100%,
+    2px 100%,
     1px 100%;
+  /* Lit crown first, hole one pixel *below* it: a thread has a top the lamp
+     catches and an underside in its own shadow, and that asymmetry is what
+     stops a stitch reading as a printed tick. The phases (0 / 5px / 3px / 8px)
+     are deliberately incommensurate with the four periods. */
   background-position:
-    0 1px,
     0 0,
-    0 100%,
-    0 calc(100% - 1px),
-    1px 0,
+    0 2px,
+    5px 100%,
+    5px calc(100% - 1px),
     0 3px,
-    100% 0,
-    calc(100% - 1px) 3px;
+    1px 3px,
+    100% 8px,
+    calc(100% - 1px) 8px;
 }
 
 /* ===========================================================================
@@ -294,80 +414,82 @@
 }
 
 /**
- * Foxing: iron in the fibre going rusty. A stain has an edge — a faint rim
- * with a paler middle — where four large soft Gaussian blobs read as smudges
- * on the lens. Scattered small and often at a quarter of the old strength, so
- * it registers as tooth in the paper rather than as bubbles on it, and the two
- * leaves carry different sets, because the one thing that would give the whole
- * surface away as a tile is the same four spots twice.
+ * Tooth.
+ *
+ * Before this there was no fibre in the sheet at all: the only ageing was one
+ * soft-ellipse foxing sprite repeated at eleven scales, and you could point at
+ * each one and name it as the same shape. A stain is only legible as a stain in
+ * the paper if there is paper for it to be in — otherwise it reads as a smudge
+ * on the monitor. Two frequencies, tiled small, held right at the threshold of
+ * conscious visibility: a laid tooth at 90px and a finer rag noise over it.
+ */
+.journal__leaf::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--fibre), var(--grain-fine);
+  background-size:
+    90px 90px,
+    140px 140px;
+  mix-blend-mode: multiply;
+  opacity: 0.09;
+}
+
+/**
+ * Damp, not foxing sprites.
+ *
+ * The old scheme was one soft ellipse stamped eight times per leaf at
+ * different scales — congruent, so the eye files the whole set as a repeated
+ * decal, and several of them landed square on running copy where they read as
+ * dirt on the screen rather than age in the sheet. There are now three stains
+ * per leaf and each is *composed* of two or three overlapping lobes of
+ * different aspect and different strength, so no two have the same outline.
+ * They live where damp actually gets into a bound book — the fore edge, the
+ * head, the foot — and nowhere near the type.
  */
 .journal__leaf--left {
   left: 0;
   box-shadow: inset -14px 0 24px -18px color-mix(in srgb, var(--paper-ink) 80%, transparent);
   background-image:
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 3%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 4%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 9%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 77%,
-      transparent 90%
-    ),
+    /* Fore-edge bloom: a broad pale body with a darker tide line, and a small
+       second lobe crowding its lower left. */
     radial-gradient(
       closest-side,
       color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 7%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 5%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 6%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 11%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 4%, transparent) 77%,
-      transparent 90%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 6%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 3%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 8%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
+      color-mix(in srgb, var(--foxing) 3%, transparent) 52%,
+      color-mix(in srgb, var(--foxing) 10%, transparent) 74%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 86%,
+      transparent 97%
     ),
     radial-gradient(
       closest-side,
       color-mix(in srgb, var(--foxing) 4%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 5%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 10%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 3%, transparent) 77%,
-      transparent 90%
+      color-mix(in srgb, var(--foxing) 7%, transparent) 64%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 88%,
+      transparent 100%
     ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 7%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
-    ),
+    /* Foot corner, where the block sat in a damp cupboard. Long and shallow. */
     radial-gradient(
       closest-side,
       color-mix(in srgb, var(--foxing) 3%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 4%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 9%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 77%,
-      transparent 90%
+      color-mix(in srgb, var(--foxing) 4%, transparent) 40%,
+      color-mix(in srgb, var(--foxing) 9%, transparent) 80%,
+      transparent 96%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 5%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 70%,
+      transparent 92%
+    ),
+    /* Head, hard against the fore edge: a tight ring with almost no middle. */
+    radial-gradient(
+      closest-side,
+      transparent 0%,
+      color-mix(in srgb, var(--foxing) 2%, transparent) 46%,
+      color-mix(in srgb, var(--foxing) 11%, transparent) 82%,
+      transparent 98%
     ),
     radial-gradient(
       74% 52% at 34% 88%,
@@ -375,27 +497,18 @@
       transparent 72%
     );
   background-size:
-    42px 34px,
-    58px 49px,
-    31px 27px,
-    64px 51px,
-    37px 33px,
-    49px 41px,
-    27px 24px,
-    54px 44px,
+    118px 74px,
+    54px 61px,
+    142px 58px,
+    47px 44px,
+    39px 52px,
     100% 100%;
-  /* Kept out of the text safe area. A stain sitting under running copy is not
-     age in the paper, it is a loss of contrast exactly where the reader needs
-     it — the ring at 58%/12% landed across the second line of the epigraph. */
   background-position:
-    14% 26%,
-    76% 63%,
-    31% 84%,
-    54% 62%,
-    88% 34%,
-    9% 58%,
-    47% 45%,
-    67% 92%,
+    3% 31%,
+    7% 39%,
+    10% 96%,
+    19% 91%,
+    5% 7%,
     0 0;
 }
 
@@ -403,69 +516,40 @@
   right: 0;
   box-shadow: inset 14px 0 24px -18px color-mix(in srgb, var(--paper-ink) 80%, transparent);
   background-image:
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 3%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 8%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 4%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 5%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 10%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 3%, transparent) 77%,
-      transparent 90%
-    ),
+    /* Fore edge, three-quarters down: a lobed bloom with the tide line broken
+       on one side, so the outline is not an ellipse anywhere. */
     radial-gradient(
       closest-side,
       color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
       color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 6%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
+      color-mix(in srgb, var(--foxing) 12%, transparent) 79%,
+      transparent 95%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foxing) 6%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 3%, transparent) 62%,
       transparent 90%
     ),
     radial-gradient(
       closest-side,
       color-mix(in srgb, var(--foxing) 3%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 4%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 9%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 77%,
-      transparent 90%
+      color-mix(in srgb, var(--foxing) 8%, transparent) 72%,
+      transparent 99%
     ),
+    /* Head corner: shallow, wide, barely there. */
     radial-gradient(
       closest-side,
       color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 7%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
+      color-mix(in srgb, var(--foxing) 6%, transparent) 68%,
+      transparent 94%
     ),
+    /* Foot: a single tight speck, the size a real iron inclusion actually is. */
     radial-gradient(
       closest-side,
-      color-mix(in srgb, var(--foxing) 5%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 6%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 11%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 4%, transparent) 77%,
-      transparent 90%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 3%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 8%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 0%,
-      color-mix(in srgb, var(--foxing) 2%, transparent) 44%,
-      color-mix(in srgb, var(--foxing) 6%, transparent) 63%,
-      color-mix(in srgb, var(--foxing) 1%, transparent) 77%,
-      transparent 90%
+      color-mix(in srgb, var(--foxing) 13%, transparent) 0%,
+      color-mix(in srgb, var(--foxing) 4%, transparent) 66%,
+      transparent 92%
     ),
     radial-gradient(
       66% 46% at 86% 82%,
@@ -473,24 +557,18 @@
       transparent 74%
     );
   background-size:
-    38px 33px,
-    52px 43px,
-    67px 55px,
-    33px 29px,
-    46px 39px,
-    29px 26px,
-    60px 48px,
-    41px 36px,
+    96px 128px,
+    43px 37px,
+    68px 49px,
+    134px 63px,
+    22px 19px,
     100% 100%;
   background-position:
-    82% 19%,
-    23% 47%,
-    64% 78%,
-    12% 88%,
-    91% 66%,
-    45% 31%,
-    33% 8%,
-    72% 55%,
+    97% 66%,
+    93% 58%,
+    96% 76%,
+    90% 4%,
+    94% 95%,
     0 0;
 }
 
@@ -523,17 +601,57 @@
     linear-gradient(
       92deg,
       var(--multiply-none) 0%,
-      var(--multiply-none) 44%,
-      color-mix(in srgb, var(--moon-300) 13%, var(--multiply-none)) 100%
+      var(--multiply-none) 40%,
+      color-mix(in srgb, var(--moon-300) 18%, var(--multiply-none)) 100%
     ),
+    /*
+     * The ellipse used to be 115% x 135% — so large that its terminal stop sat
+     * a long way off canvas and was never reached. Measured across the whole
+     * spread the result was a seven percent value range: ambient fill wearing a
+     * vignette's clothes. Sized to land its far terminus inside the frame, the
+     * same list of stops finally becomes a lamp: roughly 233 at the head-left,
+     * roughly 175 at the foot of the far leaf, which is a falloff you can see.
+     *
+     * The two terminal stops used to run to 58% / 40%, which measured about 138
+     * at the foot of the recto — twelve percent past the number written on the
+     * line above, and far enough that the *same* `.clue-card__summary` rule
+     * measured 6.28:1 at the head of the leaf and 3.55:1 at its foot. A lamp is
+     * allowed to model the page; it is not allowed to take two and a half
+     * stops off body copy that has already been set to pass. The far end is
+     * pulled back and the knee moved out to 78%, so the shape of the falloff is
+     * unchanged and only its depth is spent more carefully.
+     */
     radial-gradient(
-      115% 135% at 18% -6%,
+      78% 94% at var(--key-x) 2%,
       var(--multiply-none) 0%,
-      color-mix(in srgb, var(--paper-200) 34%, var(--multiply-none)) 24%,
-      color-mix(in srgb, var(--paper-300) 48%, var(--multiply-none)) 54%,
-      color-mix(in srgb, var(--paper-400) 60%, var(--multiply-none)) 80%,
-      color-mix(in srgb, var(--paper-ink) 34%, var(--multiply-none)) 100%
+      color-mix(in srgb, var(--paper-200) 26%, var(--multiply-none)) 20%,
+      color-mix(in srgb, var(--paper-300) 38%, var(--multiply-none)) 47%,
+      color-mix(in srgb, var(--paper-400) 44%, var(--multiply-none)) 78%,
+      color-mix(in srgb, var(--paper-ink) 24%, var(--multiply-none)) 100%
     );
+}
+
+/**
+ * The near corner of the pool, warm.
+ *
+ * The vignette can only take value away — it multiplies. Light *arriving* has
+ * to be its own layer, so the corner the lamp is in picks up a little of the
+ * lamp's own colour rather than merely being less dark than everywhere else.
+ * Screened, so it lifts the paper without fogging the ink under it, and held
+ * low: the brightest thing in the frame is still the page, not this.
+ */
+.journal__pool {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    52% 46% at var(--key-x) var(--key-y),
+    color-mix(in srgb, var(--lamp-300) 12%, transparent) 0%,
+    color-mix(in srgb, var(--lamp-500) 6%, transparent) 42%,
+    transparent 76%
+  );
 }
 
 /**
@@ -615,26 +733,32 @@
    */
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--paper-ink) 46%, transparent) 0%,
-    color-mix(in srgb, var(--paper-ink) 36%, transparent) 20%,
-    color-mix(in srgb, var(--paper-ink) 33%, transparent) 42%,
-    color-mix(in srgb, var(--paper-ink) 40%, transparent) 74%,
-    color-mix(in srgb, var(--paper-ink) 54%, transparent) 100%
+    color-mix(in srgb, var(--paper-ink) 52%, transparent) 0%,
+    color-mix(in srgb, var(--paper-ink) 40%, transparent) 20%,
+    color-mix(in srgb, var(--paper-ink) 36%, transparent) 42%,
+    color-mix(in srgb, var(--paper-ink) 45%, transparent) 74%,
+    color-mix(in srgb, var(--paper-ink) 60%, transparent) 100%
   );
   /* The curve of the paper into the fold, asymmetric across the spine: the leaf
      the lamp is on holds its light further in, so the left ramp is the longer
      and shallower of the two. Alpha ramps, not colours — there is no token for
-     "opaque". */
+     "opaque".
+     The core used to reach full strength across four percent of the element —
+     eleven pixels — which is a printed line, not a pinch. Real binding shades
+     across thirty to fifty: the plateau is wider and the shoulders on either
+     side of it are longer, so the fold has a profile rather than a spike. */
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgb(0 0 0 / 0.08) 22%,
-    rgb(0 0 0 / 0.27) 38%,
-    rgb(0 0 0 / 0.68) 46%,
+    rgb(0 0 0 / 0.06) 14%,
+    rgb(0 0 0 / 0.22) 28%,
+    rgb(0 0 0 / 0.52) 39%,
+    rgb(0 0 0 / 0.86) 46%,
     rgb(0 0 0 / 1) 50%,
-    rgb(0 0 0 / 0.6) 55%,
-    rgb(0 0 0 / 0.2) 68%,
-    rgb(0 0 0 / 0.06) 84%,
+    rgb(0 0 0 / 0.9) 54%,
+    rgb(0 0 0 / 0.6) 61%,
+    rgb(0 0 0 / 0.28) 72%,
+    rgb(0 0 0 / 0.08) 86%,
     transparent 100%
   );
 }
@@ -685,10 +809,62 @@
 }
 
 /* One scroll region running across the gutter, for content that is a set of
-   objects pinned to the spread rather than two columns of prose. */
+   objects pinned to the spread rather than two columns of prose. The second
+   row is the running foot that tells the player there is more book. */
 .journal-spread--wide {
   display: grid;
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+/**
+ * "Continued overleaf" — the catchword.
+ *
+ * A page that dissolves at the foot is honest about ending, but on its own it
+ * is still ambiguous: a player who cannot see a scrollbar has no way to know
+ * whether the fade is the end of the page or the end of the file. Printers
+ * solved this in 1600 with a catchword at the foot of the leaf, and it is a
+ * better affordance than a chevron because it belongs to the object. It
+ * retires when the scroller is at its end, so it never lies.
+ */
+.journal-more {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  margin: 0 var(--sp-5) 0 0;
+  padding-top: var(--sp-2);
+  font-family: var(--font-label);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  /* Undiluted. This is the only scroll affordance on a leaf with no visible
+     scrollbar, and at 82% of an already-faded ink, sitting at the darkest point
+     of the vignette, it measured 2.43:1 — an instruction you cannot read is not
+     an affordance. `--paper-ink-faded` is itself the "faded" ink; mixing it
+     back toward the paper a second time was doing the same job twice. */
+  color: var(--paper-ink-faded);
+  opacity: 1;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+
+/* The brass fore-edge arrow beside it: the one piece of hardware on the leaf,
+   and the only thing here allowed any lamp in it. */
+.journal-more__arrow {
+  display: block;
+  width: 0.62em;
+  height: 0.62em;
+  border-right: 2px solid var(--lamp-500);
+  border-bottom: 2px solid var(--lamp-500);
+  transform: translateY(-0.12em) rotate(45deg);
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--paper-100) 70%, transparent));
+}
+
+/* Nothing left to read: the catchword would be a lie, so it goes. Kept in the
+   layout rather than removed, or the leaf would grow by its height at the
+   exact moment the player reached the bottom of it. */
+.journal-spread--wide.is-ended .journal-more {
+  opacity: 0;
 }
 
 /**
@@ -752,19 +928,27 @@
   font-weight: 600;
   font-variant-caps: all-small-caps;
   letter-spacing: var(--tracking-label);
-  color: color-mix(in srgb, var(--paper-ink-faded) 58%, transparent);
+  /* A running foot is quiet because it is small, set in small caps and ruled
+     off — not because it is half-erased. Diluted to 58% it measured 2.01:1
+     against the paper it is printed on: three compounding reductions (a faded
+     ink token, then an alpha mix, then the vignette multiplying it at the
+     darkest point in the frame) on type that is already at `--step--1`. The
+     token is the whole reduction now. */
+  color: var(--paper-ink-faded);
   white-space: nowrap;
   overflow: hidden;
 }
 
 /* The folio is the one number on the page that was set by the binder, so it is
-   printed in the body serif at lining figures rather than in small caps. */
+   printed in the body serif at lining figures rather than in small caps — and
+   it is the one thing in the foot a player actually reads, so it carries the
+   full ink rather than the faded one. */
 .jp-foot__folio {
   font-family: var(--font-body);
   font-variant-caps: normal;
   font-variant-numeric: lining-nums;
   letter-spacing: 0;
-  color: color-mix(in srgb, var(--paper-ink-faded) 74%, transparent);
+  color: color-mix(in srgb, var(--paper-ink) 88%, transparent);
 }
 
 .jp-foot__run {
@@ -791,14 +975,77 @@
   /* The page has to end *somewhere*, and a hard cut through the middle of a
      card is the one thing a real book never does. The last few millimetres
      dissolve into the paper instead. The mask stops are alpha ramps, not
-     colours — there is no token for "opaque". */
-  --page-fade: clamp(0.9rem, 2.4cqh, 2.2rem);
+     colours — there is no token for "opaque".
+     At 2.4cqh the ramp measured about thirty-five pixels: one and a half lines
+     of body copy. The greyed text was still perfectly legible inside it, so it
+     did not read as a page ending, it read as content cut off — a player would
+     try to scroll a book.
+
+     Lengthening the ramp did not fix that, it only moved it: measured on the
+     bottom-left clue card the three lines inside the dissolve came in at 2.46,
+     1.76 and 1.31 — the first still OCR-readable, all three still *shaped* like
+     a sentence. A linear alpha ramp spends most of its length in the 1.3–2.5:1
+     band, which is precisely the band where type is neither legible nor gone.
+     Lengthening it only puts more lines in that band.
+
+     So the two jobs are separated. `--page-fade` is how much of the foot of the
+     leaf is dissolved away, and it can be as deep as the composition wants. The
+     *ramp* inside it is `--page-ramp`, held deliberately shorter than one line
+     of body copy, so no line can sit at a uniform half-alpha across its own
+     x-height: the line meeting the edge is torn through, which reads as the end
+     of a sheet, and every line below it is simply not there.
+     The default is held inside the column's own foot padding, because a prose
+     leaf pushes its ledger totals hard against the bottom of the type block and
+     a long dissolve would eat them on a page that does not even scroll. */
+  --page-fade: clamp(0.9rem, 2.4cqh, 2rem);
+  --page-ramp: clamp(0.8rem, 1.9cqh, 1.3rem);
   mask-image: linear-gradient(
     to bottom,
     black 0,
     black calc(100% - var(--page-fade)),
+    transparent calc(100% - var(--page-fade) + var(--page-ramp)),
     transparent 100%
   );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0,
+    black calc(100% - var(--page-fade)),
+    transparent calc(100% - var(--page-fade) + var(--page-ramp)),
+    transparent 100%
+  );
+}
+
+/* And it must land *between* things. A dissolve is only convincing over the
+   gap between two rows of cards; over the fifth line of a paragraph it is a
+   blurred guillotine however long it is.
+   `proximity` left that to the browser's discretion and it declined: a row
+   parked half inside the ramp on every measured shot. A book turns whole
+   leaves, so the snap is mandatory and every card is a snap port. */
+.journal-scroll {
+  scroll-snap-type: y mandatory;
+}
+
+/* Both the group head and the card rows are ports, so the ramp always lands in
+   a gutter and a section can still be scrolled to by its own title rather than
+   only by the first card under it. */
+.journal-scroll .clue-group,
+.journal-scroll .clue-card {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/*
+ * The long dissolve is for a leaf that genuinely has more under it. Once the
+ * player is at the foot of the last card there is nothing left to disguise —
+ * the content's own foot padding ends the page cleanly — and fading the final
+ * row for no reason would be the same lie in the other direction.
+ * `is-ended` is set by `syncCatchword` in src/ui/journal.ts.
+ */
+.journal-spread--wide:not(.is-ended) .journal-scroll {
+  --page-fade: clamp(4rem, 10cqh, 7rem);
+  /* Deeper dissolve, same short ramp: the extra depth buys clear paper between
+     the last legible line and the catchword, not extra lines held at 2:1. */
+  --page-ramp: clamp(0.8rem, 1.9cqh, 1.3rem);
 }
 
 /**
@@ -812,7 +1059,24 @@
  * three-quarters of cap height, the size has to go *up* two steps to land at
  * the same optical weight.
  */
+/**
+ * The head rule is one object drawn twice, not two rules that nearly agree.
+ *
+ * Both eyebrows sat on the same baseline, but the rule under the verso's was
+ * six pixels lower than the recto's and carried two and a half times the
+ * contrast — because the verso drew a real `border-bottom` while the recto's
+ * override stripped it, leaving the nearest page ruling to stand in. Six
+ * pixels of step at the most-scrutinised point in a spread.
+ *
+ * So the label now occupies exactly two rulings on *both* leaves — text on the
+ * first, rule on the second — and the rule is a pseudo-element placed by the
+ * same `--rule-drop` the page ruling uses. On the recto it lands precisely on
+ * top of a printed line and simply darkens it, which is what a head rule in a
+ * ledger is; on the verso it lands at the identical page-relative y. They
+ * cannot drift, because they are the same declaration.
+ */
 .jp-kicker {
+  position: relative;
   font-family: var(--font-label);
   font-size: var(--step-0);
   font-weight: 600;
@@ -821,37 +1085,98 @@
   color: color-mix(in srgb, var(--paper-ink-faded) 92%, transparent);
   margin-bottom: var(--sp-2);
   padding-bottom: var(--sp-2);
-  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 22%, transparent);
+  border-bottom: 0;
 }
 
+/* Drawn rather than bordered, so the two leaves can place it by the same
+   figure instead of one of them inheriting a border and the other losing it. */
+.jp-kicker::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--paper-ink) 30%, transparent);
+}
+
+/* On a spread, the label occupies exactly two rulings — written on the first,
+   ruled off on the second — and both leaves take the identical figure. */
+.journal-spread--prose .jp-kicker {
+  height: calc(var(--rule-pitch) * 2);
+  line-height: var(--rule-pitch);
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.journal-spread--prose .jp-kicker::after {
+  bottom: auto;
+  top: calc(var(--rule-pitch) * 2 - var(--rule-drop));
+}
+
+/* On paper a column head can be quiet, because paper is bright. On cork under a
+   lamp that is already falling off, 78% of cream measured 2.5:1 — the two words
+   that name the halves of the board were the dimmest type on the screen. */
 .jp-kicker--cork {
-  color: color-mix(in srgb, var(--paper-100) 78%, transparent);
-  border-bottom-color: color-mix(in srgb, var(--ink-abyss) 34%, transparent);
+  color: color-mix(in srgb, var(--paper-100) 96%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 62%, transparent);
+}
+
+.jp-kicker--cork::after {
+  background: color-mix(in srgb, var(--ink-abyss) 40%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-300) 12%, transparent);
 }
 
 .jp-title {
   font-family: var(--font-display);
   font-size: var(--step-3);
-  font-weight: 700;
+  /* At ~35px, Cormorant Garamond 700 thickens the thins until the face reads
+     muddy; 600 stays cut. And the display face is loosely fitted, so a title
+     wants pulling in rather than left at its metric width. */
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
   color: var(--paper-ink);
   margin-bottom: var(--sp-3);
+  /* Optical alignment. The T of "The Appraisal" started seven pixels inside
+     the eyebrow above it and the ledger labels below it, because a cap's left
+     sidebearing is real space the margin does not know about. Hung back out. */
+  margin-left: -0.04em;
   text-wrap: balance;
 }
 
 .jp-epigraph {
+  position: relative;
   font-style: italic;
   color: var(--paper-ink-faded);
   font-size: var(--step-1);
-  line-height: var(--leading-body);
+  /* `--leading-body` is 1.62, which is right for 17px running text and much too
+     loose for a two-line pull quote at display-adjacent size: set that way the
+     two lines read as two unrelated sentences rather than one utterance. */
+  line-height: 1.34;
   margin-bottom: var(--sp-4);
-  padding-left: var(--sp-4);
-  /* `--blood` is the token the palette assigns to `--danger`. A dull rose bar
-     beside an epigraph is a semantic lie as well as the only cool-adjacent
-     accent on a warm sheet: the mark a reader's own pencil leaves down the
-     margin of a passage is graphite, or it is the same iron-gall the page is
-     written in. This is the latter, half strength. */
-  border-left: 2px solid color-mix(in srgb, var(--paper-ink) 34%, transparent);
+  padding-left: var(--sp-5);
   text-wrap: pretty;
+}
+
+/**
+ * A hung opening quote instead of the flush-left bar.
+ *
+ * The 2px rule down the left of a pull quote is a 2015 blog device and it was
+ * the only vertical stroke of its kind on the leaf. A quotation set in a book
+ * hangs its opening mark out into the margin — the same margin the title is
+ * optically hung into — so the mark sits in the white space rather than
+ * indenting the text away from it.
+ */
+.jp-epigraph::before {
+  content: '\201C';
+  position: absolute;
+  left: -0.06em;
+  top: -0.16em;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 2.2em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--paper-ink) 26%, transparent);
 }
 
 /* ---------------------------------------------------------------------------
@@ -969,6 +1294,15 @@
   font-size: var(--step--1);
   font-weight: 600;
   font-variant-caps: all-small-caps;
+  /* A stamp die is cut at one figure height. Cormorant's default oldstyle
+     figures inside letterspaced small caps gave "3 OCT 1998" a descending 3,
+     descending 9s and an *ascending* 8, so at a glance the date read as a
+     superscript typo struck into rubber. Lining, and tabular so the two
+     numerals in the year cannot sit at two different widths. */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings:
+    'lnum' 1,
+    'tnum' 1;
   letter-spacing: 0.18em;
   line-height: 1.2;
   text-align: center;
@@ -1048,10 +1382,28 @@
   border-top: 1px solid color-mix(in srgb, var(--paper-ink) 26%, transparent);
 }
 
-/* The dateline above it normally does the pushing; with no scene to name, the
-   totals take the job back so they never float in the middle of the leaf. */
-.jp-col--flyleaf:not(:has(.jp-margin)) .case-stats {
-  margin-top: auto;
+/* The dateline is what anchors the foot of the flyleaf now that the reckoning
+   has crossed the gutter. With no scene to name there is no dateline either, so
+   the commission stops pushing and the slack collects once below it rather than
+   opening a second hole above it. */
+.jp-col--flyleaf:not(:has(.jp-margin)) .plate {
+  margin-bottom: 0;
+}
+
+/**
+ * The reckoning as it sits on the working page.
+ *
+ * It lives at the foot of the recto now, below the ruling and below the tail
+ * furniture, on plain stock — so the ruled field can end where the writing ends
+ * instead of running four hundred pixels of empty rules down the leaf, and the
+ * right-hand leaf carries an ink block at its foot the way the left one carries
+ * one at its head. `flex-shrink: 0` because the tail above it is the element
+ * with a claim on the free space; the totals are a fixed measure.
+ */
+.case-stats--ledger {
+  flex: 0 0 auto;
+  margin-top: 0;
+  padding-top: var(--sp-4);
 }
 
 .case-stat {
@@ -1104,40 +1456,117 @@
    ------------------------------------------------------------------------- */
 
 /**
- * The ruling runs the height of the leaf, not the height of the list.
+ * The written field — the part of the leaf that has been ruled up.
  *
- * It is painted on the column with `background-attachment: local` so the lines
- * travel with the writing when the page scrolls, and `background-origin:
- * content-box` so the first rule lands on the first line box rather than on
- * the padding. Every child below sets its line-height to `--rule-pitch` and
- * its margins to whole multiples of it, which is the only way rules and
- * baselines stay registered once a block wraps.
+ * The ruling used to run the full height of the column, which on a page
+ * carrying four articles and one handwritten line meant twenty-two blank rules
+ * below the writing: eighty percent of the recto was empty ruled stock, and the
+ * largest continuous area in the whole frame was nothing. A ledger is ruled to
+ * the depth of the entry block and no further; below that it is plain stock,
+ * and the free stock is where the sign-off and the clip live.
  *
- * Warm ink: the old ruling was `--moon-400`, a cool blue, on a warm sheet.
+ * The rules themselves are painted on a pseudo-element rather than on the
+ * column, because they need a mask (see below) and a mask on the column would
+ * take the writing with it.
  */
 .jp-col--ruled {
   padding-top: 0;
-  background-image: linear-gradient(180deg, transparent calc(100% - 1px), var(--rule-ink) 0);
-  background-size: 100% var(--rule-pitch);
-  background-origin: content-box;
-  background-attachment: local;
 }
 
-.jp-col--ruled > * {
+.jp-ruled__field {
+  position: relative;
+  /* Four rules run on past the last line, the way a clerk leaves room. */
+  padding-bottom: calc(var(--rule-pitch) * 4);
+}
+
+.jp-ruled__field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(180deg, transparent calc(100% - 1px), var(--rule-ink) 0);
+  background-size: 100% var(--rule-pitch);
+  /*
+   * The line is drawn where the writing actually sits.
+   *
+   * Painted at the bottom of the line box the rule landed half a leading plus a
+   * descender below every baseline on the page — eleven pixels, dead centre in
+   * the gap — so the type orbited the ruling instead of resting on it. Lifting
+   * the whole ruling by `--rule-drop` puts each printed line under the writing
+   * it carries, which is the difference between a written page and a text layer
+   * over a wallpaper layer.
+   */
+  background-position: 0 calc(var(--rule-drop) * -1);
+  /*
+   * And the ruling dies into the fold. A sheet curling into a binding
+   * compresses its lines and loses them to the shadow; these ran through the
+   * gutter shading at constant pitch and full strength right up to the page
+   * curl, which exposed the fold as an airbrush over a flat rectangle.
+   */
+  mask-image: linear-gradient(90deg, transparent 0, black clamp(2.5rem, 6cqw, 5rem), black 100%);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black clamp(2.5rem, 6cqw, 5rem),
+    black 100%
+  );
+}
+
+/* The writing sits over its own ruling, never under it. */
+.jp-ruled__field > * {
+  position: relative;
+  z-index: 1;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.jp-col--ruled .jp-kicker {
-  height: var(--rule-pitch);
-  line-height: var(--rule-pitch);
-  margin-bottom: var(--rule-pitch);
-  color: color-mix(in srgb, var(--paper-ink-faded) 96%, transparent);
+/* Re-stated at the reset's own specificity: a whole-multiple gap between
+   blocks is what keeps the writing registered to the ruling, and a blanket
+   `margin: 0` two selectors long silently outranked every one of them. */
+.jp-ruled__field > .jp-kicker--mid,
+.jp-ruled__field > .order__closed {
+  margin-top: var(--rule-pitch);
 }
 
-.jp-kicker--mid {
-  margin-top: var(--rule-pitch);
+/**
+ * The plain stock below the ruling, and the two things lying on it.
+ *
+ * A blank half-leaf is not restful, it is unfinished — the eye finishes reading
+ * in three seconds and lands on nothing. It is closed off the way a working
+ * page is closed off: a pen stroke, and the steel clip that has been holding
+ * this section of the book together.
+ */
+.jp-tail {
+  /* Takes whatever the entry block left and splits it in two, so the free
+     stock is a margin above and a margin below rather than one hole. */
+  /* Grow-only: a long standing order must push the tail down the page and let
+     the column scroll, never squash the sign-off into the last ruled line. */
+  flex: 1 0 auto;
+  display: grid;
+  justify-items: end;
+  align-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+}
+
+/* The clip is on the fore edge, so it hangs off the trailing margin and casts
+   onto the leaf from the same key as everything else. */
+.jp-clip {
+  display: block;
+  width: clamp(1.9rem, 3.6cqw, 2.8rem);
+  color: color-mix(in srgb, var(--moon-300) 62%, var(--paper-400));
+  transform: rotate(6deg);
+  filter:
+    drop-shadow(0 1px 0 color-mix(in srgb, var(--paper-100) 80%, transparent))
+    drop-shadow(3px 6px 5px color-mix(in srgb, var(--paper-ink) 46%, transparent));
+}
+
+.jp-clip svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .order__articles {
@@ -1195,6 +1624,12 @@
   margin-top: auto;
   padding-top: var(--sp-5);
   color: color-mix(in srgb, var(--paper-ink) 30%, transparent);
+}
+
+/* Inside the tail the grid does the pushing, so the flourish stops doing it. */
+.jp-tail .jp-sign {
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .jp-sign svg {
@@ -1366,36 +1801,45 @@
   transform: translateX(-0.35cqw);
   width: calc(var(--tab-w) + 0.9cqw);
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  /*
+   * The live tab is the one *catching* the light, not the one made of light.
+   *
+   * A hard vertical gold ramp made this the brightest object in the entire
+   * frame — brighter than the lit head of the page it indexes — with a crisp
+   * one-pixel edge, and it lost the middle letters of its own label where the
+   * ramp peaked. It is the same hide as its four neighbours now, warmed a
+   * little and pulled a touch further proud of the board, and "you are here"
+   * is carried by the extra width, the hot top bevel and the lit eyelet.
+   */
   background-image:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--lamp-400) 52%, var(--leather-hi)) 0%,
-      color-mix(in srgb, var(--lamp-600) 40%, var(--leather-mid)) 54%,
-      var(--leather-mid) 100%
+      color-mix(in srgb, var(--lamp-600) 26%, var(--leather-hi)) 0%,
+      color-mix(in srgb, var(--lamp-600) 14%, var(--leather-mid)) 54%,
+      var(--leather-lo) 100%
     ),
     var(--grain-hide);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 40%, transparent),
-    inset 3px 0 5px -3px color-mix(in srgb, var(--ink-abyss) 90%, transparent),
-    var(--shadow-2);
+    inset 0 2px 0 color-mix(in srgb, var(--lamp-200) 46%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 76%, transparent),
+    inset 3px 0 6px -3px color-mix(in srgb, var(--ink-abyss) 90%, transparent),
+    var(--shadow-3);
 }
 
 /**
- * Lit brass, not white-hot.
+ * The label treatment is invariant.
  *
- * At `--lamp-100` the five letters of the live tab were the brightest pixels
- * in the frame — brighter than any paper the lamp was falling on — and
- * subpixel rasterising pushed the clipped edges higher still. Held at
- * `--lamp-300` the label is 130 levels up on the hide it is blocked into,
- * which is all the separation a selected index needs, and the top of the
- * frame's value range stays where it belongs: on the page.
+ * A tab whose face changes material when selected reads as a different control,
+ * not as the same control in a different state — and at `--lamp-300` on a gold
+ * fill the dark-on-bright label was also the least legible of the five. Every
+ * blank in the index is dark hide with light ink blocked into it, live or not.
  */
 .journal-tab.is-active .journal-tab__face {
-  color: var(--lamp-300);
+  color: color-mix(in srgb, var(--paper-100) 92%, transparent);
 }
 
-/* Held to the same ceiling as the label: a four-pixel eyelet has no business
-   being the brightest thing in a frame whose subject is a lamplit page. */
+/* The eyelet is where the brass lives. Four pixels of it can carry "current
+   page" without any of it out-valuing the paper. */
 .journal-tab.is-active .journal-tab__pip {
   background: var(--lamp-300);
   box-shadow: var(--glow-lamp-soft);
@@ -1434,17 +1878,20 @@
   height: clamp(1.7rem, 3.6cqh, 2.7rem);
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   color: var(--lamp-100);
-  /* Knocked below the live tab on purpose. A catch struck brighter than the
-     thumb index makes the way *out* of the book the most valuable object on
-     the spread, which inverts the reading order at the busiest corner of the
-     frame: the eye should find the page, then the index, then the clasp. */
+  /* A different metal from the index, on purpose.
+     Struck in the same warm brass as the live tab directly below it, two
+     unrelated affordances were rendered in one material and "you are here"
+     stopped meaning anything: gold said both "current page" and "way out".
+     The catch is blued steel with a brass pin — dark, hard, and unmistakably
+     a fastening rather than a page marker — so gold on this book now means
+     exactly one thing. */
   background-image:
     linear-gradient(
       163deg,
-      color-mix(in srgb, var(--lamp-400) 46%, var(--lamp-600)) 0%,
-      color-mix(in srgb, var(--lamp-600) 82%, var(--ink-800)) 38%,
-      color-mix(in srgb, var(--lamp-600) 44%, var(--ink-800)) 82%,
-      color-mix(in srgb, var(--ink-900) 82%, var(--lamp-600)) 100%
+      color-mix(in srgb, var(--ink-500) 62%, var(--fit-700)) 0%,
+      color-mix(in srgb, var(--fit-700) 88%, var(--lamp-600)) 40%,
+      color-mix(in srgb, var(--fit-800) 92%, var(--lamp-600)) 84%,
+      var(--fit-900) 100%
     ),
     var(--grain-hide);
   background-size:
@@ -1452,7 +1899,7 @@
     200px 200px;
   background-blend-mode: normal, overlay;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 44%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--moon-200) 26%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 88%, transparent),
     inset 3px 0 5px -3px color-mix(in srgb, var(--ink-abyss) 80%, transparent),
     var(--shadow-2);
@@ -1462,11 +1909,13 @@
     filter var(--dur-fast) var(--ease-out);
 }
 
+/* The cross is cut *into* the steel: a dark stroke with a lit lower lip, the
+   way an engraved mark on a dark plate actually catches a lamp. */
 .journal__close svg {
   width: 58%;
   height: 58%;
-  color: color-mix(in srgb, var(--ink-900) 82%, var(--lamp-600));
-  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--lamp-100) 45%, transparent));
+  color: color-mix(in srgb, var(--paper-200) 62%, transparent);
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent));
 }
 
 /* Like the index, the catch stays seated in the fore edge when it lights up. */
@@ -1587,6 +2036,9 @@
 
 .clue-group {
   margin-bottom: var(--sp-6);
+  /* Proximity snapping, so the foot of the leaf falls between two groups of
+     cards rather than through the fifth line of somebody's testimony. */
+  scroll-snap-align: start;
 }
 
 .clue-group:last-child {
@@ -1599,7 +2051,49 @@
   gap: var(--sp-1);
   margin-bottom: var(--sp-4);
   padding-bottom: var(--sp-2);
-  border-bottom: 1px solid color-mix(in srgb, var(--paper-ink) 20%, transparent);
+  /* Painted rather than bordered so it can stop at the fold. A `border-bottom`
+     runs the full grid cell, which put a dead-straight hairline across the
+     spine shading at full strength — the same tell as the page ruling running
+     through the gutter, on the one element wide enough to cross it. */
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--paper-ink) 20%, transparent) 0 45%,
+    transparent 46.5%,
+    transparent 53.5%,
+    color-mix(in srgb, var(--paper-ink) 20%, transparent) 55% 100%
+  );
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+
+/* The same four inks the deduction tray codes its categories in, struck into
+   the head rule so the two screens agree about what colour a document is. */
+.clue-group__head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 5.5em;
+  height: 2px;
+  background: var(--cat-ink, color-mix(in srgb, var(--paper-ink) 34%, transparent));
+  opacity: 0.62;
+}
+
+.clue-group[data-cat='document'] {
+  --cat-ink: var(--lamp-500);
+}
+
+.clue-group[data-cat='physical'] {
+  --cat-ink: var(--verdigris);
+}
+
+.clue-group[data-cat='observation'] {
+  --cat-ink: var(--moon-400);
+}
+
+.clue-group[data-cat='testimony'] {
+  --cat-ink: var(--blood);
 }
 
 .clue-group__title {
@@ -1628,34 +2122,105 @@
   color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
 }
 
+/**
+ * Four cards to the spread, and a track down the middle that nothing may
+ * occupy.
+ *
+ * `repeat(auto-fill, …)` sized the tracks off the container, so a group of four
+ * cards took four of five available slots and left a three-hundred-pixel hole
+ * of bare paper at the end of the row while the group below it filled all five
+ * — two different column counts on one spread, with no card edge in the upper
+ * row lining up with any card edge in the lower one. It also let a card sit
+ * squarely across the fold, lying flat over the spine shadow, which is a thing
+ * no physical card can do.
+ *
+ * A fixed count fixes both: two cards to a leaf, an empty gutter track between
+ * them, and every card edge on the spread aligned down the page. The wider
+ * measure that comes with it is a bonus the body copy badly needed — the old
+ * tracks gave a thirty-six character line, well under the comfort band for a
+ * serif, which is why the rag was so stepped and the word spacing so loose.
+ */
 .clue-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(11rem, 19cqw, 16rem), 1fr));
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr))
+    calc(var(--spine-w) * 1.6)
+    repeat(2, minmax(0, 1fr));
   gap: clamp(var(--sp-4), 2cqw, var(--sp-6));
+}
+
+/* Auto-placement would happily drop a card into the gutter track, so each
+   card is told which column it belongs to. Sparse packing does the rest: the
+   fifth card's explicit column 1 sits behind the cursor, so it starts a row. */
+.clue-grid > :nth-child(4n + 1) {
+  grid-column: 1;
+}
+
+.clue-grid > :nth-child(4n + 2) {
+  grid-column: 2;
+}
+
+.clue-grid > :nth-child(4n + 3) {
+  grid-column: 4;
+}
+
+.clue-grid > :nth-child(4n + 4) {
+  grid-column: 5;
 }
 
 .clue-card {
   position: relative;
+  /* The footer plate has to sit on the card bottom, not wherever the summary
+     happened to stop. The grid stretches every card in a row to one height but
+     the foot was a static sibling of the body, so the four ACT rules in a row
+     landed at four different heights — up to a hundred and thirty pixels apart,
+     with a hundred and fifty-five pixels of dead paper under one of them. */
+  display: flex;
+  flex-direction: column;
+  /* A card hangs from its pin, so that is what it turns about. */
+  transform-origin: 50% 0;
+  break-inside: avoid;
   padding: calc(var(--sp-5) - var(--sp-1)) var(--sp-4) var(--sp-3);
-  border-radius: var(--radius-sm);
+  /* Index cards are guillotined. A rounded corner on a cut card is the tell
+     that it was never cut at all. */
+  border-radius: 0;
   transform: rotate(var(--tilt, 0deg));
-  background-color: var(--paper-100);
+  background-color: var(--card-stock);
   background-image:
+    /* The paper puckering up round the pin, and the pin's own contact shadow
+       in the dimple. Placed off `--pin-x` so it travels with the pin. */
+    radial-gradient(
+      1.15rem 0.7rem at var(--pin-x, 50%) 0.1rem,
+      color-mix(in srgb, var(--paper-400) 52%, transparent) 0%,
+      color-mix(in srgb, var(--paper-300) 30%, transparent) 46%,
+      transparent 78%
+    ),
     linear-gradient(
       178deg,
-      color-mix(in srgb, var(--paper-100) 96%, transparent) 0%,
-      color-mix(in srgb, var(--paper-200) 88%, transparent) 74%,
-      color-mix(in srgb, var(--paper-300) 78%, transparent) 100%
+      color-mix(in srgb, var(--card-stock) 98%, transparent) 0%,
+      color-mix(in srgb, var(--card-stock-lo) 88%, transparent) 74%,
+      color-mix(in srgb, var(--paper-300) 74%, transparent) 100%
     ),
     var(--grain-fine);
+  /* 46px rather than 140px: a 140px tile put roughly one grain period across a
+     whole card, i.e. no visible tooth at all at 1x. Bought stock has a fine
+     but real one, and it is half of what tells a card from the leaf. */
   background-size:
     100% 100%,
-    140px 140px;
-  background-blend-mode: normal, multiply;
+    100% 100%,
+    46px 46px;
+  background-blend-mode: normal, normal, multiply;
+  /* Stock thickness: a lit top and left where the key strikes the cut edge, a
+     dark bottom and right where it does not. Then the seating — a tight
+     contact term and a long soft one thrown down and away from the key, so the
+     card reads as hanging from one point rather than wearing a uniform halo. */
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 90%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--paper-400) 60%, transparent),
-    var(--shadow-2);
+    inset 0 1px 0 var(--card-edge-lit),
+    inset 1px 0 0 color-mix(in srgb, var(--card-edge-lit) 70%, transparent),
+    inset 0 -1px 0 var(--card-edge-dark),
+    inset -1px 0 0 color-mix(in srgb, var(--card-edge-dark) 70%, transparent),
+    1px 2px 2px -1px color-mix(in srgb, var(--paper-ink) 34%, transparent),
+    5px 14px 20px -8px color-mix(in srgb, var(--paper-ink) 52%, transparent);
   transition:
     transform var(--dur-med) var(--ease-out),
     box-shadow var(--dur-med) var(--ease-out);
@@ -1664,17 +2229,29 @@
 .clue-card:hover {
   transform: rotate(0deg) translateY(-2px);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 90%, transparent),
-    var(--shadow-3);
+    inset 0 1px 0 var(--card-edge-lit),
+    inset 0 -1px 0 var(--card-edge-dark),
+    2px 4px 4px -2px color-mix(in srgb, var(--paper-ink) 38%, transparent),
+    8px 22px 32px -10px color-mix(in srgb, var(--paper-ink) 58%, transparent);
 }
 
-/** The pin head that holds the card to the page. */
+/**
+ * The pin head that holds the card to the page.
+ *
+ * A bead of brass on its own is a bead of brass *resting* on the paper: there
+ * was no shaft, no dimple, no contact shadow and no corresponding lift at the
+ * free corners, and all nine of them sat mathematically dead centre on their
+ * card's top edge. The shaft is `::before` — a short dark ellipse where the
+ * steel goes into the sheet — the pucker is a background layer on the card
+ * itself, and the horizontal position is jittered per card id (see `pinOf` in
+ * `src/ui/journal.ts`) so the row is placed by a hand and not by a formula.
+ */
 .clue-card__pin,
 .ded-card__pin,
 .ded-suspect__pin {
   position: absolute;
   top: calc(var(--sp-2) * -0.5);
-  left: 50%;
+  left: var(--pin-x, 50%);
   width: clamp(0.5rem, 1.1cqw, 0.85rem);
   aspect-ratio: 1;
   transform: translateX(-50%);
@@ -1687,17 +2264,43 @@
       var(--lamp-500) 68%,
       var(--lamp-600) 100%
     );
+  /* A tight contact term at the bead, then a longer soft one — the same two
+     shadows the card gets, at the scale of a five-millimetre object. */
   box-shadow:
     0 1px 0 color-mix(in srgb, var(--lamp-100) 40%, transparent) inset,
-    0 2px 4px color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    0 1px 1px color-mix(in srgb, var(--ink-abyss) 70%, transparent),
+    0 4px 7px -2px color-mix(in srgb, var(--ink-abyss) 55%, transparent),
     0 0 8px -2px color-mix(in srgb, var(--lamp-300) 60%, transparent);
+}
+
+/* The shaft, entering the sheet under the bead. */
+.clue-card__pin::before,
+.ded-card__pin::before,
+.ded-suspect__pin::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -22%;
+  width: 46%;
+  height: 34%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lamp-600) 60%, var(--ink-abyss));
 }
 
 .clue-card__name {
   font-family: var(--font-display);
-  font-size: var(--step-1);
+  /* At `--step-1` in a sixteen-rem track, six of nine titles either widowed a
+     word onto its own line or split a date across a break — systemic, not bad
+     luck. A step down on a much wider measure, balanced, and with the dates
+     bound with non-breaking spaces upstream, they set on one or two lines. */
+  font-size: var(--step-0);
   font-weight: 600;
-  line-height: var(--leading-tight);
+  line-height: 1.12;
+  /* One and two-line titles must still start the body at the same y, or
+     nothing across a row shares a baseline. */
+  min-height: calc(2 * 1.12em);
+  text-wrap: balance;
   color: var(--paper-ink);
   margin-bottom: var(--sp-2);
 }
@@ -1705,14 +2308,25 @@
 .clue-card__summary {
   font-family: var(--font-body);
   font-size: var(--step--1);
-  line-height: 1.5;
-  color: color-mix(in srgb, var(--paper-ink) 84%, transparent);
+  /* Tighter now the measure is wide enough to carry it. */
+  line-height: 1.42;
+  /* One rule, two results: 6.28:1 at the head of the leaf and 3.55:1 at its
+     foot, because the lamp multiplies the ink as well as the paper. The
+     terminus of the key is pulled back (see `.journal__vignette`), and the ink
+     carries the rest of the margin so the same paragraph passes at both ends of
+     the falloff rather than only at the lit one. */
+  color: color-mix(in srgb, var(--paper-ink) 92%, transparent);
   text-wrap: pretty;
+  /* Kills the stepped rag that long tokens like "41,882 to 42,319" open up. */
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
 }
 
 .clue-card__foot {
-  margin-top: var(--sp-3);
-  padding-top: var(--sp-2);
+  /* Pins the ACT plate to the foot of the card, so every one in a row lands on
+     one baseline however long the summary above it ran. */
+  margin-top: auto;
+  padding-top: var(--sp-3);
   border-top: 1px solid color-mix(in srgb, var(--paper-ink) 14%, transparent);
 }
 
@@ -1722,16 +2336,22 @@
   font-variant-caps: all-small-caps;
   font-size: var(--step-0);
   letter-spacing: var(--tracking-label);
-  color: color-mix(in srgb, var(--paper-ink-faded) 70%, transparent);
+  /* The act plate is the only classification on the card, and on a card sitting
+     in the lower right of the spread the vignette was already taking a stop off
+     it; 70% on top of that measured 2.54:1. Undiluted faded ink, which is quiet
+     enough by itself. */
+  color: var(--paper-ink-faded);
 }
 
 /* -- the "new" wax seal ---------------------------------------------------- */
 
 .clue-card.is-fresh {
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--paper-100) 90%, transparent),
-    var(--shadow-2),
+    inset 0 1px 0 var(--card-edge-lit),
+    inset 0 -1px 0 var(--card-edge-dark),
     0 0 0 1px color-mix(in srgb, var(--lamp-400) 40%, transparent),
+    1px 2px 2px -1px color-mix(in srgb, var(--paper-ink) 34%, transparent),
+    5px 14px 20px -8px color-mix(in srgb, var(--paper-ink) 52%, transparent),
     var(--glow-lamp-soft);
 }
 
@@ -1970,31 +2590,101 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   column-gap: var(--spine-w);
+  row-gap: var(--sp-2);
   height: 100%;
   min-height: 0;
   padding: var(--sp-3);
   border-radius: var(--radius-sm);
   overflow: hidden;
   background-color: var(--cork);
-  /* Unevenly lit: the lamp catches the top-left of the board and the frame
-     shades the far corner. The crumb itself is a separate layer below, so the
-     light can be tuned without fighting the texture. */
+  /*
+   * One lamp, off the upper left, falling to *cool* shade at the far corner.
+   *
+   * The board's only lighting event used to be a symmetrical pair of radials
+   * with no direction in them, and both terms were the same warm brown, so
+   * every element in two and a half megapixels — leather, cork, paper, brass —
+   * sat inside a thirty-degree hue band. `--ink-400` is the cold window at the
+   * other end of the room, and putting it in the far corner is what gives the
+   * whole frame a complement to be warm against.
+   */
   background-image:
     radial-gradient(
-      64% 54% at 20% 10%,
-      color-mix(in srgb, var(--lamp-300) 20%, transparent) 0%,
-      transparent 72%
+      74% 62% at var(--key-x) 6%,
+      color-mix(in srgb, var(--lamp-300) 26%, transparent) 0%,
+      color-mix(in srgb, var(--lamp-500) 10%, transparent) 40%,
+      transparent 78%
     ),
     radial-gradient(
-      54% 48% at 84% 86%,
-      color-mix(in srgb, var(--ink-abyss) 40%, transparent) 0%,
-      transparent 74%
+      66% 58% at 88% 94%,
+      color-mix(in srgb, var(--ink-400) 34%, transparent) 0%,
+      color-mix(in srgb, var(--ink-abyss) 30%, transparent) 46%,
+      transparent 80%
     );
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--paper-200) 26%, transparent),
     inset 0 -2px 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent),
     inset 0 0 44px -8px color-mix(in srgb, var(--ink-abyss) 70%, transparent);
+}
+
+/**
+ * The board's own nameplate.
+ *
+ * The screen had no entry point at all: the left column got an eyebrow over a
+ * hairline, the right column started cold with a card, and nothing anywhere on
+ * the spread said what this board was or which case it belonged to. A brass
+ * plate screwed to the head of the cork answers both — it is a title, and it is
+ * an object in the room, which a floating heading would not have been.
+ */
+.ded__head {
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background-image: linear-gradient(
+    172deg,
+    color-mix(in srgb, var(--lamp-600) 62%, var(--fit-700)) 0%,
+    color-mix(in srgb, var(--lamp-600) 32%, var(--fit-800)) 62%,
+    var(--fit-900) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 34%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent),
+    0 3px 8px -3px color-mix(in srgb, var(--fit-abyss) 76%, transparent);
+}
+
+/* Engraved, not printed: a dark stroke with a lit lower lip. */
+.ded__title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display-sm);
+  line-height: 1.1;
+  color: color-mix(in srgb, var(--lamp-200) 88%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 82%, transparent);
+}
+
+.ded__case {
+  font-family: var(--font-label);
+  font-size: var(--step-0);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  /* Engraved on the brass plate, so it takes the plate's own lit lower lip
+     rather than being mixed away into it. At 62% it measured 2.85:1 against the
+     dark end of the plate — the one line that says which act you are in. */
+  color: color-mix(in srgb, var(--paper-200) 90%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 72%, transparent);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /**
@@ -2059,15 +2749,53 @@
 }
 
 .ded__tray,
-.ded__suspects {
+.ded__col {
   position: relative;
   z-index: 2;
   min-height: 0;
+  display: grid;
 }
 
 .ded__tray {
-  display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+/* The right column gets the same eyebrow-over-rule as the left, so the two
+   halves of the spread are typographically symmetrical and the eye has a
+   place to land on each of them — and now the same ruled foot as well, so the
+   hint rail on one side is answered by the catchword on the other. */
+.ded__col {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+/**
+ * Both scroll regions dissolve rather than guillotine.
+ *
+ * Left and right were both cut dead straight through live glyphs — a schedule
+ * sliced through its x-height on one side, three suspect cards cut through the
+ * word MEANS on the other — with no fade, no chevron and no visible scrollbar.
+ * A razor-straight horizontal cut through a letterform is the single most
+ * obvious "this is a scrolling div" tell there is. Now the last inch fades into
+ * the board, and the brass track is always visible so the player can see there
+ * is more of it.
+ */
+.ded__tray-scroll,
+.ded__suspects {
+  --board-fade: clamp(2.5rem, 6cqh, 4rem);
+  mask-image: linear-gradient(
+    to bottom,
+    black 0,
+    black calc(100% - var(--board-fade)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0,
+    black calc(100% - var(--board-fade)),
+    transparent 100%
+  );
+  scroll-snap-type: y proximity;
+  scrollbar-gutter: stable;
 }
 
 .ded__tray-scroll {
@@ -2075,15 +2803,32 @@
   grid-template-columns: repeat(auto-fill, minmax(clamp(7rem, 13cqw, 10rem), 1fr));
   align-content: start;
   gap: var(--sp-4);
-  padding: var(--sp-3) var(--sp-2) var(--sp-4);
+  padding: var(--sp-3) var(--sp-2) var(--board-fade);
   overflow-y: auto;
 }
 
+/**
+ * The hint has its own rail.
+ *
+ * It used to lie directly on the artwork with the bottom row of evidence cards
+ * running under it — a fill with no edge, no paper and no shadow. Sitting above
+ * a mask that has already dissolved the cards away, and separated from the tray
+ * by a hairline, it now reads as a line ruled at the foot of the board.
+ */
 .ded__hint {
-  padding-top: var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: 1px solid color-mix(in srgb, var(--ink-abyss) 34%, transparent);
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--lamp-300) 9%, transparent);
   font-family: var(--font-hand);
-  font-size: var(--step-0);
-  color: color-mix(in srgb, var(--paper-100) 68%, transparent);
+  font-size: var(--step--1);
+  /* A connecting hand must never be tracked — the letterforms stop touching,
+     which is the one thing you cannot do to a script face. */
+  letter-spacing: 0;
+  /* The only instruction on the screen, written in pencil on a strip of card at
+     the foot of the board. A hand is a light face to begin with; diluted to 76%
+     over lit cork it measured 2.13:1, which is a note somebody rubbed out. */
+  color: color-mix(in srgb, var(--paper-100) 94%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 46%, transparent);
 }
 
 /* -- draggable clue cards -------------------------------------------------- */
@@ -2147,13 +2892,57 @@
   color: var(--paper-ink);
 }
 
+/**
+ * The category, carrying its own colour.
+ *
+ * DOCUMENT, PHYSICAL, OBSERVATION and TESTIMONY are four different kinds of
+ * evidence and they were four identical grey-brown labels — no colour anywhere
+ * in the frame carried any information at all. These are the four inks an
+ * archive actually uses, kept low enough in chroma that they still read as
+ * stamped on paper rather than as status chips: brass for paper, verdigris for
+ * things with weight, iron-gall blue for what was seen, oxblood for what was
+ * said. The rule beneath each one is where the colour actually lives, so the
+ * label stays legible and the coding is carried by a mark rather than by type.
+ */
 .ded-card__cat {
+  position: relative;
+  padding-top: 0.28em;
   font-family: var(--font-label);
   font-weight: 600;
   font-variant-caps: all-small-caps;
   font-size: var(--step-0);
   letter-spacing: var(--tracking-label);
-  color: color-mix(in srgb, var(--paper-ink-faded) 72%, transparent);
+  /* The rule under it carries the colour; the word has to carry the word. At
+     78% it measured 3.28:1 and the coloured stroke was doing all the semantic
+     work, which is a legend nobody can read labelling eighteen cards. */
+  color: var(--paper-ink-faded);
+}
+
+.ded-card__cat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2.1em;
+  height: 2px;
+  background: var(--cat-ink, color-mix(in srgb, var(--paper-ink) 34%, transparent));
+  opacity: 0.78;
+}
+
+.ded-card[data-cat='document'] {
+  --cat-ink: var(--lamp-500);
+}
+
+.ded-card[data-cat='physical'] {
+  --cat-ink: var(--verdigris);
+}
+
+.ded-card[data-cat='observation'] {
+  --cat-ink: var(--moon-400);
+}
+
+.ded-card[data-cat='testimony'] {
+  --cat-ink: var(--blood);
 }
 
 /* Already up on the board: the card keeps a wound thread round its edge. A
@@ -2229,41 +3018,137 @@
 
 /* -- suspect columns ------------------------------------------------------- */
 
+/**
+ * Whole cards, or no card.
+ *
+ * The row was a fixed 302px measure in a scroller 717px deep, so the third row
+ * got 143 of its 302 pixels: a name, a role and the decapitated top lip of a
+ * MEANS band, dissolving into the mask. That does not read as "there is more
+ * below", it reads as a rendering fault — a half-card is not an affordance, and
+ * this panel had no catchword or chevron to say otherwise the way the clue leaf
+ * does.
+ *
+ * The row is now an exact fraction of the visible board rather than a fixed
+ * height, so two whole rows fill it edge to edge and the third begins cleanly
+ * below the fold. The fade therefore always lands in the gutter *between* rows,
+ * never through a card; the snap is mandatory so a row cannot park half inside
+ * it; and the deeper card gives each charge slot room for more than one chip,
+ * which is what the mechanic actually needs.
+ */
 .ded__suspects {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(clamp(9rem, 16cqw, 13rem), 1fr));
+  grid-auto-rows: calc((100% - var(--sp-4)) / 2);
   align-content: start;
   gap: var(--sp-4);
-  padding: var(--sp-3) var(--sp-2);
+  padding: var(--sp-3) var(--sp-2) var(--board-fade);
   overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-padding-block-start: var(--sp-3);
 }
 
+.ded__suspects .ded-suspect {
+  scroll-snap-align: start;
+}
+
+/**
+ * The board's catchword.
+ *
+ * The tray column has a hint rail ruled across its foot; the persons column had
+ * nothing at all, which is half of why its cut third row read as a bug. Same
+ * device as the printed catchword on the clue leaf, in the cork column's ink
+ * rather than the page's — it says there is more board, and `syncCatchword`
+ * retires it the moment there is not.
+ */
+.ded__more {
+  margin: 0;
+  padding-top: var(--sp-3);
+  border-top: 1px solid color-mix(in srgb, var(--ink-abyss) 34%, transparent);
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--lamp-300) 9%, transparent);
+  color: color-mix(in srgb, var(--paper-100) 92%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 55%, transparent);
+}
+
+.ded__more .journal-more__arrow {
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent));
+}
+
+.ded__col.is-ended .ded__more {
+  opacity: 0;
+}
+
+/**
+ * A deduction board is a matrix, and a matrix whose rows do not line up is not
+ * a matrix.
+ *
+ * The head used to size itself off the role string, so a one-line "Chief clerk"
+ * and a four-line "Warden of the Brannock Pilotage Authority" pushed MEANS to
+ * y=273 on one card and y=315 on the card beside it: a forty-two pixel break in
+ * the one axis the whole mechanic is scanned along. The head is now a
+ * fixed-height plate and the three charge slots are equal fractions of what is
+ * left, so every band in a row shares a baseline whatever the copy does.
+ */
 .ded-suspect {
+  --suspect-head: clamp(3.4rem, 7.6cqh, 4.8rem);
   position: relative;
   display: grid;
+  grid-template-rows: var(--suspect-head) repeat(3, minmax(0, 1fr));
   gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-3) var(--sp-3);
   border-radius: var(--radius-sm);
-  background-image: linear-gradient(
-    177deg,
-    color-mix(in srgb, var(--ink-800) 76%, transparent) 0%,
-    color-mix(in srgb, var(--ink-900) 82%, transparent) 100%
-  );
+  /*
+   * Mid-value hide, not a near-black slab.
+   *
+   * At `--ink-800/--ink-900` these sampled around ten percent luminance against
+   * a forty-five percent ochre board — four and a half stops with nothing in
+   * between, no bounce from the board into the lower edge and no rim off the
+   * lamp. The frame's histogram was bimodal: forty-four percent of pixels below
+   * L=32 and under three percent anywhere in the midtones, which is another way
+   * of saying nothing in the picture was modelled. Warm hide at roughly twenty
+   * percent, lit from the same key, puts them inside the scene.
+   */
+  background-color: var(--suspect-lo);
+  background-image: linear-gradient(168deg, var(--suspect-hi) 0%, var(--suspect-lo) 100%),
+    var(--grain-hide);
+  background-size:
+    100% 100%,
+    200px 200px;
+  background-blend-mode: normal, overlay;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 16%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 80%, transparent),
-    var(--shadow-2);
+    /* Key: the top edge catching the lamp. */
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 26%, transparent),
+    /* Bounce: ochre cork reflecting back up into the underside of the mount. */
+      inset 0 -16px 22px -12px color-mix(in srgb, var(--lamp-500) 30%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--ink-abyss) 62%, transparent),
+    /* Contact, then cast — down and to the right, away from the key. */
+      0 2px 3px -1px color-mix(in srgb, var(--fit-abyss) 66%, transparent),
+    6px 14px 22px -8px color-mix(in srgb, var(--fit-abyss) 74%, transparent);
 }
 
+/**
+ * Everything in the header hangs from one top edge.
+ *
+ * `align-items: center` vertically centred a thirty-pixel portrait against a
+ * text block twice its height, so the first line of a wrapping name floated
+ * *above* the top of the thumbnail and the role spilled well below its bottom:
+ * no two elements in the header shared an edge, and the tally landed against
+ * the middle of a four-line job title as if colliding with it.
+ */
 .ded-suspect__head {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  align-items: center;
+  align-items: start;
   gap: var(--sp-2);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .ded-suspect__portrait {
   width: clamp(1.9rem, 3.6cqw, 3rem);
+  aspect-ratio: 1;
+  /* Meets the name's cap height rather than the top of its line box. */
+  margin-top: 0.16em;
 }
 
 /* Lets the name column shrink instead of forcing the tally off the card. */
@@ -2273,33 +3158,67 @@
 
 .ded-suspect__name {
   display: block;
-  overflow-wrap: anywhere;
+  /* `anywhere` let "Ferrier-Kyne" break at its own hyphen, which put the
+     portrait's top edge between the two halves of somebody's surname. */
+  overflow-wrap: normal;
+  hyphens: none;
+  text-wrap: balance;
   font-family: var(--font-display);
   font-size: var(--step-0);
   font-weight: 600;
   line-height: var(--leading-tight);
-  color: var(--text-primary);
+  color: color-mix(in srgb, var(--paper-100) 92%, transparent);
 }
 
+/**
+ * Who this person is, in the voice of a person.
+ *
+ * The role was set in the UI grotesque at eleven pixels, uppercased and
+ * tracked, in a measure of about twelve characters — so a forty-character job
+ * title became four cramped lines of shouting chrome, at the same size, weight
+ * and colour as the MEANS/MOTIVE/OPPORTUNITY labels underneath it. The
+ * hierarchy "who this is" against "what you are accusing them of" collapsed
+ * completely. Tracked caps are now reserved *exclusively* for the charge slots,
+ * so caps means "this is a slot" and an italic serif means "this is a person".
+ */
 .ded-suspect__role {
-  display: block;
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
-  color: var(--text-secondary);
+  /* Two lines, hard. The head is a fixed plate and the copy has to live
+     inside it; content owns the string, the board owns the space. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step--1);
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.25;
+  /* `--hide-ink` is cream at 58%, which is right for a mark on lit hide and
+     wrong for a person's job title on a mount in the shade of the board: nine
+     of them measured 2.71–3.06:1. An italic serif is already the quiet
+     treatment; it does not also need to be half-erased. */
+  color: color-mix(in srgb, var(--paper-100) 80%, transparent);
 }
 
 .ded-suspect__tally {
   display: grid;
   place-items: center;
+  /* Hangs from the same top edge as the portrait and the name, never centred
+     against a role block it has nothing to do with. */
+  align-self: start;
   min-width: 1.7em;
   height: 1.7em;
   padding: 0 0.35em;
   border-radius: 99px;
-  font-family: var(--font-ui);
+  /* A brass counter stamped into the mount, not a notification badge. Set in
+     the same body serif at the same lining figures as the folio in the book, so
+     the one grotesque left on this diegetic object is gone. */
+  font-family: var(--font-body);
   font-size: var(--step--1);
-  font-variant-numeric: tabular-nums;
+  font-variant-caps: normal;
+  font-variant-numeric: lining-nums tabular-nums;
   color: var(--lamp-100);
   background: color-mix(in srgb, var(--blood) 70%, var(--ink-900));
   box-shadow:
@@ -2310,42 +3229,84 @@
 /* Nobody is accused of nothing. An untouched suspect wears a blank brass
    counter; red is reserved for a theory the player has actually built. */
 .ded-suspect__tally[data-count='0'] {
-  color: var(--text-muted);
-  background: color-mix(in srgb, var(--ink-abyss) 45%, transparent);
+  /* `--text-muted` is `--ink-400`: cold slate, on warm hide, at 1.86:1. It is
+     still an information-bearing number even when the information is "none",
+     and the player reads down this column to find the ones that are not zero.
+     Unlit brass rather than red, but brass you can actually see. */
+  color: var(--lamp-200);
+  background: color-mix(in srgb, var(--ink-abyss) 20%, transparent);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 10%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 28%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--lamp-200) 14%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-600) 34%, transparent);
 }
 
 /* -- charge bands ---------------------------------------------------------- */
 
+/**
+ * A pocket cut into the mount, not a dotted rectangle.
+ *
+ * `1px dashed` is the clearest "this is CSS" tell available: a hairline with no
+ * thickness, no shadow and no material, machine-even all the way round. Nine
+ * cards times three charges made twenty-seven identical dotted boxes each
+ * containing an identical em-dash, which reads as an unfinished wireframe
+ * rather than as an evidence board. A slot is a *deboss*: darker than the hide
+ * it is cut into, a hard shadow under its top lip and a thin lit line along its
+ * bottom lip where the lamp reaches the far wall of the recess.
+ */
 .ded-band {
   position: relative;
   display: grid;
+  align-content: start;
   gap: var(--sp-1);
   padding: var(--sp-2);
+  border: 0;
   border-radius: var(--radius-sm);
-  border: 1px dashed color-mix(in srgb, var(--lamp-500) 26%, transparent);
-  background: color-mix(in srgb, var(--ink-abyss) 26%, transparent);
+  background: color-mix(in srgb, var(--ink-abyss) 36%, transparent);
+  box-shadow:
+    inset 0 2px 4px -1px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--lamp-500) 16%, transparent);
   transition:
-    border-color var(--dur-fast) var(--ease-out),
     background var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
 }
 
+/* Live drop target: the recess fills with lamplight. */
 .ded-band.is-hot {
-  border-color: var(--accent);
-  border-style: solid;
   background: color-mix(in srgb, var(--lamp-500) 22%, transparent);
-  box-shadow: var(--glow-lamp);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent),
+    var(--glow-lamp);
 }
 
+/**
+ * The three charges, engraved on the lip of each slot.
+ *
+ * Two faults, both of them the same fault. The label was set in `--font-ui` —
+ * a 2020s screen grotesque, uppercased and tracked at 0.14em — printed on a
+ * cork board mounted inside a leather casebook, where every other glyph in the
+ * frame is Cormorant or Crimson. Twenty-seven of them. The role above was fixed
+ * and these were left, which is exactly the hierarchy the note eight rules up
+ * claims to have repaired. And at `--hide-ink-dim` (paper-200 at 40%) on a
+ * near-black recess the three of them measured 2.44–2.58:1: the labels on the
+ * game's core mechanic were the least readable type in the build.
+ *
+ * Small-cap Garamond at `--step-0` — small caps stand about three-quarters of
+ * cap height, so the size goes up two steps to hold the same optical weight —
+ * and cream at 82%, which clears 4.5:1 on the floor of the deboss.
+ */
 .ded-band__label {
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
-  color: color-mix(in srgb, var(--text-secondary) 90%, transparent);
+  font-family: var(--font-label);
+  font-size: var(--step-0);
+  font-weight: 600;
+  text-transform: none;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
+  /* Warm. `--text-secondary` is moonlight — a cool slate blue in a frame where
+     every other pixel of type is lamplit cream, and the single hue choice that
+     made the right half of the board read as a dashboard. */
+  color: color-mix(in srgb, var(--paper-100) 82%, transparent);
+  /* Engraved: the lit lower lip of a stroke cut into the mount. */
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--ink-abyss) 70%, transparent);
 }
 
 .ded-band__chips {
@@ -2354,9 +3315,21 @@
   gap: var(--sp-1);
 }
 
+/**
+ * An empty slot looks like an empty slot.
+ *
+ * The em-dash placeholder in twenty-seven recesses read as twenty-seven pieces
+ * of missing content. What is left is an engraved index line across the floor
+ * of the pocket — the mark a card would be laid against — cut in rather than
+ * printed on, which the deboss above it already implies.
+ */
 .ded-band__empty {
-  font-family: var(--font-body);
-  color: var(--text-muted);
+  display: block;
+  width: 40%;
+  height: 1px;
+  margin: 0.45em 0;
+  background: color-mix(in srgb, var(--ink-abyss) 70%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--lamp-500) 18%, transparent);
 }
 
 .ded-chip {
@@ -2410,9 +3383,12 @@
   width: 1.3em;
   height: 1.3em;
   border-radius: 50%;
-  font-family: var(--font-ui);
+  /* Last grotesque on the board. The dismiss is a mark on a paper tag pinned to
+     cork, so it takes the same period face as everything else on the object. */
+  font-family: var(--font-label);
+  font-weight: 600;
   line-height: 1;
-  color: color-mix(in srgb, var(--paper-100) 80%, transparent);
+  color: color-mix(in srgb, var(--paper-100) 88%, transparent);
   background: color-mix(in srgb, var(--ink-abyss) 40%, transparent);
   transition:
     background var(--dur-fast) var(--ease-out),
@@ -2439,11 +3415,14 @@
   opacity: 0;
   pointer-events: none;
   border-radius: inherit;
-  font-family: var(--font-ui);
-  font-size: var(--step--2);
+  /* Same face as the slot it fills. The board is one object and it does not
+     change typeface because the player picked something up. */
+  font-family: var(--font-label);
+  font-size: var(--step-0);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-ui);
+  text-transform: none;
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-label);
   color: var(--lamp-100);
   background-image: linear-gradient(
     178deg,
@@ -2469,8 +3448,12 @@
   filter: brightness(1.22);
 }
 
+/* Hands full: every recess picks out a brass lip, so the slots read as
+   available without any of them claiming to be the one. */
 .ded.is-carrying .ded-band {
-  border-color: color-mix(in srgb, var(--lamp-400) 55%, transparent);
+  box-shadow:
+    inset 0 2px 4px -1px color-mix(in srgb, var(--ink-abyss) 88%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--lamp-500) 42%, transparent);
 }
 
 /* ===========================================================================
