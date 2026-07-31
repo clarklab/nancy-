@@ -1,0 +1,59 @@
+#  Netlify deployment for The Lamplight Cipher.
+#
+#  The build is a plain static bundle, but the caching needs care: 34MB of it is
+#  painted backgrounds, portraits and voice recordings under `public/`, and those
+#  are copied to the site root verbatim rather than being content-hashed by Vite.
+#  Left on Netlify's default they would be revalidated on every load, which on a
+#  slow connection is the difference between a game that opens and one that
+#  hangs on a black frame. They are addressed by stable path and only ever
+#  change when regenerated, so they are pinned below by directory.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Matches .github/workflows/ci.yml, so a green CI means a green deploy.
+  NODE_VERSION = "22"
+
+# Vite fingerprints everything it emits into /assets, so those are immutable.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Painted scenes, portraits, item art and UI materials. Not fingerprinted, but
+# regenerating one changes its bytes under the same name — a day of browser
+# cache with revalidation after is the right trade for 25MB of WebP.
+[[headers]]
+  for = "/art/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# Voice recordings. Same reasoning, and these are streamed by an <audio>
+# element, so a range request that has to re-download is especially costly.
+[[headers]]
+  for = "/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# The entry document must never be cached, or a deploy ships new hashed assets
+# that the stale HTML never references.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+
+# The game is one document with no client-side router; this only catches a
+# mistyped path and returns the title screen rather than Netlify's 404 page.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

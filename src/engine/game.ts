@@ -117,7 +117,10 @@ export class Game implements Presenter {
     this.puzzles = new PuzzleHost({ onSound: (n) => audio.playSound(n) });
     this.puzzles.mount(overlays);
 
-    this.cinematics = new CinematicPlayer();
+    this.cinematics = new CinematicPlayer({
+      onSound: (n) => audio.playSound(n),
+      onVoice: (lineId) => (voice.has(lineId) ? voice.play(lineId) : undefined),
+    });
     this.cinematics.mount(overlays);
 
     this.menus = new Menus(this.state);

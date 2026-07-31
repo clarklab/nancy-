@@ -1,6 +1,6 @@
 {
-  "count": 64,
-  "characters": 9478,
+  "count": 98,
+  "characters": 16372,
   "lines": [
     {
       "id": "greet-sabine-ferrier-kyne-a1",
@@ -385,6 +385,210 @@
       "speaker": "cormac-sallow",
       "kind": "lie-trap",
       "text": "“I have no knowledge of any requisition for oil being refused.” — His initials are on the front of R.741, thirteenth of August. He raised it himself. He was under anaesthetic when it came back stamped."
+    },
+    {
+      "id": "cine-cin-opening-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Rossport quay, ten past eight in the morning, Monday the twenty-sixth of October 1998. The ferry runs Mondays and Thursdays. There is no third option, and the coast road has been out since the storms of ’93."
+    },
+    {
+      "id": "cine-cin-opening-1",
+      "speaker": "cormac-sallow",
+      "kind": "cinematic",
+      "text": "‘I ask only that series 14/B be read by a stranger before it leaves this building.’ ‘I am seventy-nine. I have been on the wrong side of it a long while, and I would rather not be, at the end.’"
+    },
+    {
+      "id": "cine-cin-opening-2",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty minutes out and the swell is on the beam. Diesel, wet wool, salt, and the particular indignity of being frightened of water in front of a woman who works on it. Spray got into the satchel off the harbour mouth. Leaves two and three of my own commission have gone over hard, like a biscuit."
+    },
+    {
+      "id": "cine-cin-opening-3",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Brannock Head comes out of the rain the way a fact does: all at once, and larger than the account of it. Along the churchyard wall, thirty-one slate markers, all cut in the same month of 1975, and every one of them dated the third of November 1974."
+    },
+    {
+      "id": "cine-cin-opening-4",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Six hundred feet of shelving. A hundred and eighty-seven years of a coast. Nine days. Certify every series by the third of November, or the whole of it is deemed valueless and lawfully pulped on the fourth. That is not a threat. It is a filing deadline, and it is worse."
+    },
+    {
+      "id": "cine-cin-opening-5",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty-two Wardens up the great stair, three-quarter face against a dark ground, each one dated to the year. A dead man asked for a stranger. Everybody in this building has known since the third of October that one was coming, and exactly which morning she would arrive."
+    },
+    {
+      "id": "cine-cin-act-2-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty past one in the morning, a coat over a nightdress, and a fire that went out badly because the rain got at it through a flue with no damper. The courtyard is empty. Whoever raked this was standing here four minutes ago."
+    },
+    {
+      "id": "cine-cin-act-2-1",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Cold water in a tray. Eleven fragments floated off a sodden black brick, one at a time, and laid down on their own char pattern. Then blotters, glass, weight, and nothing at all for four hours, because the paper decides when."
+    },
+    {
+      "id": "cine-cin-act-2-2",
+      "speaker": "narrator",
+      "kind": "cinematic",
+      "text": "Mariners are advised that the light exhibited from the nine bells beacon may not be relied upon until further notice."
+    },
+    {
+      "id": "cine-cin-act-2-3",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Somebody wrote that warning. Somebody gave it a number, and ran off two hundred and fourteen copies of it. Twenty-four years later, in the rain, at twenty past one this morning, somebody in this building was still trying to burn it."
+    },
+    {
+      "id": "cine-cin-act-3-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Eighteen twenty. The door goes to on its own weight and the movements start running backwards. Three of them, wound by hand this morning, and not one of them can be argued with until seven."
+    },
+    {
+      "id": "cine-cin-act-3-1",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty-three forty. The sump backs up in the rain and the water comes under the door at ankle depth, in the dark. The bottom shelf is 1974."
+    },
+    {
+      "id": "cine-cin-act-3-2",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty-four boxes, a failing torch, and one question worth the time: which of these exists anywhere else. Standing Order 12, painted on the wall in 1946. IN FLOOD, SAVE BY SERIES, NOT BY SIZE."
+    },
+    {
+      "id": "cine-cin-act-3-3",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Forty feet of galvanised ventilation trunk runs from this room up to the Wardens’ Hall landing, and at one in the morning it carries two women tearing each other apart."
+    },
+    {
+      "id": "cine-cin-act-3-5",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Write down what you are sure of. Mark the rest not certain, in the dark, in four inches of water, with a pencil. That is the entire job, and in nine days’ time a man paid to ask how you know is going to make you glad you did it."
+    },
+    {
+      "id": "cine-cin-act-4-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Three books that have never once been on the same table, because they were kept in three rooms by three people who each did their job correctly."
+    },
+    {
+      "id": "cine-cin-act-4-1",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Dues collected every week. Wages paid every week. Oil drawn on Saturday the twenty-fourth of August 1974, and never again."
+    },
+    {
+      "id": "cine-cin-act-4-2",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Seventy-one days. Ten complete dues weeks. One thousand one hundred and eighty-two vessels. Four thousand one hundred and eighty pounds four shillings, collected for a light that was not burning."
+    },
+    {
+      "id": "cine-cin-act-4-4",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "R.741. R.748. R.755. REQUISITION NOT SANCTIONED — REFER WINTER REFIT. Over initials I cannot read, and two millimetres of pencil that say p.p."
+    },
+    {
+      "id": "cine-cin-act-5-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "The sea gets up past the point where the Ardent can lie off the landing. Rita runs for Cardew with the keeper’s log in a dry bag and does not look back, because looking back would cost her the boat and the log with it."
+    },
+    {
+      "id": "cine-cin-act-5-1",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Cold paraffin that has not moved in twenty-four years. It smells like a cupboard in somebody’s grandmother’s house. On the back of the last page of the log, in pencil: tea, boot polish, a birthday card for Nan."
+    },
+    {
+      "id": "cine-cin-act-5-2",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "A fifty-eight-year-old Warden, a nineteen-year-old apprentice, a paraffin stove and eleven hours, on a rock nine miles offshore in a force ten."
+    },
+    {
+      "id": "cine-cin-act-5-3",
+      "speaker": "sabine-ferrier-kyne",
+      "kind": "cinematic",
+      "text": "‘Ask me. You have all of it now, or near enough.’ ‘Ask me and I will tell you the truth, and then in the morning you will have to decide what to do with it. I promise you that is the harder half.’"
+    },
+    {
+      "id": "cine-cin-act-5-4",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Numbered points, then, because that is what I do when I am frightened. One: nothing she says tonight can be used. Two: write it all down anyway."
+    },
+    {
+      "id": "cine-cin-ending-solved-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Fourteen hundred hours, the third of November: hard, blue, cold, and the only wholly sunlit room in this building in nine days. Eight links, read out in order, and every assertion tied to a document on the table in front of her."
+    },
+    {
+      "id": "cine-cin-ending-solved-2",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Sabine Ferrier-Kyne takes her own minutes to the last line, caps the pencil, and puts it behind her ear. She is arrested on the Board Room steps, in the sun, and she does not ask anybody to wait."
+    },
+    {
+      "id": "cine-cin-ending-solved-3",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Notice to Mariners 74/119, retyped from a scorched carbon and franked with one fourpenny impression struck from the old die. Two hundred and fourteen addressees. Number one, as statutory precedence requires, is the Keeper, Nine Bells Beacon."
+    },
+    {
+      "id": "cine-cin-ending-solved-4",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty-three oh four. Three flashes, twenty seconds, for the first time since Saturday the twenty-fourth of August 1974. From the Board Room window, from the quay at Rossport, from Cardew, from here. Nobody on this coast needs it explained to them."
+    },
+    {
+      "id": "cine-cin-ending-solved-5",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "On the slipway, Rita Tain sits down on the wet concrete, and after a while she asks whether there is anything else. It is not in any file, no Board needs it, and nothing in the world will score it either way."
+    },
+    {
+      "id": "cine-cin-ending-wrong-0",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Fourteen hundred hours, and the light through the south sashes is the only thing in this room with nothing to prove. The links are read out. Some of them have nothing in the right-hand column."
+    },
+    {
+      "id": "cine-cin-ending-wrong-2",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "The finding is misadventure. The Rossport report of 1975 stands, with its statutory presumption of correctness intact. Emrys Tain is not cleared. The officer who signed for ninety-nine days in 1974 is not named, because no record of this Authority has ever named her, which was always the point."
+    },
+    {
+      "id": "cine-cin-ending-wrong-3",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "The archive is certified all the same, every series, in nine days, by a nineteen-year-old with a spatula. It goes onto a lorry that is not a pulper. The record outlives everybody, and that is not nothing — it is only not enough."
+    },
+    {
+      "id": "cine-cin-ending-wrong-4",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Twenty-three oh four. Three flashes, twenty seconds. It happens anyway. It was never evidence, and it was never going to be. It is just true."
+    },
+    {
+      "id": "cine-cin-ending-wrong-5",
+      "speaker": "wren",
+      "kind": "cinematic",
+      "text": "Thirty-one slates along the wall, all cut in the same month of 1975. The paper that would have answered for them was in the building the whole time. She held most of it in her hands. She could not cite it."
     }
   ]
 }

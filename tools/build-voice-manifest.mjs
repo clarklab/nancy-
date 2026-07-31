@@ -16,11 +16,59 @@
  * incidental barks. Widen the selection by raising `INCLUDE`.
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
+import { transform } from 'esbuild';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const D = (f) => path.join(ROOT, 'docs', 'design', f);
+
+/**
+ * Who says an unattributed cinematic line, and who says an attributed one.
+ *
+ * The cutscene prose is written in Wren's register — she is the camera — so a
+ * beat with no `speaker` is *her*, not a detached narrator. A beat that names a
+ * speaker is a document being read or a person on the record, and those are
+ * cast individually.
+ *
+ * Two beats are deliberately left silent. `Through the ventilation trunk` is
+ * two women arguing forty feet away through galvanised steel, and the Pargeter
+ * exchange is a question and Wren's answer inside one beat. Both carry two
+ * voices, and the player gets one audio file per beat — a single reader would
+ * flatten an argument into a monologue, which is worse than text alone.
+ */
+const CINEMATIC_VOICE = {
+  __unattributed: 'wren',
+  'Cormac Sallow, 11 September 1998': 'cormac-sallow',
+  'Notice to Mariners 74/119 — 15 August 1974': 'narrator',
+  'Sabine Ferrier-Kyne': 'sabine-ferrier-kyne',
+  'Through the ventilation trunk': null,
+  'Mr Pargeter, for the Ministry': null,
+};
+
+/**
+ * Loads the authored cutscenes.
+ *
+ * They live in `src/game/cinematics.ts` rather than a design JSON, so this
+ * strips the types and imports the real module — the manifest can never drift
+ * from what actually plays. `cinematics.ts` imports nothing but types, so a
+ * transform is enough and no bundling or alias resolution is needed.
+ */
+async function loadCinematics() {
+  const src = path.join(ROOT, 'src', 'game', 'cinematics.ts');
+  const tmpDir = path.join(ROOT, 'tools', '.artcache');
+  const tmp = path.join(tmpDir, 'cinematics.gen.mjs');
+  const ts = await readFile(src, 'utf8');
+  const { code } = await transform(ts, { loader: 'ts', format: 'esm' });
+  await mkdir(tmpDir, { recursive: true });
+  await writeFile(tmp, code);
+  try {
+    const mod = await import(`${tmp}?v=${Date.now()}`);
+    return mod.cinematics ?? {};
+  } finally {
+    await rm(tmp, { force: true });
+  }
+}
 
 const INCLUDE = {
   greetings: true,
@@ -58,7 +106,22 @@ function clean(text) {
     .replace(/\s+/g, ' ')
     .trim();
   // Left with punctuation only after stripping — also not a line.
-  return /[A-Za-z]/.test(spoken) ? spoken : '';
+  if (!/[A-Za-z]/.test(spoken)) return '';
+  return deshout(spoken);
+}
+
+/**
+ * Sentence-cases a line that is set entirely in capitals.
+ *
+ * The Notice to Mariners is displayed in caps because that is how the printed
+ * notice looked. Handed to a TTS engine unchanged, a long all-caps string gets
+ * read as either shouting or an initialism. Only the audio is folded; the
+ * on-screen text is untouched.
+ */
+function deshout(s) {
+  const letters = s.replace(/[^A-Za-z]/g, '');
+  if (letters.length < 12 || letters !== letters.toUpperCase()) return s;
+  return s.charAt(0) + s.slice(1).toLowerCase();
 }
 
 async function main() {
@@ -67,7 +130,7 @@ async function main() {
 
   const lines = [];
   const seen = new Set();
-  const skipped = { noVoice: new Set(), tooLong: 0 };
+  const skipped = { noVoice: new Set(), tooLong: 0, twoVoiced: 0, uncastSpeaker: new Set() };
 
   const add = (id, speaker, text, kind) => {
     if (!cast.cast[speaker]) {
@@ -100,17 +163,28 @@ async function main() {
   }
 
   if (INCLUDE.cinematics) {
-    // Cinematics are authored in code, so read them if they exist yet.
-    const cinPath = path.join(ROOT, 'docs', 'design', 'cinematics.json');
-    try {
-      const cin = JSON.parse(await readFile(cinPath, 'utf8'));
-      for (const c of cin.cinematics ?? []) {
-        c.beats.forEach((b, i) => {
-          if (b.text) add(`cine-${slug(c.id)}-${i}`, b.speaker ?? 'narrator', b.text, 'cinematic');
-        });
-      }
-    } catch {
-      // Not authored yet — the manifest can be rebuilt once it is.
+    const cinematics = await loadCinematics();
+    for (const c of Object.values(cinematics)) {
+      // Every cutscene is registered twice — once as `cin-opening`, once as the
+      // bare `opening` the design docs use — and both keys share one beats
+      // array. Voicing both would pay twice for identical audio, so only the
+      // canonical id is rendered; the player normalises an alias onto it.
+      if (!String(c.id).startsWith('cin-')) continue;
+      c.beats.forEach((b, i) => {
+        if (!b.text) return;
+        const speaker = b.speaker
+          ? CINEMATIC_VOICE[b.speaker]
+          : CINEMATIC_VOICE.__unattributed;
+        if (speaker === null) {
+          skipped.twoVoiced++;
+          return;
+        }
+        if (speaker === undefined) {
+          skipped.uncastSpeaker.add(b.speaker);
+          return;
+        }
+        add(`cine-${slug(c.id)}-${i}`, speaker, b.text, 'cinematic');
+      });
     }
   }
 
@@ -128,6 +202,11 @@ async function main() {
   console.log('  by speaker:', JSON.stringify(bySpeaker));
   if (skipped.noVoice.size) console.log('  no cast entry:', [...skipped.noVoice].join(', '));
   if (skipped.tooLong) console.log(`  skipped ${skipped.tooLong} lines over ${MAX_CHARS} chars`);
+  if (skipped.twoVoiced) console.log(`  left silent (two voices in one beat): ${skipped.twoVoiced}`);
+  if (skipped.uncastSpeaker.size) {
+    console.log('  UNCAST cinematic speaker:', [...skipped.uncastSpeaker].join(' | '));
+    console.log('  -> add it to CINEMATIC_VOICE in this file, or map it to null to leave it silent.');
+  }
 }
 
 main().catch((e) => {

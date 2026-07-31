@@ -1,91 +1,107 @@
 {
-  "greet-bram-aylward-a1": {
-    "speaker": "bram-aylward",
-    "bytes": 91159
+  "greet-sabine-ferrier-kyne-a1": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 92413
   },
-  "greet-bram-aylward-a2": {
-    "speaker": "bram-aylward",
-    "bytes": 72559
+  "greet-sabine-ferrier-kyne-a2": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 93875
   },
-  "greet-bram-aylward-a3": {
-    "speaker": "bram-aylward",
-    "bytes": 68589
+  "line-sab-a2-02": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 130238
   },
-  "greet-bram-aylward-a4": {
-    "speaker": "bram-aylward",
-    "bytes": 63991
+  "greet-sabine-ferrier-kyne-a3": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 84053
   },
-  "greet-bram-aylward-a5": {
-    "speaker": "bram-aylward",
-    "bytes": 57304
+  "line-sab-a3-04": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 98682
   },
-  "greet-enid-charnock-a1": {
-    "speaker": "enid-charnock",
-    "bytes": 83008
-  },
-  "greet-enid-charnock-a2": {
-    "speaker": "enid-charnock",
-    "bytes": 100145
-  },
-  "greet-enid-charnock-a3": {
-    "speaker": "enid-charnock",
-    "bytes": 55841
-  },
-  "greet-enid-charnock-a4": {
-    "speaker": "enid-charnock",
+  "greet-sabine-ferrier-kyne-a4": {
+    "speaker": "sabine-ferrier-kyne",
     "bytes": 90741
   },
-  "greet-enid-charnock-a5": {
-    "speaker": "enid-charnock",
-    "bytes": 79665
+  "line-sab-a4-03": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 126894
+  },
+  "line-sab-a4-05": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 101608
+  },
+  "greet-sabine-ferrier-kyne-a5": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 93039
+  },
+  "line-sab-a5-04": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 100145
   },
   "greet-halvard-pike-a1": {
     "speaker": "halvard-pike",
-    "bytes": 60648
+    "bytes": 52497
   },
   "greet-halvard-pike-a2": {
     "speaker": "halvard-pike",
-    "bytes": 40377
+    "bytes": 38914
   },
   "greet-halvard-pike-a3": {
     "speaker": "halvard-pike",
-    "bytes": 73395
+    "bytes": 80710
+  },
+  "line-pik-a3-01": {
+    "speaker": "halvard-pike",
+    "bytes": 84053
+  },
+  "line-pik-a3-02": {
+    "speaker": "halvard-pike",
+    "bytes": 105369
+  },
+  "line-pik-a3-04": {
+    "speaker": "halvard-pike",
+    "bytes": 101190
   },
   "greet-halvard-pike-a4": {
     "speaker": "halvard-pike",
-    "bytes": 39123
+    "bytes": 39541
+  },
+  "line-pik-a4-01": {
+    "speaker": "halvard-pike",
+    "bytes": 86352
   },
   "greet-halvard-pike-a5": {
     "speaker": "halvard-pike",
-    "bytes": 20524
+    "bytes": 20941
   },
-  "greet-ivo-sandbach-a2": {
-    "speaker": "ivo-sandbach",
-    "bytes": 70470
+  "greet-rita-tain-a2": {
+    "speaker": "rita-tain",
+    "bytes": 58558
   },
-  "greet-ivo-sandbach-a3": {
-    "speaker": "ivo-sandbach",
-    "bytes": 73395
+  "greet-rita-tain-a3": {
+    "speaker": "rita-tain",
+    "bytes": 52497
   },
-  "greet-ivo-sandbach-a4": {
-    "speaker": "ivo-sandbach",
-    "bytes": 53333
+  "line-rit-a3-01": {
+    "speaker": "rita-tain",
+    "bytes": 99100
   },
-  "greet-ivo-sandbach-a5": {
-    "speaker": "ivo-sandbach",
-    "bytes": 53333
+  "line-rit-a3-05": {
+    "speaker": "rita-tain",
+    "bytes": 89069
   },
-  "greet-marren-iveson-a3": {
-    "speaker": "marren-iveson",
-    "bytes": 105369
+  "greet-rita-tain-a4": {
+    "speaker": "rita-tain",
+    "bytes": 64827
   },
-  "greet-marren-iveson-a4": {
-    "speaker": "marren-iveson",
-    "bytes": 56259
+  "greet-rita-tain-a5": {
+    "speaker": "rita-tain",
+    "bytes": 39541
   },
-  "greet-marren-iveson-a5": {
-    "speaker": "marren-iveson",
-    "bytes": 42466
+  "line-rit-a5-02": {
+    "speaker": "rita-tain",
+    "bytes": 93039
   },
   "greet-ottoline-verge-a1": {
     "speaker": "ottoline-verge",
@@ -93,23 +109,123 @@
   },
   "greet-ottoline-verge-a2": {
     "speaker": "ottoline-verge",
-    "bytes": 115818
+    "bytes": 117281
+  },
+  "line-ott-a2-01": {
+    "speaker": "ottoline-verge",
+    "bytes": 155524
   },
   "greet-ottoline-verge-a3": {
     "speaker": "ottoline-verge",
-    "bytes": 69634
+    "bytes": 71097
+  },
+  "line-ott-a3-01": {
+    "speaker": "ottoline-verge",
+    "bytes": 137552
   },
   "greet-ottoline-verge-a4": {
     "speaker": "ottoline-verge",
-    "bytes": 110803
+    "bytes": 111221
   },
   "greet-ottoline-verge-a5": {
     "speaker": "ottoline-verge",
-    "bytes": 89278
+    "bytes": 89069
+  },
+  "greet-enid-charnock-a1": {
+    "speaker": "enid-charnock",
+    "bytes": 83426
+  },
+  "greet-enid-charnock-a2": {
+    "speaker": "enid-charnock",
+    "bytes": 105369
+  },
+  "line-eni-a2-02": {
+    "speaker": "enid-charnock",
+    "bytes": 104951
+  },
+  "greet-enid-charnock-a3": {
+    "speaker": "enid-charnock",
+    "bytes": 52915
+  },
+  "line-eni-a3-02": {
+    "speaker": "enid-charnock",
+    "bytes": 108295
+  },
+  "greet-enid-charnock-a4": {
+    "speaker": "enid-charnock",
+    "bytes": 92413
+  },
+  "greet-enid-charnock-a5": {
+    "speaker": "enid-charnock",
+    "bytes": 81128
+  },
+  "greet-ivo-sandbach-a2": {
+    "speaker": "ivo-sandbach",
+    "bytes": 76739
+  },
+  "greet-ivo-sandbach-a3": {
+    "speaker": "ivo-sandbach",
+    "bytes": 76321
+  },
+  "line-san-a3-01": {
+    "speaker": "ivo-sandbach",
+    "bytes": 92413
+  },
+  "greet-ivo-sandbach-a4": {
+    "speaker": "ivo-sandbach",
+    "bytes": 48109
+  },
+  "greet-ivo-sandbach-a5": {
+    "speaker": "ivo-sandbach",
+    "bytes": 52288
+  },
+  "greet-bram-aylward-a1": {
+    "speaker": "bram-aylward",
+    "bytes": 88651
+  },
+  "line-bra-a1-02": {
+    "speaker": "bram-aylward",
+    "bytes": 93457
+  },
+  "greet-bram-aylward-a2": {
+    "speaker": "bram-aylward",
+    "bytes": 70470
+  },
+  "greet-bram-aylward-a3": {
+    "speaker": "bram-aylward",
+    "bytes": 70470
+  },
+  "line-bra-a3-01": {
+    "speaker": "bram-aylward",
+    "bytes": 109340
+  },
+  "greet-bram-aylward-a4": {
+    "speaker": "bram-aylward",
+    "bytes": 66290
+  },
+  "greet-bram-aylward-a5": {
+    "speaker": "bram-aylward",
+    "bytes": 60439
+  },
+  "greet-marren-iveson-a3": {
+    "speaker": "marren-iveson",
+    "bytes": 98682
+  },
+  "line-ive-a3-02": {
+    "speaker": "marren-iveson",
+    "bytes": 110594
+  },
+  "greet-marren-iveson-a4": {
+    "speaker": "marren-iveson",
+    "bytes": 57095
+  },
+  "greet-marren-iveson-a5": {
+    "speaker": "marren-iveson",
+    "bytes": 41839
   },
   "greet-phyllida-halkett-a1": {
     "speaker": "phyllida-halkett",
-    "bytes": 102026
+    "bytes": 85725
   },
   "greet-phyllida-halkett-a2": {
     "speaker": "phyllida-halkett",
@@ -117,142 +233,162 @@
   },
   "greet-phyllida-halkett-a3": {
     "speaker": "phyllida-halkett",
-    "bytes": 62528
+    "bytes": 63991
   },
   "greet-phyllida-halkett-a4": {
     "speaker": "phyllida-halkett",
-    "bytes": 67753
-  },
-  "greet-phyllida-halkett-a5": {
-    "speaker": "phyllida-halkett",
-    "bytes": 80083
-  },
-  "greet-rita-tain-a2": {
-    "speaker": "rita-tain",
-    "bytes": 56677
-  },
-  "greet-rita-tain-a3": {
-    "speaker": "rita-tain",
-    "bytes": 43302
-  },
-  "greet-rita-tain-a4": {
-    "speaker": "rita-tain",
-    "bytes": 57095
-  },
-  "greet-rita-tain-a5": {
-    "speaker": "rita-tain",
-    "bytes": 39123
-  },
-  "greet-sabine-ferrier-kyne-a1": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 90741
-  },
-  "greet-sabine-ferrier-kyne-a2": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 84889
-  },
-  "greet-sabine-ferrier-kyne-a3": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 80710
-  },
-  "greet-sabine-ferrier-kyne-a4": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 87188
-  },
-  "greet-sabine-ferrier-kyne-a5": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 91995
-  },
-  "line-bra-a1-02": {
-    "speaker": "bram-aylward",
-    "bytes": 93039
-  },
-  "line-bra-a3-01": {
-    "speaker": "bram-aylward",
-    "bytes": 110803
-  },
-  "line-eni-a2-02": {
-    "speaker": "enid-charnock",
-    "bytes": 91577
-  },
-  "line-eni-a3-02": {
-    "speaker": "enid-charnock",
-    "bytes": 110176
+    "bytes": 62528
   },
   "line-hal-a4-02": {
     "speaker": "phyllida-halkett",
-    "bytes": 104951
+    "bytes": 103070
   },
-  "line-ive-a3-02": {
-    "speaker": "marren-iveson",
-    "bytes": 106414
-  },
-  "line-ott-a2-01": {
-    "speaker": "ottoline-verge",
-    "bytes": 178930
-  },
-  "line-ott-a3-01": {
-    "speaker": "ottoline-verge",
-    "bytes": 150927
-  },
-  "line-pik-a3-01": {
-    "speaker": "halvard-pike",
-    "bytes": 89069
-  },
-  "line-pik-a3-02": {
-    "speaker": "halvard-pike",
-    "bytes": 96801
-  },
-  "line-pik-a3-04": {
-    "speaker": "halvard-pike",
-    "bytes": 109758
-  },
-  "line-pik-a4-01": {
-    "speaker": "halvard-pike",
-    "bytes": 85934
-  },
-  "line-rit-a3-01": {
-    "speaker": "rita-tain",
-    "bytes": 90741
-  },
-  "line-rit-a3-05": {
-    "speaker": "rita-tain",
-    "bytes": 90532
-  },
-  "line-rit-a5-02": {
-    "speaker": "rita-tain",
-    "bytes": 86352
-  },
-  "line-sab-a2-02": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 134208
-  },
-  "line-sab-a3-04": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 103488
-  },
-  "line-sab-a4-03": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 126476
-  },
-  "line-sab-a4-05": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 109131
-  },
-  "line-sab-a5-04": {
-    "speaker": "sabine-ferrier-kyne",
-    "bytes": 97846
+  "greet-phyllida-halkett-a5": {
+    "speaker": "phyllida-halkett",
+    "bytes": 82381
   },
   "line-sal-a2-01": {
     "speaker": "cormac-sallow",
-    "bytes": 112684
+    "bytes": 105996
   },
   "line-sal-a3-02": {
     "speaker": "cormac-sallow",
-    "bytes": 118326
+    "bytes": 115818
   },
-  "line-san-a3-01": {
-    "speaker": "ivo-sandbach",
+  "cine-cin-opening-0": {
+    "speaker": "wren",
+    "bytes": 118744
+  },
+  "cine-cin-opening-1": {
+    "speaker": "cormac-sallow",
+    "bytes": 95756
+  },
+  "cine-cin-opening-2": {
+    "speaker": "wren",
+    "bytes": 174124
+  },
+  "cine-cin-opening-3": {
+    "speaker": "wren",
+    "bytes": 146956
+  },
+  "cine-cin-opening-4": {
+    "speaker": "wren",
+    "bytes": 156151
+  },
+  "cine-cin-opening-5": {
+    "speaker": "wren",
+    "bytes": 152599
+  },
+  "cine-cin-act-2-0": {
+    "speaker": "wren",
+    "bytes": 110176
+  },
+  "cine-cin-act-2-1": {
+    "speaker": "wren",
+    "bytes": 117908
+  },
+  "cine-cin-act-2-2": {
+    "speaker": "narrator",
+    "bytes": 57722
+  },
+  "cine-cin-act-2-3": {
+    "speaker": "wren",
+    "bytes": 113519
+  },
+  "cine-cin-act-3-0": {
+    "speaker": "wren",
+    "bytes": 91995
+  },
+  "cine-cin-act-3-1": {
+    "speaker": "wren",
+    "bytes": 87188
+  },
+  "cine-cin-act-3-2": {
+    "speaker": "wren",
+    "bytes": 137970
+  },
+  "cine-cin-act-3-3": {
+    "speaker": "wren",
+    "bytes": 84053
+  },
+  "cine-cin-act-3-5": {
+    "speaker": "wren",
     "bytes": 112684
+  },
+  "cine-cin-act-4-0": {
+    "speaker": "wren",
+    "bytes": 71097
+  },
+  "cine-cin-act-4-1": {
+    "speaker": "wren",
+    "bytes": 69216
+  },
+  "cine-cin-act-4-2": {
+    "speaker": "wren",
+    "bytes": 114982
+  },
+  "cine-cin-act-4-4": {
+    "speaker": "wren",
+    "bytes": 116863
+  },
+  "cine-cin-act-5-0": {
+    "speaker": "wren",
+    "bytes": 107250
+  },
+  "cine-cin-act-5-1": {
+    "speaker": "wren",
+    "bytes": 117281
+  },
+  "cine-cin-act-5-2": {
+    "speaker": "wren",
+    "bytes": 78202
+  },
+  "cine-cin-act-5-3": {
+    "speaker": "sabine-ferrier-kyne",
+    "bytes": 123550
+  },
+  "cine-cin-act-5-4": {
+    "speaker": "wren",
+    "bytes": 78202
+  },
+  "cine-cin-ending-solved-0": {
+    "speaker": "wren",
+    "bytes": 122715
+  },
+  "cine-cin-ending-solved-2": {
+    "speaker": "wren",
+    "bytes": 110803
+  },
+  "cine-cin-ending-solved-3": {
+    "speaker": "wren",
+    "bytes": 142777
+  },
+  "cine-cin-ending-solved-4": {
+    "speaker": "wren",
+    "bytes": 140687
+  },
+  "cine-cin-ending-solved-5": {
+    "speaker": "wren",
+    "bytes": 109340
+  },
+  "cine-cin-ending-wrong-0": {
+    "speaker": "wren",
+    "bytes": 87188
+  },
+  "cine-cin-ending-wrong-2": {
+    "speaker": "wren",
+    "bytes": 184364
+  },
+  "cine-cin-ending-wrong-3": {
+    "speaker": "wren",
+    "bytes": 126894
+  },
+  "cine-cin-ending-wrong-4": {
+    "speaker": "wren",
+    "bytes": 74858
+  },
+  "cine-cin-ending-wrong-5": {
+    "speaker": "wren",
+    "bytes": 109758
   }
 }

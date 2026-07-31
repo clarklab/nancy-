@@ -41,6 +41,31 @@ export interface CinematicCallbacks {
   onSound?(name: string): void;
   /** Music bed for the whole cinematic, from `c.music`. */
   onMusic?(name: string): void;
+  /**
+   * Plays the recorded read of a beat, if one exists. Returning nothing means
+   * this beat is unvoiced — several deliberately are — and the beat then holds
+   * for its reading time alone.
+   */
+  onVoice?(lineId: string): { done: Promise<void>; stop(): void } | undefined;
+}
+
+/**
+ * The recorded-line id for a beat.
+ *
+ * Mirrors the id built in `tools/build-voice-manifest.mjs`; the two must agree
+ * or a rendered line will never be found for its beat. Every cutscene is also
+ * registered under a bare alias (`opening` beside `cin-opening`) sharing one
+ * beats array, and only the canonical id is rendered — so an alias is folded
+ * back onto it here rather than paying for a second copy of identical audio.
+ */
+function voiceLineId(cinematicId: string, beatIndex: number): string {
+  const canonical = cinematicId.startsWith('cin-') ? cinematicId : `cin-${cinematicId}`;
+  const slug = canonical
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60);
+  return `cine-${slug}-${beatIndex}`;
 }
 
 /**
@@ -196,7 +221,12 @@ export class CinematicPlayer {
     for (let i = 0; i < beats.length && !this.abandoned; i++) {
       // The opening still is already up; re-painting it would dissolve the
       // image into an identical copy of itself and restart its move.
-      await this.showBeat(beats[i], beats[i + 1], i === 0 && Boolean(first?.image));
+      await this.showBeat(
+        beats[i],
+        beats[i + 1],
+        i === 0 && Boolean(first?.image),
+        voiceLineId(c.id, i),
+      );
     }
 
     await this.closeBars();
@@ -229,6 +259,7 @@ export class CinematicPlayer {
     beat: CinematicBeat,
     next: CinematicBeat | undefined,
     alreadyPainted = false,
+    lineId?: string,
   ) {
     const hold = beatDuration(beat);
 
@@ -241,7 +272,15 @@ export class CinematicPlayer {
 
     if (beat.sound) this.cb.onSound?.(beat.sound);
 
-    await this.holdBeat(hold);
+    // The read starts with the text, not after it, so the voice and the line
+    // rising on screen are the same event.
+    const vo = lineId && beat.text ? this.cb.onVoice?.(lineId) : undefined;
+
+    try {
+      await this.holdBeat(hold, vo);
+    } finally {
+      vo?.stop();
+    }
   }
 
   /** Cross-dissolves the back frame to the front, carrying its Ken Burns move. */
@@ -288,17 +327,39 @@ export class CinematicPlayer {
     this.liveEl.textContent = [beat.speaker, ...text].filter(Boolean).join(': ');
   }
 
-  /** Waits out a beat, unless the player steps it on or abandons the scene. */
-  private holdBeat(ms: number): Promise<void> {
+  /**
+   * Waits out a beat, unless the player steps it on or abandons the scene.
+   *
+   * Left alone, a voiced beat ends when *both* the reading time and the spoken
+   * line are finished. The reading time is derived from character count, which
+   * has no idea how long an actor takes over a sentence, so holding on the
+   * longer of the two is the only way a performance never gets cut off
+   * mid-word. Stepping the beat on is still immediate and still kills the line.
+   */
+  private holdBeat(ms: number, vo?: { done: Promise<void> }): Promise<void> {
     return new Promise<void>((resolve) => {
+      let elapsed = false;
+      let spoken = !vo;
+
       const done = () => {
         if (!this.advanceBeat) return;
         this.advanceBeat = null;
         this.clearTimer(timer);
         resolve();
       };
+      const whenBoth = () => {
+        if (elapsed && spoken) done();
+      };
+
       this.advanceBeat = done;
-      const timer = this.after(ms, done);
+      const timer = this.after(ms, () => {
+        elapsed = true;
+        whenBoth();
+      });
+      void vo?.done.then(() => {
+        spoken = true;
+        whenBoth();
+      });
     });
   }
 

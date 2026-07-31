@@ -1,5 +1,6 @@
 {
   "_comment": "Voice casting for The Lamplight Cipher. Every voice is a British-accented ElevenLabs voice chosen against the character's description in story-bible.json — the setting is a 1998 coastal English pilotage authority, so an American read would break the world instantly. 'why' records the casting reasoning so a future recast can be judged against intent rather than taste.",
+  "_beforeYouGenerate": "A voice from the ElevenLabs shared library must be ADDED TO THE ACCOUNT'S OWN LIBRARY before it can be synthesised by id. Until it is, POST /v1/text-to-speech/{id} returns 404 voice_not_found — which reads like a permissions or tier problem and is not one. This silently cost the whole cast its two most important voices once: wren and narrator were cast but never added, so every line for the protagonist and the cutscene narration failed while the other ten rendered fine. Verify the whole cast resolves before a run: for each voiceId, GET /v1/voices/{id}; a 404 means add it with POST /v1/voices/add/{public_owner_id}/{voiceId}, taking public_owner_id from GET /v1/shared-voices?search={name}.",
   "model": "eleven_multilingual_v2",
   "outputFormat": "mp3_44100_64",
   "defaultSettings": {

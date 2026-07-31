@@ -82,6 +82,54 @@ async function synthesize(text, voiceId, settings, model, format, attempt = 1) {
   }
 }
 
+/**
+ * Checks every cast voice resolves before a single character is spent.
+ *
+ * A shared-library voice has to be added to the account's own library before it
+ * can be synthesised by id; until it is, every request for it 404s. Per-line
+ * that looks like a transient failure and the run limps on rendering the rest of
+ * the cast, which is exactly how this game shipped its first pass with no voice
+ * for the protagonist and none for the cutscene narration while the other ten
+ * characters sounded fine. One request per voice up front turns that into one
+ * legible error.
+ */
+async function preflight(cast, speakers) {
+  const needed = [...new Set(speakers)].filter((s) => cast.cast[s]);
+  const missing = [];
+  await pool(needed, 4, async (speaker) => {
+    const { voiceId, voiceName } = cast.cast[speaker];
+    const res = await fetch(`https://api.elevenlabs.io/v1/voices/${voiceId}`, {
+      headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY },
+    });
+    if (res.status === 404) missing.push({ speaker, voiceId, voiceName });
+    else if (!res.ok) {
+      console.warn(`  could not verify ${speaker} (HTTP ${res.status}) — continuing`);
+    }
+  });
+
+  if (!missing.length) {
+    console.log(`preflight: ${needed.length}/${needed.length} cast voices resolve`);
+    return;
+  }
+
+  console.error(`\n${missing.length} cast voice(s) are not in this account's library:\n`);
+  for (const m of missing) {
+    console.error(`  ${m.speaker} — ${m.voiceName} (${m.voiceId})`);
+  }
+  console.error(`
+This is not a tier or permissions problem. A shared-library voice must be added
+to the account before it can be synthesised by id. For each one:
+
+  curl -s -H "xi-api-key: $ELEVENLABS_API_KEY" \\
+    "https://api.elevenlabs.io/v1/shared-voices?search=<voice name>"     # -> public_owner_id
+
+  curl -X POST -H "xi-api-key: $ELEVENLABS_API_KEY" \\
+    "https://api.elevenlabs.io/v1/voices/add/<public_owner_id>/<voiceId>"
+
+Nothing was rendered and no characters were spent.`);
+  process.exit(1);
+}
+
 /** Fixed-size worker pool; the API is the bottleneck. */
 async function pool(items, limit, worker) {
   let cursor = 0;
@@ -109,6 +157,8 @@ async function main() {
   let lines = manifest.lines;
   if (SPEAKER) lines = lines.filter((l) => l.speaker === SPEAKER);
   if (ONLY) lines = lines.filter((l) => ONLY.includes(l.id));
+
+  await preflight(cast, lines.map((l) => l.speaker));
 
   const cache = await loadCache();
   await mkdir(OUT_DIR, { recursive: true });

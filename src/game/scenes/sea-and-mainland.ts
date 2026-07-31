@@ -44,7 +44,11 @@ export const seaAndMainlandScenes: Record<SceneId, Scene> = {
     name: 'The Ardent',
     subtitle: 'Pilot cutter, Ivory Sound',
     background: './art/scenes/the-ardent.webp',
-    weather: 'rain',
+    // No particle layer: this is the only weather scene that is an interior, and
+    // the layer covers the whole frame, so rain fell through the cabin as well
+    // as past the window. The painted spray on the glass and the `sea-swell`
+    // bed already carry the storm.
+    weather: 'none',
     ambience: 'sea-swell',
     grade: 'saturate(0.88) contrast(1.04)',
     layers: [
